@@ -5,9 +5,11 @@
 wrangler.jsonc
 wrangler.toml
 worker.js
+_seo_inject.py
 package.json
 package-lock.json
 src/
 README.md
 *.md
 node_modules/
+index.html

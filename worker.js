@@ -112,6 +112,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // 301 redirect: root / and /index.html → /locahun3d_manifesto.html
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
+    }
+
     if (url.pathname === "/api/contact") {
       if (request.method === "OPTIONS") {
         return new Response(null, { status: 204 });
