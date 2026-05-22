@@ -4,6 +4,10 @@
 .assetsignore
 wrangler.jsonc
 wrangler.toml
+worker.js
+package.json
+package-lock.json
+src/
 README.md
 *.md
 node_modules/
