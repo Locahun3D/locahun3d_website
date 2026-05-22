@@ -370,7 +370,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <aside class="info fade">
       <div class="block">
         <span class="lbl">Direct</span>
-        <span class="v mono">contact@locahun3d.jp</span>
+        <span class="v mono">contact@locahun3d.com</span>
         <p>フォームに入力しづらい場合は、こちらまで直接ご連絡ください。</p>
       </div>
       <div class="block">
@@ -470,7 +470,7 @@ document.getElementById('contact-form').addEventListener('submit', e=>{
     '──── ご用件 ────',
     get('f-message') || '(本文なし)'
   ].join('\n');
-  const mailto = 'mailto:contact@locahun3d.jp'
+  const mailto = 'mailto:contact@locahun3d.com'
     + '?subject=' + encodeURIComponent(subject)
     + '&body='    + encodeURIComponent(body);
   window.open(mailto, '_blank');
