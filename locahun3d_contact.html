@@ -561,17 +561,25 @@ contactForm.addEventListener('submit', async e=>{
 });
 
 // 送信案内モーダル
-const sentModal = document.getElementById('sent-modal');
 function closeSentModal(){
-  if(!sentModal) return;
-  sentModal.classList.remove('open');
+  const m = document.getElementById('sent-modal');
+  if(!m) return;
+  // ignore close during sending state
+  if(m.dataset.state === 'sending') return;
+  m.classList.remove('open');
   document.body.style.overflow='';
 }
-if(sentModal){
-  sentModal.addEventListener('click', e => { if(e.target===sentModal) closeSentModal(); });
-  sentModal.querySelector('.sent-modal-close')?.addEventListener('click', closeSentModal);
-  document.addEventListener('keydown', e => { if(e.key==='Escape') closeSentModal(); });
-}
+// Event delegation — modal HTML is appended later in the body
+document.addEventListener('click', e => {
+  if(e.target && e.target.classList && e.target.classList.contains('sent-modal-close')){
+    closeSentModal();
+    return;
+  }
+  if(e.target && e.target.id === 'sent-modal'){
+    closeSentModal();
+  }
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSentModal(); });
 
 // Mobile hamburger nav
 const mToggle=document.getElementById('mToggle'),mNav=document.getElementById('mNav');
