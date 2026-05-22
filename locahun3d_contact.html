@@ -252,6 +252,35 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .fade{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
 .fade.in{opacity:1;transform:none}
 
+/* Sent confirmation modal */
+.sent-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.sent-modal.open{opacity:1;pointer-events:auto}
+.sent-modal-inner{background:#0a0a0a;border:1px solid rgba(255,180,84,.4);
+  max-width:460px;width:100%;padding:40px 36px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  transform:translateY(12px);transition:transform .35s ease;box-sizing:border-box}
+.sent-modal.open .sent-modal-inner{transform:none}
+.sent-modal-icon{width:54px;height:54px;border-radius:50%;border:1.5px solid #ffb454;
+  display:flex;align-items:center;justify-content:center;color:#ffb454;
+  font-size:1.7em;font-weight:300;line-height:1}
+.sent-modal h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.25em;
+  line-height:1.5;letter-spacing:.04em}
+.sent-modal p{font-size:.92em;line-height:1.9;opacity:.82;text-wrap:balance}
+.sent-modal p strong{color:#ffb454;font-weight:700}
+.sent-modal .sent-modal-close{margin-top:8px;padding:11px 30px;background:transparent;
+  border:1px solid rgba(255,255,255,.45);color:#fff;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.3em;
+  text-transform:uppercase;transition:background .2s,color .2s,letter-spacing .2s}
+.sent-modal .sent-modal-close:hover{background:#fff;color:#000;letter-spacing:.36em}
+@media(max-width:600px){
+  .sent-modal-inner{padding:30px 22px}
+  .sent-modal h3{font-size:1.1em}
+  .sent-modal p{font-size:.86em}
+}
+
 /* Stack form + info aside vertically whenever side menu is hidden */
 @media(max-width:1199px){
   .contact-row{grid-template-columns:1fr;gap:40px}
@@ -473,9 +502,25 @@ document.getElementById('contact-form').addEventListener('submit', e=>{
   const mailto = 'mailto:contact@locahun3d.com'
     + '?subject=' + encodeURIComponent(subject)
     + '&body='    + encodeURIComponent(body);
-  window.open(mailto, '_blank');
-  location.href = 'locahun3d_manifesto.html';
+  // 同一タブで mailto を起動（メーラーが立ち上がるが現ページは残る）
+  location.href = mailto;
+  // 案内モーダル表示
+  const m = document.getElementById('sent-modal');
+  if(m){ m.classList.add('open'); document.body.style.overflow='hidden'; }
 });
+
+// 送信案内モーダル
+const sentModal = document.getElementById('sent-modal');
+function closeSentModal(){
+  if(!sentModal) return;
+  sentModal.classList.remove('open');
+  document.body.style.overflow='';
+}
+if(sentModal){
+  sentModal.addEventListener('click', e => { if(e.target===sentModal) closeSentModal(); });
+  sentModal.querySelector('.sent-modal-close')?.addEventListener('click', closeSentModal);
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeSentModal(); });
+}
 
 // Mobile hamburger nav
 const mToggle=document.getElementById('mToggle'),mNav=document.getElementById('mNav');
@@ -489,5 +534,15 @@ mToggle.addEventListener('click',()=>setMNav(!mNav.classList.contains('open')));
 mNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMNav(false)));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')setMNav(false)});
 </script>
+
+<!-- 送信案内モーダル -->
+<div class="sent-modal" id="sent-modal" role="dialog" aria-modal="true" aria-labelledby="sent-modal-title" aria-hidden="true">
+  <div class="sent-modal-inner">
+    <div class="sent-modal-icon" aria-hidden="true">✓</div>
+    <h3 id="sent-modal-title">お問い合わせ内容を準備しました</h3>
+    <p>ご利用のメールアプリが起動します。<br>内容をご確認のうえ、メーラー上で<strong>「送信」</strong>ボタンを押してください。</p>
+    <button type="button" class="sent-modal-close">閉じる</button>
+  </div>
+</div>
 </body>
 </html>
