@@ -89,6 +89,31 @@ async function handleContact(request, env) {
     return BOT_SILENT_OK();
   }
 
+  // --- 3b. Cloudflare Turnstile token verification ---
+  if (env.TURNSTILE_SECRET) {
+    const token = (data.cf_turnstile_token || "").toString();
+    if (!token) {
+      return jsonResponse({ ok: false, error: "認証トークンがありません。ページを再読み込みのうえ再度お試しください。" }, 400);
+    }
+    const formData = new FormData();
+    formData.append("secret", env.TURNSTILE_SECRET);
+    formData.append("response", token);
+    formData.append("remoteip", request.headers.get("CF-Connecting-IP") || "");
+    try {
+      const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await verify.json();
+      if (!result.success) {
+        // bot or expired token — silent OK pattern to avoid leaking detection logic
+        return BOT_SILENT_OK();
+      }
+    } catch {
+      return jsonResponse({ ok: false, error: "認証サーバーに到達できませんでした。時間をおいて再度お試しください。" }, 503);
+    }
+  }
+
   // --- 4. Time-on-page guard (humans need ≥ 3s to fill the form) ---
   const formOpenedAt = Number(data._t) || 0;
   if (formOpenedAt > 0) {

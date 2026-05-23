@@ -54,6 +54,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<!-- Cloudflare Turnstile (bot protection for the contact form) -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -455,6 +457,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       </div>
       <!-- Form-open timestamp (filled by JS on page load) -->
       <input type="hidden" id="f-t" name="_t" value="">
+      <!-- Cloudflare Turnstile widget (rendered by external script) -->
+      <div class="field full" style="display:flex;justify-content:center;margin-top:8px">
+        <div id="cf-turnstile" class="cf-turnstile"
+             data-sitekey="0x4AAAAAAADUtEHc2L0jw0MOL"
+             data-theme="dark"
+             data-action="contact"
+             data-callback="onTurnstileVerified"></div>
+      </div>
     </form>
 
     <aside class="info fade">
@@ -575,6 +585,14 @@ function setModalState(state, customMessage){
 contactForm.addEventListener('submit', async e=>{
   e.preventDefault();
   const get = id => (document.getElementById(id).value || '').trim();
+  // Get Turnstile token (Cloudflare-managed bot challenge)
+  let cfToken = '';
+  try {
+    if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+      cfToken = window.turnstile.getResponse('#cf-turnstile') || '';
+    }
+  } catch(_) { /* ignore — falls through to no-token case */ }
+
   const payload = {
     name:    get('f-name'),
     company: get('f-company'),
@@ -582,8 +600,9 @@ contactForm.addEventListener('submit', async e=>{
     phone:   get('f-phone'),
     subject: get('f-subject'),
     message: get('f-message'),
-    website: get('f-website'),   // honeypot — must be empty
+    website: get('f-website'),       // honeypot — must be empty
     _t:      Number(get('f-t')) || 0,
+    cf_turnstile_token: cfToken,
   };
 
   // Client-side validation
@@ -606,6 +625,8 @@ contactForm.addEventListener('submit', async e=>{
     if(resp.ok && result.ok){
       setModalState('success');
       contactForm.reset();
+      // re-stamp the timestamp for any subsequent submit
+      const t = document.getElementById('f-t'); if(t) t.value = String(Date.now());
     } else {
       setModalState('error', result.error || `送信に失敗しました (HTTP ${resp.status})`);
     }
@@ -614,8 +635,13 @@ contactForm.addEventListener('submit', async e=>{
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = originalLabel;
+    // Reset Turnstile so the next submit gets a fresh token
+    try { window.turnstile && window.turnstile.reset && window.turnstile.reset('#cf-turnstile'); } catch(_){}
   }
 });
+
+// Turnstile callback (no-op — token is read at submit time via getResponse)
+window.onTurnstileVerified = function(){ /* token is available */ };
 
 // 送信案内モーダル
 function closeSentModal(){
