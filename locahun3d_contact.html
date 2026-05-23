@@ -448,6 +448,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
         <label>MESSAGE / ご用件</label>
         <textarea id="f-message" name="message" placeholder="プロジェクトの概要、撮影規模、希望時期などをお書きください。"></textarea>
       </div>
+      <!-- Honeypot (must stay empty — humans never see it) -->
+      <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0">
+        <label for="f-website">Website (do not fill)</label>
+        <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <!-- Form-open timestamp (filled by JS on page load) -->
+      <input type="hidden" id="f-t" name="_t" value="">
     </form>
 
     <aside class="info fade">
@@ -559,6 +566,12 @@ function setModalState(state, customMessage){
   m.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+// Stamp the form-open time on first paint (used for bot-speed check server-side)
+(function stampFormOpen(){
+  const t = document.getElementById('f-t');
+  if(t) t.value = String(Date.now());
+})();
+
 contactForm.addEventListener('submit', async e=>{
   e.preventDefault();
   const get = id => (document.getElementById(id).value || '').trim();
@@ -569,6 +582,8 @@ contactForm.addEventListener('submit', async e=>{
     phone:   get('f-phone'),
     subject: get('f-subject'),
     message: get('f-message'),
+    website: get('f-website'),   // honeypot — must be empty
+    _t:      Number(get('f-t')) || 0,
   };
 
   // Client-side validation

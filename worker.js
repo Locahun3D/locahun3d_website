@@ -50,12 +50,57 @@ function isEmail(s) {
   return typeof s === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
+const ALLOWED_ORIGINS = new Set([
+  "https://web.locahun3d.com",
+  "https://locahun3d.com",
+  "https://locahun3dwebsite.nakamurakou1108.workers.dev",
+]);
+
+// silently look successful to bots — they won't retry / learn
+const BOT_SILENT_OK = () => jsonResponse({ ok: true });
+
 async function handleContact(request, env) {
+  // --- 1. Origin / Referer check ---
+  const origin = request.headers.get("Origin") || "";
+  const referer = request.headers.get("Referer") || "";
+  const fromAllowed =
+    (origin && ALLOWED_ORIGINS.has(origin)) ||
+    (!origin && [...ALLOWED_ORIGINS].some(o => referer.startsWith(o + "/")));
+  if (!fromAllowed) {
+    return jsonResponse({ ok: false, error: "Forbidden origin" }, 403);
+  }
+
+  // --- 2. Payload size check ---
+  const contentLength = parseInt(request.headers.get("Content-Length") || "0", 10);
+  if (contentLength > 50 * 1024) {
+    return jsonResponse({ ok: false, error: "Request too large" }, 413);
+  }
+
   let data;
   try {
     data = await request.json();
   } catch {
     return jsonResponse({ ok: false, error: "リクエストが不正です" }, 400);
+  }
+
+  // --- 3. Honeypot field (hidden in HTML) ---
+  // If a bot filled this, pretend success and bail
+  if (data.website && String(data.website).trim() !== "") {
+    return BOT_SILENT_OK();
+  }
+
+  // --- 4. Time-on-page guard (humans need ≥ 3s to fill the form) ---
+  const formOpenedAt = Number(data._t) || 0;
+  if (formOpenedAt > 0) {
+    const elapsedMs = Date.now() - formOpenedAt;
+    if (elapsedMs < 3000) {
+      // suspiciously fast — likely a bot
+      return BOT_SILENT_OK();
+    }
+    if (elapsedMs > 24 * 60 * 60 * 1000) {
+      // stale form (24h+) — re-submit replay attempt
+      return jsonResponse({ ok: false, error: "ページを再読み込みのうえ再度お試しください" }, 400);
+    }
   }
 
   const name = (data.name || "").toString().trim();
@@ -69,6 +114,10 @@ async function handleContact(request, env) {
   if (!isEmail(email)) return jsonResponse({ ok: false, error: "メールアドレスを正しく入力してください" }, 400);
   if (!message) return jsonResponse({ ok: false, error: "ご用件を入力してください" }, 400);
   if (message.length > 5000) return jsonResponse({ ok: false, error: "本文が長すぎます (5000 文字以内)" }, 400);
+
+  // --- 5. Content sanity: reject if message has >5 URLs (typical spam pattern) ---
+  const urlCount = (message.match(/https?:\/\//gi) || []).length;
+  if (urlCount > 5) return BOT_SILENT_OK();
 
   const bodyText = [
     "【ロケハン3D Web からの問い合わせ】",
