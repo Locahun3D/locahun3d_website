@@ -6,3 +6,10 @@ desktop.ini
 *~
 .vscode/
 .idea/
+
+# Cloudflare Wrangler caches and local builds
+.wrangler/
+node_modules/
+.dev.vars
+.env
+.env.local
