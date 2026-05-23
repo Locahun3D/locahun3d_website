@@ -182,26 +182,75 @@ async function handleContact(request, env) {
   return jsonResponse({ ok: true });
 }
 
+// HTTP security headers — applied to all responses via withSecurityHeaders()
+// CSP allowlist matches actual external resources used by the site:
+//   - Google Fonts (CSS + woff2)
+//   - jsdelivr (flatpickr CSS + JS on demo page)
+//   - npmcdn (flatpickr ja locale)
+//   - challenges.cloudflare.com (Turnstile)
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' blob:",
+  "connect-src 'self' https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS = {
+  "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()",
+  "X-Frame-Options": "DENY",
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Content-Security-Policy": CSP,
+};
+
+function withSecurityHeaders(response) {
+  const headers = new Headers(response.headers);
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(k, v);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function route(request, env) {
+  const url = new URL(request.url);
+
+  // 301 redirect: root / and /index.html → /locahun3d_manifesto.html
+  if (url.pathname === "/" || url.pathname === "/index.html") {
+    return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
+  }
+
+  if (url.pathname === "/api/contact") {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204 });
+    }
+    if (request.method !== "POST") {
+      return jsonResponse({ ok: false, error: "POST only" }, 405);
+    }
+    return handleContact(request, env);
+  }
+
+  // delegate everything else to static assets
+  return env.ASSETS.fetch(request);
+}
+
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
-
-    // 301 redirect: root / and /index.html → /locahun3d_manifesto.html
-    if (url.pathname === "/" || url.pathname === "/index.html") {
-      return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
-    }
-
-    if (url.pathname === "/api/contact") {
-      if (request.method === "OPTIONS") {
-        return new Response(null, { status: 204 });
-      }
-      if (request.method !== "POST") {
-        return jsonResponse({ ok: false, error: "POST only" }, 405);
-      }
-      return handleContact(request, env);
-    }
-
-    // delegate everything else to static assets
-    return env.ASSETS.fetch(request);
+    const response = await route(request, env);
+    return withSecurityHeaders(response);
   },
 };
