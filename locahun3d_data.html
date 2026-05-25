@@ -473,7 +473,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <p>XGRIDS PortalCam は、LiDAR と複数カメラを統合した SLAM 型の<br>ハンドヘルド／ウェアラブル スキャナー。<br>歩いて回るだけで実空間を Gaussian Splatting 形式で出力できます。</p>
 
       <ul class="spec-list">
-        <li><span class="k">Output</span><span class="v">.ply (Gaussian Splatting) / .las / .ply (point cloud)</span></li>
+        <li><span class="k">Output</span><span class="v">.ply (Gaussian Splatting) / .lcc / .ply (point cloud) / .Rad</span></li>
         <li><span class="k">Method</span><span class="v">LiDAR + Multi-cam SLAM（リアルタイム位置推定）</span></li>
         <li><span class="k">Range</span><span class="v">屋内 1 室 〜 街区スケール（屋外100m+）まで連続スキャン可</span></li>
         <li><span class="k">Accuracy</span><span class="v">cm オーダーの点群精度。距離測定の基準として実用十分</span></li>
@@ -487,9 +487,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
                     letter-spacing:.3em;text-transform:uppercase;color:var(--accent);
                     margin-bottom:10px">+ DRONE CAPTURE</div>
         <p style="font-size:.85em;line-height:1.85;opacity:.85;margin:0">
-          広域ロケや屋上・水辺・段差など徒歩で回り込めない範囲は、
-          <strong style="color:#fff">ドローン空撮（多視点撮影）</strong>からの 3DGS 再構築にも対応。
-          PortalCam の地上スキャンと組み合わせることで、空 ↔ 地上の継ぎ目のない 3D 空間を一度に持ち帰れます。
+          広域ロケや屋上・水辺・段差など徒歩で回り込めない範囲は、<br>
+          <strong style="color:#fff">ドローン空撮（多視点撮影）</strong>からの 3DGS 再構築にも対応。<br>
+          PortalCam の地上スキャンと組み合わせることで、<br>
+          空 ↔ 地上の継ぎ目のない 3D 空間を一度に持ち帰れます。
         </p>
       </div>
     </div>
