@@ -267,7 +267,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .result .lbl{font-family:'JetBrains Mono',monospace;font-size:.65em;
   letter-spacing:.3em;text-transform:uppercase;opacity:.55;margin-bottom:8px}
 .result .price{font-family:'Noto Serif JP',serif;font-weight:200;font-size:2.4em;
-  letter-spacing:.02em;line-height:1;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+  letter-spacing:.02em;line-height:1;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
 .result .price strong{font-weight:700;color:var(--accent)}
 .result .price .price-original{font-size:.5em;opacity:.55;text-decoration:line-through;
   text-decoration-color:rgba(255,255,255,.5);font-weight:300;letter-spacing:.04em;line-height:1.2}
@@ -483,7 +483,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div>
         <div class="campaign-banner">
           <span class="campaign-tag">— LAUNCH CAMPAIGN —</span>
-          <span class="campaign-msg"><strong>50% OFF</strong> ロンチ記念 半額キャンペーン実施中</span>
+          <span class="campaign-msg">初期割引 <strong>50% OFF</strong></span>
         </div>
         <div class="lbl">— Estimated —</div>
         <div class="price">
@@ -615,7 +615,7 @@ function updateQuoteLink(){
     method: usage.options[usage.selectedIndex].textContent,
     opt: opt.options[opt.selectedIndex].textContent,
     date: shootDate.value || '',
-    price: price.textContent.trim() + (price.textContent.includes('お問い合わせ') ? '' : '（ロンチ記念 半額キャンペーン適用）'),
+    price: price.textContent.trim() + (price.textContent.includes('お問い合わせ') ? '' : '（初期割引 50% OFF 適用）'),
     delivery: delivery.textContent.trim()
   });
   quoteLink.href = 'locahun3d_contact.html?' + p.toString();
