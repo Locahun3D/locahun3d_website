@@ -267,8 +267,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .result .lbl{font-family:'JetBrains Mono',monospace;font-size:.65em;
   letter-spacing:.3em;text-transform:uppercase;opacity:.55;margin-bottom:8px}
 .result .price{font-family:'Noto Serif JP',serif;font-weight:200;font-size:2.4em;
-  letter-spacing:.02em;line-height:1}
-.result .price strong{font-weight:700}
+  letter-spacing:.02em;line-height:1;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.result .price strong{font-weight:700;color:var(--accent)}
+.result .price .price-original{font-size:.5em;opacity:.55;text-decoration:line-through;
+  text-decoration-color:rgba(255,255,255,.5);font-weight:300;letter-spacing:.04em;line-height:1.2}
+.result .price .price-main{display:inline-flex;align-items:baseline;gap:.18em}
+/* Launch campaign banner */
+.campaign-banner{display:inline-flex;align-items:center;gap:14px;
+  padding:8px 16px;margin-bottom:14px;
+  border:1px solid rgba(255,180,84,.55);background:rgba(255,180,84,.08);
+  border-radius:2px;flex-wrap:wrap}
+.campaign-banner .campaign-tag{font-family:'JetBrains Mono',monospace;font-size:.58em;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--accent);opacity:.85}
+.campaign-banner .campaign-msg{font-family:'Noto Sans JP',sans-serif;font-size:.82em;
+  letter-spacing:.04em;color:#fff;font-weight:300}
+.campaign-banner .campaign-msg strong{color:var(--accent);font-weight:900;font-size:1.1em;letter-spacing:.04em}
+@keyframes campaignPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,180,84,.45)}50%{box-shadow:0 0 0 8px rgba(255,180,84,0)}}
+.campaign-banner{animation:campaignPulse 2.2s ease-in-out infinite}
 .result .note{font-size:.78em;opacity:.6;margin-top:6px}
 .result .delivery{margin-top:18px;padding-top:14px;border-top:1px dotted rgba(255,255,255,.18);
   display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;justify-content:center;text-align:center}
@@ -466,9 +481,16 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
     <div class="result fade">
       <div>
+        <div class="campaign-banner">
+          <span class="campaign-tag">— LAUNCH CAMPAIGN —</span>
+          <span class="campaign-msg"><strong>50% OFF</strong> ロンチ記念 半額キャンペーン実施中</span>
+        </div>
         <div class="lbl">— Estimated —</div>
-        <div class="price"><span id="price-yen">¥</span> <strong id="price">250,000 〜 400,000</strong></div>
-        <div class="note">※ 税抜・概算。最終見積は内容ヒアリング後にご提示します。</div>
+        <div class="price">
+          <span class="price-original" id="price-original" aria-hidden="true">¥ 250,000 〜 400,000</span>
+          <span class="price-main"><span id="price-yen">¥</span> <strong id="price">125,000 〜 200,000</strong></span>
+        </div>
+        <div class="note">※ 税抜・概算。最終見積は内容ヒアリング後にご提示します。<br>※ キャンペーン期間中の特別価格です。</div>
         <div class="delivery">
           <span class="delivery-lbl">— Delivery —</span>
           <span class="delivery-val" id="delivery">撮影予定日を選択してください</span>
@@ -544,18 +566,26 @@ function calc(){
   // METHOD: 歩行 +0 / 歩行+ドローン +12万 / 歩行+ドローン+許可申請 +32万
   // OPTION: 同行 +0 / 別日 +5万
 
+  const priceOriginalEl = document.getElementById('price-original');
   if(scanVal===3){
     priceYen.style.display='none';
     price.textContent='お問い合わせ';
+    if(priceOriginalEl) priceOriginalEl.style.display='none';
   } else {
     priceYen.style.display='';
+    if(priceOriginalEl) priceOriginalEl.style.display='';
     const baseScale = scaleVal===1 ? 200000 : 350000;
     const scanRange = scanVal===0 ? [1,1] : scanVal===1 ? [1,3] : [4,10];
     const method   = [0,120000,200000][usageVal-1];
     const optAdd   = optVal===0 ? 0 : 40000;
     const min = baseScale + scanRange[0]*50000 + method + optAdd;
     const max = baseScale + scanRange[1]*50000 + method + optAdd;
-    price.textContent = min===max ? fmt(min) : `${fmt(min)} 〜 ${fmt(max)}`;
+    // Half-price launch campaign
+    const halfMin = Math.round(min / 2);
+    const halfMax = Math.round(max / 2);
+    const originalText = min===max ? `¥ ${fmt(min)}` : `¥ ${fmt(min)} 〜 ${fmt(max)}`;
+    price.textContent = halfMin===halfMax ? fmt(halfMin) : `${fmt(halfMin)} 〜 ${fmt(halfMax)}`;
+    if(priceOriginalEl) priceOriginalEl.textContent = originalText;
   }
 
   // Delivery date — based on scale + drone option + shoot date
@@ -585,7 +615,7 @@ function updateQuoteLink(){
     method: usage.options[usage.selectedIndex].textContent,
     opt: opt.options[opt.selectedIndex].textContent,
     date: shootDate.value || '',
-    price: price.textContent.trim(),
+    price: price.textContent.trim() + (price.textContent.includes('お問い合わせ') ? '' : '（ロンチ記念 半額キャンペーン適用）'),
     delivery: delivery.textContent.trim()
   });
   quoteLink.href = 'locahun3d_contact.html?' + p.toString();
