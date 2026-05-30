@@ -319,35 +319,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .flatpickr-weekdays{background:transparent}
 .flatpickr-weekday{font-weight:400;font-size:.78em;letter-spacing:.05em}
 
-/* Scan conditions (centered, single column) */
-.terms{margin-top:56px;border-top:1px solid var(--line);padding-top:48px;
-  display:flex;flex-direction:column;align-items:center;text-align:center}
-.terms .terms-head{margin-bottom:32px}
-.terms .terms-head .lbl{font-family:'JetBrains Mono',monospace;font-size:.65em;
-  letter-spacing:.3em;text-transform:uppercase;opacity:.55;margin-bottom:10px;display:block}
-.terms .terms-head h3{font-family:'Noto Serif JP',serif;font-weight:400;
-  font-size:1.4em;line-height:1.5;letter-spacing:.04em}
-.terms ul{list-style:none;display:flex;flex-direction:column;gap:14px;margin:0 auto}
-.terms ul li{font-size:.92em;line-height:1.95;opacity:.82;white-space:nowrap}
-.terms ul li::before{content:'·';color:var(--accent);margin-right:.6em;font-weight:700}
-.terms .closing{margin:64px auto 0;padding:0;border:none;background:none;
-  font-family:'Noto Serif JP',serif;font-weight:200;
-  font-size:clamp(1.05em,1.4vw,1.3em);line-height:2.2;letter-spacing:.06em;
-  max-width:none;text-align:center;display:flex;flex-direction:column;gap:28px;
-  align-items:center}
-.terms .closing::before{content:'';display:block;width:64px;height:1px;background:var(--accent);
-  opacity:.7;margin-bottom:8px}
-.terms .closing p{margin:0;text-wrap:balance}
-.terms .closing strong{font-family:'Noto Sans JP',sans-serif;font-weight:700;
-  color:var(--accent);letter-spacing:.08em;font-size:.9em;
-  display:inline-block;padding:0 .2em}
-.terms .closing .sig{font-family:'JetBrains Mono',monospace;font-size:.6em;
-  letter-spacing:.4em;text-transform:uppercase;opacity:.5;margin-top:14px}
-
-@media(max-width:900px){
-  .terms ul,.terms .closing{padding-left:8px;padding-right:8px}
-}
-
 .foot{margin-top:auto;display:flex;justify-content:space-between;
   font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.25em;
   text-transform:uppercase;opacity:.4;padding-top:60px}
@@ -644,27 +615,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="quote-cta">
         <a class="btn" id="quote-link" href="#contact">詳細見積を依頼 →</a>
         <span class="quote-cta-note">— この条件でお問い合わせを行います —<br>入力した撮影規模・地点数・納期が、下のお問合せフォームに<strong>自動反映</strong>されます。</span>
-      </div>
-    </div>
-
-    <div class="terms fade">
-      <div class="terms-head">
-        <span class="lbl">— Scan Conditions —</span>
-        <h3>スキャン条件</h3>
-      </div>
-      <div>
-        <ul>
-          <li>雨の日では機材都合でスキャンができない場合があるため、日時変更の可能性があります。</li>
-          <li>ドローン測量では、撮影許可の都合で準備期間が発生する場合があります。</li>
-          <li>撮影日時のバッティングが発生した場合、日時を調整させていただく必要があります。</li>
-          <li>撮影地が関東圏外など遠方の場合、別途状況に応じて出張費用をいただく可能性がございます。</li>
-          <li>3DGS で対応するよりも良い手段がありましたら提案させていただきます。希望でしたら協力他社様にお繋げいたします。</li>
-        </ul>
-
-        <div class="closing">
-          <p>3DGS 表現以外にも実現したいビジョンがございましたら、<br><strong>お気軽にご相談ください。</strong></p>
-          <span class="sig">— LOCAHUN 3D —</span>
-        </div>
       </div>
     </div>
   </div>

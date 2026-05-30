@@ -314,6 +314,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 @media(max-width:900px){  body{overflow-x:hidden}
   .field select,.field input,.field textarea{font-size:1em}
 }
+
+/* Scan conditions (moved from demo page) */
+.terms{margin-top:2vh;display:flex;flex-direction:column;align-items:center;text-align:center}
+.terms .terms-head{margin-bottom:32px}
+.terms .terms-head .lbl{font-family:'JetBrains Mono',monospace;font-size:.65em;
+  letter-spacing:.3em;text-transform:uppercase;opacity:.55;margin-bottom:10px;display:block}
+.terms .terms-head h3{font-family:'Noto Serif JP',serif;font-weight:400;
+  font-size:1.4em;line-height:1.5;letter-spacing:.04em}
+.terms ul{list-style:none;display:flex;flex-direction:column;gap:14px;margin:0 auto}
+.terms ul li{font-size:.92em;line-height:1.95;opacity:.82;white-space:nowrap}
+.terms ul li::before{content:'·';color:var(--accent);margin-right:.6em;font-weight:700}
+.terms .closing{margin:64px auto 0;padding:0;border:none;background:none;
+  font-family:'Noto Serif JP',serif;font-weight:200;
+  font-size:clamp(1.05em,1.4vw,1.3em);line-height:2.2;letter-spacing:.06em;
+  max-width:none;text-align:center;display:flex;flex-direction:column;gap:28px;align-items:center}
+.terms .closing::before{content:'';display:block;width:64px;height:1px;background:var(--accent);opacity:.7;margin-bottom:8px}
+.terms .closing p{margin:0;text-wrap:balance}
+.terms .closing strong{font-family:'Noto Sans JP',sans-serif;font-weight:700;
+  color:var(--accent);letter-spacing:.08em;font-size:.9em;display:inline-block;padding:0 .2em}
+.terms .closing .sig{font-family:'JetBrains Mono',monospace;font-size:.6em;
+  letter-spacing:.4em;text-transform:uppercase;opacity:.5;margin-top:14px}
+@media(max-width:900px){.terms ul li{white-space:normal}.terms ul,.terms .closing{padding-left:8px;padding-right:8px}}
 </style>
 </head>
 <body>
@@ -590,7 +612,39 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
   <div class="foot">
     <span>CHROME APP</span>
-    <span>P. 05 / 05</span>
+    <span>P. 05 / 06</span>
+  </div>
+</section>
+
+<!-- ===== SCAN CONDITIONS (moved from demo page) ===== -->
+<section class="frame">
+  <span class="timecode tl">SCAN CONDITIONS</span>
+  <span class="timecode tr">— LOCAHUN 3D —</span>
+
+  <div class="terms fade">
+    <div class="terms-head">
+      <span class="lbl">— Scan Conditions —</span>
+      <h3>スキャン条件</h3>
+    </div>
+    <div>
+      <ul>
+        <li>雨の日では機材都合でスキャンができない場合があるため、日時変更の可能性があります。</li>
+        <li>ドローン測量では、撮影許可の都合で準備期間が発生する場合があります。</li>
+        <li>撮影日時のバッティングが発生した場合、日時を調整させていただく必要があります。</li>
+        <li>撮影地が関東圏外など遠方の場合、別途状況に応じて出張費用をいただく可能性がございます。</li>
+        <li>3DGS で対応するよりも良い手段がありましたら提案させていただきます。希望でしたら協力他社様にお繋げいたします。</li>
+      </ul>
+
+      <div class="closing">
+        <p>3DGS 表現以外にも実現したいビジョンがございましたら、<br><strong>お気軽にご相談ください。</strong></p>
+        <span class="sig">— LOCAHUN 3D —</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>SCAN CONDITIONS</span>
+    <span>P. 06 / 06</span>
   </div>
 </section>
 
