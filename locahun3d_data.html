@@ -297,6 +297,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   text-transform:uppercase;opacity:.4;padding-top:60px}
 .fade{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
 .fade.in{opacity:1;transform:none}
+.try-cta{text-align:center;margin-top:7vh}
+.try-cta .btn{display:inline-block;padding:16px 42px;border:1px solid rgba(255,255,255,.45);
+  color:#fff;text-decoration:none;font-family:'JetBrains Mono',monospace;
+  font-size:.72em;letter-spacing:.28em;text-transform:uppercase;text-align:center;
+  transition:background .2s,color .2s}
+.try-cta .btn:hover{background:#fff;color:#000}
 
 @media(max-width:900px){
   .specs,.fs-grid,.app-block,.app-features{grid-template-columns:1fr}
@@ -578,6 +584,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
         <p>初回読み込み後、PFを保存するとネット接続なしで動作。ロケ現場・移動中・電波の届かない屋内ロケでも対応。</p>
       </div>
     </div>
+  </div>
+
+  <div class="try-cta fade">
+    <a class="btn" href="https://viewer.locahun3d.com/Locahun3D_OfflineViewer?demo=1" target="_blank" rel="noopener">ブラウザで試す →</a>
   </div>
 
   <div class="foot">
