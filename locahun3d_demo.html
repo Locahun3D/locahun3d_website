@@ -492,6 +492,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .cfield{min-width:0}
   .cfield input,.cfield select,.cfield textarea{max-width:100%}
 }
+
+/* mobile: drop mid-clause forced breaks in body copy; keep punctuation & heading breaks */
+@media(max-width:640px){p br.pc{display:none}}
 </style>
 </head>
 <body>
@@ -641,7 +644,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <em style="font-style:normal;font-weight:900;font-family:'Noto Sans JP',sans-serif">お問い合わせ</em>
     </h2>
     <p class="fade" style="opacity:.78;line-height:1.85;font-size:clamp(1em,1.4vw,1.15em)">
-      導入のご相談、デモのリクエスト、見積のご依頼<br>
+      導入のご相談、デモのリクエスト、見積のご依頼<br class="pc">
       その他ご質問はこちらから。<br>
       通常 2 営業日以内にご返信します。
     </p>

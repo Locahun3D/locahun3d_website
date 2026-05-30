@@ -336,6 +336,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .terms .closing .sig{font-family:'JetBrains Mono',monospace;font-size:.6em;
   letter-spacing:.4em;text-transform:uppercase;opacity:.5;margin-top:14px}
 @media(max-width:900px){.terms ul li{white-space:normal}.terms ul,.terms .closing{padding-left:8px;padding-right:8px}}
+
+/* mobile: drop mid-clause forced breaks in body copy; keep punctuation & heading breaks */
+@media(max-width:640px){p br.pc{display:none}}
 </style>
 </head>
 <body>
@@ -416,7 +419,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <div class="cell fade">
       <div class="num">01 / PHOTOREAL</div>
       <h3>光学的な写実性</h3>
-      <p>従来のメッシュ + テクスチャでは表現困難だった<br>半透明物・反射・微細な照明変化を、<br>撮影時の見た目のまま保持します。</p>
+      <p>従来のメッシュ + テクスチャでは表現困難だった<br class="pc">半透明物・反射・微細な照明変化を、<br>撮影時の見た目のまま保持します。</p>
     </div>
     <div class="cell fade">
       <div class="num">02 / REALTIME</div>
@@ -467,7 +470,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <div class="col fade">
       <div class="num">02 / SCAN — 取得方法</div>
       <h3>XGRIDS PortalCam による SLAM スキャン</h3>
-      <p>XGRIDS PortalCam は、LiDAR と複数カメラを統合した SLAM 型の<br>ハンドヘルド／ウェアラブル スキャナー。<br>歩いて回るだけで実空間を Gaussian Splatting 形式で出力できます。</p>
+      <p>XGRIDS PortalCam は、LiDAR と複数カメラを統合した SLAM 型の<br class="pc">ハンドヘルド／ウェアラブル スキャナー。<br>歩いて回るだけで実空間を Gaussian Splatting 形式で出力できます。</p>
 
       <ul class="spec-list">
         <li><span class="k">Output</span><span class="v">.ply (Gaussian Splatting) / .lcc / .ply (point cloud) / .Rad</span></li>
@@ -516,7 +519,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   </h2>
   <p class="sec-lede fade" style="max-width:none;white-space:nowrap">
     3DGS データはロケハン用途に留まりません。<br>
-    Blender / Unreal / Unity / Maya / After Effects といった<br>
+    Blender / Unreal / Unity / Maya / After Effects といった<br class="pc">
     ツールへ持ち込めば、3D トラッキング基準、アニメーションプリビズ、ライティング検証、<br>
     後段の VFX 合成までを<em style="font-style:normal;font-weight:700;color:var(--accent)">同じ実空間データ 1 つ</em>で横断できます。
   </p>
@@ -579,7 +582,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <div class="app-block">
     <div class="app-text fade">
       <span class="badge">CHROME APPLICATION</span>
-      <p>「ロケハン3D」は、Chrome ブラウザ上で動作する<br>3DGS ビューアー兼仮想カメラアプリケーションです。<br>スキャンした .ply / .Rad ファイルをドラッグ&ドロップするだけで、<br>実機相当のレンズシミュレーション、距離測定、環境ライティング、<br>メタデータ付き JPEG 書き出しまで、すべてブラウザの中で完結します。</p>
+      <p>「ロケハン3D」は、Chrome ブラウザ上で動作する<br class="pc">3DGS ビューアー兼仮想カメラアプリケーションです。<br>スキャンした .ply / .Rad ファイルをドラッグ&ドロップするだけで、<br>実機相当のレンズシミュレーション、距離測定、環境ライティング、<br>メタデータ付き JPEG 書き出しまで、すべてブラウザの中で完結します。</p>
     </div>
 
     <div class="app-features fade">

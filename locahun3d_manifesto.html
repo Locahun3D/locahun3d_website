@@ -459,6 +459,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 @media(max-width:900px){  body{overflow-x:hidden}
   .field select,.field input,.field textarea{font-size:1em}
 }
+
+/* mobile: drop mid-clause forced breaks in body copy; keep punctuation & heading breaks */
+@media(max-width:640px){p br.pc{display:none}}
 </style>
 </head>
 <body>
@@ -541,7 +544,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <div class="item fade">
       <div class="num">02 / SHARE</div>
       <h3>リソース不足がミスに繋がる</h3>
-      <p>監督・撮影・美術・プロデューサー間で<br>「どんな画になるか」を口頭やラフだけで伝えるのは<br>限界がある。誰かの解像度が致命的なミスに繋がる。</p>
+      <p>監督・撮影・美術・プロデューサー間で<br class="pc">「どんな画になるか」を口頭やラフだけで伝えるのは<br class="pc">限界がある。誰かの解像度が致命的なミスに繋がる。</p>
     </div>
     <div class="item fade">
       <div class="num">03 / TIME</div>
@@ -655,7 +658,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="tool-body">
         <div class="ic">09 / OFFLINE</div>
         <h5>オフライン保存</h5>
-        <p>電波が届かない場所でも、Chrome、Safariで開いて<br>現場で即、どの機種でも確認できる。</p>
+        <p>電波が届かない場所でも、Chrome、Safariで開いて<br class="pc">現場で即、どの機種でも確認できる。</p>
       </div>
     </div>
   </div>
