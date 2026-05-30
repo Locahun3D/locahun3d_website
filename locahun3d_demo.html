@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ロケハン3D｜デモ・お見積もりシミュレーター</title>
+<title>ロケハン3D｜デモ・お問合せ</title>
 <!-- SEO:BEGIN -->
-<meta name="description" content="サンプル 3DGS シーンをブラウザでお試し可能。撮影規模・地点数・撮影日から概算費用と納品予定日を即時算出します。">
+<meta name="description" content="サンプル 3DGS シーンをブラウザでお試し可能。撮影規模・地点数・撮影日から概算費用を即時算出し、そのままお問い合わせ・見積依頼まで完結します。">
 <link rel="canonical" href="https://web.locahun3d.com/locahun3d_demo.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:url" content="https://web.locahun3d.com/locahun3d_demo.html">
-<meta property="og:title" content="ロケハン3D｜デモ・お見積もりシミュレーター">
-<meta property="og:description" content="サンプル 3DGS シーンをブラウザでお試し可能。撮影規模・地点数・撮影日から概算費用と納品予定日を即時算出します。">
+<meta property="og:title" content="ロケハン3D｜デモ・お問合せ">
+<meta property="og:description" content="サンプル 3DGS シーンをブラウザでお試し可能。概算費用を即時算出し、そのままお問い合わせ・見積依頼まで完結します。">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_Title_Demo.png">
 <meta property="og:image:width" content="2216">
 <meta property="og:image:height" content="897">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ロケハン3D｜デモ・お見積もりシミュレーター">
-<meta name="twitter:description" content="サンプル 3DGS シーンをブラウザでお試し可能。撮影規模・地点数・撮影日から概算費用と納品予定日を即時算出します。">
+<meta name="twitter:title" content="ロケハン3D｜デモ・お問合せ">
+<meta name="twitter:description" content="サンプル 3DGS シーンをブラウザでお試し可能。概算費用を即時算出し、そのままお問い合わせ・見積依頼まで完結します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_Title_Demo.png">
 <script type="application/ld+json">
 {
@@ -44,7 +44,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "デモ・見積",
+      "name": "デモ・お問合せ",
       "item": "https://web.locahun3d.com/locahun3d_demo.html"
     }
   ]
@@ -55,6 +55,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/flatpickr.min.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -361,6 +362,165 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 @media(max-width:900px){  body{overflow-x:hidden}
   .field select,.field input,.field textarea{font-size:1em}
 }
+
+/* ============================================
+   CONTACT — merged from former contact page
+   (.form/.field renamed to .cform/.cfield to
+   avoid clashing with the estimator above)
+   ============================================ */
+#estimate{scroll-margin-top:90px}
+#contact{scroll-margin-top:90px}
+.contact-row{display:grid;grid-template-columns:1fr;gap:48px;margin-top:6vh;align-items:start;max-width:920px;margin-left:auto;margin-right:auto;width:100%}
+.contact-row .info{border-left:none;border-top:1px solid var(--line);padding-left:0;padding-top:32px}
+
+.cform{display:grid;grid-template-columns:repeat(2,1fr);gap:24px 32px}
+.cfield{display:flex;flex-direction:column;gap:8px;align-items:center}
+.cfield.full{grid-column:1 / -1}
+.cfield label{font-family:'JetBrains Mono',monospace;font-size:.62em;
+  letter-spacing:.3em;text-transform:uppercase;opacity:.6;text-align:center}
+.cfield input,.cfield select,.cfield textarea{
+  background:rgba(255,255,255,.04);color:#fff;
+  border:1px solid rgba(255,255,255,.28);border-radius:2px;
+  padding:12px 14px;font-size:16px;font-family:inherit;outline:none;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+  text-align:center;width:100%}
+.cfield input:hover,.cfield select:hover,.cfield textarea:hover{
+  border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.06)}
+.cfield input:focus,.cfield select:focus,.cfield textarea:focus{
+  border-color:#ffb454;background:rgba(255,180,84,.06);
+  box-shadow:0 0 0 3px rgba(255,180,84,.12)}
+.cfield select option{background:#0a0a0a;color:#fff}
+.cfield textarea{min-height:140px;resize:vertical}
+
+.submit-row{display:flex;flex-direction:column;justify-content:center;align-items:center;
+  margin:32px auto 0;gap:18px;text-align:center;max-width:840px}
+.submit-row .privacy{font-size:.72em;opacity:.55;display:block;width:100%;text-align:center}
+
+.emergency{margin:64px auto 0;padding:36px 40px;max-width:840px;
+  border:1px solid rgba(255,180,84,.3);background:rgba(255,180,84,.04);
+  display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.emergency .lbl{font-family:'JetBrains Mono',monospace;font-size:.62em;
+  letter-spacing:.3em;text-transform:uppercase;color:#ffb454;opacity:.9}
+.emergency p{font-size:.9em;line-height:1.95;opacity:.85;margin:0}
+.emergency .phone{font-family:'JetBrains Mono',monospace;font-size:1.5em;
+  letter-spacing:.1em;color:#ffb454;text-decoration:none;font-weight:600;
+  padding:12px 28px;border:1px solid rgba(255,180,84,.5);margin:4px 0;
+  transition:background .2s,color .2s}
+.emergency .phone:hover{background:#ffb454;color:#000}
+.emergency .note{font-size:.78em;opacity:.6;line-height:1.85;text-wrap:balance;max-width:54ch}
+.emergency .creed{font-family:'Noto Serif JP',serif;font-weight:200;
+  font-size:clamp(1.05em,1.4vw,1.3em);letter-spacing:.08em;line-height:1.8;
+  margin:22px 0 0;padding-top:22px;border-top:1px dotted rgba(255,180,84,.3);
+  color:rgba(255,255,255,.92);text-align:center}
+.emergency .creed em{font-style:normal;font-weight:700;color:#ffb454}
+.emergency .signature{font-family:'JetBrains Mono',monospace;font-size:.62em;
+  letter-spacing:.32em;text-transform:uppercase;opacity:.4;margin:8px 0 0;text-align:center}
+
+.quote-preview{grid-column:1 / -1;margin-bottom:8px;padding:24px 28px;
+  border:1px solid rgba(255,180,84,.3);background:rgba(255,180,84,.04);
+  display:none;flex-direction:column;gap:14px}
+.quote-preview.show{display:flex}
+.quote-preview .qp-head{display:flex;align-items:baseline;gap:14px;
+  font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.3em;
+  text-transform:uppercase;color:#ffb454;opacity:.95;padding-bottom:10px;
+  border-bottom:1px dotted rgba(255,180,84,.3)}
+.quote-preview .qp-head .qp-line{flex:1;height:1px;background:rgba(255,180,84,.25)}
+.quote-preview dl{display:grid;grid-template-columns:auto 1fr;gap:8px 24px;
+  font-size:.85em;line-height:1.7}
+.quote-preview dt{font-family:'JetBrains Mono',monospace;font-size:.78em;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.55}
+.quote-preview dd{font-size:.95em;color:#fff;word-break:break-word}
+.quote-preview .qp-price{font-family:'Noto Serif JP',serif;font-weight:200;
+  font-size:1.5em;letter-spacing:.04em;color:#ffb454}
+
+.quote-empty{grid-column:1 / -1;margin-bottom:8px;padding:24px 28px;
+  border:1px dashed rgba(255,180,84,.4);background:rgba(255,180,84,.025);
+  display:flex;flex-direction:column;gap:14px}
+.quote-empty.hide{display:none}
+.quote-empty .qe-head{display:flex;align-items:baseline;gap:14px;
+  font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.3em;
+  text-transform:uppercase;color:#ffb454;opacity:.95;padding-bottom:10px;
+  border-bottom:1px dotted rgba(255,180,84,.3)}
+.quote-empty .qe-head .qe-line{flex:1;height:1px;background:rgba(255,180,84,.25)}
+.quote-empty p{font-size:.88em;line-height:1.95;opacity:.88;margin:0}
+.quote-empty p strong{color:#fff;font-weight:600}
+.quote-empty .qe-btn{align-self:center;margin-top:6px;padding:11px 24px;
+  border:1px solid rgba(255,180,84,.55);color:#ffb454;text-decoration:none;
+  font-family:'JetBrains Mono',monospace;font-size:.65em;letter-spacing:.28em;
+  text-transform:uppercase;transition:background .2s,color .2s,letter-spacing .2s}
+.quote-empty .qe-btn:hover{background:#ffb454;color:#000;letter-spacing:.34em}
+
+.info{display:flex;flex-direction:column;gap:32px;border-left:1px solid var(--line);padding-left:48px}
+.info .block{display:flex;flex-direction:column;gap:8px}
+.info .block .lbl{font-family:'JetBrains Mono',monospace;font-size:.62em;
+  letter-spacing:.3em;text-transform:uppercase;opacity:.55}
+.info .block .v{font-family:'Noto Serif JP',serif;font-size:1.1em;letter-spacing:.04em}
+.info .block .v.mono{font-family:'JetBrains Mono',monospace;font-size:.95em;letter-spacing:.05em}
+.info .block p{font-size:.86em;opacity:.7;line-height:1.8}
+
+.sent-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.sent-modal.open{opacity:1;pointer-events:auto}
+.sent-modal-inner{background:#0a0a0a;border:1px solid rgba(255,180,84,.4);
+  max-width:460px;width:100%;padding:40px 36px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  transform:translateY(12px);transition:transform .35s ease;box-sizing:border-box}
+.sent-modal.open .sent-modal-inner{transform:none}
+.sent-modal-icon{width:54px;height:54px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:1.8em;font-weight:300;line-height:1}
+.sent-modal[data-state="sending"] .sm-icon-sending{display:flex;border:none}
+.sent-modal[data-state="success"] .sm-icon-success{display:flex;border:1.5px solid #5ec27a;color:#5ec27a}
+.sent-modal[data-state="error"]   .sm-icon-error  {display:flex;border:1.5px solid #e07070;color:#e07070;font-weight:700}
+.sent-modal[data-state="success"] .sent-modal-inner{border-color:rgba(94,194,122,.4)}
+.sent-modal[data-state="error"]   .sent-modal-inner{border-color:rgba(224,112,112,.45)}
+.sent-modal h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.25em;line-height:1.5;letter-spacing:.04em}
+.sent-modal p{font-size:.92em;line-height:1.9;opacity:.82;text-wrap:balance}
+.sent-modal p strong{color:#ffb454;font-weight:700}
+.sent-modal .sent-modal-close{margin-top:8px;padding:11px 30px;background:transparent;
+  border:1px solid rgba(255,255,255,.45);color:#fff;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.3em;
+  text-transform:uppercase;transition:background .2s,color .2s,letter-spacing .2s}
+.sent-modal .sent-modal-close:hover{background:#fff;color:#000;letter-spacing:.36em}
+
+@media(max-width:1199px){
+  .contact-row{grid-template-columns:1fr;gap:40px}
+  .cform{grid-template-columns:1fr}
+  .info{border-left:none;border-top:1px solid var(--line);padding-left:0;padding-top:32px;gap:28px}
+  .info .block{padding-bottom:24px;border-bottom:1px dotted rgba(255,255,255,.08)}
+  .info .block:last-child{border-bottom:none;padding-bottom:0}
+}
+@media(max-width:900px){
+  .contact-row{margin-top:5vh;gap:32px}
+  .cform{gap:18px 0}
+  .cfield label{font-size:.58em;letter-spacing:.22em}
+  .cfield textarea{min-height:120px}
+  .quote-preview,.quote-empty{padding:18px 20px}
+  .quote-preview .qp-head,.quote-empty .qe-head{font-size:.55em;letter-spacing:.22em;gap:10px}
+  .quote-preview dl{grid-template-columns:1fr;gap:6px 0}
+  .quote-preview dt{font-size:.7em;letter-spacing:.14em;margin-top:8px}
+  .quote-preview dd{font-size:.88em}
+  .quote-preview .qp-price{font-size:1.2em}
+  .quote-empty p{font-size:.84em;line-height:1.85}
+  .quote-empty .qe-btn{font-size:.6em;letter-spacing:.22em;padding:10px 20px;align-self:stretch;text-align:center}
+  .info{padding-top:24px;gap:24px}
+  .info .block .v{font-size:1em}
+  .info .block .v.mono{font-size:.88em;overflow-wrap:anywhere;word-break:break-all}
+  .info .block p{font-size:.82em;line-height:1.85;white-space:normal!important;overflow-wrap:anywhere}
+  .emergency{margin-top:48px;padding:24px 18px;gap:12px}
+  .emergency .lbl{font-size:.55em;letter-spacing:.22em}
+  .emergency p,.emergency .creed{font-size:.82em;line-height:1.85;overflow-wrap:anywhere}
+  .emergency .creed{font-size:.95em;letter-spacing:.04em}
+  .emergency .phone{font-size:1em;letter-spacing:.04em;padding:10px 18px;max-width:100%;
+    overflow-wrap:anywhere;word-break:break-all;box-sizing:border-box}
+  .emergency .signature{font-size:.55em;letter-spacing:.18em;overflow-wrap:anywhere;text-align:center;padding:0 6px}
+  .submit-row{margin-top:24px}
+  .contact-row,.cform,.info,.info .block,.emergency,.submit-row,.quote-preview,.quote-empty{min-width:0;max-width:100%}
+  .cfield{min-width:0}
+  .cfield input,.cfield select,.cfield textarea{max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -372,8 +532,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <a href="locahun3d_data.html">データについて</a>
     <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
     <a href="locahun3d_online.html">ロケハン3Dの未来・実績</a>
-    <a href="locahun3d_demo.html" class="current">デモ・見積</a>
-    <a href="locahun3d_contact.html">お問い合わせ</a>
+    <a href="locahun3d_demo.html" class="current">デモ・お問合せ</a>
   </nav>
 </aside>
 
@@ -386,8 +545,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <a href="locahun3d_data.html">データについて</a>
   <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
   <a href="locahun3d_online.html">ロケハン3Dの未来・実績</a>
-  <a href="locahun3d_demo.html" class="current">デモ・見積</a>
-  <a href="locahun3d_contact.html">お問い合わせ</a>
+  <a href="locahun3d_demo.html" class="current">デモ・お問合せ</a>
 </aside>
 
 <section class="frame hero">
@@ -400,11 +558,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <span>Demo &amp; Estimate Simulator</span>
   </div>
 
-  <p class="en-tag fade">— DEMO &amp; ESTIMATE —</p>
-  <h1 class="fade"><em>デモ・見積</em></h1>
+  <p class="en-tag fade">— DEMO &amp; CONTACT —</p>
+  <h1 class="fade"><em>デモ・お問合せ</em></h1>
   <p class="lede fade">
     実際の動作はフル機能のサンプルシーンで体験できます。<br>
-    プロジェクト規模を選ぶと、おおよその費用感を即時シミュレーション。
+    プロジェクト規模を選ぶと、おおよその費用感を即時シミュレーション。<br>
+    そのまま下のフォームから、お問い合わせ・見積依頼まで。
   </p>
 
   <div class="demo-row">
@@ -423,7 +582,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     </div>
   </div>
 
-  <div class="est">
+  <div class="est" id="estimate">
     <h2 class="fade">プロジェクト規模から、<em>概算</em>を出す</h2>
     <p class="sub fade">撮影日と各項目を選ぶだけ。詳細見積はお問い合わせください。</p>
 
@@ -483,8 +642,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
         </div>
       </div>
       <div class="quote-cta">
-        <a class="btn" id="quote-link" href="locahun3d_contact.html">詳細見積を依頼 →</a>
-        <span class="quote-cta-note">— この条件でお問い合わせを行います —<br>入力した撮影規模・地点数・納期が、お問合せフォームに<strong>自動反映</strong>されます。</span>
+        <a class="btn" id="quote-link" href="#contact">詳細見積を依頼 →</a>
+        <span class="quote-cta-note">— この条件でお問い合わせを行います —<br>入力した撮影規模・地点数・納期が、下のお問合せフォームに<strong>自動反映</strong>されます。</span>
       </div>
     </div>
 
@@ -513,6 +672,129 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <div class="foot">
     <span>DEMO &amp; ESTIMATE</span>
     <span>P. 03 / 04</span>
+  </div>
+</section>
+
+<!-- ===== CONTACT (merged from former contact page) ===== -->
+<section class="frame" id="contact">
+  <span class="timecode tl">PAGE / CONTACT</span>
+  <span class="timecode tr">— LOCAHUN 3D —</span>
+
+  <div class="chapter-rule fade">
+    <span class="num">CONTACT</span>
+    <span class="line"></span>
+    <span>Get in touch — お問い合わせ・見積依頼</span>
+  </div>
+
+  <div style="text-align:center;max-width:60ch;margin-left:auto;margin-right:auto">
+    <h2 class="fade" style="font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.9em,4.5vw,3.2em);line-height:1.3;letter-spacing:.04em;margin-bottom:22px">
+      <em style="font-style:normal;font-weight:900;font-family:'Noto Sans JP',sans-serif">お問い合わせ</em>
+    </h2>
+    <p class="fade" style="opacity:.78;line-height:1.85;font-size:clamp(1em,1.4vw,1.15em)">
+      導入のご相談、デモのリクエスト、見積のご依頼<br>
+      その他ご質問はこちらから。<br>
+      通常 2 営業日以内にご返信します。
+    </p>
+  </div>
+
+  <div class="contact-row">
+    <form class="cform fade" id="contact-form">
+      <div class="quote-preview" id="quote-preview">
+        <div class="qp-head">
+          <span>— Estimate from Demo —</span>
+          <span class="qp-line"></span>
+          <span>見積シミュレーター連携</span>
+        </div>
+        <dl id="quote-detail"></dl>
+      </div>
+
+      <div class="quote-empty" id="quote-empty">
+        <div class="qe-head">
+          <span>— Quick Tip —</span>
+          <span class="qe-line"></span>
+          <span>はじめての方へ</span>
+        </div>
+        <p>まずは上の <strong>見積シミュレーター</strong> で条件を試算し、<br>「詳細見積を依頼 →」を押すとこの欄に自動反映されます。</p>
+        <a href="#estimate" class="qe-btn">見積を作成する ↑</a>
+      </div>
+      <div class="cfield">
+        <label>NAME / お名前</label>
+        <input type="text" id="f-name" name="name" required>
+      </div>
+      <div class="cfield">
+        <label>COMPANY / 会社名</label>
+        <input type="text" id="f-company" name="company">
+      </div>
+      <div class="cfield">
+        <label>EMAIL / メールアドレス</label>
+        <input type="email" id="f-email" name="email" required>
+      </div>
+      <div class="cfield">
+        <label>PHONE / 電話番号（任意）</label>
+        <input type="tel" id="f-phone" name="phone">
+      </div>
+      <div class="cfield full">
+        <label>SUBJECT / お問い合わせ種別</label>
+        <select id="f-subject" name="subject">
+          <option>導入のご相談</option>
+          <option>スタジオスキャンの依頼（スタジオ運営様）</option>
+          <option>見積依頼</option>
+          <option>取材・メディア</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="cfield full">
+        <label>MESSAGE / ご用件</label>
+        <textarea id="f-message" name="message" placeholder="プロジェクトの概要、撮影規模、希望時期などをお書きください。"></textarea>
+      </div>
+      <!-- Honeypot (must stay empty — humans never see it) -->
+      <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0">
+        <label for="f-website">Website (do not fill)</label>
+        <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <!-- Form-open timestamp (filled by JS on page load) -->
+      <input type="hidden" id="f-t" name="_t" value="">
+      <!-- Cloudflare Turnstile widget (rendered by external script) -->
+      <div class="cfield full" style="display:flex;justify-content:center;margin-top:8px">
+        <div id="cf-turnstile" class="cf-turnstile"
+             data-sitekey="0x4AAAAAADUtEHc2L0jw0MOL"
+             data-theme="dark"
+             data-action="contact"
+             data-callback="onTurnstileVerified"></div>
+      </div>
+    </form>
+
+    <aside class="info fade">
+      <div class="block">
+        <span class="lbl">Direct</span>
+        <span class="v mono">contact@locahun3d.com</span>
+        <p>フォームに入力しづらい場合は、こちらまで直接ご連絡ください。</p>
+      </div>
+      <div class="block">
+        <span class="lbl">Demo</span>
+        <p>すぐに試したい方は、<a href="#estimate" style="color:#ffb454">上の見積シミュレーター</a> から<br>サンプルシーンを取得できます。</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="submit-row fade">
+    <span class="privacy">送信前に <a href="locahun3d_privacy.html" style="color:#ffb454;text-decoration:underline">プライバシーポリシー</a> をご確認ください。</span>
+    <button class="btn" type="submit" form="contact-form">送信する →</button>
+  </div>
+
+  <!-- Full-width below submit-row -->
+  <div class="emergency fade">
+    <span class="lbl">— Emergency / 緊急のご相談 —</span>
+    <p>撮影スケジュールが切迫し、緊急でご相談したい案件がございましたら、<br>こちらの電話までおかけください。</p>
+    <a class="phone" href="tel:08046230377">TEL : 080-4623-0377</a>
+    <p class="note">対応可能でしたらその場でお伺いします。<br>どうしても対応が難しい場合がございますので、<br>その場合はお問合せでご連絡いただけますと幸いです。</p>
+    <p class="creed">全ては、<em>妥協しない選択肢</em>を探すため。</p>
+    <p class="signature">— ロケハン3D 運営  中村 航</p>
+  </div>
+
+  <div class="foot">
+    <span>CONTACT</span>
+    <span>P. 04 / 04</span>
   </div>
 </section>
 
@@ -594,21 +876,144 @@ function calc(){
   d.setDate(d.getDate()+addDays);
   delivery.textContent=`${fmtDate(d)} 納品予定`;
 }
-function updateQuoteLink(){
-  const p=new URLSearchParams({
+[scale,scan,usage,opt,shootDate].forEach(el=>el.addEventListener('change',calc));
+calc();
+
+// ===== Quote → in-page contact form handoff =====
+function currentQuoteData(){
+  return {
     scale: scale.options[scale.selectedIndex].textContent,
     scan: scan.options[scan.selectedIndex].textContent,
     method: usage.options[usage.selectedIndex].textContent,
     opt: opt.options[opt.selectedIndex].textContent,
     date: shootDate.value || '',
-    price: price.textContent.trim() + (price.textContent.includes('お問い合わせ') ? '' : '（初期割引 50% OFF 適用）'),
+    price: price.textContent.trim() + (price.textContent.includes('お問い合わせ') ? '' : '（割引適用 50% OFF）'),
     delivery: delivery.textContent.trim()
-  });
-  quoteLink.href = 'locahun3d_contact.html?' + p.toString();
+  };
 }
-const _calc=calc; calc=function(){_calc();updateQuoteLink();};
-[scale,scan,usage,opt,shootDate].forEach(el=>el.addEventListener('change',calc));
-calc();
+const quoteFields = [
+  ['scale',    'SCALE / 撮影規模'],
+  ['scan',     'SCAN / 地点数'],
+  ['method',   'METHOD / 取得方法'],
+  ['opt',      'OPTION / 撮影同行'],
+  ['date',     'SHOOT DATE / 撮影予定日'],
+  ['delivery', 'DELIVERY / 納品予定'],
+  ['price',    'PRICE / 概算']
+];
+function fillQuote(data){
+  const preview = document.getElementById('quote-preview');
+  const detail  = document.getElementById('quote-detail');
+  detail.innerHTML = quoteFields
+    .filter(([k])=>data[k])
+    .map(([k,label])=>{
+      const isPrice = k==='price';
+      const v = data[k];
+      return `<dt>${label}</dt><dd${isPrice?' class="qp-price"':''}>${isPrice && /[0-9]/.test(v) ? '¥ '+v : v}</dd>`;
+    }).join('');
+  preview.classList.add('show');
+  document.getElementById('quote-empty').classList.add('hide');
+  const subj = document.getElementById('f-subject');
+  for(const o of subj.options){ if(o.text==='見積依頼'){ subj.value=o.value||o.text; o.selected=true; break; } }
+  const msg = document.getElementById('f-message');
+  const lines = ['【見積シミュレーターからの依頼】'];
+  quoteFields.forEach(([k,label])=>{ if(data[k]) lines.push(`・${label}: ${data[k]}`); });
+  lines.push('','--- ご要望をご記入ください ---','');
+  msg.value = lines.join('\n');
+}
+quoteLink.addEventListener('click', ()=>{ fillQuote(currentQuoteData()); });
+
+// ===== Contact form submission — POST /api/contact (Email Routing) =====
+const contactForm = document.getElementById('contact-form');
+const submitBtn = document.querySelector('button[type="submit"][form="contact-form"]');
+const MODAL_TITLES = {
+  sending: '送信中…',
+  success: 'お問い合わせを送信しました',
+  error:   '送信に失敗しました',
+};
+const MODAL_DEFAULT_MSG = {
+  sending: 'メールサーバーへ送信しています。<br>このまましばらくお待ちください。',
+  success: 'お問い合わせを受け付けました。<br>通常 2 営業日以内に担当者よりご返信いたします。',
+  error:   '時間をおいて再度お試しください。<br>急ぎの場合はお電話 (080-4623-0377) でもご連絡いただけます。',
+};
+function setModalState(state, customMessage){
+  const m = document.getElementById('sent-modal');
+  if(!m) return;
+  m.dataset.state = state;
+  const titleEl = m.querySelector('.sent-modal-title');
+  const msgEl   = m.querySelector('.sent-modal-msg');
+  if(titleEl) titleEl.textContent = MODAL_TITLES[state] || '';
+  if(msgEl)   msgEl.innerHTML = customMessage || MODAL_DEFAULT_MSG[state] || '';
+  const closeBtn = m.querySelector('.sent-modal-close');
+  if(closeBtn) closeBtn.style.display = state === 'sending' ? 'none' : '';
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+(function stampFormOpen(){
+  const t = document.getElementById('f-t');
+  if(t) t.value = String(Date.now());
+})();
+contactForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const get = id => (document.getElementById(id).value || '').trim();
+  let cfToken = '';
+  try {
+    if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+      cfToken = window.turnstile.getResponse('#cf-turnstile') || '';
+    }
+  } catch(_) {}
+  const payload = {
+    name:    get('f-name'),
+    company: get('f-company'),
+    email:   get('f-email'),
+    phone:   get('f-phone'),
+    subject: get('f-subject'),
+    message: get('f-message'),
+    website: get('f-website'),
+    _t:      Number(get('f-t')) || 0,
+    cf_turnstile_token: cfToken,
+  };
+  if(!payload.name){ alert('お名前を入力してください'); return; }
+  if(!payload.email){ alert('メールアドレスを入力してください'); return; }
+  if(!payload.message){ alert('ご用件を入力してください'); return; }
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = '送信中…';
+  setModalState('sending');
+  try {
+    const resp = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await resp.json().catch(()=>({ok:false,error:'サーバ応答を解釈できませんでした'}));
+    if(resp.ok && result.ok){
+      setModalState('success');
+      contactForm.reset();
+      const t = document.getElementById('f-t'); if(t) t.value = String(Date.now());
+    } else {
+      setModalState('error', result.error || `送信に失敗しました (HTTP ${resp.status})`);
+    }
+  } catch (err) {
+    setModalState('error', 'ネットワークエラー: ' + (err && err.message || err));
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+    try { window.turnstile && window.turnstile.reset && window.turnstile.reset('#cf-turnstile'); } catch(_){}
+  }
+});
+window.onTurnstileVerified = function(){};
+function closeSentModal(){
+  const m = document.getElementById('sent-modal');
+  if(!m) return;
+  if(m.dataset.state === 'sending') return;
+  m.classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('click', e => {
+  if(e.target && e.target.classList && e.target.classList.contains('sent-modal-close')){ closeSentModal(); return; }
+  if(e.target && e.target.id === 'sent-modal'){ closeSentModal(); }
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSentModal(); });
 
 // Mobile hamburger nav
 const mToggle=document.getElementById('mToggle'),mNav=document.getElementById('mNav');
@@ -622,5 +1027,19 @@ mToggle.addEventListener('click',()=>setMNav(!mNav.classList.contains('open')));
 mNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMNav(false)));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')setMNav(false)});
 </script>
+
+<!-- 送信結果モーダル -->
+<div class="sent-modal" id="sent-modal" role="dialog" aria-modal="true" aria-labelledby="sent-modal-title" aria-hidden="true" data-state="sending">
+  <div class="sent-modal-inner">
+    <div class="sent-modal-icon sm-icon-sending" aria-hidden="true">
+      <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#ffb454" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="50 80"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/></circle></svg>
+    </div>
+    <div class="sent-modal-icon sm-icon-success" aria-hidden="true">✓</div>
+    <div class="sent-modal-icon sm-icon-error" aria-hidden="true">!</div>
+    <h3 id="sent-modal-title" class="sent-modal-title"></h3>
+    <p class="sent-modal-msg"></p>
+    <button type="button" class="sent-modal-close">閉じる</button>
+  </div>
+</div>
 </body>
 </html>

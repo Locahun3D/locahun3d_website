@@ -234,6 +234,11 @@ async function route(request, env) {
     return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
   }
 
+  // 301 redirect: former contact page merged into demo page
+  if (url.pathname === "/locahun3d_contact.html") {
+    return Response.redirect(`${url.origin}/locahun3d_demo.html#contact`, 301);
+  }
+
   if (url.pathname === "/api/contact") {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204 });
