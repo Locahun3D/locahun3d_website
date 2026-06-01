@@ -137,6 +137,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .hero .brand{position:absolute;top:18vh;left:50%;transform:translateX(-50%);
   font-family:'JetBrains Mono',monospace;font-size:.72em;letter-spacing:.6em;
   opacity:.55;text-indent:.6em;white-space:nowrap}
+.hero .hero-logo{position:absolute;top:8.5vh;left:50%;transform:translateX(-50%);
+  width:58px;height:58px;opacity:.95;z-index:3}
+@media(max-width:900px){.hero .hero-logo{width:46px;top:10vh}}
 .hero .h-main{font-family:'Noto Serif JP',serif;font-weight:200;
   font-size:clamp(2.3em,5.6vw,5.4em);line-height:1.35;letter-spacing:.04em;
   margin-bottom:48px;max-width:none;
@@ -476,7 +479,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 <!-- Left side menu (desktop) -->
 <aside class="side-menu">
-  <div class="brand-mini"><span><svg viewBox="0 0 64 64" width="13" height="13" aria-hidden="true" style="vertical-align:-2px;margin-right:8px;opacity:.82;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></div>
+  <div class="brand-mini"><span><svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true" style="vertical-align:-3px;margin-right:9px;opacity:.95;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></div>
   <nav>
     <a href="locahun3d_manifesto.html" class="current">マニフェスト</a>
     <a href="locahun3d_data.html">データについて</a>
@@ -493,7 +496,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 <!-- Mobile slide-in drawer -->
 <aside class="m-nav" id="mNav" aria-hidden="true">
-  <div class="m-brand"><span><svg viewBox="0 0 64 64" width="16" height="16" aria-hidden="true" style="vertical-align:-2px;margin-right:8px;opacity:.82;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></div>
+  <div class="m-brand"><span><svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true" style="vertical-align:-4px;margin-right:10px;opacity:.95;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></div>
   <a href="locahun3d_manifesto.html" class="current">マニフェスト</a>
   <a href="locahun3d_data.html">データについて</a>
   <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
@@ -508,6 +511,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <span class="timecode tl">REEL 01 — INT.STUDIO — DAY</span>
   <span class="timecode tr">2026 / LOCAHUN 3D</span>
 
+  <svg class="hero-logo" viewBox="0 0 64 64" role="img" aria-label="ロケハン3D"><g fill="none" stroke="#f4f1ea" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
   <div class="brand">L · O · C · A · H · U · N &nbsp;&nbsp;&nbsp; 3 D</div>
 
   <h1 class="h-main">
