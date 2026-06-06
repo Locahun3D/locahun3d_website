@@ -355,7 +355,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .info .block:last-child{border-bottom:none;padding-bottom:0}
 }
 /* mobile-scale 1.2x + overflow guard */
-@media(max-width:900px){  body{overflow-x:hidden}
+@media(max-width:900px){  body{overflow-x:clip}
   .field select,.field input,.field textarea{font-size:1em}
 }
 </style>
