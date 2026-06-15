@@ -253,13 +253,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .chapter-rule .num{font-family:'JetBrains Mono',monospace;opacity:.6}
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.25}
 /* big section heading（実績 / 技術ブログ） */
-.sec-title{font-family:'Noto Serif JP',serif;font-weight:700;
-  font-size:clamp(2.6em,7vw,5.2em);letter-spacing:.14em;line-height:1.12;
-  color:#fff;margin:6px 0 2vh;text-indent:.14em}
-.sec-title::after{content:'';display:block;width:56px;height:2px;background:var(--accent);
-  margin-top:24px;opacity:.9}
-@media(max-width:900px){.sec-title{font-size:clamp(2em,12vw,3em);letter-spacing:.06em;text-indent:0;margin-bottom:4vh}
-  .sec-title::after{margin-top:16px;width:42px}}
+.sec-title{font-family:'Noto Sans JP',sans-serif;font-weight:900;
+  font-size:clamp(2.6em,7vw,5.2em);letter-spacing:.04em;line-height:1.14;
+  color:#fff;margin:6px 0 2vh;text-align:center}
+.sec-title::after{content:'';display:block;width:60px;height:2px;background:var(--accent);
+  margin:24px auto 0;opacity:.9}
+@media(max-width:900px){.sec-title{font-size:clamp(2em,12vw,3em);letter-spacing:.02em;margin-bottom:4vh}
+  .sec-title::after{margin-top:16px;width:44px}}
 
 /* Selected Works — Coming Soon (migrated from works.html) */
 .sw-block{flex:1;display:flex;flex-direction:column;align-items:center;
