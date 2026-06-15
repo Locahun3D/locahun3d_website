@@ -25,7 +25,7 @@ img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
-@media(max-width:640px){ br.pc{display:none} }
+@media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
 /* 見出しの行バランス（中途半端な折返しを軽減） */
 h1,h2,h3{text-wrap:balance}
 
@@ -112,7 +112,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .blogband .ey{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.38em;
   text-transform:uppercase;color:var(--accent);text-indent:.38em}
 .blogband h2{margin-top:16px;font-family:'Noto Serif JP',serif;font-weight:200;
-  font-size:clamp(1.7em,3.6vw,2.7em);letter-spacing:.04em;line-height:1.4;position:relative;z-index:1}
+  font-size:clamp(1.5em,5vw,2.7em);letter-spacing:.03em;line-height:1.45;position:relative;z-index:1}
 .blogband h2 em{font-style:normal;font-weight:700}
 .blogband p{margin-top:18px;max-width:54ch;color:var(--dim);font-size:.92em;line-height:1.95;position:relative;z-index:1}
 .cta{display:inline-block;margin-top:30px;padding:15px 34px;border:1px solid rgba(255,255,255,.5);
@@ -214,7 +214,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <!-- Blog CTA -->
   <section class="blogband fade">
     <div class="ey">Tech Blog</div>
-    <h2>技術ブログ・<em>制作方法</em>はこちら</h2>
+    <h2>技術ブログ・<br class="sp"><em>制作方法</em>はこちら</h2>
     <p>この案件で使った 3DGS・VFX・AI のワークフローや、撮影・制作のノウハウを技術ブログで順次公開していきます。「どう作ったか」を知りたい方はこちらから。</p>
     <a class="cta" href="blog.html">技術ブログを見る →</a>
   </section>

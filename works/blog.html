@@ -24,7 +24,7 @@ img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
-@media(max-width:640px){ br.pc{display:none} }
+@media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
 h1,h2,h3{text-wrap:balance}
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
