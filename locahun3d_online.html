@@ -258,7 +258,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 /* big section heading（実績 / 技術ブログ） */
 .sec-title{font-family:'Noto Sans JP',sans-serif;font-weight:900;
   font-size:clamp(2.6em,7vw,5.2em);letter-spacing:.04em;line-height:1.14;
-  color:#fff;margin:6px 0 2vh;text-align:center}
+  color:#fff;margin:6px 0 2vh;text-align:center;font-feature-settings:"palt"}
+/* BudouX適用要素：文節境界以外で改行しない */
+[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+.wk-feature .wk-body h3{font-feature-settings:"palt"}
 .sec-title::after{content:'';display:block;width:60px;height:2px;background:var(--accent);
   margin:24px auto 0;opacity:.9}
 @media(max-width:900px){.sec-title{font-size:clamp(2em,12vw,3em);letter-spacing:.02em;margin-bottom:4vh}
@@ -494,6 +497,14 @@ function setMNav(open){
 mToggle.addEventListener('click',()=>setMNav(!mNav.classList.contains('open')));
 mNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMNav(false)));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')setMNav(false)});
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = '.sec-title,.wk-feature h3,.wk-feature p,.chapter-rule > span:not(.line):not(.num)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 
 </body>

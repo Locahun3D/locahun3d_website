@@ -25,7 +25,8 @@ a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
 @media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
-h1,h2,h3{text-wrap:balance}
+h1,h2,h3{text-wrap:balance;font-feature-settings:"palt"}
+[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   opacity:.06;mix-blend-mode:overlay;
@@ -174,6 +175,7 @@ function card(p){
 function render(f){
   document.getElementById('grid').innerHTML = POSTS.filter(function(p){return f==='all'||p.tag===f;}).map(card).join('');
   io2();
+  if(window.__budoux) window.__budoux(document.getElementById('grid'));
 }
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
 function io2(){document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});}
@@ -183,6 +185,16 @@ document.getElementById('filters').addEventListener('click',function(e){
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
   b.classList.add('active'); render(b.dataset.f);
 });
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = '.hero h1,.hero p,.card h2,.card p';
+  function apply(root){ (root||document).querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} }); }
+  window.__budoux = apply;
+  apply();
 </script>
 </body>
 </html>

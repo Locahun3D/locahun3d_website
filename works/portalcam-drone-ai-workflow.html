@@ -38,6 +38,8 @@
   br.sp{display:none}
   @media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
   header.post h1,article h2,article h3,header.post .lead{text-wrap:balance}
+  header.post h1,article h2,article h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
 
   /* film grain */
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -497,6 +499,14 @@ ffmpeg -i camera.h264 -vf scale=1100:-1 -q:v 3 small_%05d.jpg</code></pre>
   function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
   document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
 })();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行（見出し・リード・注記・図キャプション。長い本文は対象外） -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,.callout,figcaption,.spec dd';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>
 </html>

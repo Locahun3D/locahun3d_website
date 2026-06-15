@@ -26,8 +26,10 @@ a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
 @media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
-/* 見出しの行バランス（中途半端な折返しを軽減） */
-h1,h2,h3{text-wrap:balance}
+/* 見出し：行バランス＋約物詰め(palt)。文節改行はBudouX(JS)で付与 */
+h1,h2,h3,.sec-title{text-wrap:balance;font-feature-settings:"palt"}
+/* BudouX適用要素：文節境界以外で改行しない */
+[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
 
 /* film grain */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -248,6 +250,16 @@ document.getElementById('works').innerHTML = WORKS.map(card).join('');
 
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
 document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
+</script>
+
+<!-- BudouX：日本語を文節単位で改行（中途半端な折返しを防ぐ） -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = '.hero h1,.hero p,.feat h2,.feat .lead,.facts .v,.blogband h2,.blogband p,.card h3,.card p,.sec-title';
+  function apply(root){ (root||document).querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} }); }
+  window.__budoux = apply;
+  apply();
 </script>
 </body>
 </html>
