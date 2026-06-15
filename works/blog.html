@@ -25,6 +25,7 @@ a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
 @media(max-width:640px){ br.pc{display:none} }
+h1,h2,h3{text-wrap:balance}
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   opacity:.06;mix-blend-mode:overlay;
@@ -54,7 +55,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .hero{padding:34px 0 40px;border-bottom:1px solid var(--line-2)}
 .hero .kick{font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.42em;
   text-transform:uppercase;color:var(--accent);margin-bottom:26px;text-indent:.42em}
-.hero h1{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.9em,4.6vw,3.6em);line-height:1.42;letter-spacing:.03em}
+.hero h1{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.6em,5.6vw,3.6em);line-height:1.44;letter-spacing:.02em;text-wrap:balance}
 .hero h1 em{font-style:normal;font-weight:700}
 .hero p{margin-top:22px;max-width:58ch;color:var(--dim);font-size:clamp(.9em,1.2vw,1em);line-height:2}
 
@@ -99,10 +100,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .fade.in{opacity:1;transform:none}
 
 @media(max-width:540px){
-  .bar nav a:not(.ext){display:none}
-  .tcr{font-size:.55em}
+  .bar .bn{display:none}
+  .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
+  .tcr{font-size:.5em;letter-spacing:.16em}
+  .hero{padding:22px 0 32px}
   .filters{width:100%}
-  .chip{flex:1;padding:11px 8px;text-align:center}
+  .chip{flex:1;padding:11px 6px;text-align:center;letter-spacing:.12em}
 }
 </style>
 </head>

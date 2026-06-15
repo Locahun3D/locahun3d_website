@@ -26,6 +26,8 @@ a{color:inherit;text-decoration:none}
 /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
 br.sp{display:none}
 @media(max-width:640px){ br.pc{display:none} }
+/* 見出しの行バランス（中途半端な折返しを軽減） */
+h1,h2,h3{text-wrap:balance}
 
 /* film grain */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -60,7 +62,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .hero .kick{font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.42em;
   text-transform:uppercase;color:var(--accent);margin-bottom:26px;text-indent:.42em}
 .hero h1{font-family:'Noto Serif JP',serif;font-weight:200;
-  font-size:clamp(2em,5vw,4em);line-height:1.4;letter-spacing:.03em}
+  font-size:clamp(1.65em,6vw,4em);line-height:1.42;letter-spacing:.02em;text-wrap:balance}
 .hero h1 em{font-style:normal;font-weight:700}
 .hero p{margin-top:24px;max-width:60ch;color:var(--dim);font-size:clamp(.92em,1.2vw,1.02em);line-height:2}
 
@@ -148,9 +150,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .bar .bn small{display:none}
 }
 @media(max-width:540px){
-  .bar nav a:not(.ext){display:none}
+  .bar .bn{display:none}                         /* ワードマークを隠してナビを表示 */
+  .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
   .feat .body{padding:28px 24px 30px}
-  .tcr{font-size:.55em}
+  .tcr{font-size:.5em;letter-spacing:.16em}
+  .hero{padding:22px 0 38px}
+  .chapter-rule{font-size:.6em;gap:12px;margin:44px 0 24px;flex-wrap:wrap}
+  .chapter-rule .en{flex-basis:100%;margin-top:6px}
 }
 </style>
 </head>

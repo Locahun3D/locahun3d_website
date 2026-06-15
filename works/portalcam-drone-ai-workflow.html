@@ -37,6 +37,7 @@
   /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
   br.sp{display:none}
   @media(max-width:640px){ br.pc{display:none} }
+  header.post h1,article h2,article h3,header.post .lead{text-wrap:balance}
 
   /* film grain */
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -139,9 +140,12 @@
   @media(max-width:640px){
     body{font-size:16px}
     header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.6vw,34px)}
     article h2{margin-top:46px;padding-top:34px}
-    .topbar .nav a:not(.ext){display:none}
+    /* ワードマークを隠してナビ(実績/技術ブログ/サイトへ)を表示 */
+    .topbar b{display:none}
     .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}
   }
 </style>
 </head>

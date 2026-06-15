@@ -118,6 +118,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .side-menu nav a.current{color:#fff;font-weight:600}
 .side-menu nav a.current::before{width:14px;background:#ffb454;opacity:1}
 @media(max-width:1199px){.side-menu{display:none}}
+/* ハンバーガー表示域(≤1199)はフレーム上余白を確保し、CH見出しとの重なりを防ぐ */
+@media(max-width:1199px){.frame{padding-top:84px}}
 @media(min-width:1200px){.frame{padding-left:max(220px, calc((100vw - 100vh * 4 / 3) / 2))}}
 
 /* ============================================
@@ -156,7 +158,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
    MOBILE — comprehensive overrides ≤ 760px
    ============================================ */
 @media(max-width:900px){
-  .frame{padding-left:22px;padding-right:22px;padding-top:54px;padding-bottom:60px}
+  .frame{padding-left:22px;padding-right:22px;padding-top:84px;padding-bottom:60px}
+  .frame .chapter-rule{margin-top:0}
   .frame.letterbox::before,.frame.letterbox::after{height:24px}
   .timecode{display:none}
   .foot{font-size:.55em;letter-spacing:.18em;padding-top:36px}
@@ -316,7 +319,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   text-transform:uppercase;padding:5px 11px;border:1px solid var(--line);color:rgba(255,255,255,.62)}
 .wk-feature .wk-badges span.w{color:var(--accent);border-color:rgba(255,180,84,.5)}
 .wk-feature .wk-body h3{font-family:'Noto Serif JP',serif;font-weight:400;
-  font-size:clamp(1.3em,2.2vw,1.8em);line-height:1.5;letter-spacing:.02em}
+  font-size:clamp(1.3em,2.2vw,1.8em);line-height:1.5;letter-spacing:.02em;text-wrap:balance}
 .wk-feature .wk-body p{margin-top:16px;color:rgba(255,255,255,.62);font-size:.88em;line-height:1.95}
 .wk-feature .wk-body p strong{color:#fff;font-weight:600}
 .wk-feature .wk-foot{margin-top:auto;padding-top:30px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
