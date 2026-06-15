@@ -17,11 +17,14 @@
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 :root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.1);--accent:#ffb454;--dim:rgba(255,255,255,.62)}
 html,body{background:var(--bg);color:var(--ink);
-  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.8;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.04em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:normal;overflow-wrap:anywhere;line-break:strict}
 .serif{font-family:'Noto Serif JP',serif}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
+/* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
+br.sp{display:none}
+@media(max-width:640px){ br.pc{display:none} }
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   opacity:.06;mix-blend-mode:overlay;
@@ -122,7 +125,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
   <section class="hero">
     <div class="kick">Tech Blog / 技術ブログ</div>
-    <h1>現場で動く <em>3DGS</em> の、<br>制作ワークフローを公開する。</h1>
+    <h1>現場で動く <em>3DGS</em> の、<br class="pc">制作ワークフローを公開する。</h1>
     <p>3D Gaussian Splatting・撮影・VFX・AI制作の実践的なワークフローや制作ノウハウを発信します。実績の「どう作ったか」をここに残していきます。</p>
   </section>
 

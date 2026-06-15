@@ -27,12 +27,16 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--body);
-    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;
-    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.03em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
   ::selection{background:rgba(255,180,84,.3)}
   a{color:var(--brand-ink);text-decoration:none}
   a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  /* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
+  br.sp{display:none}
+  @media(max-width:640px){ br.pc{display:none} }
 
   /* film grain */
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;

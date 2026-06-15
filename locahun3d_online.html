@@ -68,11 +68,14 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--accent:#ffb454}
 html,body{height:100%;background:var(--bg);color:var(--ink);
-  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.7;
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.8;letter-spacing:.04em;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
 .serif{font-family:'Noto Serif JP',serif}
 .mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
 img{max-width:100%;display:block}
+/* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
+br.sp{display:none}
+@media(max-width:640px){ br.pc{display:none} }
 
 /* film grain */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -413,7 +416,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="wk-badges">
         <span class="w">実績</span><span>3DGS</span><span>VFX合成</span><span>AI生成</span>
       </div>
-      <h3>実写VFX × 3DGS × AI ─<br>空撮ルックの映像カット制作</h3>
+      <h3>実写VFX × 3DGS × AI ─<br class="pc">空撮ルックの映像カット制作</h3>
       <p>実在の交差点を <strong>徒歩スキャン</strong>して3DGS化。Cinema4Dで実写を合成し<strong>ドローンを飛ばさずに上空アングル</strong>を作り、AI生成カットまで展開した制作事例です。</p>
       <div class="wk-foot">
         <span class="wk-locked"><span class="lk">🔒</span>指示があるまで非公開（NDA）</span>
@@ -455,7 +458,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="wk-badges">
         <span class="w">技術ブログ</span><span>3DGS</span><span>ワークフロー</span><span>AI</span>
       </div>
-      <h3>PortalCamの3DGSから「ドローンカット」と<br>「AI生成カット」を作る方法</h3>
+      <h3>PortalCamの3DGSから「ドローンカット」と<br class="pc">「AI生成カット」を作る方法</h3>
       <p>徒歩スキャン1回を、ドローン風カット・実写合成プレート・AI生成の3素材へ展開。撮影前段からポスプロ・AI生成までを一本につなぐ制作ワークフローの解説記事です。</p>
       <div class="wk-foot">
         <span class="wk-locked"><span class="lk">🔒</span>指示があるまで非公開（NDA）</span>

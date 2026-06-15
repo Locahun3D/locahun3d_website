@@ -17,12 +17,15 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
 :root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.1);--accent:#ffb454;--dim:rgba(255,255,255,.62)}
 html,body{background:var(--bg);color:var(--ink);
-  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.8;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.04em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:normal;overflow-wrap:anywhere;line-break:strict}
 .serif{font-family:'Noto Serif JP',serif}
 .mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
+/* 日本語テキスト表示ルール：デバイス別の改行制御（br.pc=PC専用 / br.sp=スマホ専用） */
+br.sp{display:none}
+@media(max-width:640px){ br.pc{display:none} }
 
 /* film grain */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -170,7 +173,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
   <section class="hero">
     <div class="kick">Works / 制作実績</div>
-    <h1>現場を <em>3DGS</em> で持ち帰り、<br>映像にする。その実績。</h1>
+    <h1>現場を <em>3DGS</em> で持ち帰り、<br class="pc">映像にする。その実績。</h1>
     <p>ロケハン3D（LOCAHUN 3D）の制作実績。3D Gaussian Splatting・実写合成（VFX）・AI生成を組み合わせた映像カット制作の事例と、その制作ワークフローを公開しています。</p>
   </section>
 
