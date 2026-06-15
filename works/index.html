@@ -123,7 +123,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .cta:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.36em}
 
 /* ===== works grid ===== */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:0;
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:0;
   border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:34px}
 .card{border-right:1px solid var(--line);border-bottom:1px solid var(--line);
   display:flex;flex-direction:column;min-height:260px;background:#040404;transition:background .2s}
