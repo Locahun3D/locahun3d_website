@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>PortalCamの3DGSから「ドローンカット」と「AI生成カット」を作る方法 | ロケハン3D 実績＆技術ブログ</title>
+<meta name="description" content="XGRIDS PortalCamで徒歩スキャンした3D Gaussian Splattingを、Cinema4Dでの実写合成（ドローン風カット）と、Nano Banana Pro / SeeDanceによるAI生成カットに展開するワークフローの解説記事。">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --surface:#0a0a0a; --ink:#fafaf6; --body:rgba(255,255,255,.76); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:720px; --radius:2px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --serif:'Noto Serif JP',serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+
+  /* film grain */
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  /* reading progress */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;
+    background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  /* topbar */
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);
+    border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .sep{color:var(--faint)}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+
+  header.post{padding:48px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:22px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--serif);font-size:clamp(27px,5vw,42px);line-height:1.45;font-weight:700;letter-spacing:.02em;color:#fff}
+  header.post .lead{margin-top:22px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:36px 0}
+  figure .ph{aspect-ratio:16/9;background:var(--surface) center/cover no-repeat;border:1px solid var(--line);border-radius:var(--radius);display:grid;place-items:center;color:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-align:center;padding:14px}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;text-align:center;line-height:1.75}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:18px}
+  .toc li{margin:8px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc ol ol{margin:6px 0 6px 18px}
+  .toc ol ol li{font-size:14px;color:var(--sub)}
+  .toc li::marker{color:var(--faint)}
+  .toc .adv{color:var(--accent2);font-weight:700}
+
+  article h2{font-family:var(--serif);font-size:clamp(21px,3.2vw,27px);font-weight:700;letter-spacing:.01em;color:#fff;
+    margin:62px 0 18px;padding-top:44px;border-top:1px solid var(--line)}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.7em;font-variant-numeric:tabular-nums;margin-right:.5em;letter-spacing:.05em}
+  article h3{font-family:var(--serif);font-size:19px;font-weight:700;color:#fff;margin:36px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:600}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:600;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+  code{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.5px 6px;font-family:var(--mono);font-size:13px;color:var(--brand-ink)}
+  pre{background:var(--code);color:var(--code-ink);border-radius:var(--radius);padding:20px 22px;overflow:auto;margin:24px 0;font-family:var(--mono);font-size:13px;line-height:1.75;border:1px solid var(--line)}
+  pre code{background:none;border:none;color:inherit;padding:0;font-size:13px}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.04em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  /* 画像クリックで拡大（ライトボックス） */
+  article img,figure .ph{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  /* 未公開ドラフト告知バー（スクロールで流れる・非sticky） */
+  .draftbar{background:#15110c;color:#ffd9a8;font-family:var(--mono);font-size:11.5px;font-weight:400;text-align:center;
+    padding:9px 16px;letter-spacing:.1em;border-bottom:1px solid rgba(255,180,84,.25)}
+  .draftbar b{color:var(--brand);font-weight:500}
+
+  /* topbar nav */
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s;text-decoration:none}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  /* filmstrip footer accent */
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);
+    background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    article h2{margin-top:46px;padding-top:34px}
+    .topbar .nav a:not(.ext){display:none}
+    .topbar .tag{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="draftbar">📝 このページは <b>未公開ドラフト（社内プレビュー）</b> です ─ 一般公開前の確認用。リンクや表記は変更される場合があります。</div>
+<div class="progress" id="progress"></div>
+<div class="topbar"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+    <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html">実績</a>
+    <a href="blog.html">技術ブログ</a>
+    <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
+  </nav>
+</div></div>
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">ワークフロー</span>
+    <span>2026-06-04</span><span>・</span><span>読了 約7分</span>
+  </div>
+  <h1>PortalCamの3DGSから「ドローンカット」と「AI生成カット」を作る方法</h1>
+  <p class="lead">XGRIDS PortalCamで現場を<strong>徒歩スキャン</strong>しただけの素材を、Cinema4Dでの実写合成（空撮ルックのドローンカット）と、Nano Banana Pro / SeeDance による AI生成カットへ展開します。ドローンを飛ばさずに上空アングルを作る、実用的な制作フローの記録です。</p>
+
+  <figure>
+    <video controls muted autoplay loop playsinline preload="auto" poster="./images/hero-gatling.png"
+           style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;display:block;background:#000">
+      <source src="./images/s08_c07_CompPreview_v001.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。<a href="./images/s08_c07_CompPreview_v001.mp4">動画を開く</a>
+    </video>
+    <figcaption>完成動画（s08_c07 コンププレビュー）。徒歩スキャンした交差点の3DGSを背景に、実写ガトリングを合成した空撮ルックのカット。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#intro">このワークフローでできること</a></li>
+    <li><a href="#tools">用意するもの</a></li>
+    <li><a href="#scan">手順1：PortalCamで現場を徒歩スキャン</a></li>
+    <li><a href="#gs">手順2：LCC Studioで3DGS化</a></li>
+    <li><a href="#c4d">手順3：Cinema4Dでドローンカットを合成</a></li>
+    <li><strong style="color:var(--accent2)">応用編：AI活用</strong>
+      <ol style="margin-top:4px">
+        <li><a href="#img">Nano Banana ProでAI画像を生成</a></li>
+        <li><a href="#video">Higgsfield/SeeDanceでAI動画化</a></li>
+        <li><a href="#shadow">SwitchLightで影・ライティングを馴染ませる</a></li>
+        <li><a href="#fix">AIで破綻部分を修正・ブラッシュアップ</a></li>
+      </ol>
+    </li>
+    <li><a href="#tips">つまずきポイントとTips</a></li>
+    <li><a href="#xbin">付録：xBin（XBAG）の構造とロケ実写の取り出し</a></li>
+    <li><a href="#summary">まとめ</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>PortalCam 徒歩撮影</b><span class="a">→</span>
+    <b>LCC Studio で3DGS</b><span class="a">→</span>
+    <b>C4Dで合成・レンダ</b><span class="a">→</span>
+    <b>Nano Banana Pro で画像生成</b><span class="a">→</span>
+    <b>Higgsfield / SeeDance で動画化</b>
+  </div>
+
+  <h2 id="intro"><span class="n">01.</span> このワークフローでできること</h2>
+  <p>3D Gaussian Splatting（3DGS）の強みは、<strong>一度取り込めば視点を後から自由に作れる</strong>ことです。これを利用すると、現場を歩いて撮るだけで次のことが地続きにできます。</p>
+  <ul>
+    <li>ドローンを飛ばさずに<strong>空撮アングル（ドローンカット）</strong>を作る</li>
+    <li>実写VFX素材（ヘリ・人物など）の<strong>背景プレート</strong>として使う</li>
+    <li>AI画像・動画生成の<strong>構図／ロケーション参照</strong>に回す</li>
+  </ul>
+  <p>今回は例として「自衛隊員がヘリに搭乗し機関銃を構える」カットを、実在の交差点の3DGSをベースに制作します。</p>
+
+  <h2 id="tools"><span class="n">02.</span> 用意するもの</h2>
+  <dl class="spec">
+    <dt>スキャン機材</dt><dd>XGRIDS PortalCam（SLAMスキャン）</dd>
+    <dt>3DGS化</dt><dd>Lixel CyberColor（LCC Studio）</dd>
+    <dt>合成・3D</dt><dd>Cinema 4D ／ After Effects（トラッキング）</dd>
+    <dt>AI画像生成</dt><dd>Nano Banana Pro（画像参照ベース生成）</dd>
+    <dt>AI動画生成</dt><dd>Higgsfield / SeeDance（動画リファレンス）</dd>
+    <dt>リライティング</dt><dd>SwitchLight（Beeble AI・PBR分解＋HDRIリライトで合成素材を背景の光に馴染ませる）</dd>
+  </dl>
+
+  <h2 id="scan"><span class="n">03.</span> 手順1：PortalCamで現場を徒歩スキャン</h2>
+  <p>PortalCamを持って現場を歩き、実空間を取得します。ドローンや特殊機材は不要で、許可・天候のハードルも低いのが利点です。</p>
+  <div class="callout note"><b>ポイント</b><br>アスファルトは特徴が少なくSLAMが滑りやすいので、<strong>路面標示・縁石・信号・建物角</strong>など特徴のある場所を動線に必ず入れ、ループを閉じるように歩く。同時に、後でAI参照に使う<strong>ロケーション実写写真</strong>も数枚撮っておくと効率的です。</div>
+  <div class="callout note"><b>ロケ写真は xBin（H.264）から取り出す</b><br>ロケーションの実写は、PortalCam内部の <code>.xbin</code>（XBAG形式・数GB）に <strong>H.264動画ストリーム</strong>（<code>/camera_center/h264</code>・魚眼パノラマ）として記録されています。JPEG静止画では入っていないため、<strong>LCC Studioでフレーム書き出し</strong>するか、NALカーブで <code>.h264</code> を取り出して <code>ffmpeg -i camera.h264 frame_%05d.jpg</code> で連番化します（<strong>詳細な構造と手順は<a href="#xbin">付録</a>参照</strong>）。</div>
+
+  <h2 id="gs"><span class="n">04.</span> 手順2：LCC Studioで3DGS化</h2>
+  <p>取得データを Lixel CyberColor（LCC Studio）に読み込み、3D Gaussian Splatting に変換します。これで視点自由・フォトリアルな立体素材になります。</p>
+  <figure>
+    <img src="./images/lcc-studio.png" alt="LCC Studioで開いた交差点の3DGS">
+    <figcaption>LCC Studio上の3DGS。Google ストリートビューのように空間内を自由に移動できる。</figcaption>
+  </figure>
+
+  <h2 id="c4d"><span class="n">05.</span> 手順3：Cinema4Dでドローンカットを合成</h2>
+  <h3>3-1. 実写素材をトラッキング</h3>
+  <p>ヘリ・ガトリング等の実写素材を After Effects 等でトラッキングし、動きのデータを取得します。</p>
+  <h3>3-2. C4Dに3DGSを背景として読み込む</h3>
+  <p>Cinema4Dに3DGSを読み込み、<strong>背景プレート</strong>として配置。トラッキングした実写素材を、その上にオーバーレイ表示します。視点を上空に振れば、徒歩で撮った現場が<strong>空撮アングル</strong>に変わります。</p>
+  <h3>3-3. レンダリング</h3>
+  <p>カメラワークを決めてレンダリング。これで「ドローンカット」が完成します。</p>
+  <figure>
+    <img src="./images/c4d-gatling.png" alt="C4D/AEで3DGS背景に実写ガトリングを合成">
+    <figcaption>3DGS背景に実写素材を合成。上空視点でドローン風のルックに。</figcaption>
+  </figure>
+  <div class="callout note"><b>なぜC4Dに3DGS背景？</b><br>実写合成の「背景が動くと破綻する」問題を、視点を自由に作れる3DGSが解決します。飛ばせない場所・撮れない高度のアングルも、現場データから後付けで作れます。</div>
+
+  <h2 id="advanced" style="color:var(--accent2);border-top:2px solid var(--accent2)">応用編：AIを使った発展的な活用</h2>
+  <p>ここからは<strong>応用編</strong>です。基本の「ドローンカット制作（手順1〜3）」に対し、3DGSで取り込んだ現場を<strong>AI画像・動画生成や影づけの素材／参照</strong>として使う、発展的なワークフローを紹介します。</p>
+
+  <h2 id="img"><span class="n">応用1.</span> Nano Banana ProでAI画像を生成</h2>
+  <p>AI生成カットは、まず静止画から作ります。Nano Banana Pro に複数の参照画像を渡し、<strong>構図はドローンカット、ディテールは現場写真</strong>から取らせます。</p>
+  <ul>
+    <li><strong>画像1</strong>＝構図の参考（ドローンカットの合成画）</li>
+    <li><strong>画像2〜5</strong>＝ロケーションの実際の写真（PortalCam撮影）</li>
+  </ul>
+  <pre><code>画像1は構図の参考です。
+画像2〜5はロケーションの実際の写真です。
+ヘリに乗った日本の自衛隊員が、機関銃を手に構えている——</code></pre>
+  <figure>
+    <img src="./images/nanobanana.png" alt="Nano Banana Pro のキャンバスで参照画像を結線して生成">
+    <figcaption>構図参照＋ロケ実写を束ねて生成。現場のリアリティを保ったままAIカットを起こす。</figcaption>
+  </figure>
+  <div class="callout warn"><b>注意</b><br>生成物の権利・モデル規約は用途（商用/公開）に応じて要確認。実在地・人物の表現はセンシティブな題材になり得るため、公開前にチェックする。</div>
+
+  <h2 id="video"><span class="n">応用2.</span> Higgsfield/SeeDanceでAI動画化</h2>
+  <p>静止画ができたら、<strong>Higgsfield（SeeDance 2.0）</strong>で動画化します。ポイントは <strong>Elements機能</strong>。PortalCamで撮ったロケ写真を「Location」要素として登録し、キャラクターを別要素として組み合わせる方式です。</p>
+  <h3>5-1. ロケを「Location要素」として登録</h3>
+  <p>PortalCamのロケ写真（<code>location_01〜06</code> など複数アングル）をアップロードし、<code>@location</code> という再利用可能な<strong>ロケーション要素</strong>を作成。これで「同じ現場」を何度でも生成に呼び出せます。</p>
+  <h3>5-2. キャラクター要素と組み合わせる</h3>
+  <p>用意したキャラ（例：<code>@goatman</code> / <code>@wrestler</code> / <code>@karate</code> など）を選び、ロケ要素と一緒にプロンプトへ。<code>@</code>でアセットを参照します。</p>
+  <h3>5-3. 構図・アングルを画像で固定して生成</h3>
+  <p>手順4の画像を <strong>Image 1（構図・アングルの参照）</strong>として渡し、現場の質感とローアングル/ダッチアングルを維持したまま生成します。</p>
+  <pre><code>An ultra-detailed, ultra-slow-motion video that completely
+maintains the extreme low-angle, dynamic Dutch angle, and
+specific industrial district environment of Image 1.
+@location ... @goatman ...</code></pre>
+  <figure>
+    <img src="./images/higgsfield.png" alt="Higgsfield SeeDance 2.0 のElementsでLocationとCharacterを組み合わせて生成">
+    <figcaption>Higgsfield（SeeDance 2.0）。PortalCam写真から作った <code>@location</code> とキャラ要素（<code>@goatman</code> 等）を組み合わせ、Image 1の構図を維持して動画生成。</figcaption>
+  </figure>
+  <div class="callout note"><b>3DGSロケが“AIアセット”になる</b><br>PortalCamで一度撮った現場を <code>@location</code> として登録しておくと、キャラや構図を差し替えながら同じ場所で何カットも生成できる。スキャン資産がそのままAI制作の素材ライブラリになります。</div>
+
+  <h2 id="shadow"><span class="n">応用3.</span> SwitchLightで影・ライティングを馴染ませる</h2>
+  <p>3DGS背景にCG・AI・実写の素材を合成すると、<strong>地面に影が無く“浮く”／光の向きが背景と合わない</strong>問題が起きます。3DGSは撮影時のライティングが焼き込まれているため、合成素材側に「背景と同じ光」と「接地影」を与えないと馴染みません。ここは <strong>SwitchLight（Beeble AI）</strong> のリライティングを使うのが本命です。</p>
+
+  <div class="stepflow">
+    <b>素材をデライト(PBR分解)</b><span class="a">→</span>
+    <b>シーンのHDRIを用意</b><span class="a">→</span>
+    <b>リライト(背景の光に一致)</b><span class="a">→</span>
+    <b>接地影をAEで乗算合成</b>
+  </div>
+
+  <h3>SwitchLightとは</h3>
+  <p>被写体（人物・オブジェクト）を <strong>PBRマップ（アルベド／ノーマル／ラフネス／スペキュラ）に分解（デライト）</strong>し、任意の <strong>HDRI環境で再ライティング（リライト）</strong> できるAIツール。静止画だけでなく<strong>動画にも対応</strong>し、フレーム間が安定するのが強み。「AIに影を描き足す」より物理的に整合した結果が得られます。</p>
+
+  <h3>手順</h3>
+  <ol>
+    <li><strong>素材をデライト</strong>：合成したい実写／キャラ素材をSwitchLightに入れ、PBRマップを抽出（焼き込まれた元のライトを除去）。</li>
+    <li><strong>シーンの光を用意</strong>：3DGS背景のライティングを表すHDRI／環境光（時間帯・主光源の方向・色）を用意。現場のロケ写真やパノラマから作るとマッチ精度が上がる。</li>
+    <li><strong>リライト</strong>：そのHDRIで素材をリライト → 背景と<strong>光の向き・色・強さ・陰影が一致</strong>し、素材のセルフシャドウが正しく付く。</li>
+    <li><strong>接地影（コンタクトシャドウ）</strong>：主光源の方向に合わせてグラウンドシャドウのパスを作り、After Effectsで<strong>乗算合成</strong>。地面の色を少し拾って馴染ませる。</li>
+  </ol>
+
+  <div class="callout note"><b>なぜAI描き足しより良い？</b><br>「AIに影を描いて」は構図ごとにブレやすく、動画ではチラつく。SwitchLightは<strong>PBR分解＋環境光ベースのリライト</strong>なので光源方向に対して物理的に整合し、<strong>動画でも安定</strong>。背景3DGSの主光源（建物・電柱の影の<strong>向きと長さ</strong>）にHDRIの方向を合わせるのが最重要。</div>
+  <div class="callout warn"><b>注意</b><br>最終の濃度・向きは人の目で微調整する。鏡面・透過の強い素材や激しい逆光は破綻しやすいので、必要に応じてAE／C4D側で補完。クイックな静止画なら、前段のNano Banana Proに「光源方向に合わせて接地影を追加」と指示する簡易代替も使える。</div>
+
+  <h2 id="fix"><span class="n">応用4.</span> AIで破綻部分を修正・ディティール補完する</h2>
+  <p>歩行スキャンの3DGS／フォトグラメトリは、<strong>木の上・遠景の大きな建物・画面端の建物や道路・車</strong>などの描画が崩れやすい弱点があります。これも Nano Banana Pro / Gemini などのAIで修正できます。</p>
+  <h3>やり方</h3>
+  <ul>
+    <li>破綻したカット（画像1）と、<strong>実際のロケ地の地上写真（画像2〜3）</strong>をAIに渡す。</li>
+    <li>「<strong>構図・パースは崩さず、地上写真を参考に背景を綺麗にブラッシュアップして</strong>」と指示する。</li>
+    <li>必要に応じて、AIに<strong>新たなディティールを追加</strong>させて出力することも可能。</li>
+  </ul>
+  <pre><code>この画像1の背景はフォトグラメトリで作ったが、右の建物・道路・車などの
+破綻がひどい。画像2〜3が実際のロケ地の地上写真。
+それを参考に、画像1の構図やパースは崩さずに背景を綺麗にブラッシュアップして。</code></pre>
+  <figure>
+    <div class="ph" style="background-image:url('./images/brushup.png')">［画像：破綻修正・ブラッシュアップ後のカット］</div>
+    <figcaption>フォトグラメトリ/3DGSの破綻部を、地上写真を参照にAIで修復。構図・パースは維持したままディティールを補完。</figcaption>
+  </figure>
+  <div class="callout note"><b>実写ロケ写真があるほど精度が上がる</b><br>修正の参照に使う地上写真は、PortalCam内部の <code>.xBin</code> から連番で取り出せます（手順1の注記参照）。現場の実写が多いほど、破綻修正・ディティール補完の精度が上がります。</div>
+
+  <h2 id="tips"><span class="n">06.</span> つまずきポイントとTips</h2>
+  <ul>
+    <li><strong>3DGSのスケール／原点</strong>：C4Dに持ち込む前に基準寸法で合わせておくと、後の合成・計測が安定する。</li>
+    <li><strong>参照画像は“役割を明示”</strong>：「構図用」「ディテール用」を文章で書き分けると生成が安定（画像1=構図／画像2〜5=実写）。</li>
+    <li><strong>空・反射は弱点</strong>：3DGSは空や鏡面が苦手。背景に空が多いカットは合成側で足す。</li>
+    <li><strong>カラーマネジメント</strong>：実写合成は ACES 等で統一するとAI生成物との馴染みが良い。</li>
+  </ul>
+
+  <h2 id="xbin"><span class="n">付録.</span> xBin（XBAG）の構造とロケ実写の取り出し</h2>
+  <p>PortalCamが出力する <code>.xbin</code> は、XGRIDS独自の <strong>「XBAG」コンテナ</strong>（ROS bag風の多ストリーム記録）です。実機データ <code>2026-06-02-135701.xbin</code>（約8.2GB）を解析した結果をもとに、ロケ実写（カメラ映像）の取り出し手順を具体的に示します。</p>
+
+  <h3>XBAGコンテナの構造（解析結果）</h3>
+  <ul>
+    <li><strong>マジックナンバー</strong>：先頭4バイトが <code>XBAG</code>（<code>0x58 42 41 47</code>）。</li>
+    <li><strong>ヘッダ</strong>：protobuf形式のマニフェスト。端末シリアル <code>A261AA747F</code>、ファーム <code>V3.2.5-20260402.131505</code>、製品名 <code>PortalCam</code>、LiDAR <code>rs_airy</code>、対応GNSS <code>GPS / QZSS / GAL / GLO / BDS / IRNSS</code> 等が格納される。</li>
+    <li><strong>本体</strong>：複数トピックのレコードが時系列でインターリーブ。確認できたトピック＝ <code>/camera_center/h264</code>（カメラ）、<code>lidar</code>（点群）、<code>imu</code>、<code>gnss</code>。</li>
+  </ul>
+
+  <h3>カメラ映像は「イントラオンリーH.264」</h3>
+  <p>カメラストリームは <strong>全フレームがIDR（イントラオンリー）のH.264</strong> でした。各フレームが <code>SPS(7) + PPS(8) + SEI(6) + IDR(5)</code> のアクセスユニットとして、標準のNALスタートコード <code>00 00 00 01</code> 付きで格納されています（フレーム間予測なし＝各フレーム独立デコード可・魚眼パノラマ）。このため、カメラのNALを順に拾って連結すれば、そのまま <code>.h264</code> エレメンタリストリームとして扱えます。</p>
+
+  <h3>方法A：LCC Studio で書き出す（公式・推奨）</h3>
+  <ol>
+    <li>LCC Studio に <code>.xbin</code> を読み込む。</li>
+    <li>カメラ／パノラマの<strong>フレーム書き出し</strong>で連番JPEG/PNGを出力。</li>
+  </ol>
+  <p>色・パノラマ展開・タイムスタンプが正しく揃う正攻法。まずこれを試す。</p>
+
+  <h3>方法B：H.264をNALカーブで手動抽出（応用）</h3>
+  <p>LCCを介さず、bagからカメラのH.264だけを抜く方法。イントラオンリーかつNALスタートコード付きなので、カメラのNAL種別（<code>7/8/6/5</code>）を拾って連結すれば <code>camera.h264</code> になります。</p>
+  <pre><code># xbag_camera_carve.py — PortalCam .xbin から H.264(イントラ) を抽出
+import sys
+src, dst = sys.argv[1], sys.argv[2]
+SC = b"\x00\x00\x00\x01"
+KEEP = {5, 6, 7, 8}          # IDR / SEI / SPS / PPS
+data = open(src, "rb").read()  # ※8GB級はメモリ注意（分割読みは下の注記）
+out = bytearray()
+i = data.find(SC)
+while i >= 0:
+    j = data.find(SC, i + 4)
+    nal = data[i: (j if j >= 0 else len(data))]
+    if len(nal) > 4 and (nal[4] & 0x1f) in KEEP:
+        out += nal
+    i = j
+open(dst, "wb").write(out)
+print("wrote", len(out), "bytes")</code></pre>
+  <pre><code># 実行 → 連番JPEG化
+python xbag_camera_carve.py 2026-06-02-135701.xbin camera.h264
+ffmpeg -i camera.h264 -q:v 2 frame_%05d.jpg</code></pre>
+  <div class="callout warn"><b>注意</b><br>このカーブ法は簡易版です。①8GB級ファイルは一括読み込みでメモリを食う（実運用は数MBずつストリーム走査に置き換える）。②LiDAR/IMUのバイト列が偶然NAL列を作る<strong>誤検出</strong>の可能性がある。厳密に分離するには、本来は<strong>XBAGのprotobufレコード索引を解析し、カメラトピックのバイト範囲だけを連結</strong>するのが正確。確実性を優先するなら方法A（LCC Studio）を使う。</div>
+  <div class="callout note"><b>魚眼→平面の展開</b><br>抽出フレームは魚眼パノラマのため、AI参照や合成に使う際は必要に応じて平面（レクティリニア）へ展開する。LCC側の書き出しなら展開済みで出せる場合が多い。</div>
+
+  <h3>xBinに入っている4カメラの画像</h3>
+  <p>マニフェストの <code>camera.yaml</code> には <strong>4台のカメラ（camera_0〜3）</strong> のキャリブレーションが格納され、映像は単一の <code>/camera_center/h264</code> に<strong>4台分が多重化（インターリーブ）</strong>されています（いずれも 4000×3000）。実際にデコードして取り出した各カメラの絵が以下です。</p>
+  <dl class="spec">
+    <dt>camera_0 / camera_1 ＝ 魚眼（モデル <code>kb4</code>・約190°・4000×3000）</dt>
+    <dd>円周魚眼の2台。前後（左右）に向けて配置され、合わせて<strong>全周＋天球をカバー</strong>。操作者ごと周囲を写し込み、<strong>点群・3DGSのカラー付け（テクスチャ）と SLAMの特徴点</strong>に使われる。</dd>
+    <dt>camera_2 / camera_3 ＝ ピンホール（約90°・低歪み・4000×3000）</dt>
+    <dd>低歪みのレクチリニア2台。前方の<strong>高精細・直線が歪まない画</strong>を取得し、<strong>詳細テクスチャ／前方ディテール（必要に応じ視差）</strong>に寄与。AI参照や合成プレートにも使いやすい。</dd>
+  </dl>
+  <figure>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <span><img src="./images/xbin_cam_fisheyeA.jpg" alt="魚眼カメラA（前半球）"><small style="color:var(--sub)">魚眼①（camera_0想定／操作者が右）：前半球の全周カラー</small></span>
+      <span><img src="./images/xbin_cam_fisheyeB.jpg" alt="魚眼カメラB（後半球）"><small style="color:var(--sub)">魚眼②（camera_1想定／操作者が左）：後半球の全周カラー</small></span>
+      <span><img src="./images/xbin_cam_pinholeA.jpg" alt="ピンホールカメラ 前方"><small style="color:var(--sub)">ピンホール①（前方・低歪み広角）：高精細テクスチャ</small></span>
+      <span><img src="./images/xbin_cam_pinholeB.jpg" alt="ピンホールカメラ 前方2"><small style="color:var(--sub)">ピンホール②（前方ペア）：詳細／視差用</small></span>
+    </div>
+    <figcaption>xBinから実デコードした4カメラの代表フレーム（4000×3000・H.264イントラ）。魚眼2台で全周カラー、ピンホール2台で前方の低歪み高精細を担う。</figcaption>
+  </figure>
+  <div class="callout note"><b>カメラ番号の厳密な対応について</b><br>映像は1本のH.264に多重化されているため、フレームの<strong>見た目（魚眼/ピンホール・写り込む向き）</strong>で分類しています。<code>camera_0〜3</code> の厳密な番号対応・タイムスタンプ整合は、<code>camera.yaml</code> のポーズ（extrinsic）とbagのレコード索引、またはLCC Studioの書き出しで確定できます。</div>
+
+  <h3>記録されているストリーム一覧</h3>
+  <p>XBAGには、3DGSを正確に・実寸で・地理参照付きで再構成するためのセンサーデータが束ねられています。実機解析で確認できた内訳は次の通りです。</p>
+  <dl class="spec">
+    <dt>カメラ <code>/camera_center/h264</code></dt><dd>イントラオンリーH.264（魚眼パノラマ）。色テクスチャ＆ロケ実写の供給源。</dd>
+    <dt>LiDAR <code>rs_airy</code></dt><dd>点群（RoboSense Airy系）。形状・スケールの骨格。SLAMの主軸。</dd>
+    <dt>IMU <code>imu</code></dt><dd>加速度・角速度。フレーム間の姿勢推定とブレ補正、点群とカメラの時刻同期に使用。</dd>
+    <dt>GNSS <code>gnss</code></dt><dd>マルチ衛星測位 <code>GPS / QZSS / Galileo / GLONASS / BeiDou / IRNSS</code>。絶対座標・方位の付与。</dd>
+  </dl>
+  <div class="callout note"><b>これがロケハン3Dの“実寸・地理参照”の根拠</b><br>「歩いて撮るだけ」で実寸・絶対座標が付くのは、<strong>LiDAR（形状）＋IMU（姿勢）＋多衛星GNSS（位置）＋カメラ（色）の融合</strong>を1つのbagに同期記録しているから。だからC4D合成で計測がそのまま使え、現地に行かずに導線・画角・寸法を検証できます。</div>
+
+  <h3>ファイル名・キャプチャIDの読み方</h3>
+  <p>ヘッダには <code>A261AA747F-1780376221910</code> のようなキャプチャIDが入ります。</p>
+  <ul>
+    <li><code>A261AA747F</code> ＝ 端末シリアル（本体のヘッダにも記録）。</li>
+    <li><code>1780376221910</code> ＝ <strong>Unixエポック・ミリ秒</strong>。秒に直すと <code>1780376221</code> → <strong>2026-06-02 13:57:01 (JST)</strong>。ファイル名 <code>2026-06-02-135701.xbin</code> と一致する。</li>
+  </ul>
+  <p>つまりキャプチャ単位で「どの端末が・いつ撮ったか」が一意に追える。案件管理では、このIDをロケ地・案件名に紐付けて台帳化すると後追いが楽になります。</p>
+
+  <h3>protobufマニフェストの読み方</h3>
+  <p>先頭 <code>XBAG</code> の直後はprotobufのマニフェスト領域です。バイナリを覗くと、ワイヤ形式のタグ（<code>0x0a</code>＝フィールド1・length-delimited 等）でネストし、次の情報が平文で並んでいます。</p>
+  <pre><code>XBAG ....
+  A261AA747F                      # 端末シリアル
+  V3.2.5-20260402.131505          # ファームウェア
+  v2.1.2.20251112.beta2           # 構成コンポーネント版
+  PortalCam                       # 製品名
+  rs_airy                         # LiDAR
+  IRNSS / QZSS / GAL / GLO / BDS / GPS   # 対応GNSS</code></pre>
+  <p>ヘッダ以降はレコード本体（カメラAU・点群・IMU・GNSSのインターリーブ）で、多くは圧縮/バイナリ。<strong>正確に各トピックを分離するには、このマニフェストのトピック定義とレコード索引（オフセット表）を辿るのが本筋</strong>です。方法B（NALカーブ）は索引を読まずにカメラだけを横取りする近道、という位置づけになります。</p>
+
+  <h3>点群・IMU・GNSSを使いたいとき</h3>
+  <ul>
+    <li><strong>点群（LiDAR）</strong>：LCC Studioで3DGS化のほか、<strong>メッシュ／PLY書き出し</strong>でCG・建築可視化に転用可能。生点群が要るときもLCC経由が確実。</li>
+    <li><strong>IMU／GNSS</strong>：単体で取り出す実用機会は少ないが、<strong>実寸スケールの担保・北方向（方位）合わせ・複数スキャンの位置合わせ</strong>の根拠になる。屋外で複数地点を撮って繋ぐ場合に効く。</li>
+  </ul>
+  <div class="callout warn"><b>運用上の注意</b><br>xBinは1ファイルで数〜十数GBになる。<strong>原本（xBin）は必ず別ストレージにバックアップ</strong>してから書き出し作業を行う。LCCの書き出し設定（解像度・パノラマ展開・座標系）は案件で揃え、社内の納品規則に沿って命名・梱包する。</div>
+
+  <h3>画像（JPEG）として取り出す手順</h3>
+  <p>「H.264をカーブ → ffmpegでJPEGに変換」の最小レシピです（前述の方法Bを<strong>JPEG出力まで</strong>通したもの）。</p>
+  <ol>
+    <li><strong>ffmpegを用意</strong>：未導入なら <code>pip install imageio-ffmpeg</code>（同梱バイナリが入る）か、公式ビルドを入手してPATHに置く。</li>
+    <li><strong>カメラH.264をカーブ</strong>：方法Bの <code>xbag_camera_carve.py</code> で <code>camera.h264</code> を作る（イントラオンリー＝各フレーム独立）。</li>
+    <li><strong>JPEGへ連番デコード</strong>：下記コマンドで書き出す。</li>
+  </ol>
+  <pre><code># 全フレームをJPEGに
+ffmpeg -i camera.h264 -q:v 2 frame_%05d.jpg
+
+# 先頭の数フレームだけ確認
+ffmpeg -i camera.h264 -frames:v 8 -q:v 2 check_%02d.jpg
+
+# レビュー用に横1100pxへ縮小
+ffmpeg -i camera.h264 -vf scale=1100:-1 -q:v 3 small_%05d.jpg</code></pre>
+  <p>本データは<strong>4台が1本のH.264に多重化</strong>されているため、出力される連番JPEGには魚眼／ピンホールが順番に混在します。見た目で仕分けるか、SPS解析で解像度・カメラ別にフォルダ分けします（厳密な番号対応はLCCかextrinsicで確定）。</p>
+
+  <div class="callout note"><b>いちばん楽で再現性が高い方法</b><br>↑この情報をAIに投げて、画像抽出をしてと指示すれば画像は得られるので、それが一番楽で再現性があります。ぜひお試しを。</div>
+
+  <h2 id="summary"><span class="n">07.</span> まとめ</h2>
+  <p>PortalCamの徒歩スキャン1回が、<strong>ドローンカット・実写合成プレート・AI生成の参照</strong>という3つの素材を同時に生みます。「現場を3DGSで持ち帰る」を起点に、撮影前段からポスプロ、AI生成までを一本の線でつなげるのが、このワークフローの肝です。</p>
+</article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・空撮代替の素材づくりのご相談はお気軽に。</p>
+    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM → LCC STUDIO (3DGS) → CINEMA4D / AE → NANO BANANA PRO → SEEDANCE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post img').forEach(function(im){
+    im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);});
+  });
+  document.querySelectorAll('figure .ph').forEach(function(ph){
+    var m=(ph.getAttribute('style')||'').match(/url\(['"]?([^'")]+)['"]?\)/);
+    if(m){ph.addEventListener('click',function(){open(m[1], ph.textContent);});}
+  });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+
+  // reading progress bar
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>

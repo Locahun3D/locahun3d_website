@@ -13,3 +13,4 @@ README.md
 *.md
 node_modules/
 index.html
+!works/index.html
