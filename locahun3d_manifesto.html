@@ -96,6 +96,10 @@ html,body{background:var(--bg);color:var(--ink);
 .serif{font-family:'Noto Serif JP',serif}
 .mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
 img{max-width:100%;display:block}
+/* 日本語：約物詰め＋禁則＋BudouX文節改行 */
+h2,h3,h4,h5,h6{font-feature-settings:"palt"}
+body{line-break:strict}
+[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   opacity:.06;mix-blend-mode:overlay;
@@ -818,6 +822,14 @@ function setMNav(open){
 mToggle.addEventListener('click', () => setMNav(!mNav.classList.contains('open')));
 mNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMNav(false)));
 document.addEventListener('keydown', e => { if(e.key === 'Escape') setMNav(false); });
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'h2,h3,h4,h5,h6,figcaption,.lede,.h-sub,.pull,section p';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 
 </body>
