@@ -89,7 +89,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-:root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--accent:#ffb454}
+:root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--accent:#ffb454;
+  --pad-x:max(48px, calc((100vw - 100vh * 4 / 3) / 2));--pad-l:var(--pad-x)}
 html,body{background:var(--bg);color:var(--ink);
   font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.7;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
@@ -107,8 +108,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 .frame{position:relative;min-height:100vh;display:flex;flex-direction:column;
   padding-top:64px;padding-bottom:80px;
-  padding-left:max(48px, calc((100vw - 100vh * 4 / 3) / 2));
-  padding-right:max(48px, calc((100vw - 100vh * 4 / 3) / 2));
+  padding-left:var(--pad-l);
+  padding-right:var(--pad-x);
   overflow:hidden}
 
 /* Letterbox bars (hero only) */
@@ -139,10 +140,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
    FRAME 1 — HERO
    ============================================ */
 .hero{justify-content:center;align-items:center;text-align:center;background:#000}
-.hero .brand{position:absolute;top:18vh;left:50%;transform:translateX(-50%);
+.hero .brand{position:absolute;top:18vh;left:calc((100% + var(--pad-l) - var(--pad-x)) / 2);transform:translateX(-50%);
   font-family:'JetBrains Mono',monospace;font-size:.72em;letter-spacing:.6em;
   opacity:.55;text-indent:.6em;white-space:nowrap}
-.hero .hero-logo{position:absolute;top:8.5vh;left:50%;transform:translateX(-50%);
+.hero .hero-logo{position:absolute;top:8.5vh;left:calc((100% + var(--pad-l) - var(--pad-x)) / 2);transform:translateX(-50%);
   width:58px;height:58px;opacity:.95;z-index:3}
 @media(max-width:900px){.hero .hero-logo{width:46px;top:10vh}}
 .hero .h-main{font-family:'Noto Serif JP',serif;font-weight:200;
@@ -314,7 +315,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .side-menu nav a.current{color:#fff;font-weight:600}
 .side-menu nav a.current::before{width:14px;background:#ffb454;opacity:1}
 @media(max-width:1199px){.side-menu{display:none}}
-@media(min-width:1200px){.frame{padding-left:max(220px, calc((100vw - 100vh * 4 / 3) / 2))}}
+@media(min-width:1200px){:root{--pad-l:max(220px, calc((100vw - 100vh * 4 / 3) / 2))}}
 
 /* CTA — contact + download buttons at END frame */
 .end .cta{display:inline-block;padding:16px 36px;
