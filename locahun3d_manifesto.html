@@ -140,12 +140,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
    FRAME 1 — HERO
    ============================================ */
 .hero{justify-content:center;align-items:center;text-align:center;background:#000}
-.hero .brand{position:absolute;top:18vh;left:calc((100% + var(--pad-l) - var(--pad-x)) / 2);transform:translateX(-50%);
+.hero .brand{margin:0 auto 4.5vh;text-align:center;
   font-family:'JetBrains Mono',monospace;font-size:.72em;letter-spacing:.6em;
   opacity:.55;text-indent:.6em;white-space:nowrap}
-.hero .hero-logo{position:absolute;top:8.5vh;left:calc((100% + var(--pad-l) - var(--pad-x)) / 2);transform:translateX(-50%);
+.hero .hero-logo{margin:0 auto 14px;
   width:58px;height:58px;opacity:.95;z-index:3}
-@media(max-width:900px){.hero .hero-logo{width:46px;top:10vh}}
+@media(max-width:900px){.hero .hero-logo{width:46px;margin-bottom:10px}}
 .hero .h-main{font-family:'Noto Serif JP',serif;font-weight:200;
   font-size:clamp(2.3em,5.6vw,5.4em);line-height:1.35;letter-spacing:.04em;
   margin-bottom:48px;max-width:none;
