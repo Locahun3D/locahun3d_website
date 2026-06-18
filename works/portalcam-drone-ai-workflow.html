@@ -192,7 +192,7 @@
   <p class="lead">ドローンを飛ばさず、特殊機材も使わずに——。現場を <strong>PortalCam で徒歩スキャン</strong>した 3DGS をもとに、上空アングルの「空撮カット」を作る制作ワークフローです。基本の空撮カット制作から、その先の<strong>応用（人物・動きの生成）</strong>まで、工程ごとの実素材とともに解説します。</p>
 
   <figure>
-    <video controls muted autoplay loop playsinline preload="auto">
+    <video controls muted autoplay loop playsinline preload="auto" poster="images/work08_poster.jpg">
       <source src="images/work08_final.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
@@ -255,13 +255,13 @@
   <h2 id="camera"><span class="n">STEP 2</span> 元素材 → C4Dでカメラトラッキング</h2>
   <p>空撮カットの「カメラの動き」の土台になる素材を用意し（今回は素材サイトのフッテージ）、Cinema4Dでトラッキング（解析）。解析した動きを3Dカメラに移植して、<strong>3DGS空間の中を上空アングルで動くカメラ</strong>を作ります。ここで空撮のカメラワークが決まります。</p>
   <figure>
-    <video controls muted loop playsinline preload="metadata">
+    <video controls muted loop playsinline preload="metadata" poster="images/work01_poster.jpg">
       <source src="images/work01_tracking.mp4" type="video/mp4">
     </video>
     <figcaption><b>トラッキング元素材。</b>このフッテージのカメラの動きを解析し、3D空間のカメラに移植する。</figcaption>
   </figure>
   <figure>
-    <video controls muted loop playsinline preload="metadata">
+    <video controls muted loop playsinline preload="metadata" poster="images/work02_poster.jpg">
       <source src="images/work02_c4dtrack.mp4" type="video/mp4">
     </video>
     <figcaption><b>C4Dビューポート。</b>トラッキング結果をもとに、空撮アングルのカメラの動きを追加した状態。</figcaption>
@@ -271,7 +271,7 @@
   <p>3DGS空間に、作ったカメラを通して C4D / Octane でレンダリング。これで、<strong>歩いて撮っただけの現場が、上空アングルの「空撮カット」</strong>になります。飛ばせない場所・撮れない高度のアングルも、現場データから後付けで作れます。</p>
   <p>同時に、この時点で<strong>人物のダミーモデル</strong>も配置してレンダしています。これは後の<strong>応用（生成）で使う「動きのガイド」</strong>で、役割は応用編①で解説します。</p>
   <figure>
-    <video controls muted loop playsinline preload="metadata">
+    <video controls muted loop playsinline preload="metadata" poster="images/work03_poster.jpg">
       <source src="images/work03_octane.mp4" type="video/mp4">
     </video>
     <figcaption><b>Octaneレンダの元動画。</b>3DGS空間を空撮アングルのカメラでレンダリング。あわせて、後段の応用で使う<b>色分けダミー</b>を配置している。</figcaption>
@@ -290,6 +290,10 @@
 
   <h3 id="guide">① 色分けダミーで「動きのガイド」をつくる</h3>
   <p>STEP 3 で配置したダミーモデルは、<strong>部位ごとに色分け</strong>しています。こうすると、生成AIが「どこが頭・腕・胴か」を認識しやすくなり、<strong>ポーズや手の動きを正確になぞらせる</strong>ことができます。STEP 3 のレンダ動画が、そのまま<strong>カメラワーク＋人物モーションのガイド</strong>になります。</p>
+  <figure>
+    <img src="images/work03_poster.jpg" alt="部位ごとに色分けしたダミーモデルを配置した3DGSレンダ（黄・緑・マゼンタ）">
+    <figcaption><b>色分けダミー。</b>頭・腕・胴などを部位ごとに色分け（黄・緑・マゼンタ）して配置。これが生成AIに渡す「動きのガイド」になる。</figcaption>
+  </figure>
   <div class="callout note"><b>色分けダミーの狙い</b>動画生成は「人体の構造・動き」を取り違えると破綻する。部位ごとに色を分けたガイドを与えることで、ポーズ・手の動き・カメラとの位置関係を安定して引き継げる。</div>
 
   <h3 id="refs">② PortalCamデータから参照素材を抽出</h3>
@@ -302,6 +306,12 @@
       <img src="images/work05_ref_004.jpg" alt="PortalCam撮影データから抽出した参照素材 4">
       <img src="images/work05_ref_005.jpg" alt="PortalCam撮影データから抽出した参照素材 5">
       <img src="images/work05_ref_006.jpg" alt="PortalCam撮影データから抽出した参照素材 6">
+      <img src="images/work05_ref_007.jpg" alt="PortalCam撮影データから抽出した参照素材 7">
+      <img src="images/work05_ref_008.jpg" alt="PortalCam撮影データから抽出した参照素材 8">
+      <img src="images/work05_ref_009.jpg" alt="PortalCam撮影データから抽出した参照素材 9">
+      <img src="images/work05_ref_010.jpg" alt="PortalCam撮影データから抽出した参照素材 10">
+      <img src="images/work05_ref_011.jpg" alt="PortalCam撮影データから抽出した参照素材 11">
+      <img src="images/work05_ref_012.jpg" alt="PortalCam撮影データから抽出した参照素材 12">
     </div>
     <figcaption><b>PortalCam由来の参照素材。</b>撮影データから取り出した実写フレーム（抜粋）。現場の実写を多く渡すほど、ロケーションの再現精度が上がる。</figcaption>
   </figure>
@@ -338,7 +348,7 @@ Below on the street, thick black smoke ...
   <h3 id="final">⑤ AEで仕上げ</h3>
   <p>生成されたショットを After Effects に持ち込み、<strong>カラー・グレード、合成、煙やエフェクトの調整</strong>を加えて最終コンプにまとめます。冒頭の完成動画がその結果です。</p>
   <figure>
-    <video controls muted loop playsinline preload="metadata">
+    <video controls muted loop playsinline preload="metadata" poster="images/work08_poster.jpg">
       <source src="images/work08_final.mp4" type="video/mp4">
     </video>
     <figcaption><b>Final Comp。</b>空撮プレートに、Seedance 2 の生成結果を合成・仕上げした最終カット。</figcaption>
@@ -350,8 +360,8 @@ Below on the street, thick black smoke ...
 </article>
 
 <section class="credit">
-  <div class="ey">Creator / 制作</div>
-  <h2>本ワークフローの制作・監督</h2>
+  <div class="ey">Creators / 制作</div>
+  <h2>本ワークフローの制作</h2>
   <div class="credit-card">
     <img class="av" src="images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
     <div>
@@ -361,6 +371,19 @@ Below on the street, thick black smoke ...
       <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @mizunocabbage をフォロー →
+      </a>
+    </div>
+  </div>
+
+  <div class="credit-card" style="margin-top:14px">
+    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 3DGSスキャン</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。XGRIDS PortalCam による現場の徒歩スキャンと、空撮カットの土台になる<strong>3DGS制作</strong>を担当。3DGSスキャン・撮影前ロケハン・VFX背景の素材づくりを手がける。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
       </a>
     </div>
   </div>
