@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>3DGSを“設計図”に、AI動画で破綻のないカットを生成する｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGSで作った空間・カメラ・ポーズのガイドを使い、Higgsfield / Seedance 2 で構図・カメラワーク・動きを正確にコントロールしたAI動画カットの制作ワークフロー。">
+<title>3DGSから「空撮カット」を生成する方法｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る制作ワークフロー。基本の空撮カット制作と、応用（人物・動きの生成）までを実素材で解説。">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -178,101 +178,115 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">AI動画生成</span><span class="badge">VFX</span>
+    <span class="badge">3DGS</span><span class="badge">空撮カット</span><span class="badge">VFX</span>
     <span>2026-06-16</span><span>・</span><span>読了 約9分</span>
   </div>
-  <h1>3DGSを<em>“設計図”</em>に、<br class="pc">AI動画で破綻のないカットを生成する</h1>
-  <p class="lead">AI動画生成は「思った構図・カメラワーク・動きにならない」のが最大の壁です。本記事では、<strong>3DGSで作った空間とカメラ・ポーズのガイド</strong>を使い、Higgsfield / Seedance 2 のショット生成を正確にコントロールした実際の制作ワークフローを、工程ごとの素材とともに公開します。</p>
+  <h1>3DGSから<em>「空撮カット」</em>を<br class="pc">生成する方法</h1>
+  <p class="lead">ドローンを飛ばさず、特殊機材も使わずに——。現場を <strong>PortalCam で徒歩スキャン</strong>した 3DGS をもとに、上空アングルの「空撮カット」を作る制作ワークフローです。基本の空撮カット制作から、その先の<strong>応用（人物・動きの生成）</strong>まで、工程ごとの実素材とともに解説します。</p>
 
   <figure>
     <video controls muted autoplay loop playsinline preload="auto">
       <source src="images/work08_final.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>完成カット。</b>Seedance 2 で生成した素材を After Effects で仕上げた最終コンプ。3DGSの空間を背景に、ガイドに沿ったカメラワークとポーズで自衛隊員のカットを生成している。</figcaption>
+    <figcaption><b>完成した空撮カット。</b>歩いて撮った3DGSから、ドローン不要で上空アングルのカットを生成。背景の空撮プレートに、応用編で人物の動きを合成している。</figcaption>
   </figure>
 </header>
 
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#intro">なぜ「3DGS × AI動画」なのか</a></li>
+    <li><a href="#intro">このワークフローでできること</a></li>
     <li><a href="#tools">用意するもの</a></li>
-    <li><a href="#track">STEP 1｜トラッキング元素材を用意する</a></li>
-    <li><a href="#camera">STEP 2｜C4Dでカメラトラッキング</a></li>
-    <li><a href="#octane">STEP 3｜3DGS＋色分けダミーをOctaneでレンダ（ガイド生成）</a></li>
-    <li><a href="#plate">STEP 4｜背景の破綻をNano Bananaで修正＋加筆</a></li>
-    <li><a href="#refs">STEP 5｜PortalCamデータから参照素材を抽出</a></li>
-    <li><a href="#element">STEP 6｜Higgsfieldでelementを作成</a></li>
-    <li><a href="#generate">STEP 7｜Seedance 2 でショット生成</a></li>
-    <li><a href="#final">STEP 8｜AEで仕上げ</a></li>
+    <li><a href="#scan">STEP 1｜PortalCamで徒歩スキャン → 3DGS化</a></li>
+    <li><a href="#camera">STEP 2｜元素材 → C4Dでカメラトラッキング</a></li>
+    <li><a href="#octane">STEP 3｜3DGS空間をOctaneでレンダ → 空撮カット</a></li>
+    <li><a href="#plate">STEP 4｜背景の破綻を修正・加筆 → 空撮プレート完成</a></li>
+    <li><strong style="color:var(--accent2)">応用編：AIで人物・動きを生成する</strong>
+      <ol style="margin-top:4px">
+        <li><a href="#guide">色分けダミーで「動きのガイド」をつくる</a></li>
+        <li><a href="#refs">PortalCamデータから参照素材を抽出</a></li>
+        <li><a href="#element">Higgsfieldでelementを作成</a></li>
+        <li><a href="#generate">Seedance 2 でショット生成</a></li>
+        <li><a href="#final">AEで仕上げ</a></li>
+      </ol>
+    </li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
-    <b>素材トラッキング</b><span class="a">→</span>
+    <b>PortalCam徒歩スキャン</b><span class="a">→</span>
+    <b>3DGS化</b><span class="a">→</span>
     <b>C4Dカメラ</b><span class="a">→</span>
-    <b>3DGS+ダミーをOctane</b><span class="a">→</span>
-    <b>背景修正(Nano Banana)</b><span class="a">→</span>
+    <b>Octaneレンダ(空撮)</b><span class="a">→</span>
+    <b>背景修正・加筆</b>
+    <span class="a" style="color:var(--accent2)">┄ 応用 ┄</span>
     <b>Higgsfield element</b><span class="a">→</span>
     <b>Seedance 2 生成</b><span class="a">→</span>
     <b>AE仕上げ</b>
   </div>
 
-  <h2 id="intro"><span class="n">01</span> なぜ「3DGS × AI動画」なのか</h2>
-  <p>AI動画生成（Seedance / Higgsfield 等）は品質が急上昇していますが、実制作で使うと必ずぶつかる壁があります。<strong>狙ったカメラワーク・構図・人物の動きにならない</strong>こと。プロンプトだけでは「だいたい」しかコントロールできません。</p>
-  <p>そこで効くのが <strong>3D Gaussian Splatting（3DGS）</strong> です。現場をスキャンした3DGS空間を使えば、<strong>カメラの軌道・画角・人物のポーズ</strong>を3D上で正確に作り込み、それを<strong>「ガイド（設計図）」としてAI動画に渡す</strong>ことができます。AIは0から想像するのではなく、ガイドをなぞって"画作り"だけを担当する——これが破綻の少ないカットを生む鍵です。</p>
-  <div class="callout note"><b>このワークフローの肝</b>3DGSは「正確な空間・カメラ・モーションの設計図」を提供し、AIは「フォトリアルな質感とディテール」を埋める。役割を分担させることで、AI動画の"運任せ"を排除できる。</div>
+  <h2 id="intro"><span class="n">01</span> このワークフローでできること</h2>
+  <p>3D Gaussian Splatting（3DGS）の強みは、一度スキャンすれば<strong>視点を後から自由に作れる</strong>こと。これを使えば、現場を歩いて撮るだけで、ドローンや特殊機材なしに<strong>上空アングル＝「空撮カット」</strong>を作れます。</p>
+  <p>本記事では、その<strong>「3DGSから空撮カットを作る」基本</strong>と、さらに<strong>人物や動きを足す応用</strong>までを、実際の制作素材で順に追います。</p>
+  <div class="callout note"><b>このワークフローの考え方</b>「飛ばせない・撮れない空撮アングル」と「正確なカメラワーク」は <strong>3DGS</strong> が担当する。その先で「フォトリアルな人物や動き」を足したいときは、応用として AI 生成（Higgsfield / Seedance 2）を重ねる。空間の設計は3DGS、見栄えはAI——と役割を分けるのが要点。</div>
 
   <h2 id="tools"><span class="n">02</span> 用意するもの</h2>
   <dl class="spec">
     <dt>空間スキャン / 3DGS</dt><dd>XGRIDS PortalCam（徒歩スキャン）／ Lixel CyberColor（LCC Studio）で3DGS化</dd>
     <dt>3D・カメラ・レンダ</dt><dd>Cinema 4D ／ Octane Render ／ トラッキング元素材</dd>
-    <dt>背景の修正・加筆</dt><dd>Nano Banana（AIでの破綻修正）／ Photoshop（煙などの加筆）</dd>
-    <dt>AI動画生成</dt><dd>Higgsfield（element管理）／ Seedance 2（ショット生成）</dd>
-    <dt>仕上げ</dt><dd>After Effects（最終コンプ）</dd>
+    <dt>背景の修正・加筆</dt><dd>Nano Banana（破綻修正）／ Photoshop（煙などの加筆）</dd>
+    <dt>応用（人物・動きの生成）</dt><dd>Higgsfield（element管理）／ Seedance 2（ショット生成）／ After Effects（仕上げ）</dd>
   </dl>
 
-  <h2 id="track"><span class="n">STEP 1</span> トラッキング元素材を用意する</h2>
-  <p>まず、カメラの動きの"土台"になる素材を用意します。今回は素材サイトのフッテージを使用。後工程で<strong>この映像のカメラの動きをトラッキング（解析）</strong>し、3D空間に同じカメラワークを再現します。</p>
+  <h2 id="scan"><span class="n">STEP 1</span> PortalCamで徒歩スキャン → 3DGS化</h2>
+  <p>まず現場を XGRIDS PortalCam で徒歩スキャンし、Lixel CyberColor（LCC Studio）で 3DGS 化します。ドローンや特殊機材は不要で、許可・天候のハードルも低いのが利点。この3DGS空間が、空撮カットの"舞台"になります。</p>
+  <div class="callout note"><b>ポイント</b>後で使う<strong>ロケーションの実写参照</strong>は、PortalCam内部の連番フレームから取り出せます（応用編②）。スキャン時に路面標示・建物角など特徴のある場所を動線に入れておくと、後段の精度が上がります。</div>
+
+  <h2 id="camera"><span class="n">STEP 2</span> 元素材 → C4Dでカメラトラッキング</h2>
+  <p>空撮カットの「カメラの動き」の土台になる素材を用意し（今回は素材サイトのフッテージ）、Cinema4Dでトラッキング（解析）。解析した動きを3Dカメラに移植して、<strong>3DGS空間の中を上空アングルで動くカメラ</strong>を作ります。ここで空撮のカメラワークが決まります。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata">
       <source src="images/work01_tracking.mp4" type="video/mp4">
     </video>
     <figcaption><b>トラッキング元素材。</b>このフッテージのカメラの動きを解析し、3D空間のカメラに移植する。</figcaption>
   </figure>
-
-  <h2 id="camera"><span class="n">STEP 2</span> C4Dでカメラトラッキング</h2>
-  <p>Cinema4Dで元素材をトラッキングし、解析した動きを<strong>3Dカメラに適用</strong>します。これで、3DGS空間の中を「元素材と同じカメラワーク」で動けるようになります。AI動画に渡す<strong>カメラの設計図</strong>がここで決まります。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata">
       <source src="images/work02_c4dtrack.mp4" type="video/mp4">
     </video>
-    <figcaption><b>C4Dビューポート。</b>トラッキング結果をもとにカメラの動きを追加した状態。</figcaption>
+    <figcaption><b>C4Dビューポート。</b>トラッキング結果をもとに、空撮アングルのカメラの動きを追加した状態。</figcaption>
   </figure>
 
-  <h2 id="octane"><span class="n">STEP 3</span> 3DGS＋色分けダミーをOctaneでレンダ（ガイド生成）</h2>
-  <p>3DGS空間に、<strong>ポーズ・動きを付けたダミーの人物モデル</strong>を配置し、C4D / Octane でレンダリングします。ここがこのワークフロー最大の工夫で、<strong>ダミーモデルを部位ごとに色分け</strong>しているのがポイントです。</p>
-  <p>こうすると、後段のAIが<strong>「どこが頭・腕・胴か」を認識しやすく</strong>なり、生成時に人物の動き（ポーズ）を正確になぞらせることができます。つまりこのレンダ動画が、<strong>カメラワーク＋人物モーションのガイド</strong>になります。</p>
+  <h2 id="octane"><span class="n">STEP 3</span> 3DGS空間をOctaneでレンダ → 空撮カット</h2>
+  <p>3DGS空間に、作ったカメラを通して C4D / Octane でレンダリング。これで、<strong>歩いて撮っただけの現場が、上空アングルの「空撮カット」</strong>になります。飛ばせない場所・撮れない高度のアングルも、現場データから後付けで作れます。</p>
+  <p>同時に、この時点で<strong>人物のダミーモデル</strong>も配置してレンダしています。これは後の<strong>応用（生成）で使う「動きのガイド」</strong>で、役割は応用編①で解説します。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata">
       <source src="images/work03_octane.mp4" type="video/mp4">
     </video>
-    <figcaption><b>Octaneレンダの元動画。</b>3DGS背景に、<b>部位ごとに色分けしたダミーモデル</b>を配置。AIが人物の動きを認識しやすいようにしている。これがAI生成の"動きの設計図"になる。</figcaption>
+    <figcaption><b>Octaneレンダの元動画。</b>3DGS空間を空撮アングルのカメラでレンダリング。あわせて、後段の応用で使う<b>色分けダミー</b>を配置している。</figcaption>
   </figure>
-  <div class="callout note"><b>色分けダミーの狙い</b>AI動画生成は「人体の構造・動き」を取り違えると破綻する。部位ごとに色を分けたガイドを与えることで、ポーズ・手の動き・カメラとの位置関係を安定して引き継げる。</div>
 
-  <h2 id="plate"><span class="n">STEP 4</span> 背景の破綻をNano Bananaで修正＋加筆</h2>
-  <p>歩行スキャンの3DGSは、遠景の建物・画面端・細部などが崩れやすい弱点があります。これを <strong>Nano Banana</strong>（AI）で破綻修正し、さらに <strong>Photoshop</strong> で煙などの要素を加筆して、<strong>背景プレート</strong>を整えます。</p>
+  <h2 id="plate"><span class="n">STEP 4</span> 背景の破綻を修正・加筆 → 空撮プレート完成</h2>
+  <p>歩行スキャンの3DGSは、遠景の建物・画面端・細部などが崩れやすい弱点があります。これを <strong>Nano Banana</strong> で破綻修正し、さらに <strong>Photoshop</strong> で煙などを加筆して、<strong>空撮プレート</strong>を仕上げます。</p>
   <figure>
-    <img src="images/work04_bgfix.jpg" alt="Nano Bananaで3DGS背景の破綻を修正し、Photoshopで煙を加筆した背景プレート">
-    <figcaption><b>整えた背景プレート。</b>3DGSの破綻をNano Bananaで修正後、Photoshopで黒煙を加筆。AI生成の背景リファレンスとして使う。</figcaption>
+    <img src="images/work04_bgfix.jpg" alt="3DGS背景の破綻を修正し、Photoshopで煙を加筆した空撮プレート">
+    <figcaption><b>完成した空撮プレート。</b>3DGSの破綻を修正後、Photoshopで黒煙を加筆。ドローン不要の上空アングルカットがここで完成する。</figcaption>
   </figure>
+  <div class="callout note"><b>基本のゴール</b>この空撮プレート単体でも、ドローン不要の上空アングルカットとして成立する。ここから先は「人物や動きを足したい」ときの応用編。</div>
 
-  <h2 id="refs"><span class="n">STEP 5</span> PortalCamデータから参照素材を抽出</h2>
-  <p>次のelement作成（STEP 6）のために、<strong>ロケーションのリファレンス画像</strong>を用意します。これは PortalCam の撮影データ（内部の連番フレーム）から取り出した実写です。現場の<strong>路面標示・縁石・建物・空の質感</strong>を、そのままAIに学習させる素材になります。</p>
+  <h2 id="advanced" style="color:var(--accent2);border-top:2px solid var(--accent2);margin-top:74px"><span class="n" style="color:var(--accent2);border-color:var(--accent2)">応用</span> 人物・動きを生成して仕上げる</h2>
+  <p>ここからは<strong>応用編</strong>。基本で作った空撮カットを"設計図"として、AI動画生成（Higgsfield / Seedance 2）で<strong>フォトリアルな人物や動き</strong>を足していきます。基本の空撮カットがあるからこそ、生成AIに「構図・カメラワーク・ポーズ」を正確に守らせられます。</p>
+
+  <h3 id="guide">① 色分けダミーで「動きのガイド」をつくる</h3>
+  <p>STEP 3 で配置したダミーモデルは、<strong>部位ごとに色分け</strong>しています。こうすると、生成AIが「どこが頭・腕・胴か」を認識しやすくなり、<strong>ポーズや手の動きを正確になぞらせる</strong>ことができます。STEP 3 のレンダ動画が、そのまま<strong>カメラワーク＋人物モーションのガイド</strong>になります。</p>
+  <div class="callout note"><b>色分けダミーの狙い</b>動画生成は「人体の構造・動き」を取り違えると破綻する。部位ごとに色を分けたガイドを与えることで、ポーズ・手の動き・カメラとの位置関係を安定して引き継げる。</div>
+
+  <h3 id="refs">② PortalCamデータから参照素材を抽出</h3>
+  <p>element作成（次の③）のために、<strong>ロケーションのリファレンス画像</strong>を用意します。これは PortalCam の撮影データ（内部の連番フレーム）から取り出した実写です。現場の<strong>路面標示・縁石・建物・空の質感</strong>を、そのまま渡す素材になります。</p>
   <figure>
     <div class="refgrid">
       <img src="images/work05_ref_001.jpg" alt="PortalCam撮影データから抽出した参照素材 1">
@@ -285,22 +299,21 @@
     <figcaption><b>PortalCam由来の参照素材。</b>撮影データから取り出した実写フレーム（抜粋）。現場の実写を多く渡すほど、ロケーションの再現精度が上がる。</figcaption>
   </figure>
 
-  <h2 id="element"><span class="n">STEP 6</span> Higgsfieldでelementを作成</h2>
-  <p>Higgsfield の <strong>element</strong> 機能で、再利用できる「ロケーション」や「キャラクター」を登録します。STEP 5 の参照素材をアップロードし、<strong>テキストでロケーションの特徴も補足</strong>します（例：「日本の道路・白線・"止まれ"・赤い標識・街路樹・ガードレール・曇り空」）。</p>
-  <p>一度 element 化しておけば、<strong>同じ現場を何カットでも呼び出せる</strong>——スキャン資産がそのままAI制作のアセットライブラリになります。</p>
+  <h3 id="element">③ Higgsfieldでelementを作成</h3>
+  <p>Higgsfield の <strong>element</strong> 機能で、再利用できる「ロケーション」や「キャラクター」を登録します。②の参照素材をアップロードし、<strong>テキストで特徴も補足</strong>します（例：「日本の道路・白線・"止まれ"・赤い標識・街路樹・ガードレール・曇り空」）。一度 element 化すれば、<strong>同じ現場を何カットでも呼び出せます</strong>。</p>
   <figure>
     <img src="images/work06_element.jpg" alt="HiggsfieldのEdit Element画面。location elementに参照画像とテキスト説明を登録">
     <figcaption><b>element作成画面。</b>参照画像＋テキスト説明で <code>location</code> を登録。キャラクターも同様に element 化して組み合わせる。</figcaption>
   </figure>
 
-  <h2 id="generate"><span class="n">STEP 7</span> Seedance 2 でショット生成</h2>
-  <p>いよいよ生成です。Seedance 2（Higgsfield 上）で、<strong>STEP 3 のOctaneガイド動画をなぞるように</strong>、ショットを生成します。渡すのは次の3つ：</p>
+  <h3 id="generate">④ Seedance 2 でショット生成</h3>
+  <p>Seedance 2（Higgsfield 上）で、<strong>STEP 3 のガイド動画をなぞるように</strong>ショットを生成します。渡すのは次の3つ：</p>
   <ul>
-    <li><strong>ガイド動画</strong>（色分けダミー入りの3DGSレンダ）＝カメラワークと人物の動き</li>
-    <li><strong>整えた背景プレート / 補間画像</strong>（STEP 4）＝破綻のない背景の見た目</li>
-    <li><strong>element</strong>（STEP 6）＝ロケーションとキャラクターの質感</li>
+    <li><strong>ガイド動画</strong>（色分けダミー入りのOctaneレンダ）＝カメラワークと人物の動き</li>
+    <li><strong>空撮プレート / 補間画像</strong>（STEP 4）＝破綻のない背景の見た目</li>
+    <li><strong>element</strong>（③）＝ロケーションとキャラクターの質感</li>
   </ul>
-  <p>プロンプトでは「<strong>ガイドの見た目をそのままコピーせず、ポーズと手の動きだけを厳密に踏襲して、フォトリアルな人物を新規生成する</strong>」ように指示します。これにより、ダミーの質感に引っ張られず、動きの正確さだけを受け継げます。</p>
+  <p>プロンプトでは「<strong>ガイドの見た目はコピーせず、ポーズと手の動きだけを厳密に踏襲して、フォトリアルな人物を新規生成する</strong>」よう指示します。ダミーの質感に引っ張られず、動きの正確さだけを受け継げます。</p>
   <pre><code>Action &amp; Foreground:
 In the foreground, generate a completely new, highly realistic
 Japanese JSDF soldier gripping the mounted Gatling gun.
@@ -311,22 +324,22 @@ Below on the street, thick black smoke ...
 @location  @character</code></pre>
   <figure>
     <img src="images/work07_generate.jpg" alt="Seedance 2 の生成画面とプロンプト。ガイド動画をなぞり、elementを指定してショット生成">
-    <figcaption><b>Seedance 2 の生成画面。</b>ガイド動画・背景プレート・element・プロンプトを指定してショットを生成。<b>カメラワークとポーズは設計図どおり</b>に、質感はAIがフォトリアルに埋める。</figcaption>
+    <figcaption><b>Seedance 2 の生成画面。</b>ガイド動画・空撮プレート・element・プロンプトを指定して生成。<b>構図・カメラワーク・ポーズは設計図どおり</b>に、質感だけをフォトリアルに埋める。</figcaption>
   </figure>
   <div class="callout warn"><b>注意</b>実在地・人物・組織を想起させる表現はセンシティブな題材になり得る。用途（商用 / 公開）に応じて、各ツールの規約・権利・公開可否を必ず確認する。</div>
 
-  <h2 id="final"><span class="n">STEP 8</span> AEで仕上げ</h2>
+  <h3 id="final">⑤ AEで仕上げ</h3>
   <p>生成されたショットを After Effects に持ち込み、<strong>カラー・グレード、合成、煙やエフェクトの調整</strong>を加えて最終コンプにまとめます。冒頭の完成動画がその結果です。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata">
       <source src="images/work08_final.mp4" type="video/mp4">
     </video>
-    <figcaption><b>Final Comp。</b>Seedance 2 の生成結果をAEで加工・仕上げした最終カット。</figcaption>
+    <figcaption><b>Final Comp。</b>空撮プレートに、Seedance 2 の生成結果を合成・仕上げした最終カット。</figcaption>
   </figure>
 
   <h2 id="summary"><span class="n">03</span> まとめ</h2>
-  <p>AI動画の弱点は「コントロールできないこと」。それを <strong>3DGS＋色分けダミーの"ガイド"</strong> と <strong>PortalCam由来の参照素材</strong> で補うことで、<strong>狙ったカメラワーク・構図・ポーズ</strong>のまま、フォトリアルなカットを生成できます。</p>
-  <p>現場を一度3DGSで持ち帰れば、それは<strong>AI動画の破綻しない設計図</strong>になり、同じ空間から何カットでも作れるアセットになります。「撮れない画」「飛ばせない場所」を、現場データから後付けで作る——これがロケハン3Dの 3DGS × AI ワークフローの核心です。</p>
+  <p>ポイントは、<strong>「空撮カット」は3DGSだけで作れる</strong>こと。現場を歩いてスキャンするだけで、ドローン不要の上空アングルが手に入ります。</p>
+  <p>その先で人物や動きを足したいときは、3DGSの空撮カットを"設計図"にして、生成AIを応用として重ねるだけ。<strong>構図・カメラワーク・ポーズ</strong>は3DGSが保証し、質感はAIが埋める——「撮れない画」「飛ばせない場所」を現場データから後付けで作る、これがロケハン3Dの 3DGS ワークフローの核心です。</p>
 </article>
 
 <section class="credit">
@@ -337,7 +350,7 @@ Below on the street, thick black smoke ...
     <div>
       <div class="cname">MIZUNO&nbsp;CABBAGE<span>みずのきゃべつ</span></div>
       <div class="crole">映像作家 ／ 3DCGアーティスト ／ 映像監督</div>
-      <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がけ、海外クライアントとの制作も多数。代表作「少年とロボット」。本記事の <strong>3DGS × AI 動画ワークフロー</strong> の制作・監督を担当。</p>
+      <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がけ、海外クライアントとの制作も多数。代表作「少年とロボット」。本記事の <strong>3DGSによる空撮カット制作ワークフロー</strong> の制作・監督を担当。</p>
       <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @mizunocabbage をフォロー →
@@ -351,7 +364,7 @@ Below on the street, thick black smoke ...
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI動画制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: TRACK → C4D CAMERA → 3DGS+DUMMY (OCTANE) → NANO BANANA → HIGGSFIELD ELEMENT → SEEDANCE 2 → AE</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM → 3DGS → C4D CAMERA → OCTANE (AERIAL) → RETOUCH ┄ 応用 ┄ HIGGSFIELD → SEEDANCE 2 → AE</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
