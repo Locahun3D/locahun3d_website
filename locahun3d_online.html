@@ -407,8 +407,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
   <h2 class="sec-title fade">実績</h2>
 
-  <!-- NDA中：実績を teaser カードで表示。画像/動画は非表示・記事リンクは無効。
-       公開する時：wk-lock を本来のメディアに戻し、wk-locked を実リンク(<a class="wk-btn" href="/works/index.html">実績を見る →</a>)に置換する。 -->
+  <!-- NDAカードは非表示中。準備中表示に差し替え。再表示は下のコメント内 wk-feature を戻す。 -->
+  <div class="sw-block fade">
+    <span class="sw-lbl"><span class="sw-dot"></span>準備中 / Coming Soon<span class="sw-dot"></span></span>
+    <p class="sw-msg">導入事例は順次公開予定です。<br>詳細・参考事例については、お気軽にお問い合わせください。</p>
+    <a class="sw-btn" href="locahun3d_demo.html#contact">お問い合わせ →</a>
+  </div>
+  <!-- 再表示用（NDAカード）：公開する時は下を戻し、上の sw-block を削除。wk-lock→本来メディア、wk-locked→実リンク(/works/index.html)に置換。
   <div class="wk-feature fade">
     <div class="wk-media">
       <span class="wk-tag"><span class="bk"></span>WORKS / 制作実績</span>
@@ -429,6 +434,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       </div>
     </div>
   </div>
+  -->
 
   <div class="foot">
     <span>SELECTED WORKS — 実績</span>
