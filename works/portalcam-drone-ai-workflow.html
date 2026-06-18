@@ -119,6 +119,22 @@
   .refgrid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border:1px solid var(--line);border-radius:var(--radius)}
   @media(max-width:560px){.refgrid{grid-template-columns:repeat(2,1fr)}}
 
+  /* creator credit */
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:62px;height:62px;flex:none;border-radius:50%;border:1px solid var(--note-line);display:grid;place-items:center;font-family:var(--mono);font-weight:500;font-size:19px;color:var(--brand);background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .credit-card .xbtn svg{width:14px;height:14px;flex:none}
+  @media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
   footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
   footer b{color:#fff;font-weight:600}
   footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
@@ -312,6 +328,23 @@ Below on the street, thick black smoke ...
   <p>AI動画の弱点は「コントロールできないこと」。それを <strong>3DGS＋色分けダミーの"ガイド"</strong> と <strong>PortalCam由来の参照素材</strong> で補うことで、<strong>狙ったカメラワーク・構図・ポーズ</strong>のまま、フォトリアルなカットを生成できます。</p>
   <p>現場を一度3DGSで持ち帰れば、それは<strong>AI動画の破綻しない設計図</strong>になり、同じ空間から何カットでも作れるアセットになります。「撮れない画」「飛ばせない場所」を、現場データから後付けで作る——これがロケハン3Dの 3DGS × AI ワークフローの核心です。</p>
 </article>
+
+<section class="credit">
+  <div class="ey">Creator / 制作</div>
+  <h2>本ワークフローの制作・監督</h2>
+  <div class="credit-card">
+    <div class="av">MC</div>
+    <div>
+      <div class="cname">MIZUNO&nbsp;CABBAGE<span>みずのきゃべつ</span></div>
+      <div class="crole">映像作家 ／ 3DCGアーティスト ／ 映像監督</div>
+      <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がけ、海外クライアントとの制作も多数。代表作「少年とロボット」。本記事の <strong>3DGS × AI 動画ワークフロー</strong> の制作・監督を担当。</p>
+      <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @mizunocabbage をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
 </div>
 
 <footer>
