@@ -124,7 +124,14 @@
   .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
   .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
   .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
-  .credit-card .av{width:62px;height:62px;flex:none;border-radius:50%;border:1px solid var(--note-line);display:grid;place-items:center;font-family:var(--mono);font-weight:500;font-size:19px;color:var(--brand);background:#000}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-team{display:flex;gap:18px;align-items:center;margin-top:14px;background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px}
+  .credit-team .tlogo{width:46px;height:46px;flex:none;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#000}
+  .credit-team .tname{font-family:var(--sans);font-weight:800;font-size:15px;color:#fff;letter-spacing:.06em}
+  .credit-team .tname span{font-family:var(--sans);font-weight:400;font-size:11.5px;color:var(--sub);margin-left:9px;letter-spacing:.02em}
+  .credit-team p{margin:5px 0 11px;font-size:13px;line-height:1.8;color:var(--sub)}
+  .credit-team .xbtn{padding:9px 16px;font-size:11px}
+  @media(max-width:560px){.credit-team{flex-direction:column;align-items:flex-start;gap:14px}}
   .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
   .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
   .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
@@ -346,14 +353,26 @@ Below on the street, thick black smoke ...
   <div class="ey">Creator / 制作</div>
   <h2>本ワークフローの制作・監督</h2>
   <div class="credit-card">
-    <div class="av">MC</div>
+    <img class="av" src="images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
     <div>
-      <div class="cname">MIZUNO&nbsp;CABBAGE<span>みずのきゃべつ</span></div>
+      <div class="cname">MIZUNO&nbsp;CABBAGE</div>
       <div class="crole">映像作家 ／ 3DCGアーティスト ／ 映像監督</div>
-      <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がけ、海外クライアントとの制作も多数。代表作「少年とロボット」。本記事の <strong>3DGSによる空撮カット制作ワークフロー</strong> の制作・監督を担当。</p>
+      <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がける。本記事の <strong>3DGS × AI 動画ワークフロー</strong> の制作・監督を担当。</p>
       <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @mizunocabbage をフォロー →
+      </a>
+    </div>
+  </div>
+
+  <div class="credit-team">
+    <img class="tlogo" src="images/creator_undef.jpg" alt="UNDEFINED">
+    <div>
+      <div class="tname">UNDEFINED<span>新世代CGアーティストチーム</span></div>
+      <p>MIZUNO CABBAGE が主宰するクリエイティブチーム。3DGS・VFX・AIを掛け合わせた映像制作を展開しています。</p>
+      <a class="xbtn" href="https://x.com/undef_official" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        UNDEFINED @undef_official をフォロー →
       </a>
     </div>
   </div>
