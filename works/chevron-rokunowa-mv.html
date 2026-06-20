@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<meta name="theme-color" content="#000000">
+<title>Chevon「六ノ輪」MV — ロケハン3D 制作実績</title>
+<meta name="description" content="Chevon「六ノ輪」Music Video（Netflix『刃牙道』第2クールOPテーマ）にロケハン3Dの3DGSファイルを使用した制作が取り入れられました。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
+:root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.1);--accent:#ffb454;--dim:rgba(255,255,255,.62)}
+html,body{background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.04em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:normal;overflow-wrap:anywhere;line-break:strict}
+.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+br.sp{display:none}
+@media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
+h1,h2,h3{text-wrap:balance;font-feature-settings:"palt"}
+[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(22px,5vw,56px)}
+
+/* topbar */
+.bar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.82);
+  -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);
+  border-bottom:1px solid var(--line-2)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.bar .home{display:flex;align-items:center;gap:11px}
+.bar .mk{width:22px;height:22px;flex:none}
+.bar .bn{font-family:'JetBrains Mono',monospace;font-size:.72em;letter-spacing:.26em;text-transform:uppercase;color:#fff}
+.bar .bn small{color:var(--dim);letter-spacing:.2em}
+.bar nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.bar nav a{font-family:'JetBrains Mono',monospace;font-size:.68em;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);padding:8px 13px;transition:color .2s}
+.bar nav a:hover{color:#fff}
+.bar nav a.ext{border:1px solid var(--line);color:#fff}
+.bar nav a.ext:hover{background:#fff;color:#000}
+
+/* back link */
+.back{display:inline-flex;align-items:center;gap:8px;margin:32px 0 0;
+  font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);transition:color .2s}
+.back:hover{color:#fff}
+.back svg{width:16px;height:16px;flex:none}
+
+/* hero video */
+.case-hero{position:relative;margin:28px 0 0;aspect-ratio:16/9;background:#000;overflow:hidden;border:1px solid var(--line)}
+.case-hero .tag{position:absolute;top:16px;left:16px;z-index:2;font-family:'JetBrains Mono',monospace;
+  font-size:.6em;letter-spacing:.3em;text-transform:uppercase;color:#fff;
+  border:1px solid rgba(255,255,255,.4);padding:6px 12px;background:rgba(0,0,0,.4)}
+.case-hero .tag .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);
+  margin-right:8px;vertical-align:middle;animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{0%,100%{opacity:1}50%{opacity:.25}}
+.ytfacade{position:absolute;inset:0;width:100%;height:100%;border:0;cursor:pointer;z-index:1;
+  background:#000 center/cover no-repeat;display:grid;place-items:center;padding:0}
+.ytfacade .play{width:72px;height:72px;border-radius:50%;background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.75);display:grid;place-items:center;transition:background .2s,border-color .2s,transform .2s}
+.ytfacade:hover .play{background:var(--accent);border-color:var(--accent);transform:scale(1.06)}
+.ytfacade .play svg{margin-left:4px}
+.ytfacade:hover .play svg path{fill:#000}
+.case-hero iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3}
+.case-hero.playing .tag{display:none}
+
+/* case body */
+.case-body{margin:48px 0 0}
+.case-body .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.case-body .badges span{font-family:'JetBrains Mono',monospace;font-size:.6em;letter-spacing:.22em;
+  text-transform:uppercase;padding:5px 11px;border:1px solid var(--line);color:var(--dim)}
+.case-body .badges span.w{color:var(--accent);border-color:rgba(255,180,84,.5)}
+.case-body h1{font-family:'Noto Sans JP',sans-serif;font-weight:900;
+  font-size:clamp(1.8em,5vw,3em);letter-spacing:.04em;line-height:1.2;color:#fff}
+.case-body .sub{margin-top:8px;font-size:.92em;color:var(--accent)}
+.case-body .lead{margin-top:22px;color:var(--dim);font-size:1em;line-height:2;max-width:64ch}
+
+/* facts */
+.facts{margin-top:38px;border-top:1px solid var(--line-2);padding-top:8px}
+.facts .r{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--line-2)}
+.facts .role{font-family:'JetBrains Mono',monospace;font-size:.6em;letter-spacing:.22em;
+  text-transform:uppercase;opacity:.55;padding-top:3px}
+.facts .v{font-size:.86em;line-height:1.75;color:var(--ink)}
+.facts .v strong{color:var(--accent);font-weight:600}
+
+/* watch button */
+.watchmv{display:inline-flex;align-items:center;gap:8px;
+  margin-top:32px;padding:15px 30px;border:1px solid rgba(255,255,255,.5);color:#fff;
+  font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.24em;text-transform:uppercase;
+  transition:background .2s,color .2s,letter-spacing .2s}
+.watchmv:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.3em;text-decoration:none}
+
+/* blog CTA band */
+.blogband{margin:72px 0 0;border:1px solid var(--line);
+  display:grid;grid-template-columns:1fr 1fr;overflow:hidden;background:#060606}
+.blogband .bb-body{padding:54px clamp(28px,5vw,56px);position:relative;z-index:1}
+.blogband .bb-img{position:relative;min-height:240px;overflow:hidden;border-left:1px solid var(--line)}
+.blogband .bb-img img{width:100%;height:100%;object-fit:cover;display:block}
+.blogband .bb-img::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#060606 0%,transparent 40%);pointer-events:none}
+.blogband .ey{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.38em;
+  text-transform:uppercase;color:var(--accent);text-indent:.38em}
+.blogband h2{margin-top:16px;font-family:'Noto Sans JP',sans-serif;font-weight:800;
+  font-size:clamp(1.3em,3.6vw,2em);letter-spacing:.02em;line-height:1.45;color:#fff}
+.blogband h2 em{font-style:normal;color:var(--accent)}
+.blogband p{margin-top:18px;max-width:54ch;color:var(--dim);font-size:.92em;line-height:1.95}
+.cta{display:inline-block;margin-top:30px;padding:15px 34px;border:1px solid rgba(255,255,255,.5);
+  color:#fff;font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.3em;text-transform:uppercase;
+  transition:background .2s,color .2s,letter-spacing .2s}
+.cta:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.36em;text-decoration:none}
+@media(max-width:820px){
+  .blogband{grid-template-columns:1fr}
+  .blogband .bb-img{min-height:200px;border-left:none;border-top:1px solid var(--line)}
+  .blogband .bb-img::after{background:linear-gradient(180deg,#060606 0%,transparent 40%)}
+}
+
+/* credit */
+.credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+.credit .ey{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+.credit h2{font-family:'Noto Sans JP',sans-serif;font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+.credit-card{display:flex;gap:22px;align-items:flex-start;background:#0c0c0e;border:1px solid var(--line);border-radius:3px;padding:26px 28px}
+.credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid rgba(255,180,84,.4);object-fit:cover;background:#000}
+.credit-card .cname{font-family:'Noto Sans JP',sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+.credit-card .cname span{font-weight:400;font-size:13px;color:var(--dim);margin-left:8px}
+.credit-card .crole{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--accent);margin:5px 0 12px;text-transform:uppercase}
+.credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:rgba(255,255,255,.78)}
+.credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;
+  border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:3px;transition:background .2s,color .2s}
+.credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+.xbtn svg{width:14px;height:14px;flex:none}
+.credit-team{display:flex;gap:18px;align-items:flex-start;margin-top:14px;background:#000;border:1px solid var(--line);border-radius:3px;padding:22px}
+.credit-team .tlogo{width:46px;height:46px;flex:none;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#000}
+.credit-team .tname{font-family:'Noto Sans JP',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:.06em}
+.credit-team .tname span{font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:11.5px;color:var(--dim);margin-left:9px;letter-spacing:.02em}
+.credit-team p{margin:5px 0 11px;font-size:13px;line-height:1.8;color:var(--dim)}
+.credit-team .xbtn{padding:9px 16px;font-size:11px}
+@media(max-width:560px){.credit-card,.credit-team{flex-direction:column;gap:14px;padding:22px}}
+
+/* foot */
+.foot{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
+  font-size:.62em;letter-spacing:.25em;text-transform:uppercase;opacity:.4;padding:54px 0 22px}
+.filmstrip{height:30px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);
+  background-size:18px 30px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+
+@media(max-width:640px){
+  .case-body h1{font-size:clamp(1.5em,6vw,2.2em)}
+  .bar .bn{display:none}
+  .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
+}
+</style>
+</head>
+<body>
+
+<header class="bar"><div class="wrap">
+  <a class="home" href="index.html">
+    <svg class="mk" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+    <span class="bn">LOCAHUN&nbsp;3D <small>／ WORKS</small></span>
+  </a>
+  <nav>
+    <a href="index.html">実績</a>
+    <a href="blog.html">技術ブログ</a>
+    <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    実績一覧に戻る
+  </a>
+
+  <!-- Hero: YouTube facade -->
+  <div class="case-hero" id="hero">
+    <span class="tag"><span class="dot"></span>Music Video ／ 公開中</span>
+    <button class="ytfacade" type="button" data-yt="9B66VzveNzI"
+      style="background-image:url('https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg')"
+      aria-label="Chevon「六ノ輪」Music Videoを再生">
+      <span class="play"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span>
+    </button>
+  </div>
+
+  <!-- Case body -->
+  <div class="case-body">
+    <div class="badges">
+      <span class="w">公開中</span><span>Music Video</span><span>本編採用</span>
+    </div>
+    <h1>Chevon「六ノ輪」Music Video</h1>
+    <p class="sub">Netflix アニメ『刃牙道』第2クールOPテーマ</p>
+    <p class="lead">Chevon の新曲「六ノ輪」MV　ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。</p>
+
+    <div class="facts">
+      <div class="r"><div class="role">Project</div><div class="v"><strong>Chevon「六ノ輪」MV</strong>（Netflix『刃牙道』第2クールOPテーマ）</div></div>
+      <div class="r"><div class="role">Release</div><div class="v">2026.06.19 公開 ／ Music Video（YouTube）</div></div>
+      <div class="r"><div class="role">Role</div><div class="v">現場の3Dスキャンと「空撮ルックのカット」制作</div></div>
+      <div class="r"><div class="role">Result</div><div class="v">ドローン・特殊機材なしで上空アングルを実現し、<strong>MV本編カットに採用</strong>。</div></div>
+    </div>
+
+    <a class="watchmv" href="https://www.youtube.com/watch?v=9B66VzveNzI" target="_blank" rel="noopener">▶ MV本編を観る（YouTube）</a>
+  </div>
+
+  <!-- Blog CTA -->
+  <section class="blogband">
+    <div class="bb-body">
+      <div class="ey">Tech Blog</div>
+      <h2>3DGSから<em>「空撮カット」</em>を<br class="pc">生成する方法</h2>
+      <p>「六ノ輪」MVで使った、3DGSから空撮カットを作る制作ワークフローを解説しています。</p>
+      <a class="cta" href="portalcam-drone-ai-workflow.html">記事を読む →</a>
+    </div>
+    <div class="bb-img">
+      <img src="images/work04_bgfix.jpg" alt="3DGSから生成した空撮プレート">
+    </div>
+  </section>
+
+  <!-- Credit -->
+  <section class="credit">
+    <div class="ey">Creators / 制作</div>
+    <h2>制作チーム</h2>
+    <div class="credit-card">
+      <img class="av" src="images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
+      <div>
+        <div class="cname">MIZUNO&nbsp;CABBAGE</div>
+        <div class="crole">映像作家 ／ 3DCGアーティスト ／ 映像監督</div>
+        <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がける。</p>
+        <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @mizunocabbage
+        </a>
+      </div>
+    </div>
+    <div class="credit-card" style="margin-top:14px">
+      <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+      <div>
+        <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+        <div class="crole">ロケハン3D 代表 ／ 3DGSスキャン</div>
+        <p>ロケハン3D（LOCAHUN 3D）代表。現場の徒歩スキャンと3DGS制作を担当。</p>
+        <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @Kou45388803
+        </a>
+      </div>
+    </div>
+    <div class="credit-team">
+      <img class="tlogo" src="images/creator_undef.jpg" alt="UNDEFINED">
+      <div>
+        <div class="tname">UNDEFINED<span>新世代CGアーティストチーム</span></div>
+        <p>MIZUNO CABBAGE が主宰するクリエイティブチーム。3DGS・VFX・AIを掛け合わせた映像制作を展開しています。</p>
+        <a class="xbtn" href="https://x.com/undef_official" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @undef_official
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot"><span>CASE STUDY</span><span>LOCAHUN 3D — EST. 2026</span></div>
+</div>
+<div class="filmstrip"></div>
+
+<script>
+(function(){
+  document.querySelectorAll('.ytfacade').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id=b.getAttribute('data-yt');
+      var f=document.createElement('iframe');
+      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      f.title='Chevon「六ノ輪」Music Video';
+      f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      f.setAttribute('allowfullscreen','');
+      var hero=b.parentNode;
+      hero.classList.add('playing');
+      b.replaceWith(f);
+    });
+  });
+})();
+</script>
+
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  document.querySelectorAll('.case-body h1,.case-body .lead,.facts .v,.blogband h2,.blogband p,.credit h2,.credit-card p,.credit-team p')
+    .forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>

@@ -163,6 +163,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .card .cm{font-family:'JetBrains Mono',monospace;font-size:.58em;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);opacity:.8}
 .card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:.02em}
 .card p{font-size:.8em;color:var(--dim);line-height:1.75}
+a.card:hover{background:#0a0a0a}
+a.card:hover .thumb{opacity:.85}
+a.card .thumb{transition:opacity .3s}
 .card.ph .thumb{background:repeating-linear-gradient(45deg,#080808,#080808 11px,#0d0d0d 11px,#0d0d0d 22px)}
 
 /* ===== foot ===== */
@@ -213,56 +216,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <h1 class="big">実績</h1>
   </section>
 
-  <!-- Featured -->
-  <div class="chapter-rule fade">
-    <span class="num">CH. 01</span><span class="line"></span>
-    <span class="en">Featured Case — Chevon「六ノ輪」MV</span>
-  </div>
-
-  <div class="feat fade">
-    <div class="media">
-      <span class="tag"><span class="dot"></span>Music Video ／ 公開中</span>
-      <button class="ytfacade" type="button" data-yt="9B66VzveNzI"
-        style="background-image:url('https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg')"
-        aria-label="Chevon「六ノ輪」Music Videoを再生">
-        <span class="play"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span>
-      </button>
-    </div>
-    <div class="body">
-      <div class="badges">
-        <span class="w">公開中</span><span>Music Video</span><span>本編採用</span>
-      </div>
-      <h2>Chevon「六ノ輪」Music Video</h2>
-      <p class="lead" style="margin-top:0;margin-bottom:8px;font-size:.82em;color:var(--accent)">Netflix アニメ『刃牙道』第2クールOPテーマ</p>
-      <p class="lead">Chevon の新曲「六ノ輪」MV　ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。</p>
-      <div class="facts">
-        <div class="r"><div class="role">Project</div><div class="v"><strong>Chevon「六ノ輪」MV</strong>（Netflix『刃牙道』第2クールOPテーマ）</div></div>
-        <div class="r"><div class="role">Release</div><div class="v">2026.06.19 公開 ／ Music Video（YouTube）</div></div>
-        <div class="r"><div class="role">Role</div><div class="v">現場の3Dスキャンと「空撮ルックのカット」制作</div></div>
-        <div class="r"><div class="role">Result</div><div class="v">ドローン・特殊機材なしで上空アングルを実現し、<strong>MV本編カットに採用</strong>。</div></div>
-      </div>
-      <a class="watchmv" href="https://www.youtube.com/watch?v=9B66VzveNzI" target="_blank" rel="noopener">▶ MV本編を観る（YouTube）</a>
-    </div>
-  </div>
-
-  <!-- Blog CTA -->
-  <section class="blogband fade">
-    <div class="bb-body">
-      <div class="ey">Tech Blog</div>
-      <h2>3DGSから<em>「空撮カット」</em>を<br class="pc">生成する方法</h2>
-      <p>「六ノ輪」MVで使った、3DGSから空撮カットを作る制作ワークフローを解説しています。</p>
-      <a class="cta" href="portalcam-drone-ai-workflow.html">記事を読む →</a>
-    </div>
-    <div class="bb-img">
-      <img src="images/work04_bgfix.jpg" alt="3DGSから生成した空撮プレート">
-    </div>
-  </section>
-
   <!-- Works list -->
-  <div class="chapter-rule fade">
-    <span class="num">CH. 02</span><span class="line"></span>
-    <span class="en">All Works — 実績一覧</span>
-  </div>
   <div class="grid fade" id="works"></div>
 
   <div class="foot"><span>SELECTED WORKS</span><span>LOCAHUN 3D — EST. 2026</span></div>
@@ -271,9 +225,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 <script>
 var WORKS = [
+  { meta:"WORK 01 / MUSIC VIDEO", title:"Chevon「六ノ輪」Music Video", excerpt:"Netflix アニメ『刃牙道』第2クールOPテーマ。ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。", thumb:"https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg", href:"chevron-rokunowa-mv.html" },
   { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"参加作品・導入事例・制作実績をここに掲載していきます。", ph:true },
-  { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"案件ごとの担当範囲・使用技術・成果をカードで紹介します。", ph:true },
-  { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"3DGS・VFX・AIを使った映像制作の事例を順次追加します。", ph:true }
+  { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"案件ごとの担当範囲・使用技術・成果をカードで紹介します。", ph:true }
 ];
 function card(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
@@ -288,20 +242,6 @@ document.getElementById('works').innerHTML = WORKS.map(card).join('');
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
 document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
 
-/* YouTube facade → クリックで埋め込み再生に差し替え（初期表示はサムネのみで軽量） */
-document.querySelectorAll('.ytfacade').forEach(function(b){
-  b.addEventListener('click', function(){
-    var id=b.getAttribute('data-yt');
-    var f=document.createElement('iframe');
-    f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-    f.title='Chevon「六ノ輪」Music Video';
-    f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    f.setAttribute('allowfullscreen','');
-    var media=b.parentNode;
-    media.classList.add('playing');
-    b.replaceWith(f);
-  });
-});
 </script>
 
 <!-- BudouX：日本語を文節単位で改行（中途半端な折返しを防ぐ） -->
