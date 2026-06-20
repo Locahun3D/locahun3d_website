@@ -196,7 +196,7 @@ const CSP = [
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob:",
   "connect-src 'self' https://challenges.cloudflare.com",
-  "frame-src https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",

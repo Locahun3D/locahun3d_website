@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <meta name="theme-color" content="#000000">
 <title>ロケハン3D｜SELECTED WORKS — 制作実績</title>
-<meta name="description" content="ロケハン3D（LOCAHUN 3D）の制作実績。3D Gaussian Splatting・実写合成（VFX）・AI生成を組み合わせた映像カット制作の事例と、制作ワークフローの技術ブログ。">
+<meta name="description" content="ロケハン3D（LOCAHUN 3D）の制作実績。Chevon「六ノ輪」MV（Netflix『刃牙道』第2クールOPテーマ）で採用された、3D Gaussian Splatting・実写合成（VFX）・AI生成による空撮ルックの映像カット制作事例と技術ブログ。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
@@ -107,6 +107,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .feat .soonline{margin-top:auto;padding-top:26px;font-family:'JetBrains Mono',monospace;
   font-size:.66em;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
 .feat .soonline::before{content:'● ';font-size:.7em;vertical-align:middle}
+/* tie-up eyebrow（案件名） */
+.feat .tieup{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.13em;
+  line-height:1.7;color:var(--accent);margin-bottom:14px}
+/* watch MV button */
+.feat .watchmv{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;
+  margin-top:28px;padding:13px 26px;border:1px solid rgba(255,255,255,.5);color:#fff;
+  font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.24em;text-transform:uppercase;
+  transition:background .2s,color .2s,letter-spacing .2s}
+.feat .watchmv:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.3em}
+/* YouTube facade（クリックで埋め込み再生・初期は軽量サムネ） */
+.ytfacade{position:absolute;inset:0;width:100%;height:100%;border:0;cursor:pointer;z-index:1;
+  background:#000 center/cover no-repeat;display:grid;place-items:center;padding:0}
+.ytfacade .play{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.75);display:grid;place-items:center;transition:background .2s,border-color .2s,transform .2s}
+.ytfacade:hover .play{background:var(--accent);border-color:var(--accent);transform:scale(1.06)}
+.ytfacade .play svg{margin-left:3px}
+.ytfacade:hover .play svg path{fill:#000}
+.feat .media iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3}
+.feat .media.playing::after{display:none}
+.feat .media.playing .tag{display:none}
 
 /* ===== blog CTA band ===== */
 .blogband{margin:72px 0 0;border:1px solid var(--line);padding:54px clamp(28px,5vw,56px);
@@ -189,28 +209,32 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <!-- Featured -->
   <div class="chapter-rule fade">
     <span class="num">CH. 01</span><span class="line"></span>
-    <span class="en">Featured Case — 実写VFX × 3DGS × AI</span>
+    <span class="en">Featured Case — Chevon「六ノ輪」MV</span>
   </div>
 
   <div class="feat fade">
     <div class="media">
-      <span class="tag"><span class="dot"></span>制作詳細は近日公開</span>
-      <video muted autoplay loop playsinline preload="auto" poster="images/hero-gatling.png">
-        <source src="images/s08_c07_CompPreview_v001.mp4" type="video/mp4">
-      </video>
+      <span class="tag"><span class="dot"></span>Music Video ／ 公開中</span>
+      <button class="ytfacade" type="button" data-yt="9B66VzveNzI"
+        style="background-image:url('https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg')"
+        aria-label="Chevon「六ノ輪」Music Videoを再生">
+        <span class="play"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span>
+      </button>
     </div>
     <div class="body">
       <div class="badges">
-        <span class="w">実績</span><span>3DGS</span><span>VFX合成</span><span>AI生成</span>
+        <span class="w">公開中</span><span>Music Video</span><span>3DGS</span><span>VFX合成</span><span>AI生成</span>
       </div>
+      <div class="tieup">Chevon「六ノ輪」Music Video<br class="sp">／ Netflix アニメ『刃牙道』第2クールOPテーマ</div>
       <h2>自衛隊員がヘリで機関銃を構える、空撮ルックの映像カット</h2>
-      <p class="lead">実在の交差点を XGRIDS PortalCam で<strong>徒歩スキャン</strong>し3DGS化。Cinema4Dで実写素材を合成して<strong>ドローンを飛ばさずに上空アングル</strong>を作り、Nano Banana Pro / SeeDance によるAI生成カットへ展開しました。</p>
+      <p class="lead">実在の交差点を XGRIDS PortalCam で<strong>徒歩スキャン</strong>し3DGS化。Cinema4Dで実写素材を合成して<strong>ドローンを飛ばさずに上空アングル</strong>を作り、Nano Banana Pro / SeeDance によるAI生成カットへ展開。<strong>2026年6月19日公開のMV本編</strong>に採用されました。</p>
       <div class="facts">
+        <div class="r"><div class="role">Project</div><div class="v"><strong>Chevon「六ノ輪」MV</strong>（Netflix『刃牙道』第2クールOPテーマ）</div></div>
         <div class="r"><div class="role">Role</div><div class="v">現場スキャン・3DGS化・VFX合成（C4D / AE）・AI生成・リライティング設計</div></div>
         <div class="r"><div class="role">Stack</div><div class="v">PortalCam ／ LCC Studio ／ Cinema4D ／ After Effects ／ Nano Banana Pro ／ Higgsfield・SeeDance ／ SwitchLight</div></div>
         <div class="r"><div class="role">Result</div><div class="v">ドローン・特殊機材なしで空撮アングルを実現。<strong>1スキャンから「実写合成プレート・ドローンカット・AI生成」3素材を同時展開</strong>。</div></div>
       </div>
-      <div class="soonline">制作の詳細記事を近日公開予定 — Coming Soon</div>
+      <a class="watchmv" href="https://www.youtube.com/watch?v=9B66VzveNzI" target="_blank" rel="noopener">▶ MV本編を観る（YouTube）</a>
     </div>
   </div>
 
@@ -251,6 +275,21 @@ document.getElementById('works').innerHTML = WORKS.map(card).join('');
 
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
 document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
+
+/* YouTube facade → クリックで埋め込み再生に差し替え（初期表示はサムネのみで軽量） */
+document.querySelectorAll('.ytfacade').forEach(function(b){
+  b.addEventListener('click', function(){
+    var id=b.getAttribute('data-yt');
+    var f=document.createElement('iframe');
+    f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    f.title='Chevon「六ノ輪」Music Video';
+    f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    f.setAttribute('allowfullscreen','');
+    var media=b.parentNode;
+    media.classList.add('playing');
+    b.replaceWith(f);
+  });
+});
 </script>
 
 <!-- BudouX：日本語を文節単位で改行（中途半端な折返しを防ぐ） -->
