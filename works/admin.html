@@ -259,11 +259,16 @@ async function initClerk() {
   var script = document.createElement("script");
   script.src = "https://firm-rodent-40.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
   script.crossOrigin = "anonymous";
+  script.dataset.clerkPublishableKey = CLERK_PK;
+  script.async = true;
   document.head.appendChild(script);
   await new Promise(function(r){ script.onload = r; });
 
-  clerk = new window.Clerk(CLERK_PK);
-  await clerk.load();
+  // Wait for Clerk to self-initialize
+  while (!window.Clerk || !window.Clerk.loaded) {
+    await new Promise(function(r){ setTimeout(r, 200); });
+  }
+  clerk = window.Clerk;
 
   document.getElementById("loginBtn").addEventListener("click", function(){
     clerk.openSignIn();
