@@ -367,9 +367,55 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 }
 
 /* ============================================
+   UNIFIED HEADER — matches locahun3d.com
+   ============================================ */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1050;
+  height:64px;background:rgba(0,0,0,.85);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;
+  padding:0 max(48px, calc((100vw - 1440px) / 2))}
+.site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:28px}
+.site-header .sh-left nav{display:flex;align-items:center;gap:28px}
+.site-header .sh-left nav a{display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:300;color:rgba(255,255,255,.62);text-decoration:none;
+  white-space:nowrap;transition:color .2s}
+.site-header .sh-left nav a:hover{color:#fafaf6}
+.site-header .sh-left nav a .code{font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.2em;opacity:.5;transition:color .2s,opacity .2s}
+.site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}
+.site-header .sh-center{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.site-header .sh-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.site-header .sh-brand svg{flex:none}
+.site-header .sh-brand-text{font-family:'Noto Sans JP',sans-serif;font-weight:900;
+  font-size:18px;letter-spacing:0;white-space:nowrap;color:var(--ink)}
+.site-header .sh-toggle{display:flex;align-items:stretch;
+  font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:11px;letter-spacing:.06em;margin-left:4px}
+.site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 12px;
+  border:1px solid rgba(255,255,255,.18);text-decoration:none;transition:background .2s,color .2s}
+.site-header .sh-toggle span+a,.site-header .sh-toggle a+span{border-left:0}
+.site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
+.site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
+.site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+.site-header .sh-right{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.site-header .sh-right a{font-family:'JetBrains Mono',monospace;font-size:12px;
+  letter-spacing:.2em;text-transform:uppercase;text-decoration:none;
+  padding:6px 16px;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+.site-header .sh-btn-ghost{border:1px solid var(--line);color:var(--ink)}
+.site-header .sh-btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.site-header .sh-btn-accent{border:1px solid var(--accent);color:var(--accent)}
+.site-header .sh-btn-accent:hover{background:var(--accent);color:var(--bg)}
+@media(max-width:1199px){
+  .site-header{height:48px;padding:0 16px}
+  .site-header .sh-left nav{display:none}
+  .site-header .sh-brand-text{font-size:16px}
+  .site-header .sh-toggle{font-size:10px}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px}
+  .site-header .sh-right a{display:none}
+}
+
+/* ============================================
    MOBILE NAV — hamburger toggle + drawer
    ============================================ */
-.m-toggle{display:none;position:fixed;top:14px;left:14px;z-index:1200;
+.m-toggle{display:none;position:fixed;top:58px;left:14px;z-index:1200;
   width:58px;height:58px;background:rgba(0,0,0,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,.32);border-radius:4px;cursor:pointer;
   align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:0;
@@ -482,6 +528,31 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 </style>
 </head>
 <body>
+
+<!-- Unified header — matches locahun3d.com -->
+<header class="site-header">
+  <div class="sh-left">
+    <nav>
+      <a href="locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
+      <a href="locahun3d_data.html"><span class="code">0.2</span>データ</a>
+      <a href="locahun3d_pitch_hub.html"><span class="code">0.3</span>活用分野</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="locahun3d_manifesto.html" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com">オンライン</a>
+    </div>
+  </div>
+  <div class="sh-right">
+    <a href="https://locahun3d.com/sign-in" class="sh-btn-ghost">ログイン</a>
+    <a href="https://locahun3d.com/sign-up" class="sh-btn-accent">新規登録</a>
+  </div>
+</header>
 
 <!-- Left side menu (desktop) -->
 <aside class="side-menu">
