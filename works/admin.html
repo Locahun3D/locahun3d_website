@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<title>Works 管理 — ロケハン3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;600;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+:root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.1);--accent:#ffb454;--dim:rgba(255,255,255,.62);--green:#4ade80;--red:#f87171;--purple:#c084fc}
+html,body{background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.04em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 clamp(22px,5vw,56px)}
+
+.bar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.82);
+  -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);
+  border-bottom:1px solid var(--line-2)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.bar .home{display:flex;align-items:center;gap:11px}
+.bar .mk{width:22px;height:22px;flex:none}
+.bar .bn{font-family:'JetBrains Mono',monospace;font-size:.72em;letter-spacing:.26em;text-transform:uppercase;color:#fff}
+.bar nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.bar nav a{font-family:'JetBrains Mono',monospace;font-size:.68em;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);padding:8px 13px;transition:color .2s}
+.bar nav a:hover{color:#fff}
+.bar nav a.cur{color:var(--accent)}
+
+/* gate */
+#gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:18px;text-align:center}
+#gate .msg{color:var(--dim);font-size:.9em}
+#gate .login-btn{display:inline-block;padding:10px 32px;border:1px solid var(--accent);color:var(--accent);
+  font-family:'JetBrains Mono',monospace;font-size:.8em;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+#gate .login-btn:hover{background:var(--accent);color:#000}
+
+/* admin body */
+#admin{display:none;padding:40px 0 80px}
+#admin h1{font-size:1.2em;font-weight:600;letter-spacing:.06em;margin-bottom:32px;
+  padding-bottom:14px;border-bottom:1px solid var(--line-2)}
+
+.article{border:1px solid var(--line-2);margin-bottom:18px;padding:20px 24px;background:#060606;transition:border-color .2s}
+.article:hover{border-color:var(--line)}
+.article .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.article .slug{font-family:'JetBrains Mono',monospace;font-size:.78em;letter-spacing:.1em;color:var(--dim);flex:1;min-width:200px}
+.badge{display:inline-block;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:.65em;
+  letter-spacing:.16em;text-transform:uppercase;border-radius:2px}
+.badge.published{background:rgba(74,222,128,.15);color:var(--green)}
+.badge.draft{background:rgba(248,113,113,.15);color:var(--red)}
+.badge.private{background:rgba(192,132,252,.15);color:var(--purple)}
+
+.article .controls{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:.68em;letter-spacing:.14em;
+  text-transform:uppercase;border:1px solid var(--line);color:var(--dim);background:transparent;cursor:pointer;transition:all .15s}
+.btn:hover{color:#fff;border-color:#fff}
+.btn.active{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.3;cursor:default}
+
+.share-row{display:none;margin-top:12px;padding:12px 16px;background:rgba(192,132,252,.06);border:1px solid rgba(192,132,252,.15)}
+.share-row.show{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.share-url{flex:1;min-width:200px;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:.72em;
+  background:#0a0a0a;border:1px solid var(--line-2);color:var(--ink);letter-spacing:.04em}
+.btn-copy{padding:6px 14px;font-size:.68em;font-family:'JetBrains Mono',monospace;
+  background:var(--purple);color:#000;border:none;cursor:pointer;letter-spacing:.1em}
+.btn-regen{padding:6px 14px;font-size:.68em;font-family:'JetBrains Mono',monospace;
+  background:transparent;border:1px solid var(--purple);color:var(--purple);cursor:pointer;letter-spacing:.1em}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);padding:10px 28px;
+  background:var(--accent);color:#000;font-family:'JetBrains Mono',monospace;font-size:.76em;letter-spacing:.14em;
+  z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media(max-width:540px){
+  .article .top{flex-direction:column;align-items:flex-start;gap:8px}
+  .share-url{font-size:.62em}
+}
+</style>
+</head>
+<body>
+
+<header class="bar"><div class="wrap">
+  <a class="home" href="index.html">
+    <svg class="mk" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+    <span class="bn">WORKS ADMIN</span>
+  </a>
+  <nav>
+    <a href="index.html">実績</a>
+    <a href="blog.html">技術ブログ</a>
+    <a href="admin.html" class="cur">管理</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div id="gate">
+    <p class="msg">管理者としてログインしてください</p>
+    <button class="login-btn" id="loginBtn">ログイン</button>
+  </div>
+
+  <div id="admin">
+    <h1>記事管理</h1>
+    <div id="articles"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var CLERK_PK = "pk_test_ZmlybS1yb2RlbnQtNDAuY2xlcmsuYWNjb3VudHMuZGV2JA";
+
+var KNOWN_ARTICLES = [
+  { slug: "chevron-rokunowa-mv", title: 'Chevon「六ノ輪」Music Video', category: "実績" },
+  { slug: "portalcam-drone-ai-workflow", title: "3DGSから「空撮カット」を生成する方法", category: "技術ブログ" }
+];
+
+var clerk = null;
+
+function toast(msg) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(function(){ el.classList.remove("show"); }, 2000);
+}
+
+function shareUrl(slug, token) {
+  var base = location.origin + "/works/" + slug + ".html";
+  return base + "?token=" + token;
+}
+
+function renderArticle(art) {
+  var d = document.createElement("div");
+  d.className = "article";
+  d.dataset.slug = art.slug;
+
+  var badge = '<span class="badge ' + art.status + '">' + art.status + '</span>';
+  var known = KNOWN_ARTICLES.find(function(k){ return k.slug === art.slug; });
+  var title = known ? known.title : art.slug;
+  var cat = known ? (' <span style="color:var(--dim);font-size:.72em">(' + known.category + ')</span>') : '';
+
+  d.innerHTML =
+    '<div class="top">' +
+      '<span class="slug">' + title + cat + '</span>' +
+      badge +
+    '</div>' +
+    '<div class="controls">' +
+      '<button class="btn' + (art.status === "published" ? " active" : "") + '" data-action="published">公開</button>' +
+      '<button class="btn' + (art.status === "draft" ? " active" : "") + '" data-action="draft">下書き</button>' +
+      '<button class="btn' + (art.status === "private" ? " active" : "") + '" data-action="private">限定共有</button>' +
+    '</div>' +
+    '<div class="share-row' + (art.status === "private" && art.shareToken ? " show" : "") + '">' +
+      '<input class="share-url" readonly value="' + (art.shareToken ? shareUrl(art.slug, art.shareToken) : "") + '">' +
+      '<button class="btn-copy">コピー</button>' +
+      '<button class="btn-regen">再生成</button>' +
+    '</div>';
+
+  d.querySelectorAll(".controls .btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      setStatus(art.slug, btn.dataset.action, d);
+    });
+  });
+
+  var copyBtn = d.querySelector(".btn-copy");
+  if (copyBtn) copyBtn.addEventListener("click", function(){
+    var url = d.querySelector(".share-url").value;
+    navigator.clipboard.writeText(url).then(function(){ toast("コピーしました"); });
+  });
+
+  var regenBtn = d.querySelector(".btn-regen");
+  if (regenBtn) regenBtn.addEventListener("click", function(){
+    regenerateToken(art.slug, d);
+  });
+
+  return d;
+}
+
+async function setStatus(slug, status, el) {
+  el.querySelectorAll(".controls .btn").forEach(function(b){ b.disabled = true; });
+  try {
+    var token = await clerk.session.getToken();
+    var res = await fetch("/api/works/" + slug, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ status: status })
+    });
+    var data = await res.json();
+    if (!data.ok) { toast("エラー: " + data.error); return; }
+    refreshArticle(el, data.article);
+    toast(status === "published" ? "公開しました" : status === "draft" ? "下書きにしました" : "限定共有に設定しました");
+  } catch(e) { toast("通信エラー"); } finally {
+    el.querySelectorAll(".controls .btn").forEach(function(b){ b.disabled = false; });
+  }
+}
+
+async function regenerateToken(slug, el) {
+  try {
+    var token = await clerk.session.getToken();
+    var res = await fetch("/api/works/" + slug + "/regenerate-token", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token }
+    });
+    var data = await res.json();
+    if (!data.ok) { toast("エラー: " + data.error); return; }
+    refreshArticle(el, data.article);
+    toast("トークンを再生成しました");
+  } catch(e) { toast("通信エラー"); }
+}
+
+function refreshArticle(el, art) {
+  var badge = el.querySelector(".badge");
+  badge.className = "badge " + art.status;
+  badge.textContent = art.status;
+
+  el.querySelectorAll(".controls .btn").forEach(function(b){
+    b.classList.toggle("active", b.dataset.action === art.status);
+  });
+
+  var shareRow = el.querySelector(".share-row");
+  if (art.status === "private" && art.shareToken) {
+    shareRow.classList.add("show");
+    el.querySelector(".share-url").value = shareUrl(art.slug, art.shareToken);
+  } else {
+    shareRow.classList.remove("show");
+  }
+}
+
+async function loadArticles() {
+  var container = document.getElementById("articles");
+  try {
+    var token = await clerk.session.getToken();
+    var res = await fetch("/api/works", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    var data = await res.json();
+    var serverMap = {};
+    if (data.ok && data.articles) {
+      data.articles.forEach(function(a){ serverMap[a.slug] = a; });
+    }
+    container.innerHTML = "";
+    KNOWN_ARTICLES.forEach(function(ka) {
+      var art = serverMap[ka.slug] || { slug: ka.slug, status: "published" };
+      art.slug = ka.slug;
+      container.appendChild(renderArticle(art));
+    });
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--red)">記事の読み込みに失敗しました</p>';
+  }
+}
+
+async function initClerk() {
+  var script = document.createElement("script");
+  script.src = "https://firm-rodent-40.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
+  script.crossOrigin = "anonymous";
+  document.head.appendChild(script);
+  await new Promise(function(r){ script.onload = r; });
+
+  clerk = new window.Clerk(CLERK_PK);
+  await clerk.load();
+
+  document.getElementById("loginBtn").addEventListener("click", function(){
+    clerk.openSignIn();
+  });
+
+  clerk.addListener(function(res) {
+    if (res.user) {
+      document.getElementById("gate").style.display = "none";
+      document.getElementById("admin").style.display = "block";
+      loadArticles();
+    } else {
+      document.getElementById("gate").style.display = "";
+      document.getElementById("admin").style.display = "none";
+    }
+  });
+
+  if (clerk.user) {
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("admin").style.display = "block";
+    loadArticles();
+  }
+}
+
+initClerk();
+</script>
+</body>
+</html>

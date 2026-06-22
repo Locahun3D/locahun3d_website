@@ -50,6 +50,173 @@ function isEmail(s) {
   return typeof s === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
+// ── Clerk config ──
+const CLERK_ISSUER = "https://firm-rodent-40.clerk.accounts.dev";
+const ADMIN_EMAILS = new Set(["nakamurakou1108@gmail.com"]);
+
+let _jwksCache = null;
+let _jwksCacheTime = 0;
+const JWKS_TTL = 3600_000; // 1 hour
+
+async function getJWKS() {
+  if (_jwksCache && Date.now() - _jwksCacheTime < JWKS_TTL) return _jwksCache;
+  const res = await fetch(`${CLERK_ISSUER}/.well-known/jwks.json`);
+  if (!res.ok) throw new Error("Failed to fetch JWKS");
+  _jwksCache = await res.json();
+  _jwksCacheTime = Date.now();
+  return _jwksCache;
+}
+
+function base64UrlDecode(str) {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) str += "=";
+  return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+}
+
+async function importJWK(jwk) {
+  return crypto.subtle.importKey(
+    "jwk", jwk,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false, ["verify"]
+  );
+}
+
+async function verifyClerkJWT(token) {
+  try {
+    const [headerB64, payloadB64, sigB64] = token.split(".");
+    if (!headerB64 || !payloadB64 || !sigB64) return null;
+
+    const header = JSON.parse(new TextDecoder().decode(base64UrlDecode(headerB64)));
+    const jwks = await getJWKS();
+    const jwk = jwks.keys.find(k => k.kid === header.kid);
+    if (!jwk) return null;
+
+    const key = await importJWK(jwk);
+    const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+    const sig = base64UrlDecode(sigB64);
+    const valid = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, sig, data);
+    if (!valid) return null;
+
+    const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(payloadB64)));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+async function getClerkUser(request) {
+  const auth = request.headers.get("Authorization") || "";
+  if (auth.startsWith("Bearer ")) {
+    const result = await verifyClerkJWT(auth.slice(7));
+    if (result) return result;
+  }
+  const cookie = request.headers.get("Cookie") || "";
+  const match = cookie.match(/__session=([^;]+)/);
+  if (!match) return null;
+  return verifyClerkJWT(match[1]);
+}
+
+function isAdmin(clerkPayload) {
+  if (!clerkPayload) return false;
+  const email = clerkPayload.email ||
+    clerkPayload.primary_email_address ||
+    (clerkPayload.email_addresses && clerkPayload.email_addresses[0]);
+  return email && ADMIN_EMAILS.has(email);
+}
+
+// ── Works article gating ──
+async function getArticleMeta(slug, env) {
+  const val = await env.WORKS_KV.get(`works:${slug}`, "json");
+  return val || { status: "published" };
+}
+
+async function handleWorksArticle(request, env, slug) {
+  const meta = await getArticleMeta(slug, env);
+  const url = new URL(request.url);
+
+  if (meta.status === "published") {
+    return env.ASSETS.fetch(request);
+  }
+
+  if (meta.status === "private" && meta.shareToken) {
+    const token = url.searchParams.get("token");
+    if (token === meta.shareToken) {
+      return env.ASSETS.fetch(request);
+    }
+  }
+
+  if (meta.status === "draft" || meta.status === "private") {
+    const user = await getClerkUser(request);
+    if (isAdmin(user)) {
+      return env.ASSETS.fetch(request);
+    }
+  }
+
+  return new Response("Not Found", { status: 404, headers: { "Content-Type": "text/plain" } });
+}
+
+// ── Works Admin API ──
+async function handleWorksAPI(request, env) {
+  const user = await getClerkUser(request);
+  if (!isAdmin(user)) {
+    return jsonResponse({ ok: false, error: "Unauthorized" }, 401);
+  }
+
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  // GET /api/works — list all articles
+  if (request.method === "GET" && path === "/api/works") {
+    const list = await env.WORKS_KV.list({ prefix: "works:" });
+    const articles = [];
+    for (const key of list.keys) {
+      const meta = await env.WORKS_KV.get(key.name, "json");
+      articles.push({ slug: key.name.replace("works:", ""), ...meta });
+    }
+    return jsonResponse({ ok: true, articles });
+  }
+
+  // PUT /api/works/:slug — update article
+  if (request.method === "PUT") {
+    const match = path.match(/^\/api\/works\/([a-z0-9_-]+)$/);
+    if (!match) return jsonResponse({ ok: false, error: "Invalid slug" }, 400);
+    const slug = match[1];
+    let body;
+    try { body = await request.json(); } catch { return jsonResponse({ ok: false, error: "Invalid JSON" }, 400); }
+    const status = body.status;
+    if (!["published", "draft", "private"].includes(status)) {
+      return jsonResponse({ ok: false, error: "Invalid status" }, 400);
+    }
+    const existing = await getArticleMeta(slug, env);
+    const updated = { ...existing, status };
+    if (status === "private" && !updated.shareToken) {
+      updated.shareToken = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+    }
+    if (status !== "private") {
+      updated.shareToken = null;
+    }
+    await env.WORKS_KV.put(`works:${slug}`, JSON.stringify(updated));
+    return jsonResponse({ ok: true, article: { slug, ...updated } });
+  }
+
+  // POST /api/works/:slug/regenerate-token
+  if (request.method === "POST") {
+    const match = path.match(/^\/api\/works\/([a-z0-9_-]+)\/regenerate-token$/);
+    if (!match) return jsonResponse({ ok: false, error: "Not found" }, 404);
+    const slug = match[1];
+    const existing = await getArticleMeta(slug, env);
+    if (existing.status !== "private") {
+      return jsonResponse({ ok: false, error: "Article not private" }, 400);
+    }
+    existing.shareToken = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+    await env.WORKS_KV.put(`works:${slug}`, JSON.stringify(existing));
+    return jsonResponse({ ok: true, article: { slug, ...existing } });
+  }
+
+  return jsonResponse({ ok: false, error: "Not found" }, 404);
+}
+
 const ALLOWED_ORIGINS = new Set([
   "https://web.locahun3d.com",
   "https://locahun3d.com",
@@ -190,13 +357,13 @@ async function handleContact(request, env) {
 //   - challenges.cloudflare.com (Turnstile)
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com https://firm-rodent-40.clerk.accounts.dev",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://firm-rodent-40.clerk.accounts.dev",
   "font-src 'self' https://fonts.gstatic.com data:",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https: https://img.clerk.com",
   "media-src 'self' blob:",
-  "connect-src 'self' https://challenges.cloudflare.com",
-  "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
+  "connect-src 'self' https://challenges.cloudflare.com https://firm-rodent-40.clerk.accounts.dev https://*.clerk.accounts.dev",
+  "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://firm-rodent-40.clerk.accounts.dev",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
@@ -247,6 +414,20 @@ async function route(request, env) {
       return jsonResponse({ ok: false, error: "POST only" }, 405);
     }
     return handleContact(request, env);
+  }
+
+  // Works Admin API
+  if (url.pathname.startsWith("/api/works")) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204 });
+    }
+    return handleWorksAPI(request, env);
+  }
+
+  // Works article gating — intercept individual article pages
+  const worksMatch = url.pathname.match(/^\/works\/([a-z0-9_-]+)\.html$/);
+  if (worksMatch && worksMatch[1] !== "index" && worksMatch[1] !== "blog" && worksMatch[1] !== "admin") {
+    return handleWorksArticle(request, env, worksMatch[1]);
   }
 
   // delegate everything else to static assets

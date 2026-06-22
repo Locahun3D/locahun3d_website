@@ -159,6 +159,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
 .site-header .sh-btn-accent{border:1px solid var(--accent);color:var(--accent)}
 .site-header .sh-btn-accent:hover{background:var(--accent);color:var(--bg)}
+.site-header .sh-user{display:none;align-items:center;gap:10px}
+.site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
+.site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
 @media(max-width:1199px){
   .site-header{height:48px;padding:0 16px}
   .site-header .sh-left nav{display:none}
@@ -166,6 +169,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .site-header .sh-toggle{font-size:10px}
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px}
   .site-header .sh-right a{display:none}
+  .site-header .sh-user-name{display:none}
 }
 
 /* ============================================
@@ -436,8 +440,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     </div>
   </div>
   <div class="sh-right">
-    <a href="https://locahun3d.com/sign-in" class="sh-btn-ghost">ログイン</a>
-    <a href="https://locahun3d.com/sign-up" class="sh-btn-accent">新規登録</a>
+    <span id="sh-guest">
+      <a href="https://locahun3d.com/sign-in" class="sh-btn-ghost">ログイン</a>
+      <a href="https://locahun3d.com/sign-up" class="sh-btn-accent">新規登録</a>
+    </span>
+    <span id="sh-user" class="sh-user">
+      <img class="sh-user-avatar" src="" alt="">
+      <span class="sh-user-name"></span>
+    </span>
   </div>
 </header>
 
@@ -449,7 +459,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
     <a href="locahun3d_online.html" class="current">実績＆ブログ</a>
     <a href="locahun3d_demo.html">デモ・お問合せ</a>
-    <a href="https://locahun3d.com" target="_blank" rel="noopener">オンライン版</a>
   </nav>
 </aside>
 
@@ -463,7 +472,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
   <a href="locahun3d_online.html" class="current">実績＆ブログ</a>
   <a href="locahun3d_demo.html">デモ・お問合せ</a>
-  <a href="https://locahun3d.com" target="_blank" rel="noopener">オンライン版</a>
 </aside>
 
 <!-- ===== FRAME 1 — SELECTED WORKS（実績） ===== -->
@@ -585,5 +593,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')setMNav(false)});
   document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 
+<script src="/clerk-header.js"></script>
 </body>
 </html>
