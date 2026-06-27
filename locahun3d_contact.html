@@ -407,6 +407,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 @media(max-width:900px){  body{overflow-x:clip}
   .field select,.field input,.field textarea{font-size:1em}
 }
+
+/* === Focus visibility — no-hover devices: TV remote / game controller / VR headset / keyboard === */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible{outline:3px solid var(--accent,#ffb454);outline-offset:3px;border-radius:3px}
+.site-header .sh-left nav a:focus-visible,.side-menu nav a:focus-visible{color:#fafaf6}
+.m-nav a:focus-visible{color:var(--accent,#ffb454)}
+.site-header .sh-right a:focus-visible,.end .cta:focus-visible,.m-toggle:focus-visible{outline-offset:2px}
+
+/* === Ultra-narrow (smartwatch / tiny screens ≤360px) — prevent header crowding === */
+@media(max-width:360px){
+  .site-header{padding:0 12px}
+  .site-header .sh-brand-text{font-size:14px}
+  .site-header .sh-toggle{font-size:9px}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 7px}
+  .m-toggle{width:34px;height:34px;right:8px}
+}
+
+/* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html,body{scroll-behavior:auto!important}
+  .fade{opacity:1!important;transform:none!important}
+}
 </style>
 </head>
 <body>
