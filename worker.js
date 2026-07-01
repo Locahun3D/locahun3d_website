@@ -4,7 +4,7 @@
 
 import { EmailMessage } from "cloudflare:email";
 
-const TO_ADDR = "nakamurakou1108@gmail.com";
+const TO_ADDR = "l3dtools@gmail.com";
 const FROM_ADDR = "noreply@locahun3d.com";
 const FROM_NAME = "locahun3d Web";
 
@@ -51,8 +51,8 @@ function isEmail(s) {
 }
 
 // ── Clerk config ──
-const CLERK_ISSUER = "https://firm-rodent-40.clerk.accounts.dev";
-const ADMIN_EMAILS = new Set(["nakamurakou1108@gmail.com"]);
+const CLERK_ISSUER = "https://clerk.locahun3d.com";
+const ADMIN_EMAILS = new Set(["nakamurakou1108@gmail.com", "l3dtools@gmail.com"]);
 
 let _jwksCache = null;
 let _jwksCacheTime = 0;
@@ -357,17 +357,18 @@ async function handleContact(request, env) {
 //   - challenges.cloudflare.com (Turnstile)
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com https://firm-rodent-40.clerk.accounts.dev",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://firm-rodent-40.clerk.accounts.dev",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com https://clerk.locahun3d.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://clerk.locahun3d.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https: https://img.clerk.com",
   "media-src 'self' blob:",
-  "connect-src 'self' https://challenges.cloudflare.com https://firm-rodent-40.clerk.accounts.dev https://*.clerk.accounts.dev",
-  "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://firm-rodent-40.clerk.accounts.dev",
+  "connect-src 'self' https://challenges.cloudflare.com https://clerk.locahun3d.com https://accounts.locahun3d.com",
+  "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://clerk.locahun3d.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
+  "worker-src 'self' blob:",
   "upgrade-insecure-requests",
 ].join("; ");
 
@@ -399,6 +400,15 @@ async function route(request, env) {
   // 301 redirect: root / and /index.html → /locahun3d_manifesto.html
   if (url.pathname === "/" || url.pathname === "/index.html") {
     return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
+  }
+
+  // EN mirror: /en, /en/ → English home (manifesto)
+  if (url.pathname === "/en" || url.pathname === "/en/" || url.pathname === "/en/index.html") {
+    return Response.redirect(`${url.origin}/en/locahun3d_manifesto.html`, 301);
+  }
+  // EN contact merged into EN demo page
+  if (url.pathname === "/en/locahun3d_contact.html") {
+    return Response.redirect(`${url.origin}/en/locahun3d_demo.html#contact`, 301);
   }
 
   // 301 redirect: former contact page merged into demo page
