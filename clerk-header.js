@@ -1,7 +1,12 @@
 (function(){
-  var PK = "pk_test_ZmlybS1yb2RlbnQtNDAuY2xlcmsuYWNjb3VudHMuZGV2JA";
+  var PK = "pk_live_Y2xlcmsubG9jYWh1bjNkLmNvbSQ";
+  // /en 配下は英語ラベル。それ以外は日本語。
+  var EN = /^\/en(\/|$)/.test(location.pathname);
   var SIGNIN_URL = "https://locahun3d.com/sign-in";
   var SIGNUP_URL = "https://locahun3d.com/sign-up";
+  var L = EN
+    ? { signin: "Log in", signup: "Sign up", account: "Account", signout: "Sign out" }
+    : { signin: "ログイン", signup: "新規登録", account: "アカウント", signout: "ログアウト" };
 
   // ── モバイルのドロワーにログイン導線を即時注入 ──
   // Clerk 未ロードでも redirect で機能するよう先に入れておく。
@@ -13,12 +18,12 @@
     box.style.cssText = "margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.15)";
     box.innerHTML =
       '<div id="m-guest">' +
-        '<a id="m-signin" href="' + SIGNIN_URL + '">ログイン</a>' +
-        '<a id="m-signup" href="' + SIGNUP_URL + '">新規登録</a>' +
+        '<a id="m-signin" href="' + SIGNIN_URL + '">' + L.signin + '</a>' +
+        '<a id="m-signup" href="' + SIGNUP_URL + '">' + L.signup + '</a>' +
       '</div>' +
       '<div id="m-user" style="display:none">' +
-        '<a id="m-account" href="#">アカウント</a>' +
-        '<a id="m-signout" href="#">ログアウト</a>' +
+        '<a id="m-account" href="#">' + L.account + '</a>' +
+        '<a id="m-signout" href="#">' + L.signout + '</a>' +
       '</div>';
     nav.appendChild(box);
   }
@@ -27,7 +32,7 @@
 
   // ── Clerk 本体をロード ──
   var s = document.createElement("script");
-  s.src = "https://firm-rodent-40.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
+  s.src = "https://clerk.locahun3d.com/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
   s.crossOrigin = "anonymous";
   s.dataset.clerkPublishableKey = PK;
   s.async = true;
