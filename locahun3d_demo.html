@@ -162,9 +162,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-user{display:none;align-items:center;gap:10px}
 .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
 .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
-@media(max-width:1023px){
+@media(max-width:1199px){
   /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
-     切替幅 1024px もオンライン版の lg: と同一。
+     切替幅 1200px もオンライン版 min-[1200px] と同一（両サイト同時変更が必須）。
      変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
   .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
   .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
@@ -184,13 +184,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 }
 @media(min-width:1200px){
   .site-header .sh-left nav a.mobile-only{display:none}
-}
-@media(min-width:1024px) and (max-width:1199px){
-  /* サイドメニューが無い帯: ナビ5項目を圧縮し、トグルは一時非表示
-     （オンライン版が同帯で nav gap-4 / toggle hidden xl: とする対処のミラー） */
-  .site-header .sh-left{gap:16px}
-  .site-header .sh-left nav{gap:16px}
-  .site-header .sh-toggle:not(.sh-lang){display:none}
 }
 @media(max-width:1439px){
   /* ナビ番号コードはオンライン版と同じく 1440px 以上のみ表示 */
