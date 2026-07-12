@@ -130,7 +130,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
    UNIFIED HEADER — matches locahun3d.com
    ============================================ */
 .site-header{position:fixed;top:0;left:0;right:0;z-index:1050;
-  height:64px;background:rgba(0,0,0,.85);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  height:64px;background:rgba(0,0,0,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);display:flex;align-items:center;
   padding:0 max(48px, calc((100vw - 1440px) / 2))}
 .site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:28px}
@@ -146,7 +146,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
 .site-header .sh-brand svg{flex:none}
 .site-header .sh-brand-text{font-family:'Noto Sans JP',sans-serif;font-weight:900;
-  font-size:18px;letter-spacing:0;white-space:nowrap;color:var(--ink)}
+  font-size:18px;letter-spacing:.01em;white-space:nowrap;color:var(--ink)}
 .site-header .sh-toggle{display:flex;align-items:stretch;
   font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:11px;letter-spacing:.06em;margin-left:4px}
 .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 12px;
@@ -155,6 +155,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
 .site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
 .site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+/* トグル各セルは常に自サービス色ボーダー50%（オンライン版と共通の状態規則） */
+.site-header .sh-toggle:not(.sh-lang) a:not(.sh-active){border-color:rgba(94,200,232,.5)}
+/* ENチップ: オンライン版 LangToggle と同スタイル (JetBrains Mono / 薄グレー) に統一 */
+.site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:300;letter-spacing:.12em;padding:4px 8px;color:rgba(255,255,255,.62)}
+.site-header .sh-toggle.sh-lang a:hover{color:var(--accent);border-color:var(--accent);background:none}
 .site-header .sh-right{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
 .site-header .sh-right a{font-family:'JetBrains Mono',monospace;font-size:12px;
   letter-spacing:.2em;text-transform:uppercase;text-decoration:none;
@@ -166,22 +171,39 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-user{display:none;align-items:center;gap:10px}
 .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
 .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
-@media(max-width:1199px){
-  /* 2段ヘッダー: PCと同一構成を維持しハンバーガーには畳まない（ブランド行+ナビ行） */
-  .site-header{height:auto;min-height:48px;padding:8px 16px;flex-wrap:wrap;row-gap:6px}
-  .site-header .sh-left{order:2;flex:1 0 100%;justify-content:center}
-  .site-header .sh-left nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px}
+@media(max-width:1023px){
+  /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
+     切替幅 1024px もオンライン版の lg: と同一。
+     変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
+  .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
+  .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
+  .site-header .sh-center .sh-lang{margin-left:auto!important}
+  .site-header .sh-brand{gap:4px}
+  .site-header .sh-brand svg{width:18px;height:18px}
+  .site-header .sh-brand-text{font-size:13px;letter-spacing:.01em}
+  .site-header .sh-toggle{font-size:8px;letter-spacing:.02em;margin-left:0}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 4px;white-space:nowrap}
+  .site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:300;letter-spacing:.04em;padding:2px 4px;color:rgba(255,255,255,.62)}
+  .site-header .sh-left{order:2;flex:1 0 100%;justify-content:center;padding-bottom:8px}
+  .site-header .sh-left nav{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px}
   .site-header .sh-left nav a{font-size:11px}
   .site-header .sh-left nav a .code{display:none}
-  .site-header .sh-center{order:1;flex:1 0 100%;justify-content:center}
-  .site-header .sh-brand-text{font-size:16px}
-  .site-header .sh-toggle{font-size:10px}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px;white-space:nowrap}
   .site-header .sh-right{display:none}
   .site-header .sh-user-name{display:none}
 }
 @media(min-width:1200px){
   .site-header .sh-left nav a.mobile-only{display:none}
+}
+@media(min-width:1024px) and (max-width:1199px){
+  /* サイドメニューが無い帯: ナビ5項目を圧縮し、トグルは一時非表示
+     （オンライン版が同帯で nav gap-4 / toggle hidden xl: とする対処のミラー） */
+  .site-header .sh-left{gap:16px}
+  .site-header .sh-left nav{gap:16px}
+  .site-header .sh-toggle:not(.sh-lang){display:none}
+}
+@media(max-width:1439px){
+  /* ナビ番号コードはオンライン版と同じく 1440px 以上のみ表示 */
+  .site-header .sh-left nav a .code{display:none}
 }
 
 /* ============================================
@@ -395,11 +417,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
 
 /* === Ultra-narrow (smartwatch / tiny screens ≤360px) — prevent header crowding === */
-@media(max-width:360px){
-  .site-header{padding:0 12px}
-  .site-header .sh-brand-text{font-size:14px}
-  .site-header .sh-toggle{font-size:9px}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 7px}
+@media(max-width:359px){
+  .site-header .sh-center{gap:2px}
+  .site-header .sh-brand-text{font-size:11px}
+  .site-header .sh-toggle{font-size:7px}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 3px}
+  .site-header .sh-toggle.sh-lang a{font-size:9px;padding:2px 4px}
 }
 
 /* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
@@ -431,7 +454,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <span class="sh-active">Scan</span>
       <a href="https://locahun3d.com/en/properties">Online</a>
     </div>
-    <div class="sh-toggle" style="margin-left:8px">
+    <div class="sh-toggle sh-lang" style="margin-left:8px">
       <a href="/locahun3d_data.html">JA</a>
     </div>
   </div>
