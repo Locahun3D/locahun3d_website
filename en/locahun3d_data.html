@@ -174,12 +174,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px}
   .site-header .sh-right a{display:none}
   .site-header .sh-user-name{display:none}
+  /* モバイルはヘッダーを ブランド+EN のみに（トグルはドロワーへ） — ハンバーガーとの重なり防止 */
+  .site-header .sh-center .sh-toggle:first-of-type{display:none}
 }
 
 /* ============================================
    MOBILE NAV — hamburger toggle + drawer
    ============================================ */
-.m-toggle{display:none;position:fixed;top:7px;right:10px;z-index:1200;
+.m-toggle{display:none;position:fixed;top:7px;left:10px;z-index:1200;
   width:38px;height:38px;background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.28);border-radius:4px;cursor:pointer;
   align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:0}
@@ -420,7 +422,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   .site-header .sh-brand-text{font-size:14px}
   .site-header .sh-toggle{font-size:9px}
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 7px}
-  .m-toggle{width:34px;height:34px;right:8px}
+  .m-toggle{width:34px;height:34px;left:8px}
 }
 
 /* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
@@ -478,6 +480,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   <a href="locahun3d_pitch_hub.html">Applications by Field</a>
   <a href="locahun3d_online.html">Works &amp; Blog</a>
   <a href="locahun3d_demo.html">Demo & Contact</a>
+  <a href="https://locahun3d.com/en/properties">Online →</a>
   <a href="/locahun3d_data.html">日本語 / JA</a>
 </aside>
 
