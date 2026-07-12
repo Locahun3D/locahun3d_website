@@ -153,47 +153,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
 .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
 @media(max-width:1199px){
-  .site-header{height:48px;padding:0 16px}
-  .site-header .sh-left nav{display:none}
+  /* 2段ヘッダー: PCと同一構成を維持しハンバーガーには畳まない（ブランド行+ナビ行） */
+  .site-header{height:auto;min-height:48px;padding:8px 16px;flex-wrap:wrap;row-gap:6px}
+  .site-header .sh-left{order:2;flex:1 0 100%;justify-content:center}
+  .site-header .sh-left nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px}
+  .site-header .sh-left nav a{font-size:11px}
+  .site-header .sh-left nav a .code{display:none}
+  .site-header .sh-center{order:1;flex:1 0 100%;justify-content:center}
   .site-header .sh-brand-text{font-size:16px}
   .site-header .sh-toggle{font-size:10px}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px}
-  .site-header .sh-right a{display:none}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 10px;white-space:nowrap}
+  .site-header .sh-right{display:none}
   .site-header .sh-user-name{display:none}
-  /* モバイルはヘッダーを ブランド+EN のみに（トグルはドロワーへ） — ハンバーガーとの重なり防止 */
-  .site-header .sh-center .sh-toggle:first-of-type{display:none}
+}
+@media(min-width:1200px){
+  .site-header .sh-left nav a.mobile-only{display:none}
 }
 
 /* ============================================
    MOBILE NAV — hamburger toggle + drawer
    ============================================ */
-.m-toggle{display:none;position:fixed;top:7px;left:10px;z-index:1200;
-  width:38px;height:38px;background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.28);border-radius:4px;cursor:pointer;
-  align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:0}
-.m-toggle span{display:block;width:22px;height:2px;background:#fff;border-radius:1px;
-  transition:transform .3s,opacity .3s}
-.m-toggle.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
-.m-toggle.open span:nth-child(2){opacity:0}
-.m-toggle.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
-.m-nav{position:fixed;inset:0;z-index:1150;background:rgba(0,0,0,.96);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:96px 32px 32px;
-  display:flex;flex-direction:column;gap:6px;
-  opacity:0;pointer-events:none;transition:opacity .3s;overflow-y:auto}
-.m-nav.open{opacity:1;pointer-events:auto}
-.m-nav .m-brand{font-family:'JetBrains Mono',monospace;font-size:.7em;
-  letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.55);
-  border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:14px;margin-bottom:14px;
-  display:flex;justify-content:space-between;align-items:center}
-.m-nav .m-brand .dot{width:5px;height:5px;background:#ffb454;border-radius:50%;display:inline-block}
-.m-nav a{color:#fff;text-decoration:none;font-family:'Noto Sans JP',sans-serif;font-weight:900;
-  font-size:1.4em;letter-spacing:.04em;padding:14px 0;
-  border-bottom:1px dotted rgba(255,255,255,.12);transition:color .2s,padding-left .2s}
-.m-nav a::before{content:'· ';color:rgba(255,255,255,.3);transition:color .2s}
-.m-nav a.current,.m-nav a:hover{color:#ffb454;padding-left:6px}
-.m-nav a.current::before,.m-nav a:hover::before{color:#ffb454}
-@media(min-width:1200px){.m-toggle,.m-nav{display:none!important}}
-@media(max-width:1199px){.m-toggle{display:flex}}
 
 /* ============================================
    MOBILE — comprehensive overrides ≤ 760px
@@ -413,8 +392,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 /* === Focus visibility — no-hover devices: TV remote / game controller / VR headset / keyboard === */
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible{outline:3px solid var(--accent,#ffb454);outline-offset:3px;border-radius:3px}
 .site-header .sh-left nav a:focus-visible,.side-menu nav a:focus-visible{color:#fafaf6}
-.m-nav a:focus-visible{color:var(--accent,#ffb454)}
-.site-header .sh-right a:focus-visible,.end .cta:focus-visible,.m-toggle:focus-visible{outline-offset:2px}
+.site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
 
 /* === Ultra-narrow (smartwatch / tiny screens ≤360px) — prevent header crowding === */
 @media(max-width:360px){
@@ -422,7 +400,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   .site-header .sh-brand-text{font-size:14px}
   .site-header .sh-toggle{font-size:9px}
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 7px}
-  .m-toggle{width:34px;height:34px;left:8px}
 }
 
 /* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
@@ -443,6 +420,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <a href="locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
       <a href="locahun3d_data.html"><span class="code">0.2</span>データ</a>
       <a href="locahun3d_pitch_hub.html"><span class="code">0.3</span>活用分野</a>
+      <a href="locahun3d_online.html" class="mobile-only"><span class="code">0.4</span>実績＆ブログ</a>
+      <a href="locahun3d_demo.html" class="mobile-only"><span class="code">0.5</span>デモ・お問合せ</a>
     </nav>
   </div>
   <div class="sh-center">
@@ -468,20 +447,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
     <a href="locahun3d_demo.html">デモ・見積</a>
     <a href="locahun3d_contact.html" class="current">お問い合わせ</a>
   </nav>
-</aside>
-
-<button class="m-toggle" id="mToggle" aria-label="メニュー" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<aside class="m-nav" id="mNav" aria-hidden="true">
-  <a href="https://locahun3d.com/properties" class="m-brand" style="color:inherit;text-decoration:none"><span><svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true" style="vertical-align:-4px;margin-right:10px;opacity:.95;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></a>
-  <a href="locahun3d_manifesto.html">マニフェスト</a>
-  <a href="locahun3d_data.html">データについて</a>
-  <a href="locahun3d_pitch_hub.html">分野ごとの活用</a>
-  <a href="locahun3d_online.html">実績＆ブログ</a>
-  <a href="locahun3d_demo.html">デモ・見積</a>
-  <a href="locahun3d_contact.html" class="current">お問い合わせ</a>
-  <a href="https://locahun3d.com/properties">オンライン版 →</a>
 </aside>
 
 <section class="frame hero">
@@ -761,17 +726,6 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSentModal(); });
 
-// Mobile hamburger nav
-const mToggle=document.getElementById('mToggle'),mNav=document.getElementById('mNav');
-function setMNav(open){
-  mToggle.classList.toggle('open',open);mNav.classList.toggle('open',open);
-  mToggle.setAttribute('aria-expanded',open?'true':'false');
-  mNav.setAttribute('aria-hidden',open?'false':'true');
-  document.body.style.overflow=open?'hidden':'';
-}
-mToggle.addEventListener('click',()=>setMNav(!mNav.classList.contains('open')));
-mNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMNav(false)));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')setMNav(false)});
 </script>
 
 <!-- 送信結果モーダル -->
