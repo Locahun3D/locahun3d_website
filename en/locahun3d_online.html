@@ -190,6 +190,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .site-header .sh-right{display:none}
   .site-header .sh-user-name{display:none}
 }
+/* タブレット帯(768-1199px): スマホ極小サイズのままだと余白だらけで崩れて
+   見えるため中間サイズへ拡大。locahun3d.com site-header.tsx の min-[768px]:
+   値と1:1（変更時は両サイト同時に。検査=header-parity.mjs）。 */
+@media(min-width:768px) and (max-width:1199px){
+  .site-header .sh-center{height:56px;gap:8px}
+  .site-header .sh-brand{gap:8px}
+  .site-header .sh-brand-text{font-size:16px}
+  .site-header .sh-toggle{font-size:10px;letter-spacing:.04em}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px}
+  .site-header .sh-toggle.sh-lang a{font-size:10px;letter-spacing:.08em;padding:3px 6px}
+  .site-header .sh-left nav{gap:6px 24px}
+  .site-header .sh-left nav a{font-size:13px}
+  .site-header .sh-left{padding-bottom:10px}
+}
 @media(min-width:1200px){
   .site-header .sh-left nav a.mobile-only{display:none}
 }
