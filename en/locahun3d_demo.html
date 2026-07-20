@@ -356,6 +356,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .campaign-banner .campaign-msg{font-family:'Noto Sans JP',sans-serif;font-size:.82em;
   letter-spacing:.04em;color:#fff;font-weight:300}
 .campaign-banner .campaign-msg strong{color:var(--accent);font-weight:900;font-size:1.1em;letter-spacing:.04em}
+.campaign-banner .campaign-until{display:inline-block;margin-left:10px;padding-left:10px;
+  border-left:1px solid rgba(255,180,84,.35);font-size:.88em;color:rgba(255,255,255,.72);letter-spacing:.02em}
+@media (max-width:600px){
+  .campaign-banner .campaign-until{display:block;margin-left:0;padding-left:0;border-left:0;margin-top:2px}
+}
 @keyframes campaignPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,180,84,.45)}50%{box-shadow:0 0 0 8px rgba(255,180,84,0)}}
 .campaign-banner{animation:campaignPulse 2.2s ease-in-out infinite}
 .result .note{font-size:.78em;opacity:.6;margin-top:6px}
@@ -724,14 +729,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <div>
         <div class="campaign-banner">
           <span class="campaign-tag">— LAUNCH CAMPAIGN —</span>
-          <span class="campaign-msg">Discount applied <strong>50% OFF</strong></span>
+          <span class="campaign-msg">Discount applied <strong>50% OFF</strong><span class="campaign-until">Until Dec 31, 2026</span></span>
         </div>
         <div class="lbl">— Estimated —</div>
         <div class="price">
           <span class="price-original" id="price-original" aria-hidden="true">¥ 250,000 – 400,000</span>
           <span class="price-main"><span id="price-yen">¥</span> <strong id="price">125,000 – 200,000</strong></span>
         </div>
-        <div class="note">* Excl. tax, approximate. The final quote is provided after we discuss your requirements.<br>* Special pricing for the campaign period.</div>
+        <div class="note">* Excl. tax, approximate. The final quote is provided after we discuss your requirements.<br>* Launch campaign pricing, valid until December 31, 2026. Standard rates apply afterwards.</div>
         <div class="delivery">
           <span class="delivery-lbl">— Delivery —</span>
           <span class="delivery-val" id="delivery">Please select a shoot date</span>
