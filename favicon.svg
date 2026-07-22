@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ロケハン3D">
   <rect width="64" height="64" rx="14" fill="#0d0d10"/>
   <rect x="0.9" y="0.9" width="62.2" height="62.2" rx="13.2" fill="none" stroke="#ffb454" stroke-opacity="0.47" stroke-width="0.9"/>
-  <g fill="none" stroke="#f8f6f0" stroke-width="4.25" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#f8f6f0" stroke-width="4.65" stroke-linecap="round" stroke-linejoin="round">
     <path d="M15.25 23 V15.25 H23"/>
     <path d="M41 15.25 H48.75 V23"/>
     <path d="M15.25 41 V48.75 H23"/>
