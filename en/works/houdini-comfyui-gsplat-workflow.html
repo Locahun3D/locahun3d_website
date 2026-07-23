@@ -110,6 +110,14 @@
   .tweetcard .tx span{display:block;color:var(--sub);font-size:12.5px;margin-top:3px}
   .tweetcard .go{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);white-space:nowrap}
 
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:0;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.75;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
   .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
   .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
   .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
@@ -257,6 +265,13 @@
 
   <h2 id="credit"><span class="n">05</span> About the data used</h2>
   <p>The <strong>Gaussian Splats of the Shibuya scramble crossing</strong> that anchor this workflow were provided by Kou Nakamura, founder of Locahun 3D. Data actually scanned on foot with PortalCam ended up, across an ocean, in another creator's hands for a new piece of work — a genuinely nice outcome to see.</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">DATA / 3DGS</span>
+    <h3>The Shibuya scramble crossing 3DGS data used in this article is available to purchase and browse<br class="pc"> on Locahun 3D's online platform</h3>
+    <p>Provided as PLY / OBJ (with a 3DGS walkthrough). Standard license from ¥200,000 (commercial and non-commercial use permitted). If you'd like to try this same VFX × AI hybrid workflow yourself, take a look.</p>
+    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">View the property data →</a>
+  </div>
 
   <h2 id="summary"><span class="n">06</span> Summary</h2>
   <p>With Houdini 22, the environment is maturing to treat Gaussian Splats as more than “something to just look at” — as a layer you can properly control inside a 3D scene. Locahun 3D's scan data can serve as the foundation for hybrid VFX × AI workflows like this one. If you're experimenting or producing something similar, feel free to reach out.</p>

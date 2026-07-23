@@ -110,6 +110,14 @@
   .tweetcard .tx span{display:block;color:var(--sub);font-size:12.5px;margin-top:3px}
   .tweetcard .go{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);white-space:nowrap}
 
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
   .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
   .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
   .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
@@ -257,6 +265,13 @@
 
   <h2 id="credit"><span class="n">05</span> 使用データについて</h2>
   <p>今回のワークフローの舞台になっている<strong>渋谷スクランブル交差点のGaussian Splats</strong>は、ロケハン3D代表・中村航が提供したデータです。実際にPortalCamで現場を歩いてスキャンしたデータが、海を越えて別のクリエイターの手で新しい表現に使われた、うれしい事例になりました。</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">DATA / 3DGS</span>
+    <h3>この記事で使われている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
+    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。スタンダードライセンス ¥200,000〜（商用・非商用利用可）。同じデータを使ってVFX × AIハイブリッドワークフローを試してみたい方は、ぜひご覧ください。</p>
+    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
+  </div>
 
   <h2 id="summary"><span class="n">06</span> まとめ</h2>
   <p>Houdini 22 の登場で、Gaussian Splats を「見るだけの素材」から「3Dシーンの中で本格的に制御できるレイヤー」として扱える環境が整いつつあります。ロケハン3Dのスキャンデータも、こうしたVFX × AIハイブリッドワークフローの土台として活用いただけます。同様の実験・制作にご興味のある方は、お気軽にお問い合わせください。</p>
