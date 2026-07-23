@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="スペインのVFXアーティスト hectorVFX 氏が、ロケハン3Dの渋谷スクランブル交差点データ（Gaussian Splats）を使って実証した、Houdini 22 × ComfyUI によるVFX × AIハイブリッドワークフローの事例紹介。">
+<title>Houdini 22 × ComfyUI — A VFX × AI Hybrid Workflow with Gaussian Splats｜Locahun 3D Tech Blog</title>
+<meta name="description" content="Spain-based VFX artist hectorVFX put Locahun 3D's Shibuya scramble crossing data (Gaussian Splats) through a Houdini 22 × ComfyUI VFX × AI hybrid workflow. A case-study write-up.">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/houdini-comfyui-gsplat-workflow.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/houdini-comfyui-gsplat-workflow.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/houdini-comfyui-gsplat-workflow.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/houdini-comfyui-gsplat-workflow.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
@@ -26,17 +30,13 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--body);
-    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
-    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
-    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+    font-family:var(--sans);font-weight:300;line-height:1.75;font-size:17px;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   ::selection{background:rgba(255,180,84,.3)}
   a{color:var(--brand-ink);text-decoration:none}
   a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
-  br.sp{display:none}
-  @media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
-  h1,h2,h3{font-feature-settings:"palt"}
-  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+  h1,h2,h3{text-wrap:balance}
 
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     opacity:.05;mix-blend-mode:overlay;
@@ -59,13 +59,13 @@
   header.post{padding:50px 0 6px}
   .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
   .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
-  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1{font-family:var(--sans);font-size:clamp(26px,4.6vw,42px);line-height:1.28;font-weight:900;letter-spacing:0;color:#fff}
   header.post h1 em{font-style:normal;color:var(--brand)}
-  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.85;font-weight:300}
 
   figure{margin:38px 0}
   figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
-  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
   figcaption b{color:var(--brand-ink);font-weight:500}
 
   .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
@@ -76,18 +76,18 @@
   .toc a:hover{color:var(--brand-ink)}
   .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
 
-  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+  article h2{font-family:var(--sans);font-size:clamp(19px,2.9vw,24px);font-weight:800;letter-spacing:0;color:#fff;
     margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
   article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
     border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
-  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:0}
   article p{margin:18px 0;color:var(--body)}
   article strong{color:#fff;font-weight:600}
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
 
-  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
   .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
   .callout.note{background:var(--note-bg);border-color:var(--note-line)}
   .callout.note b::before{content:"\1F4A1  "}
@@ -118,7 +118,7 @@
   .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
   .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
   .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
-  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.75;color:var(--body)}
   .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
     border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
   .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
@@ -141,7 +141,7 @@
   @media(max-width:640px){
     body{font-size:16px}
     header.post{padding:34px 0 4px}
-    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    header.post h1{font-size:clamp(22px,6.4vw,30px)}
     article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
     .topbar b{display:none}
     .topbar .tag{display:none}
@@ -160,10 +160,10 @@
     <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
   </a>
   <nav class="nav">
-    <a href="index.html">実績</a>
-    <a href="blog.html">技術ブログ</a>
-    <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
-    <a href="/en/works/houdini-comfyui-gsplat-workflow.html">EN</a>
+    <a href="index.html">Works</a>
+    <a href="blog.html">Tech Blog</a>
+    <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
+    <a href="/works/houdini-comfyui-gsplat-workflow.html">JA</a>
   </nav>
 </div></div>
 
@@ -171,98 +171,98 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Houdini</span><span class="badge">ComfyUI</span><span class="badge">AI</span>
-    <span>2026-07-23</span><span>・</span><span>読了 約4分</span>
+    <span>2026-07-23</span><span>・</span><span>~4 min read</span>
   </div>
-  <h1>Houdini 22 <em>×</em> ComfyUI ──<br class="pc">渋谷のGaussian Splatsで実証された<br class="pc">VFX <em>×</em> AIハイブリッドワークフロー</h1>
-  <p class="lead">スペインを拠点に活動するVFXアーティスト <strong>hectorVFX</strong> 氏が、ロケハン3Dが提供した<strong>渋谷スクランブル交差点の Gaussian Splats（3DGS）</strong>データを使い、新しいVFX × AIハイブリッドワークフローの実験結果をXで公開してくれました。使用したのは <strong>Houdini 22</strong> と <strong>ComfyUI</strong> を組み合わせた手法です。</p>
+  <h1>Houdini 22 <em>×</em> ComfyUI — A VFX <em>×</em> AI Hybrid Workflow with Gaussian Splats from Shibuya</h1>
+  <p class="lead">Spain-based VFX artist <strong>hectorVFX</strong> shared the results of a new VFX × AI hybrid workflow experiment on X, built on <strong>Gaussian Splats (3DGS)</strong> of the Shibuya scramble crossing provided by Locahun 3D. The technique combines <strong>Houdini 22</strong> with <strong>ComfyUI</strong>.</p>
 
   <figure>
-    <img src="images/hectorvfx_shibuya_ai_render.jpg" alt="渋谷スクランブル交差点のGaussian Splatsに合成され、AIレンダリングで仕上げられた白いスポーツカー（夜景）">
-    <figcaption><b>完成カット。</b>渋谷の3DGSデータに配置した車両を、最終的にAIレンダリングで仕上げた1枚。撮影ではなく、スキャンデータ起点の合成カットであることに注目。</figcaption>
+    <img src="/works/images/hectorvfx_shibuya_ai_render.jpg" alt="A white sports car composited into Locahun 3D's Shibuya scramble crossing Gaussian Splats and finished with AI rendering (night shot)">
+    <figcaption><b>The final shot.</b> A vehicle placed into the Shibuya 3DGS data, finished with an AI rendering pass. Note that this is a composited shot built from scan data, not a photograph.</figcaption>
   </figure>
 </header>
 
 <nav class="toc">
-  <h2>目次</h2>
+  <h2>Contents</h2>
   <ol>
-    <li><a href="#intro">きっかけ：Houdini 22 という「怪物」</a></li>
-    <li><a href="#workflow">ワークフローの流れ</a></li>
-    <li><a href="#before-after">Before / After：コンセプトから最終カットへ</a></li>
-    <li><a href="#credit">使用データについて</a></li>
-    <li><a href="#summary">まとめ</a></li>
+    <li><a href="#intro">The trigger: Houdini 22, a “monster”</a></li>
+    <li><a href="#workflow">How the workflow flows</a></li>
+    <li><a href="#before-after">Before / after: from concept to final shot</a></li>
+    <li><a href="#credit">About the data used</a></li>
+    <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
-    <b>Gaussian Splats（渋谷データ）</b><span class="a">→</span>
-    <b>Houdini 22でシーン制御</b><span class="a">→</span>
-    <b>カメラ配置・アニメーション</b><span class="a">→</span>
-    <b>ComfyUIでAIレンダリング</b>
+    <b>Gaussian Splats (Shibuya data)</b><span class="a">→</span>
+    <b>Scene control in Houdini 22</b><span class="a">→</span>
+    <b>Camera placement &amp; animation</b><span class="a">→</span>
+    <b>AI render in ComfyUI</b>
   </div>
 
-  <h2 id="intro"><span class="n">01</span> きっかけ：Houdini 22 という「怪物」</h2>
-  <p>hectorVFX 氏いわく、<strong>Houdini 22</strong> のリリースをきっかけに、このハイブリッドワークフローの探求をさらに進めることになったとのこと。同氏は「Houdini 22 は Gaussian Splats の管理において<strong>まさに怪物</strong>で、このバージョンの機能は信じられないほど」と評しています。3DGSを単なる背景素材としてではなく、<strong>3D DCCツールの中で本格的に扱えるレイヤー</strong>として位置づけている点が、このワークフローの起点になっています。</p>
+  <h2 id="intro"><span class="n">01</span> The trigger: Houdini 22, a “monster”</h2>
+  <p>According to hectorVFX, the release of <strong>Houdini 22</strong> is what pushed this hybrid workflow further. He describes Houdini 22 as <strong>“an absolute monster”</strong> for handling Gaussian Splats, saying this version's capabilities are hard to believe. The starting point for this workflow is treating 3DGS not just as background material, but as <strong>a layer you can genuinely work with inside a 3D DCC tool</strong>.</p>
 
-  <h2 id="workflow"><span class="n">02</span> ワークフローの流れ</h2>
-  <p>hectorVFX 氏が説明する手順を整理すると、大きく次の3段階です。</p>
+  <h2 id="workflow"><span class="n">02</span> How the workflow flows</h2>
+  <p>Organizing what hectorVFX describes, it breaks down into three broad stages.</p>
   <ul>
-    <li><strong>Gaussian Splatsの生成</strong> ── ComfyUIのようなツールを使い、画像をもとにGsplatsを生成する。</li>
-    <li><strong>Houdini 22でのシーン制御</strong> ── 巨大なシーンの中で要素のレイアウトをリアルタイムに行い、カメラを配置・アニメーションさせる。可能な限り情報量を保持したまま、3Dシーン・プロジェクト全体を最大限にコントロールする。</li>
-    <li><strong>ComfyUIでのAIレンダリング</strong> ── 制御しきったシーンを、最終的に再びComfyUIへ戻してAIレンダリングし、仕上げる。</li>
+    <li><strong>Generating Gaussian Splats</strong> — using a tool like ComfyUI to generate Gsplats based on images.</li>
+    <li><strong>Scene control in Houdini 22</strong> — laying out elements in real time within huge scenes, placing and animating cameras, and getting maximum control over the 3D scene and project while retaining as much information as possible.</li>
+    <li><strong>AI rendering in ComfyUI</strong> — once the scene is fully under control, sending it back to ComfyUI for a final AI rendering pass.</li>
   </ul>
-  <div class="callout note"><b>この順番のポイント</b>「3Dで正確に制御してから、AIで質感を仕上げる」という役割分担です。カメラワークや構図、要素の配置といった<strong>設計はHoudini（3DGS）側で厳密に固め</strong>、そのうえで<strong>見た目の仕上げをAIレンダリングに任せる</strong>ことで、破綻の少ない合成が可能になっています。</p>
+  <div class="callout note"><b>Why this order matters</b>It splits the work into “control the scene precisely in 3D, then let AI finish the look.” Camera work, composition and element placement are <strong>locked down tightly on the Houdini (3DGS) side</strong> first, and only then is <strong>the final look handed off to AI rendering</strong> — which is what keeps the composite from falling apart.</div>
 
-  <h2 id="before-after"><span class="n">03</span> Before / After：コンセプトから最終カットへ</h2>
-  <p>今回シェアいただいた2枚の画像から、その工程の一端がうかがえます。</p>
+  <h2 id="before-after"><span class="n">03</span> Before / after: from concept to final shot</h2>
+  <p>The two images shared with us give a glimpse of that process.</p>
   <figure>
-    <img src="images/hectorvfx_shibuya_gsplat_concept.jpg" alt="渋谷スクランブル交差点のGaussian Splatsシーンに車両を配置したコンセプト・プレビュー画像">
-    <figcaption><b>コンセプト／プレビュー段階。</b>渋谷の3DGSシーンに車両を配置し、構図とカメラワークを固めた状態。この時点で「どこに何を置き、どう見せるか」の設計はほぼ完了している。</figcaption>
+    <img src="/works/images/hectorvfx_shibuya_gsplat_concept.jpg" alt="Concept / preview image with a vehicle placed into the Shibuya scramble crossing Gaussian Splats scene">
+    <figcaption><b>Concept / preview stage.</b> A vehicle placed into the Shibuya 3DGS scene, with composition and camera work locked in. At this point, “what goes where and how it's framed” is essentially decided.</figcaption>
   </figure>
   <figure>
-    <img src="images/hectorvfx_shibuya_ai_render.jpg" alt="AIレンダリングで仕上げられた渋谷スクランブル交差点の最終カット（夜景・反射・ライティング込み）">
-    <figcaption><b>AIレンダリング後の最終カット。</b>構図・配置はプレビュー段階のまま、質感・ライティング・反射をAIレンダリングで作り込んでいる。</figcaption>
+    <img src="/works/images/hectorvfx_shibuya_ai_render.jpg" alt="Final shot of the Shibuya scramble crossing finished with AI rendering, including night lighting and reflections">
+    <figcaption><b>The final shot after AI rendering.</b> Composition and placement stay exactly as in the preview stage, while the look, lighting and reflections are built out with the AI rendering pass.</figcaption>
   </figure>
 
-  <p>元となった投稿には、この工程を動画で解説したクリップも公開されています。あわせてご覧ください。</p>
+  <p>The original post also includes a video walking through this process. Worth a watch.</p>
   <a class="tweetcard" href="https://x.com/hectorVFX/status/2079919142052720768" target="_blank" rel="noopener">
     <span class="xic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
-    <span class="tx"><b>@hectorVFX</b><span>元投稿を見る（動画あり）</span></span>
-    <span class="go">X (Twitter) で開く →</span>
+    <span class="tx"><b>@hectorVFX</b><span>View the original post (with video)</span></span>
+    <span class="go">Open on X →</span>
   </a>
 
-  <h2 id="credit"><span class="n">04</span> 使用データについて</h2>
-  <p>今回のワークフローの舞台になっている<strong>渋谷スクランブル交差点のGaussian Splats</strong>は、ロケハン3D代表・中村航が提供したデータです。実際にPortalCamで現場を歩いてスキャンしたデータが、海を越えて別のクリエイターの手で新しい表現に使われた、うれしい事例になりました。</p>
+  <h2 id="credit"><span class="n">04</span> About the data used</h2>
+  <p>The <strong>Gaussian Splats of the Shibuya scramble crossing</strong> that anchor this workflow were provided by Kou Nakamura, founder of Locahun 3D. Data actually scanned on foot with PortalCam ended up, across an ocean, in another creator's hands for a new piece of work — a genuinely nice outcome to see.</p>
 
-  <h2 id="summary"><span class="n">05</span> まとめ</h2>
-  <p>Houdini 22 の登場で、Gaussian Splats を「見るだけの素材」から「3Dシーンの中で本格的に制御できるレイヤー」として扱える環境が整いつつあります。ロケハン3Dのスキャンデータも、こうしたVFX × AIハイブリッドワークフローの土台として活用いただけます。同様の実験・制作にご興味のある方は、お気軽にお問い合わせください。</p>
+  <h2 id="summary"><span class="n">05</span> Summary</h2>
+  <p>With Houdini 22, the environment is maturing to treat Gaussian Splats as more than “something to just look at” — as a layer you can properly control inside a 3D scene. Locahun 3D's scan data can serve as the foundation for hybrid VFX × AI workflows like this one. If you're experimenting or producing something similar, feel free to reach out.</p>
 </article>
 
 <section class="credit">
-  <div class="ey">Creators / 制作</div>
-  <h2>本ワークフローの制作</h2>
+  <div class="ey">Creators</div>
+  <h2>Production of this workflow</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_hector.jpg" alt="hectorVFX">
+    <img class="av" src="/works/images/creator_hector.jpg" alt="hectorVFX">
     <div>
       <div class="cname">hectorVFX</div>
-      <div class="crole">VFXアーティスト（スペイン）</div>
-      <p>Houdini・ComfyUIを軸にしたVFX × AIハイブリッドワークフローを探求するVFXアーティスト。本記事で紹介したワークフローの制作・公開を担当。</p>
+      <div class="crole">VFX artist (Spain)</div>
+      <p>A VFX artist exploring hybrid VFX × AI workflows built around Houdini and ComfyUI. Produced and published the workflow featured in this article.</p>
       <a class="xbtn" href="https://x.com/hectorVFX" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        @hectorVFX をフォロー →
+        Follow @hectorVFX →
       </a>
     </div>
   </div>
 
   <div class="credit-card" style="margin-top:14px">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
-      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
-      <div class="crole">ロケハン3D 代表 ／ 3DGSスキャン</div>
-      <p>ロケハン3D（LOCAHUN 3D）代表。本ワークフローで使用された<strong>渋谷スクランブル交差点の3DGSデータ</strong>のスキャンを担当。</p>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ 3DGS capture</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Captured the <strong>Shibuya scramble crossing 3DGS data</strong> used in this workflow.</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        @Kou45388803 をフォロー →
+        Follow @Kou45388803 →
       </a>
     </div>
   </div>
@@ -271,14 +271,14 @@
 
 <footer>
   <div class="wrap">
-    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
-    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: GAUSSIAN SPLATS (SHIBUYA) → HOUDINI 22 (SCENE CONTROL) → CAMERA / ANIMATION → COMFYUI (AI RENDER)</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
@@ -291,14 +291,6 @@
   function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
   document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
 })();
-</script>
-
-<!-- BudouX：日本語を文節単位で改行 -->
-<script type="module">
-  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
-  const bp = loadDefaultJapaneseParser();
-  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,.callout,figcaption,.spec dd';
-  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>
 </html>

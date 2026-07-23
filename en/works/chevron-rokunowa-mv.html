@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,8 +7,12 @@
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <meta name="theme-color" content="#000000">
-<title>Chevon「六ノ輪」MV — ロケハン3D 制作実績</title>
-<meta name="description" content="Chevon「六ノ輪」Music Video（Netflix『刃牙道』第2クールOPテーマ）にロケハン3Dの3DGSファイルを使用した制作が取り入れられました。">
+<title>Chevon “Rokunowa” MV — Locahun 3D production works</title>
+<meta name="description" content="Locahun 3D's 3DGS capture data was used in the production of Chevon's “Rokunowa” music video, the opening theme for season 2 of the Netflix anime Baki-Dou.">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/chevron-rokunowa-mv.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/chevron-rokunowa-mv.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/chevron-rokunowa-mv.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/chevron-rokunowa-mv.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
@@ -17,15 +21,12 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
 :root{--ink:#fafaf6;--bg:#000;--line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.1);--accent:#ffb454;--dim:rgba(255,255,255,.62)}
 html,body{background:var(--bg);color:var(--ink);
-  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.04em;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;font-weight:300;line-height:1.85;letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
-br.sp{display:none}
-@media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
-h1,h2,h3{text-wrap:balance;font-feature-settings:"palt"}
-[data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+h1,h2,h3{text-wrap:balance}
 
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   opacity:.06;mix-blend-mode:overlay;
@@ -33,7 +34,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 .wrap{max-width:1120px;margin:0 auto;padding:0 clamp(22px,5vw,56px)}
 
-/* topbar */
 .bar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.82);
   -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);
   border-bottom:1px solid var(--line-2)}
@@ -49,13 +49,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .bar nav a.ext{border:1px solid var(--line);color:#fff}
 .bar nav a.ext:hover{background:#fff;color:#000}
 
-/* back link */
 .back{display:inline-flex;align-items:center;gap:8px;margin:32px 0 0;
   font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);transition:color .2s}
 .back:hover{color:#fff}
 .back svg{width:16px;height:16px;flex:none}
 
-/* hero video */
 .case-hero{position:relative;margin:28px 0 0;aspect-ratio:16/9;background:#000;overflow:hidden;border:1px solid var(--line)}
 .case-hero .tag{position:absolute;top:16px;left:16px;z-index:2;font-family:'JetBrains Mono',monospace;
   font-size:.6em;letter-spacing:.3em;text-transform:uppercase;color:#fff;
@@ -73,18 +71,16 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .case-hero iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3}
 .case-hero.playing .tag{display:none}
 
-/* case body */
 .case-body{margin:48px 0 0}
 .case-body .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
 .case-body .badges span{font-family:'JetBrains Mono',monospace;font-size:.6em;letter-spacing:.22em;
   text-transform:uppercase;padding:5px 11px;border:1px solid var(--line);color:var(--dim)}
 .case-body .badges span.w{color:var(--accent);border-color:rgba(255,180,84,.5)}
 .case-body h1{font-family:'Noto Sans JP',sans-serif;font-weight:900;
-  font-size:clamp(1.8em,5vw,3em);letter-spacing:.04em;line-height:1.2;color:#fff}
+  font-size:clamp(1.6em,4.6vw,2.8em);letter-spacing:0;line-height:1.25;color:#fff}
 .case-body .sub{margin-top:8px;font-size:.92em;color:var(--accent)}
 .case-body .lead{margin-top:22px;color:var(--dim);font-size:1em;line-height:2;max-width:64ch}
 
-/* facts */
 .facts{margin-top:38px;border-top:1px solid var(--line-2);padding-top:8px}
 .facts .r{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--line-2)}
 .facts .role{font-family:'JetBrains Mono',monospace;font-size:.6em;letter-spacing:.22em;
@@ -92,14 +88,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .facts .v{font-size:.86em;line-height:1.75;color:var(--ink)}
 .facts .v strong{color:var(--accent);font-weight:600}
 
-/* watch button */
 .watchmv{display:inline-flex;align-items:center;gap:8px;
   margin-top:32px;padding:15px 30px;border:1px solid rgba(255,255,255,.5);color:#fff;
   font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.24em;text-transform:uppercase;
   transition:background .2s,color .2s,letter-spacing .2s}
 .watchmv:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.3em;text-decoration:none}
 
-/* blog CTA band */
 .blogband{margin:72px 0 0;border:1px solid var(--line);
   display:grid;grid-template-columns:1fr 1fr;overflow:hidden;background:#060606}
 .blogband .bb-body{padding:54px clamp(28px,5vw,56px);position:relative;z-index:1}
@@ -109,7 +103,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .blogband .ey{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.38em;
   text-transform:uppercase;color:var(--accent);text-indent:.38em}
 .blogband h2{margin-top:16px;font-family:'Noto Sans JP',sans-serif;font-weight:800;
-  font-size:clamp(1.3em,3.6vw,2em);letter-spacing:.02em;line-height:1.45;color:#fff}
+  font-size:clamp(1.2em,3.2vw,1.8em);letter-spacing:0;line-height:1.4;color:#fff}
 .blogband h2 em{font-style:normal;color:var(--accent)}
 .blogband p{margin-top:18px;max-width:54ch;color:var(--dim);font-size:.92em;line-height:1.95}
 .cta{display:inline-block;margin-top:30px;padding:15px 34px;border:1px solid rgba(255,255,255,.5);
@@ -122,7 +116,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .blogband .bb-img::after{background:linear-gradient(180deg,#060606 0%,transparent 40%)}
 }
 
-/* credit */
 .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
 .credit .ey{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
 .credit h2{font-family:'Noto Sans JP',sans-serif;font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
@@ -144,14 +137,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .credit-team .xbtn{padding:9px 16px;font-size:11px}
 @media(max-width:560px){.credit-card,.credit-team{flex-direction:column;gap:14px;padding:22px}}
 
-/* foot */
 .foot{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
   font-size:.62em;letter-spacing:.25em;text-transform:uppercase;opacity:.4;padding:54px 0 22px}
 .filmstrip{height:30px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);
   background-size:18px 30px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
 
 @media(max-width:640px){
-  .case-body h1{font-size:clamp(1.5em,6vw,2.2em)}
+  .case-body h1{font-size:clamp(1.4em,6vw,2em)}
   .bar .bn{display:none}
   .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
 }
@@ -165,71 +157,67 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <span class="bn">LOCAHUN&nbsp;3D <small>／ WORKS</small></span>
   </a>
   <nav>
-    <a href="index.html">実績</a>
-    <a href="blog.html">技術ブログ</a>
-    <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
-    <a href="/en/works/chevron-rokunowa-mv.html">EN</a>
+    <a href="index.html">Works</a>
+    <a href="blog.html">Tech Blog</a>
+    <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
+    <a href="/works/chevron-rokunowa-mv.html">JA</a>
   </nav>
 </div></header>
 
 <div class="wrap">
   <a class="back" href="index.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-    実績一覧に戻る
+    Back to Works
   </a>
 
-  <!-- Hero: YouTube facade -->
   <div class="case-hero" id="hero">
-    <span class="tag"><span class="dot"></span>Music Video ／ 公開中</span>
+    <span class="tag"><span class="dot"></span>Music Video ／ Live</span>
     <button class="ytfacade" type="button" data-yt="9B66VzveNzI"
       style="background-image:url('https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg')"
-      aria-label="Chevon「六ノ輪」Music Videoを再生">
+      aria-label="Play Chevon “Rokunowa” Music Video">
       <span class="play"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span>
     </button>
   </div>
 
-  <!-- Case body -->
   <div class="case-body">
     <div class="badges">
-      <span class="w">公開中</span><span>Music Video</span><span>本編採用</span>
+      <span class="w">Live</span><span>Music Video</span><span>Featured in final cut</span>
     </div>
-    <h1>Chevon「六ノ輪」Music Video</h1>
-    <p class="sub">Netflix アニメ『刃牙道』第2クールOPテーマ</p>
-    <p class="lead">Chevon の新曲「六ノ輪」MV　ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。</p>
+    <h1>Chevon “Rokunowa” Music Video</h1>
+    <p class="sub">Opening theme for season 2 of the Netflix anime Baki-Dou</p>
+    <p class="lead">Chevon's new single “Rokunowa” — the music video's production incorporated a shot built from Locahun 3D's 3DGS capture data.</p>
 
     <div class="facts">
-      <div class="r"><div class="role">Project</div><div class="v"><strong>Chevon「六ノ輪」MV</strong>（Netflix『刃牙道』第2クールOPテーマ）</div></div>
-      <div class="r"><div class="role">Release</div><div class="v">2026.06.19 公開 ／ Music Video（YouTube）</div></div>
-      <div class="r"><div class="role">Role</div><div class="v">現場の3Dスキャンと「空撮ルックのカット」制作</div></div>
-      <div class="r"><div class="role">Result</div><div class="v">ドローン・特殊機材なしで上空アングルを実現し、<strong>MV本編カットに採用</strong>。</div></div>
+      <div class="r"><div class="role">Project</div><div class="v"><strong>Chevon “Rokunowa” MV</strong> (opening theme for season 2 of the Netflix anime Baki-Dou)</div></div>
+      <div class="r"><div class="role">Release</div><div class="v">Released 2026.06.19 ／ Music Video (YouTube)</div></div>
+      <div class="r"><div class="role">Role</div><div class="v">On-location 3D capture and production of an aerial-look shot</div></div>
+      <div class="r"><div class="role">Result</div><div class="v">An aerial angle achieved with no drone or special equipment, <strong>used in the final cut of the music video</strong>.</div></div>
     </div>
 
-    <a class="watchmv" href="https://www.youtube.com/watch?v=9B66VzveNzI" target="_blank" rel="noopener">▶ MV本編を観る（YouTube）</a>
+    <a class="watchmv" href="https://www.youtube.com/watch?v=9B66VzveNzI" target="_blank" rel="noopener">▶ Watch the MV (YouTube)</a>
   </div>
 
-  <!-- Blog CTA -->
   <section class="blogband">
     <div class="bb-body">
       <div class="ey">Tech Blog</div>
-      <h2>3DGSから<em>「空撮カット」</em>を<br class="pc">生成する方法</h2>
-      <p>「六ノ輪」MVで使った、3DGSから空撮カットを作る制作ワークフローを解説しています。</p>
-      <a class="cta" href="portalcam-drone-ai-workflow.html">記事を読む →</a>
+      <h2>Generating an <em>“aerial shot”</em> from 3DGS</h2>
+      <p>A write-up of the production workflow used to build the “Rokunowa” aerial shot from 3DGS.</p>
+      <a class="cta" href="portalcam-drone-ai-workflow.html">Read the article →</a>
     </div>
     <div class="bb-img">
-      <img src="images/work04_bgfix.jpg" alt="3DGSから生成した空撮プレート">
+      <img src="/works/images/work04_bgfix.jpg" alt="Aerial plate generated from 3DGS capture">
     </div>
   </section>
 
-  <!-- Credit -->
   <section class="credit">
-    <div class="ey">Creators / 制作</div>
-    <h2>制作チーム</h2>
+    <div class="ey">Creators</div>
+    <h2>Production team</h2>
     <div class="credit-card">
-      <img class="av" src="images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
+      <img class="av" src="/works/images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
       <div>
         <div class="cname">MIZUNO&nbsp;CABBAGE</div>
-        <div class="crole">映像作家 ／ 3DCGアーティスト ／ 映像監督</div>
-        <p>2000年生まれ。14歳からVFXを独学で学び、新世代CGアーティストチーム「UNDEFINED」を主宰。ミュージックビデオ・プロモーション映像・3DCG作品を手がける。</p>
+        <div class="crole">Filmmaker ／ 3DCG artist ／ Director</div>
+        <p>Born 2000. Self-taught in VFX since age 14, and leads the next-generation CG artist team “UNDEFINED.” Works across music videos, promotional films and 3DCG pieces.</p>
         <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           @mizunocabbage
@@ -237,11 +225,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       </div>
     </div>
     <div class="credit-card" style="margin-top:14px">
-      <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+      <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
       <div>
-        <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
-        <div class="crole">ロケハン3D 代表 ／ 3DGSスキャン</div>
-        <p>ロケハン3D（LOCAHUN 3D）代表。現場の徒歩スキャンと3DGS制作を担当。</p>
+        <div class="cname">Kou&nbsp;Nakamura</div>
+        <div class="crole">Founder, Locahun 3D ／ 3DGS capture</div>
+        <p>Founder of Locahun 3D (LOCAHUN 3D). Handled the on-location walking capture and 3DGS reconstruction.</p>
         <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           @Kou45388803
@@ -249,13 +237,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       </div>
     </div>
     <div class="credit-team">
-      <img class="tlogo" src="images/creator_undef.jpg" alt="UNDEFINED">
+      <img class="tlogo" src="/works/images/creator_undef.jpg" alt="UNDEFINED">
       <div>
-        <div class="tname">UNDEFINED<span>新世代CGアーティストチーム</span></div>
-        <p>MIZUNO CABBAGE が主宰するクリエイティブチーム。3DGS・VFX・AIを掛け合わせた映像制作を展開しています。</p>
+        <div class="tname">UNDEFINED<span>Next-generation CG artist team</span></div>
+        <p>A creative team led by MIZUNO CABBAGE, producing work that combines 3DGS, VFX and AI.</p>
         <a class="xbtn" href="https://x.com/undef_official" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          @undef_official
+          UNDEFINED @undef_official
         </a>
       </div>
     </div>
@@ -272,7 +260,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       var id=b.getAttribute('data-yt');
       var f=document.createElement('iframe');
       f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      f.title='Chevon「六ノ輪」Music Video';
+      f.title='Chevon “Rokunowa” Music Video';
       f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       f.setAttribute('allowfullscreen','');
       var hero=b.parentNode;
@@ -281,13 +269,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     });
   });
 })();
-</script>
-
-<script type="module">
-  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
-  const bp = loadDefaultJapaneseParser();
-  document.querySelectorAll('.case-body h1,.case-body .lead,.facts .v,.blogband h2,.blogband p,.credit h2,.credit-card p,.credit-team p')
-    .forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>
 </html>

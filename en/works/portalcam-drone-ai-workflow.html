@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Generating an “aerial shot” from 3DGS｜Locahun 3D Tech Blog</title>
+<meta name="description" content="A production workflow for building a drone-style aerial shot from a 3DGS scan captured on foot with PortalCam — no drone required. Covers the basic pipeline and the advanced technique (generating people and motion) with real production material.">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/portalcam-drone-ai-workflow.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/portalcam-drone-ai-workflow.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/portalcam-drone-ai-workflow.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/portalcam-drone-ai-workflow.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.75;font-size:17px;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  h1,h2,h3{text-wrap:balance}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .draftbar{background:#15110c;color:#ffd9a8;font-family:var(--mono);font-size:11.5px;font-weight:400;text-align:center;
+    padding:9px 16px;letter-spacing:.06em;border-bottom:1px solid rgba(255,180,84,.25)}
+  .draftbar b{color:var(--brand);font-weight:500}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(26px,4.6vw,42px);line-height:1.28;font-weight:900;letter-spacing:0;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.85;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(19px,2.9vw,24px);font-weight:800;letter-spacing:0;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:0}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+  code{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.5px 6px;font-family:var(--mono);font-size:13px;color:var(--brand-ink)}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .refgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 0}
+  .refgrid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border:1px solid var(--line);border-radius:var(--radius)}
+  @media(max-width:560px){.refgrid{grid-template-columns:repeat(2,1fr)}}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-team{display:flex;gap:18px;align-items:flex-start;margin-top:14px;background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .credit-team .tlogo{width:46px;height:46px;flex:none;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#000}
+  .credit-team .tname{font-family:var(--sans);font-weight:800;font-size:15px;color:#fff;letter-spacing:.06em}
+  .credit-team .tname span{font-family:var(--sans);font-weight:400;font-size:11.5px;color:var(--sub);margin-left:9px;letter-spacing:0}
+  .credit-team p{margin:5px 0 11px;font-size:13px;line-height:1.7;color:var(--sub)}
+  .credit-team .xbtn{padding:9px 16px;font-size:11px}
+  @media(max-width:560px){.credit-team{flex-direction:column;align-items:flex-start;gap:14px}}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.75;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  @media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img,figure video{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(22px,6.4vw,30px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}
+  }
+</style>
+</head>
+<body>
+
+<div class="draftbar">📝 This page is an <b>unpublished draft (internal preview)</b> — for review before public release. Content, images and copy may still change.</div>
+<div class="progress" id="progress"></div>
+<div class="topbar"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+    <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html">Works</a>
+    <a href="blog.html">Tech Blog</a>
+    <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
+    <a href="/works/portalcam-drone-ai-workflow.html">JA</a>
+  </nav>
+</div></div>
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Aerial shot</span><span class="badge">VFX</span>
+    <span>2026-06-16</span><span>・</span><span>~9 min read</span>
+  </div>
+  <h1>Generating an <em>“aerial shot”</em> from 3DGS</h1>
+  <p class="lead">No drone. No special rigs. Starting from a 3DGS scan captured on foot with <strong>PortalCam</strong>, this is a production workflow for building an “aerial shot” from above. We walk through the basic pipeline, then the <strong>advanced technique (generating people and motion)</strong>, with real production material at every step.</p>
+
+  <figure>
+    <video controls muted autoplay loop playsinline preload="auto" poster="/works/images/work08_poster.jpg">
+      <source src="/works/images/work08_final.mp4" type="video/mp4">
+      Your browser doesn't support video playback.
+    </video>
+    <figcaption><b>The finished aerial shot.</b> Generated from a 3DGS scan captured on foot — no drone needed. Human motion generated in the advanced technique is composited onto the aerial background plate.</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#intro">What this workflow gets you</a></li>
+    <li><a href="#tools">What you'll need</a></li>
+    <li><a href="#scan">STEP 1｜Walking scan with PortalCam → 3DGS reconstruction</a></li>
+    <li><a href="#camera">STEP 2｜Source footage → camera tracking in C4D</a></li>
+    <li><a href="#octane">STEP 3｜Render the 3DGS scene in Octane → aerial shot</a></li>
+    <li><a href="#plate">STEP 4｜Fix and touch up the background → final aerial plate</a></li>
+    <li><strong style="color:var(--accent2)">Advanced: generating people and motion with AI</strong>
+      <ol style="margin-top:4px">
+        <li><a href="#guide">Building a “motion guide” with color-coded dummies</a></li>
+        <li><a href="#refs">Extracting reference material from the PortalCam data</a></li>
+        <li><a href="#element">Creating an element in Higgsfield</a></li>
+        <li><a href="#generate">Generating the shot with Seedance 2</a></li>
+        <li><a href="#final">Finishing in After Effects</a></li>
+      </ol>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>PortalCam walking scan</b><span class="a">→</span>
+    <b>3DGS reconstruction</b><span class="a">→</span>
+    <b>C4D camera</b><span class="a">→</span>
+    <b>Octane render (aerial)</b><span class="a">→</span>
+    <b>Background touch-up</b>
+    <span class="a" style="color:var(--accent2)">┄ Advanced ┄</span>
+    <b>Higgsfield element</b><span class="a">→</span>
+    <b>Seedance 2 generation</b><span class="a">→</span>
+    <b>AE finish</b>
+  </div>
+
+  <h2 id="intro"><span class="n">01</span> What this workflow gets you</h2>
+  <p>The strength of 3D Gaussian Splatting (3DGS) is that once a space is scanned, <strong>you can freely create new viewpoints afterward</strong>. Using that, just by walking through and capturing a location, you can build an <strong>aerial angle — an “aerial shot”</strong> — with no drone or special equipment.</p>
+  <p>This article walks through the <strong>basics of building an aerial shot from 3DGS</strong>, and then the <strong>advanced technique of adding people and motion</strong>, using the actual production material at each step.</p>
+  <div class="callout note"><b>The idea behind this workflow</b>“Angles you can't fly or shoot” and “precise camera work” are handled by <strong>3DGS</strong>. When you want to add “photorealistic people or motion” on top of that, you layer on AI generation (Higgsfield / Seedance 2) as the advanced step. 3DGS designs the space; AI handles the look — that division of labor is the whole point.</div>
+
+  <h2 id="tools"><span class="n">02</span> What you'll need</h2>
+  <dl class="spec">
+    <dt>Spatial scan / 3DGS</dt><dd>XGRIDS PortalCam (walking scan) ／ reconstructed to 3DGS with Lixel CyberColor (LCC Studio)</dd>
+    <dt>3D, camera &amp; render</dt><dd>Cinema 4D ／ Octane Render ／ tracking source footage</dd>
+    <dt>Background touch-up</dt><dd>Nano Banana (fixing artifacts) ／ Photoshop (adding smoke, etc.)</dd>
+    <dt>Advanced (generating people &amp; motion)</dt><dd>Higgsfield (element management) ／ Seedance 2 (shot generation) ／ After Effects (finishing)</dd>
+  </dl>
+
+  <h2 id="scan"><span class="n">STEP 1</span> Walking scan with PortalCam → 3DGS reconstruction</h2>
+  <p>First, walk the location with an XGRIDS PortalCam and reconstruct it as 3DGS with Lixel CyberColor (LCC Studio). No drone or special equipment needed, and the bar for permissions and weather is much lower. This 3DGS space becomes the “stage” for the aerial shot.</p>
+  <div class="callout note"><b>Tip</b>The <strong>real-world location reference</strong> you'll need later can be pulled from PortalCam's internal frame sequence (advanced step ②). Routing your scan path past distinctive features — road markings, building corners — pays off in accuracy later.</div>
+
+  <h2 id="camera"><span class="n">STEP 2</span> Source footage → camera tracking in C4D</h2>
+  <p>Prepare footage to serve as the foundation for the aerial shot's camera move (stock footage, in this case), then track it in Cinema 4D. Transplant the tracked motion onto a 3D camera to create <strong>a camera that moves through the 3DGS space at an aerial angle</strong>. This is where the aerial camera work gets locked in.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/work01_poster.jpg">
+      <source src="/works/images/work01_tracking.mp4" type="video/mp4">
+    </video>
+    <figcaption><b>Tracking source footage.</b> This footage's camera motion is analyzed and transplanted onto the 3D-space camera.</figcaption>
+  </figure>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/work02_poster.jpg">
+      <source src="/works/images/work02_c4dtrack.mp4" type="video/mp4">
+    </video>
+    <figcaption><b>C4D viewport.</b> The aerial camera move added based on the tracking result.</figcaption>
+  </figure>
+
+  <h2 id="octane"><span class="n">STEP 3</span> Render the 3DGS scene in Octane → aerial shot</h2>
+  <p>Render the 3DGS space through the camera you just built, in C4D / Octane. This turns <strong>a location captured on foot into an “aerial shot” from above</strong>. Angles you couldn't fly to, or heights you couldn't reach, can be built after the fact from the on-location data.</p>
+  <p>At the same time, this render also places a <strong>dummy human model</strong>. This becomes the <strong>“motion guide” used later in the advanced (generation) step</strong> — its role is explained in advanced step ①.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/work03_poster.jpg">
+      <source src="/works/images/work03_octane.mp4" type="video/mp4">
+    </video>
+    <figcaption><b>The raw Octane render.</b> The 3DGS space rendered through the aerial camera, with a <b>color-coded dummy</b> placed for the advanced step that follows.</figcaption>
+  </figure>
+
+  <h2 id="plate"><span class="n">STEP 4</span> Fix and touch up the background → final aerial plate</h2>
+  <p>Walking-scan 3DGS has a known weakness: distant buildings, frame edges and fine detail tend to break down. We fix that with <strong>Nano Banana</strong>, then add touches like smoke in <strong>Photoshop</strong> to finish the <strong>aerial plate</strong>.</p>
+  <figure>
+    <img src="/works/images/work04_bgfix.jpg" alt="Aerial plate with 3DGS artifacts fixed and smoke added in Photoshop">
+    <figcaption><b>The finished aerial plate.</b> After fixing the 3DGS artifacts, black smoke was added in Photoshop. This is where the drone-free aerial shot is complete.</figcaption>
+  </figure>
+  <div class="callout note"><b>Where the basics end</b>This aerial plate stands on its own as a drone-free aerial shot. Everything from here is the advanced step, for when you want to add people or motion.</div>
+
+  <h2 id="advanced" style="color:var(--accent2);border-top:2px solid var(--accent2);margin-top:74px"><span class="n" style="color:var(--accent2);border-color:var(--accent2)">Advanced</span> Generating and finishing people and motion</h2>
+  <p>From here on it's the <strong>advanced technique</strong>. Using the aerial shot from the basic pipeline as a “blueprint,” we add <strong>photorealistic people and motion</strong> with AI video generation (Higgsfield / Seedance 2). Because the basic aerial shot already exists, we can force the generative AI to strictly respect the composition, camera work and pose.</p>
+
+  <h3 id="guide">① Building a “motion guide” with color-coded dummies</h3>
+  <p>The dummy model placed in STEP 3 is <strong>color-coded by body part</strong>. This makes it easier for the generative AI to recognize “which part is the head, arm, torso,” letting it <strong>accurately trace pose and hand movement</strong>. The STEP 3 render video becomes, as-is, the <strong>guide for both camera work and human motion</strong>.</p>
+  <figure>
+    <img src="/works/images/work03_poster.jpg" alt="3DGS render with a dummy model color-coded by body part (yellow, green, magenta)">
+    <figcaption><b>Color-coded dummy.</b> Head, arms, torso and other parts are color-coded (yellow, green, magenta). This becomes the “motion guide” handed to the generative AI.</figcaption>
+  </figure>
+  <div class="callout note"><b>Why color-code the dummy</b>Video generation breaks down if it misreads human anatomy or motion. A guide color-coded by body part lets pose, hand movement and camera relationship carry through reliably.</div>
+
+  <h3 id="refs">② Extracting reference material from the PortalCam data</h3>
+  <p>To create the element (next, in step ③), prepare <strong>reference images of the location</strong>. These are real photos pulled from PortalCam's own capture data (its internal frame sequence) — material that hands over the location's <strong>road markings, curbs, buildings and sky as they actually look</strong>.</p>
+  <figure>
+    <div class="refgrid">
+      <img src="/works/images/work05_ref_001.jpg" alt="Reference material extracted from PortalCam capture data 1">
+      <img src="/works/images/work05_ref_002.jpg" alt="Reference material extracted from PortalCam capture data 2">
+      <img src="/works/images/work05_ref_003.jpg" alt="Reference material extracted from PortalCam capture data 3">
+      <img src="/works/images/work05_ref_004.jpg" alt="Reference material extracted from PortalCam capture data 4">
+      <img src="/works/images/work05_ref_005.jpg" alt="Reference material extracted from PortalCam capture data 5">
+      <img src="/works/images/work05_ref_006.jpg" alt="Reference material extracted from PortalCam capture data 6">
+      <img src="/works/images/work05_ref_007.jpg" alt="Reference material extracted from PortalCam capture data 7">
+      <img src="/works/images/work05_ref_008.jpg" alt="Reference material extracted from PortalCam capture data 8">
+      <img src="/works/images/work05_ref_009.jpg" alt="Reference material extracted from PortalCam capture data 9">
+      <img src="/works/images/work05_ref_010.jpg" alt="Reference material extracted from PortalCam capture data 10">
+      <img src="/works/images/work05_ref_011.jpg" alt="Reference material extracted from PortalCam capture data 11">
+      <img src="/works/images/work05_ref_012.jpg" alt="Reference material extracted from PortalCam capture data 12">
+    </div>
+    <figcaption><b>Reference material from PortalCam.</b> Real frames pulled from the capture data (a selection). The more real footage of the location you provide, the more accurately it reproduces.</figcaption>
+  </figure>
+
+  <h3 id="element">③ Creating an element in Higgsfield</h3>
+  <p>Register a reusable “location” or “character” using Higgsfield's <strong>element</strong> feature. Upload the reference material from step ②, and <strong>supplement it with a text description</strong> of the features (e.g. “Japanese road, white lane markings, ‘stop’ sign, red signage, street trees, guardrail, overcast sky”). Once it's an element, <strong>you can call up the same location for any number of shots</strong>.</p>
+  <figure>
+    <img src="/works/images/work06_element.jpg" alt="Higgsfield's Edit Element screen, registering reference images and a text description to a location element">
+    <figcaption><b>The element creation screen.</b> Reference images plus a text description register a <code>location</code>. Characters are element-ized and combined the same way.</figcaption>
+  </figure>
+
+  <h3 id="generate">④ Generating the shot with Seedance 2</h3>
+  <p>In Seedance 2 (on Higgsfield), generate the shot so it <strong>traces the STEP 3 guide video</strong>. Three things go in:</p>
+  <ul>
+    <li>The <strong>guide video</strong> (the Octane render with the color-coded dummy) = camera work and human motion</li>
+    <li>The <strong>aerial plate / interpolated image</strong> (STEP 4) = the clean background look</li>
+    <li>The <strong>element</strong> (③) = the look and feel of the location and character</li>
+  </ul>
+  <p>In the prompt, instruct it to <strong>“not copy the dummy's appearance — strictly follow only its pose and hand movement, and generate a new photorealistic person.”</strong> That way you inherit only the accuracy of the motion, not the dummy's look.</p>
+  <figure>
+    <img src="/works/images/work07_generate.jpg" alt="Seedance 2's generation screen and prompt, tracing the guide video and specifying an element to generate the shot">
+    <figcaption><b>The Seedance 2 generation screen.</b> Generated by specifying the guide video, aerial plate, element and prompt. <b>Composition, camera work and pose follow the blueprint</b> exactly, while only the look is filled in photorealistically.</figcaption>
+  </figure>
+  <div class="callout warn"><b>Note</b>Content that evokes real locations, people or organizations can be a sensitive subject. Always check each tool's terms, rights and publication rules against your intended use (commercial / public release).</div>
+
+  <h3 id="final">⑤ Finishing in After Effects</h3>
+  <p>Bring the generated shot into After Effects and finish the final comp with <strong>color grading, compositing, and smoke/effects adjustments</strong>. The finished video at the top of this article is the result.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/work08_poster.jpg">
+      <source src="/works/images/work08_final.mp4" type="video/mp4">
+    </video>
+    <figcaption><b>Final comp.</b> The Seedance 2 generation result composited and finished onto the aerial plate.</figcaption>
+  </figure>
+
+  <h2 id="summary"><span class="n">03</span> Summary</h2>
+  <p>The key point: <strong>an “aerial shot” can be built from 3DGS alone</strong>. Just by walking through and scanning a location, you get a drone-free aerial angle.</p>
+  <p>When you want to add people or motion on top of that, treat the 3DGS aerial shot as a “blueprint” and layer generative AI on as the advanced step. <strong>Composition, camera work and pose</strong> are guaranteed by 3DGS, and AI fills in the look — building “shots you can't capture” and “places you can't fly to” after the fact from on-location data. That's the core of Locahun 3D's 3DGS workflow.</p>
+</article>
+
+<section class="credit">
+  <div class="ey">Creators</div>
+  <h2>Production of this workflow</h2>
+  <div class="credit-card">
+    <img class="av" src="/works/images/creator_mizuno.jpg" alt="MIZUNO CABBAGE">
+    <div>
+      <div class="cname">MIZUNO&nbsp;CABBAGE</div>
+      <div class="crole">Filmmaker ／ 3DCG artist ／ Director</div>
+      <p>Born 2000. Self-taught in VFX since age 14, and leads the next-generation CG artist team “UNDEFINED.” Works across music videos, promotional films and 3DCG pieces. Directed and produced this article's <strong>3DGS × AI video workflow</strong>.</p>
+      <a class="xbtn" href="https://x.com/mizunocabbage" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @mizunocabbage →
+      </a>
+    </div>
+  </div>
+
+  <div class="credit-card" style="margin-top:14px">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ 3DGS capture</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Handled the on-location walking capture with XGRIDS PortalCam and the <strong>3DGS reconstruction</strong> that anchors the aerial shot. Works across 3DGS capture, pre-shoot location scouting and VFX background material.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+
+  <div class="credit-team">
+    <img class="tlogo" src="/works/images/creator_undef.jpg" alt="UNDEFINED">
+    <div>
+      <div class="tname">UNDEFINED<span>Next-generation CG artist team</span></div>
+      <p>A creative team led by MIZUNO CABBAGE, producing work that combines 3DGS, VFX and AI.</p>
+      <a class="xbtn" href="https://x.com/undef_official" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow UNDEFINED @undef_official →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI video production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM → 3DGS → C4D CAMERA → OCTANE (AERIAL) → RETOUCH ┄ ADVANCED ┄ HIGGSFIELD → SEEDANCE 2 → AE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>
