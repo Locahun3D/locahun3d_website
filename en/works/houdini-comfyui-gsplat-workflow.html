@@ -185,7 +185,7 @@
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
-    <li><a href="#intro">The trigger: Houdini 22, a “monster”</a></li>
+    <li><a href="#intro">The trigger: Houdini 22's native Gaussian Splatting support</a></li>
     <li><a href="#workflow">How the workflow flows</a></li>
     <li><a href="#video">Watch the process: a screen recording</a></li>
     <li><a href="#before-after">Before / after: from concept to final shot</a></li>
@@ -202,8 +202,8 @@
     <b>Camera &amp; render</b>
   </div>
 
-  <h2 id="intro"><span class="n">01</span> The trigger: Houdini 22, a “monster”</h2>
-  <p>According to hectorVFX, the release of <strong>Houdini 22</strong> is what pushed this hybrid workflow further. He describes Houdini 22 as <strong>“an absolute monster”</strong> for handling Gaussian Splats, saying this version's capabilities are hard to believe. The starting point for this workflow is treating 3DGS not just as background material, but as <strong>a layer you can genuinely work with inside a 3D DCC tool</strong>.</p>
+  <h2 id="intro"><span class="n">01</span> The trigger: Houdini 22's native Gaussian Splatting support</h2>
+  <p>This workflow starts from <strong>Houdini 22</strong>, released in July 2026, which shipped <strong>native Gaussian Splatting (3DGS) support</strong> for the first time. Where handling 3DGS previously meant relying on third-party plugins or external tools, Houdini 22 now treats splats as <strong>ordinary geometry (points)</strong>, so standard deformation nodes like Bone Deform and Surface Deform animate them directly. GPU-based real-time rasterization hits 60fps+, keeping viewport interaction usable even on scenes with millions of splats, and the release adds direct rendering through Karma as well as rasterization and relighting inside Copernicus (Houdini's 2D compositing environment). This shift — from 3DGS as "background material you can only look at" to <strong>a layer you can genuinely work with inside a 3D DCC tool</strong> — is what pushed hectorVFX to take this hybrid workflow further.</p>
 
   <h2 id="workflow"><span class="n">02</span> How the workflow flows</h2>
   <p>The X post itself only described a broad “three-stage” version of this. Based on a <strong>33-second screen recording</strong> hectorVFX shared afterward, here is the concrete sequence of steps. The key idea: the <strong>environment (Shibuya's 3DGS) and the subject (the car) are built through completely separate pipelines, and both stay as Gaussian Splats</strong> right up until they're merged into one scene in Houdini. Nothing here is a 2D image composite — these are two point clouds merged in 3D space.</p>

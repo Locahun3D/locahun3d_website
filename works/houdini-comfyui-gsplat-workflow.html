@@ -185,7 +185,7 @@
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#intro">きっかけ：Houdini 22 という「怪物」</a></li>
+    <li><a href="#intro">きっかけ：Houdini 22でのGaussian Splattingネイティブ対応</a></li>
     <li><a href="#workflow">ワークフローの流れ</a></li>
     <li><a href="#video">制作画面の録画で見る、全体の流れ</a></li>
     <li><a href="#before-after">Before / After：コンセプトから最終カットへ</a></li>
@@ -202,8 +202,8 @@
     <b>カメラ・レンダリング</b>
   </div>
 
-  <h2 id="intro"><span class="n">01</span> きっかけ：Houdini 22 という「怪物」</h2>
-  <p>hectorVFX 氏いわく、<strong>Houdini 22</strong> のリリースをきっかけに、このハイブリッドワークフローの探求をさらに進めることになったとのこと。同氏は「Houdini 22 は Gaussian Splats の管理において<strong>まさに怪物</strong>で、このバージョンの機能は信じられないほど」と評しています。3DGSを単なる背景素材としてではなく、<strong>3D DCCツールの中で本格的に扱えるレイヤー</strong>として位置づけている点が、このワークフローの起点になっています。</p>
+  <h2 id="intro"><span class="n">01</span> きっかけ：Houdini 22でのGaussian Splattingネイティブ対応</h2>
+  <p>このワークフローの起点になっているのは、2026年7月にリリースされたばかりの<strong>Houdini 22</strong>で、<strong>Gaussian Splatting（3DGS）がネイティブ機能として実装された</strong>ことです。これまでサードパーティのプラグインや外部ツールに頼らざるを得なかった3DGSの扱いが、Houdini 22では<strong>スプラットを通常のジオメトリ（点群）と同じように扱えるように</strong>なり、Bone Deform・Surface Deformといった標準の変形ノードでそのままアニメーションできます。GPUによるリアルタイムラスタライズは60fps以上を実現し、数百万スプラット規模のシーンでもビューポート操作が可能なほか、Karmaレンダラーでの直接レンダリングや、Copernicus（2Dコンポジット環境）上でのラスタライズ・リライティングにも対応しました。3DGSを「見るだけの背景素材」ではなく<strong>3D DCCツールの中で本格的に加工できるレイヤー</strong>として扱えるようになったこの変化が、hectorVFX氏がこのハイブリッドワークフローの探求を進める後押しになっています。</p>
 
   <h2 id="workflow"><span class="n">02</span> ワークフローの流れ</h2>
   <p>X投稿の本文では「3段階」という大枠しか語られていませんでしたが、hectorVFX氏が追加で公開した<strong>制作画面の録画（33秒）</strong>をもとに、具体的な手順を整理すると次のようになります。ポイントは、<strong>背景（渋谷の3DGS）と被写体（車両）をまったく別の経路で用意し、両方とも「Gaussian Splatsのまま」Houdini上で1つのシーンに合成する</strong>ことです。2D画像として合成するのではなく、点群（スプラット）同士を3D空間でマージします。</p>
