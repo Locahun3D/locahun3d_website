@@ -171,7 +171,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Houdini</span><span class="badge">ComfyUI</span><span class="badge">AI</span>
-    <span>2026-07-23</span><span>・</span><span>~4 min read</span>
+    <span>2026-07-23</span><span>・</span><span>~7 min read</span>
   </div>
   <h1>Houdini 22 <em>×</em> ComfyUI — A VFX <em>×</em> AI Hybrid Workflow with Gaussian Splats from Shibuya</h1>
   <p class="lead">Spain-based VFX artist <strong>hectorVFX</strong> shared the results of a new VFX × AI hybrid workflow experiment on X, built on <strong>Gaussian Splats (3DGS)</strong> of the Shibuya scramble crossing provided by Locahun 3D. The technique combines <strong>Houdini 22</strong> with <strong>ComfyUI</strong>.</p>
@@ -187,6 +187,7 @@
   <ol>
     <li><a href="#intro">The trigger: Houdini 22, a “monster”</a></li>
     <li><a href="#workflow">How the workflow flows</a></li>
+    <li><a href="#video">Watch the process: a screen recording</a></li>
     <li><a href="#before-after">Before / after: from concept to final shot</a></li>
     <li><a href="#credit">About the data used</a></li>
     <li><a href="#summary">Summary</a></li>
@@ -195,25 +196,48 @@
 
 <article>
   <div class="stepflow">
-    <b>Gaussian Splats (Shibuya data)</b><span class="a">→</span>
-    <b>Scene control in Houdini 22</b><span class="a">→</span>
-    <b>Camera placement &amp; animation</b><span class="a">→</span>
-    <b>AI render in ComfyUI</b>
+    <b>Shibuya 3DGS (environment)</b><span class="a">＋</span>
+    <b>ComfyUI TripoSplat generates the car as 3DGS</b><span class="a">→</span>
+    <b>Merge &amp; place in Houdini 22</b><span class="a">→</span>
+    <b>Camera &amp; render</b>
   </div>
 
   <h2 id="intro"><span class="n">01</span> The trigger: Houdini 22, a “monster”</h2>
   <p>According to hectorVFX, the release of <strong>Houdini 22</strong> is what pushed this hybrid workflow further. He describes Houdini 22 as <strong>“an absolute monster”</strong> for handling Gaussian Splats, saying this version's capabilities are hard to believe. The starting point for this workflow is treating 3DGS not just as background material, but as <strong>a layer you can genuinely work with inside a 3D DCC tool</strong>.</p>
 
   <h2 id="workflow"><span class="n">02</span> How the workflow flows</h2>
-  <p>Organizing what hectorVFX describes, it breaks down into three broad stages.</p>
-  <ul>
-    <li><strong>Generating Gaussian Splats</strong> — using a tool like ComfyUI to generate Gsplats based on images.</li>
-    <li><strong>Scene control in Houdini 22</strong> — laying out elements in real time within huge scenes, placing and animating cameras, and getting maximum control over the 3D scene and project while retaining as much information as possible.</li>
-    <li><strong>AI rendering in ComfyUI</strong> — once the scene is fully under control, sending it back to ComfyUI for a final AI rendering pass.</li>
-  </ul>
-  <div class="callout note"><b>Why this order matters</b>It splits the work into “control the scene precisely in 3D, then let AI finish the look.” Camera work, composition and element placement are <strong>locked down tightly on the Houdini (3DGS) side</strong> first, and only then is <strong>the final look handed off to AI rendering</strong> — which is what keeps the composite from falling apart.</div>
+  <p>The X post itself only described a broad “three-stage” version of this. But a <strong>33-second screen recording</strong> hectorVFX sent over afterward shows a much more concrete sequence of steps. The interesting part: the <strong>environment (Shibuya's 3DGS) and the subject (the car) are built through completely separate pipelines, and both stay as Gaussian Splats</strong> right up until they're merged into one scene in Houdini. Nothing here is a 2D image composite — these are two point clouds merged in 3D space.</p>
 
-  <h2 id="before-after"><span class="n">03</span> Before / after: from concept to final shot</h2>
+  <h3>① Houdini 22: loading Shibuya's 3DGS natively</h3>
+  <p>The Shibuya scramble crossing 3DGS data provided by Locahun 3D is loaded directly into <strong>Houdini 22 (Indie license, build 22.0.368)</strong>. The recording shows a scene graph running <code>bakegsplat → transform → normal → merge</code> — the <strong>native Gaussian Splatting node set</strong> Houdini 22 newly ships with. This step treats the 3DGS not as “a point cloud you can only look at,” but as geometry with normals that can be combined with other nodes.</p>
+
+  <h3>② ComfyUI: generating the car as a 3DGS straight from an image</h3>
+  <p>The white sports car isn't a photo composite — it was <strong>generated from scratch as a 3D Gaussian Splat inside ComfyUI</strong>. The workflow tab visible in the recording is named <code>ER_TripoSplat_Live</code>. A KSampler runs 20 denoising steps (cfg 3.0 / sampler: dpmpp_2m / scheduler: simple / denoise 1.0), the result is decoded by a <strong>TripoSplat Decode</strong> node into a splat with <code>num_gaussians: 300,000</code>, and a <strong>Create 3D File (from Splat)</strong> node writes it out. In other words, the car isn't “a 2D image turned 3D by AI” — it's <strong>generated directly as 3D Gaussians from the diffusion model's latent space</strong>.</p>
+  <div class="callout note"><b>What is TripoSplat?</b>It's a family of ComfyUI custom nodes that takes Tripo-style image/text-to-3D models and outputs Gaussian Splats instead of a mesh. Because the output is already a splat, it can merge natively into the Houdini 3DGS scene from step ① — that's the crux of this whole workflow.</div>
+
+  <h3>③ Compositing in Houdini: two 3DGS assets become one scene</h3>
+  <p>The car splat generated in ② is loaded into Houdini and combined with the Shibuya scene from ① via a <code>merge</code> node. The recording shows the Transform SOP's pivot, translate, scale and rotate values being adjusted by hand to seat the car on the crosswalk. At this point, two datasets with entirely different origins — a real-world scan and an AI-generated asset — become a single 3D scene.</p>
+
+  <h3>④ Camera, lighting and the final render</h3>
+  <p>A <code>cam1</code> camera is set up in the composited scene, with motion blur and depth-of-field parameters (Shutter Time 0.5 / Focus Distance 5 / F-stop 5.6) dialed in for the render. The finishing pass adds the night-time neon reflections and wet-asphalt lighting grade that produces the final shot shown at the top of this article.</p>
+
+  <dl class="spec">
+    <dt>Environment data (background)</dt><dd>Shibuya scramble crossing 3DGS (provided by Locahun 3D) ／ loaded via Houdini 22 Indie's (build 22.0.368) native Gaussian Splatting nodes (bakegsplat / transform / normal / merge)</dd>
+    <dt>Subject (car) generation</dt><dd>ComfyUI workflow "ER_TripoSplat_Live" ／ KSampler(steps 20, cfg 3.0, dpmpp_2m, simple, denoise 1.0) → TripoSplat Decode(num_gaussians 300,000) → Create 3D File (from Splat)</dd>
+    <dt>Compositing</dt><dd>Two 3DGS assets merged into one Houdini scene via a merge node; manual placement with the Transform SOP</dd>
+    <dt>Camera / render</dt><dd>Houdini camera (cam1) ／ motion blur and depth of field built with Shutter Time 0.5 · Focus Distance 5 · F-stop 5.6</dd>
+  </dl>
+
+  <h2 id="video"><span class="n">03</span> Watch the process: a screen recording</h2>
+  <p>hectorVFX also sent over a 33-second screen recording capturing this whole sequence. Watching the Houdini scene graph and viewport switch back and forth with ComfyUI's node graph tells the story faster than any write-up.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/hector_workflow_poster.jpg">
+      <source src="/works/images/hector_houdini_comfyui_workflow.mp4" type="video/mp4">
+    </video>
+    <figcaption><b>The actual production screen recording.</b> Building the 3DGS scene in Houdini 22 → generating the car in ComfyUI (TripoSplat) → merging and setting up the camera in Houdini → the final render.</figcaption>
+  </figure>
+
+  <h2 id="before-after"><span class="n">04</span> Before / after: from concept to final shot</h2>
   <p>The two images shared with us give a glimpse of that process.</p>
   <figure>
     <img src="/works/images/hectorvfx_shibuya_gsplat_concept.jpg" alt="Concept / preview image with a vehicle placed into the Shibuya scramble crossing Gaussian Splats scene">
@@ -231,10 +255,10 @@
     <span class="go">Open on X →</span>
   </a>
 
-  <h2 id="credit"><span class="n">04</span> About the data used</h2>
+  <h2 id="credit"><span class="n">05</span> About the data used</h2>
   <p>The <strong>Gaussian Splats of the Shibuya scramble crossing</strong> that anchor this workflow were provided by Kou Nakamura, founder of Locahun 3D. Data actually scanned on foot with PortalCam ended up, across an ocean, in another creator's hands for a new piece of work — a genuinely nice outcome to see.</p>
 
-  <h2 id="summary"><span class="n">05</span> Summary</h2>
+  <h2 id="summary"><span class="n">06</span> Summary</h2>
   <p>With Houdini 22, the environment is maturing to treat Gaussian Splats as more than “something to just look at” — as a layer you can properly control inside a 3D scene. Locahun 3D's scan data can serve as the foundation for hybrid VFX × AI workflows like this one. If you're experimenting or producing something similar, feel free to reach out.</p>
 </article>
 
@@ -273,7 +297,7 @@
   <div class="wrap">
     <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
     <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: GAUSSIAN SPLATS (SHIBUYA) → HOUDINI 22 (SCENE CONTROL) → CAMERA / ANIMATION → COMFYUI (AI RENDER)</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: SHIBUYA 3DGS + COMFYUI TRIPOSPLAT (CAR) → HOUDINI 22 (MERGE / CAMERA) → FINAL RENDER</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
