@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Using 3DGS as an "Aerial Shot" in UE5 with the XGRIDs SDK｜Locahun 3D Tech Blog</title>
+<meta name="description" content="Even in no-fly zones, you can still get an aerial shot: import a 3DGS scan into UE5, place a virtual camera at an angle you could never actually shoot, then let AI handle only the lighting and season. Kou Nakamura's own workflow test, including its current limits.">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/ue5-xgrids-3dgs-aerial-ai.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/ue5-xgrids-3dgs-aerial-ai.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/ue5-xgrids-3dgs-aerial-ai.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/ue5-xgrids-3dgs-aerial-ai.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.75;font-size:17px;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  h1,h2,h3{text-wrap:balance}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(26px,4.6vw,42px);line-height:1.28;font-weight:900;letter-spacing:0;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.85;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(19px,2.9vw,24px);font-weight:800;letter-spacing:0;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:0}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:0;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.75;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.75;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}
+  @media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(22px,6.4vw,30px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="topbar"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+    <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html">Works</a>
+    <a href="blog.html">Tech Blog</a>
+    <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
+    <a href="/works/ue5-xgrids-3dgs-aerial-ai.html">JA</a>
+  </nav>
+</div></div>
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">AI</span><span class="badge">Workflow</span>
+    <span>2026-07-24</span><span>・</span><span>~6 min read</span>
+  </div>
+  <h1>Using 3DGS as an "Aerial Shot" in<br class="pc"> UE5 with the XGRIDs SDK</h1>
+  <p class="lead">You don't need a drone to get an aerial shot in a no-fly zone. Kou Nakamura, founder of Locahun 3D, tested a workflow that <strong>imports a 3DGS scan into UE5, places a virtual camera at an angle you could never actually shoot, and then lets AI handle only the lighting</strong> — along with an honest look at where the technique breaks down today.</p>
+
+  <figure>
+    <img src="/works/images/ue5_xgrids_shibuya_topdown.jpg" alt="Two aerial angles of the Shibuya scramble crossing 3DGS data imported into UE5">
+    <figcaption><b>The Shibuya 3DGS data loaded into UE5.</b> No drone was flown — this is a viewport angle that couldn't physically be shot.</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#problem">The problem: what a 3D scan can't reach, it can't show</a></li>
+    <li><a href="#solution">The fix: import 3DGS into UE5 with the XGRIDs SDK and fly a virtual camera</a></li>
+    <li><a href="#ai-relight">Changing lighting and season with AI — the prompt is just "make it night"</a></li>
+    <li><a href="#strengths">Why this works</a></li>
+    <li><a href="#limits">Current limits: signage, text, and man-made detail break down</a></li>
+    <li><a href="#summary">Summary: the advantage of always routing through one real scan</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>3DGS scan (Shibuya)</b><span class="a">→</span>
+    <b>Import into UE5 via XGRIDs SDK (Lcc2 format)</b><span class="a">→</span>
+    <b>Place a virtual camera at an aerial angle</b><span class="a">→</span>
+    <b>AI changes lighting / season</b>
+  </div>
+
+  <h2 id="problem"><span class="n">01</span> The problem: what a 3D scan can't reach, it can't show</h2>
+  <p>With 3D scanning, anywhere the scan didn't reach simply comes out missing. The rooftop of a high-rise, for instance, isn't somewhere you can walk to with a handheld scanner. Flying a drone would solve that — except <strong>most of central Tokyo is a no-fly zone</strong>, so shooting from above isn't even permitted in the first place. In city-center location scouting, this exact situation comes up constantly: you want the aerial shot, but there's no legal way to get equipment up there.</p>
+
+  <h2 id="solution"><span class="n">02</span> The fix: import 3DGS into UE5 with the XGRIDs SDK and fly a virtual camera</h2>
+  <p>The workaround: import the <strong>Shibuya scramble crossing 3DGS data into UE5 via the XGRIDs SDK, in Lcc2 format</strong>. Once the scene exists as 3DGS, everything downstream becomes a game-engine problem. The camera is no longer bound by physics — it can sit at rooftop height, or directly above an intersection, moved anywhere you like. The ground-level scan data stays the foundation; <strong>only the aerial angle itself comes from a virtual camera.</strong></p>
+  <div class="callout note"><b>The key point</b>The foundation is still an actual 3DGS scan. Nothing about the background is generated from scratch by AI — what's been added on top of a real, scan-based point cloud is simply a camera move that would be physically impossible to shoot. That's the whole premise of this technique.</div>
+
+  <h2 id="ai-relight"><span class="n">03</span> Changing lighting and season with AI — the prompt is just "make it night"</h2>
+  <p>Once the framing is locked in the UE5 viewport, you just <strong>screenshot that view and hand it to an image-generation AI (GPT)</strong>. The prompt is a short instruction like "make it night" or "make it winter." Composition, camera angle, and building placement — everything that needs to be accurate — is already locked in on the UE5 side (i.e., the real scan data), so all that's left for the AI to do is <strong>the lighting and seasonal atmosphere.</strong></p>
+  <figure>
+    <img src="/works/images/ue5_ai_relight_day_night_winter.jpg" alt="The UE5 viewport (daytime) alongside AI-generated night and winter variations from the prompts 'make it night' and 'make it winter'">
+    <figcaption><b>Same framing, only the lighting changes.</b> Left: the UE5 viewport (daytime). Top right: generated with "make it night." Bottom right: generated with "make it winter," adding snow. The composition never moves.</figcaption>
+  </figure>
+
+  <h2 id="strengths"><span class="n">04</span> Why this works</h2>
+  <ul>
+    <li><strong>Guaranteed framing, direction, and accuracy</strong> — camera work and composition are locked in on the UE5 side, avoiding the "not quite what I asked for" problem common with pure AI generation.</li>
+    <li><strong>A major cut in shooting cost and time</strong> — no on-site reshoot, permit application, or equipment logistics; the framing gets decided entirely at a desk.</li>
+    <li><strong>Unlimited retries</strong> — once the scene exists as 3DGS, camera position and time of day can be redone as many times as needed.</li>
+    <li><strong>Reinventing the shoot itself</strong> — shifting from "go on location and shoot" to "move a camera inside data you've already scanned." Also works for video (camera animation).</li>
+  </ul>
+
+  <h2 id="limits"><span class="n">05</span> Current limits: signage, text, and man-made detail break down</h2>
+  <p>To be upfront: this is a conditional technique, not a universal one. <strong>Signage text and fine man-made details — trains, road signs, and similar structures — currently break down under AI data completion.</strong> Looking at the actual generated images, you can see "ghost" structures that shouldn't exist, and a train-like structure incorrectly generated where there shouldn't be one.</p>
+  <figure>
+    <img src="/works/images/ue5_ai_completion_limitations.jpg" alt="An annotated image marking AI data-completion failures — a ghost structure that doesn't exist, an incorrectly generated train-like structure, and broken signage text — with colored circles and labels">
+    <figcaption><b>Examples of the breakdown.</b> Yellow circle — a structure that doesn't actually exist ("GHOST"). Blue lines — a train-like structure generated where there shouldn't be one ("TRAIN"). Red circles — signage and sign text that has come apart.</figcaption>
+  </figure>
+  <p>Signage and fine detail are, roughly speaking, going to be missing with the current technique. Controlling for that in detail and delivering at a quality fit for public release is what makes this a professional job rather than a demo. In practice, that means <strong>designing the shots that are prone to breaking down with a reshoot or manual touch-up already planned in</strong>. The precision of AI data completion itself is something I'd like to see keep improving.</p>
+  <div class="callout warn"><b>What we know today</b>This isn't a universal solution for every shot. It suits framings where signage, text, and man-made objects don't end up in frame, or shots where some breakdown is acceptable. It is not, at least for now, suited to a shot where legible signage text matters.</div>
+
+  <h2 id="summary"><span class="n">06</span> Summary: the advantage of always routing through one real scan</h2>
+  <p>The core idea here is that <strong>the shoot is never fully handed over to AI generation — it always routes through one real scan (3DGS)</strong>. Composition, framing, and accuracy stay anchored to the scan data and a virtual camera; AI is only ever responsible for finishing the look. That division of labor is exactly what keeps the breakdown in check while making a physically impossible angle usable in practice. If you're interested in a similar workflow — not just for no-fly-zone aerials — feel free to reach out.</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">DATA / 3DGS</span>
+    <h3>The Shibuya scramble crossing 3DGS data used in this article is available to purchase and browse<br class="pc"> on Locahun 3D's online platform</h3>
+    <p>Provided as PLY / OBJ (with a 3DGS walkthrough). Standard license from ¥200,000 (commercial and non-commercial use permitted). If you'd like to try this same UE5 × AI workflow yourself, take a look.</p>
+    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">View the property data →</a>
+  </div>
+</article>
+
+<section class="credit">
+  <div class="ey">Creators</div>
+  <h2>Workflow testing</h2>
+  <div class="credit-card">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writeup</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and tests capture workflows that combine 3DGS scanning with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA (AERIAL) → AI (RELIGHT / SEASON)</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>
