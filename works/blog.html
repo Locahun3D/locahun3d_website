@@ -154,10 +154,14 @@ var POSTS = [
     excerpt:"現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る方法。基本（C4Dカメラ→Octaneレンダ→背景修正）と、応用（人物・動きの生成）までを実素材で解説。",
     href:"portalcam-drone-ai-workflow.html", thumb:"images/work04_bgfix.jpg", soon:true
   },
+  {
+    tag:"tech", tagLabel:"技術", date:"2026-07-23", read:"約4分",
+    title:"Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー",
+    excerpt:"スペインのVFXアーティスト hectorVFX 氏が、ロケハン3Dの渋谷スクランブル交差点データ（3DGS）を使って実証した、Houdini 22 × ComfyUI によるVFX × AIハイブリッドワークフローの事例紹介。",
+    href:"houdini-comfyui-gsplat-workflow.html", thumb:"images/hectorvfx_shibuya_ai_render.jpg"
+  },
   { tag:"work", tagLabel:"実績解説", date:"", title:"（実績の制作解説を追加予定）",
-    excerpt:"実績ページの各案件について、制作の裏側・使用技術を解説していきます。", ph:true },
-  { tag:"tech", tagLabel:"技術", date:"", title:"（技術記事を追加予定）",
-    excerpt:"3DGS・撮影・VFX・AIワークフローの解説記事をここに。", ph:true }
+    excerpt:"実績ページの各案件について、制作の裏側・使用技術を解説していきます。", ph:true }
 ];
 function card(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
