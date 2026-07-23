@@ -307,7 +307,7 @@
       <tr><td>Cinema 4D</td><td>レンダラー経由</td><td>Octaneなどサードパーティレンダラーの3DGS対応を使ってレンダリングできる。カメラワークづくり・モーショングラフィックスとの相性が良い</td><td>C4D標準機能ではなくレンダラー依存。対応状況はレンダラーのバージョン次第</td></tr>
     </tbody>
   </table></div>
-  <p>私の使い分けは、<strong>都市規模のシーンを丸ごと歩き回って画角を探すのはUE5、カット単位の絵作り・レンダリングはDCC側</strong>です。実際、空撮カットの制作ではC4D→Octaneのフローを使っています（この工程は別記事で解説予定です）。Houdiniでのスプラット加工については、hectorVFX氏が渋谷データで実証した<a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUI ハイブリッドワークフローの記事</a>で詳しく紹介しています。</p>
+  <p>私の使い分けは、<strong>都市規模のシーンを丸ごと歩き回って画角を探すのはUE5、カット単位の絵作り・レンダリングはDCC側</strong>です。実際、空撮カットの制作ではC4D→Octaneのフローを使っていて、その手順は<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しています。Houdiniでのスプラット加工については、hectorVFX氏が渋谷データで実証した<a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUI ハイブリッドワークフローの記事</a>で詳しく紹介しています。</p>
 
   <h2 id="plugins"><span class="n">08</span> UE5でリライトまでできる3DGSプラグイン</h2>
   <p>UE5に3DGSを「表示するだけ」のプラグインなら、無料・OSSを含めて数多くあります（XScene-UEPlugin、MLSLabs GS Renderer、NanoGSなど）。ただ、この記事のように素材出力まで考えると、実務の分かれ目は<strong>「読み込んだスプラットのライティングを変えられるか」</strong>です。そこで、リライトに対応しているものに絞って紹介します。</p>

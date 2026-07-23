@@ -309,7 +309,7 @@
       <tr><td>Cinema 4D</td><td>Via renderers</td><td>Renders 3DGS through third-party renderers such as Octane. Pairs well with camera work and motion graphics</td><td>Not a native C4D feature — depends on your renderer and its version</td></tr>
     </tbody>
   </table></div>
-  <p>My own split: <strong>UE5 for walking through city-scale scenes and hunting angles, the DCC side for per-shot look development and rendering.</strong> For aerial-plate work I use a C4D → Octane flow (that process will get its own article). For procedural splat work in Houdini, see <a href="houdini-comfyui-gsplat-workflow.html">the Houdini 22 × ComfyUI hybrid workflow article</a>, where hectorVFX demonstrates it on the same Shibuya data.</p>
+  <p>My own split: <strong>UE5 for walking through city-scale scenes and hunting angles, the DCC side for per-shot look development and rendering.</strong> For aerial-plate work I use a C4D → Octane flow, walked through in detail in <a href="portalcam-drone-ai-workflow.html">Generating an "aerial shot" from 3DGS</a>. For procedural splat work in Houdini, see <a href="houdini-comfyui-gsplat-workflow.html">the Houdini 22 × ComfyUI hybrid workflow article</a>, where hectorVFX demonstrates it on the same Shibuya data.</p>
 
   <h2 id="plugins"><span class="n">08</span> UE5 3DGS plugins that can relight</h2>
   <p>There are plenty of UE5 plugins that can merely <em>display</em> 3DGS, including free and open-source options (XScene-UEPlugin, MLSLabs GS Renderer, NanoGS). But once you're exporting assets like in this article, the practical dividing line is <strong>whether you can change the lighting of an imported splat scene</strong>. So here I'm covering only the plugins that support relighting.</p>
