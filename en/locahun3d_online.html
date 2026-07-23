@@ -98,32 +98,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 .timecode{position:absolute;top:18px;font-size:.65em;letter-spacing:.2em;
   font-family:'JetBrains Mono',monospace;opacity:.4;text-transform:uppercase}
-.timecode.tl{left:max(220px, calc((100vw - 100vh * 4 / 3) / 2))} .timecode.tr{right:max(48px, 6vw)}
-.timecode.bl{bottom:18px;top:auto;left:max(220px, calc((100vw - 100vh * 4 / 3) / 2))}
+.timecode.tl{left:max(48px, calc((100vw - 100vh * 4 / 3) / 2))} .timecode.tr{right:max(48px, 6vw)}
+.timecode.bl{bottom:18px;top:auto;left:max(48px, calc((100vw - 100vh * 4 / 3) / 2))}
 .timecode.br{bottom:18px;top:auto;right:max(48px, 6vw)}
 @media(max-width:900px){.timecode.tl,.timecode.bl{left:max(48px, 6vw)}}
 
-/* side menu */
-.side-menu{position:fixed;top:50%;left:28px;transform:translateY(-50%);z-index:1100;
-  display:flex;flex-direction:column;gap:14px;background:none;border:none;padding:0;width:170px}
-.side-menu .brand-mini{font-family:'JetBrains Mono',monospace;font-size:.58em;
-  letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.55);
-  border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:10px;margin-bottom:4px;
-  display:flex;justify-content:space-between;align-items:center}
-.side-menu .brand-mini .dot{width:5px;height:5px;background:#ffb454;border-radius:50%;display:inline-block;animation:rec 1.6s ease-in-out infinite}
 @keyframes rec{0%,100%{opacity:1}50%{opacity:.25}}
-.side-menu nav{display:flex;flex-direction:column;gap:13px}
-.side-menu nav a{color:rgba(255,255,255,.6);text-decoration:none;font-size:.78em;
-  letter-spacing:.04em;display:flex;align-items:center;gap:10px;font-weight:300;transition:color .2s,transform .2s}
-.side-menu nav a::before{content:'';width:6px;height:1px;background:currentColor;opacity:.6;transition:width .25s,background .2s,opacity .2s}
-.side-menu nav a:hover{color:#fff;transform:translateX(2px)}
-.side-menu nav a:hover::before{width:14px;background:#ffb454;opacity:1}
-.side-menu nav a.current{color:#fff;font-weight:600}
-.side-menu nav a.current::before{width:14px;background:#ffb454;opacity:1}
-@media(max-width:1199px){.side-menu{display:none}}
 /* ハンバーガー表示域(≤1199)はフレーム上余白を確保し、CH見出しとの重なりを防ぐ */
 @media(max-width:1199px){.frame{padding-top:84px}}
-@media(min-width:1200px){.frame{padding-left:max(220px, calc((100vw - 100vh * 4 / 3) / 2))}}
 
 /* ============================================
    UNIFIED HEADER — matches locahun3d.com
@@ -132,13 +114,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   height:64px;background:rgba(0,0,0,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);display:flex;align-items:center;
   padding:0 max(48px, calc((100vw - 1440px) / 2))}
-.site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:28px}
-.site-header .sh-left nav{display:flex;align-items:center;gap:28px}
+.site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:16px}
+.site-header .sh-left nav{display:flex;align-items:center;gap:16px}
 .site-header .sh-left nav a{display:flex;align-items:center;gap:8px;
   font-size:13px;font-weight:300;color:rgba(255,255,255,.62);text-decoration:none;
   white-space:nowrap;transition:color .2s}
 .site-header .sh-left nav a:hover{color:#fafaf6}
-.site-header .sh-left nav a .code{font-family:'JetBrains Mono',monospace;
+.site-header .sh-left nav a .code{display:none;font-family:'JetBrains Mono',monospace;
   font-size:10px;letter-spacing:.2em;opacity:.5;transition:color .2s,opacity .2s}
 .site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}
 .site-header .sh-center{display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -203,13 +185,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .site-header .sh-left nav{gap:6px 24px}
   .site-header .sh-left nav a{font-size:13px}
   .site-header .sh-left{padding-bottom:10px}
-}
-@media(min-width:1200px){
-  .site-header .sh-left nav a.mobile-only{display:none}
-}
-@media(max-width:1439px){
-  /* ナビ番号コードはオンライン版と同じく 1440px 以上のみ表示 */
-  .site-header .sh-left nav a .code{display:none}
 }
 
 /* ============================================
@@ -462,8 +437,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <a href="locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
       <a href="locahun3d_data.html"><span class="code">0.2</span>Data</a>
       <a href="locahun3d_pitch_hub.html"><span class="code">0.3</span>Use Cases</a>
-      <a href="locahun3d_online.html" class="mobile-only"><span class="code">0.4</span>Work &amp; Blog</a>
-      <a href="locahun3d_demo.html" class="mobile-only"><span class="code">0.5</span>Demo &amp; Contact</a>
+      <a href="locahun3d_online.html"><span class="code">0.4</span>Work &amp; Blog</a>
+      <a href="locahun3d_demo.html"><span class="code">0.5</span>Demo &amp; Contact</a>
     </nav>
   </div>
   <div class="sh-center">
@@ -482,17 +457,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   <div class="sh-right" aria-hidden="true"></div>
 </header>
 
-<aside class="side-menu">
-  <a href="https://locahun3d.com/en/properties" class="brand-mini" style="color:inherit;text-decoration:none"><span><svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true" style="vertical-align:-3px;margin-right:9px;opacity:.95;flex:none"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>LOCAHUN 3D</span><span class="dot"></span></a>
-  <nav>
-    <a href="locahun3d_manifesto.html">Manifesto</a>
-    <a href="locahun3d_data.html">About the Data</a>
-    <a href="locahun3d_pitch_hub.html">Use by Field</a>
-    <a href="locahun3d_online.html" class="current">Works & Blog</a>
-    <a href="locahun3d_demo.html">Demo & Contact</a>
-  </nav>
-</aside>
-
 <!-- ===== FRAME 1 — SELECTED WORKS（実績） ===== -->
 <section class="frame" id="o2">
   <span class="timecode tl">CHAPTER 01</span>
@@ -506,34 +470,22 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 
   <h2 class="sec-title fade">Works</h2>
 
-  <!-- NDAカードは非表示中。準備中表示に差し替え。再表示は下のコメント内 wk-feature を戻す。 -->
-  <div class="sw-block fade">
-    <span class="sw-lbl"><span class="sw-dot"></span>In Preparation / Coming Soon<span class="sw-dot"></span></span>
-    <p class="sw-msg">Case studies will be published in stages.<br>For details and reference examples, please feel free to get in touch.</p>
-    <a class="sw-btn" href="locahun3d_demo.html#contact">Contact Us →</a>
-  </div>
-  <!-- 再表示用（NDAカード）：公開する時は下を戻し、上の sw-block を削除。wk-lock→本来メディア、wk-locked→実リンク(/works/index.html)に置換。
   <div class="wk-feature fade">
     <div class="wk-media">
       <span class="wk-tag"><span class="bk"></span>WORKS / Production</span>
-      <div class="wk-lock">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffb454" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
-        <span class="t">NDA — Preparing for Release</span>
-        <span class="s">Image / Video Hidden</span>
-      </div>
+      <img src="https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg" alt="Chevon “Rokunowa” Music Video">
     </div>
     <div class="wk-body">
       <div class="wk-badges">
-        <span class="w">Works</span><span>3DGS</span><span>VFX Compositing</span><span>AI Generation</span>
+        <span class="w">Works</span><span>3DGS</span><span>Music Video</span><span>Netflix</span>
       </div>
-      <h3>Live-Action VFX × 3DGS × AI ─<br class="pc">Producing Aerial-Look Film Shots</h3>
-      <p>An actual intersection was captured by <strong>walking scan</strong> and turned into 3DGS. Live action was composited in Cinema 4D to create an <strong>overhead angle without flying a drone</strong>, with the project extended all the way to AI-generated shots.</p>
+      <h3>Chevon “Rokunowa”<br class="pc"> Music Video</h3>
+      <p>Opening theme for season 2 of the Netflix anime Baki-Dou. Produced using Locahun 3D's 3DGS capture data.</p>
       <div class="wk-foot">
-        <span class="wk-locked"><span class="lk">🔒</span>Private until cleared (NDA)</span>
+        <a class="wk-btn" href="/en/works/index.html">See all Works →</a>
       </div>
     </div>
   </div>
-  -->
 
   <div class="foot">
     <span>SELECTED WORKS — Client Projects</span>
@@ -554,25 +506,19 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 
   <h2 class="sec-title fade">Tech Blog</h2>
 
-  <!-- NDA中：技術ブログを teaser カードで表示。画像/動画は非表示・記事リンクは無効。
-       公開する時：wk-lock を本来のメディアに戻し、wk-locked を実リンク(<a class="wk-btn" href="/works/blog.html">技術ブログを見る →</a>)に置換する。 -->
   <div class="wk-feature fade">
     <div class="wk-media">
       <span class="wk-tag"><span class="bk"></span>TECH BLOG / Explainer</span>
-      <div class="wk-lock">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffb454" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
-        <span class="t">NDA — Preparing for Release</span>
-        <span class="s">Article Locked</span>
-      </div>
+      <img src="/works/images/hectorvfx_shibuya_ai_render.jpg" alt="Houdini 22 × ComfyUI — A VFX × AI hybrid workflow with Gaussian Splats">
     </div>
     <div class="wk-body">
       <div class="wk-badges">
-        <span class="w">Tech Blog</span><span>3DGS</span><span>Workflow</span><span>AI</span>
+        <span class="w">Tech Blog</span><span>3DGS</span><span>Houdini</span><span>ComfyUI</span>
       </div>
-      <h3>How to Create a "Drone Shot" and an<br class="pc">"AI-Generated Shot" from a PortalCam 3DGS</h3>
-      <p>A single walking scan is expanded into three assets: a drone-style shot, a live-action compositing plate, and AI generation. This article walks through a production workflow that links everything from pre-shoot through post-production to AI generation in one continuous pipeline.</p>
+      <h3>Houdini 22 × ComfyUI ──<br class="pc"> A VFX × AI Hybrid Workflow with Gaussian Splats</h3>
+      <p>Senior VFX artist hectorVFX put Locahun 3D's Shibuya scramble crossing data (3DGS) through a Houdini 22 × ComfyUI hybrid VFX/AI workflow — here's how it works.</p>
       <div class="wk-foot">
-        <span class="wk-locked"><span class="lk">🔒</span>Private until cleared (NDA)</span>
+        <a class="wk-btn" href="/en/works/blog.html">See the Tech Blog →</a>
       </div>
     </div>
   </div>
