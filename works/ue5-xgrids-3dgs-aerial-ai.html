@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>UE5 × XGRIDs SDKで3DGSを「上空カット」に使う方法｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="ドローン飛行禁止区域でも、3DGSスキャンをUE5に取り込み仮想カメラで上空アングルを作り、AIでライティング・季節だけを変える手法。ロケハン3D代表・中村航による検証と、現状の限界について。">
+<title>UE5 × XGRIDs SDKで3DGSから素材を出力する｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="UE5にXGRIDsのLCC Plugin for UEを導入し、3DGSスキャンから画像・映像素材を出力する方法。プラグインの入手先と導入手順、仮想カメラでの素材出力、AIによるライティング変更、3DGS制作ソフトとUE5向け他プラグインの比較まで。">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,6 +86,7 @@
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px}
 
   .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
   .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
@@ -103,10 +104,22 @@
   .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
   .stepflow .a{color:var(--brand-ink);font-weight:700}
 
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
   .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
   .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
   .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
     border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
   .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
@@ -160,8 +173,8 @@
     <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
   </a>
   <nav class="nav">
-    <a href="index.html">実績</a>
-    <a href="blog.html">技術ブログ</a>
+    <a href="index.html#works">実績</a>
+    <a href="index.html#blog">技術ブログ</a>
     <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
     <a href="/en/works/ue5-xgrids-3dgs-aerial-ai.html">EN</a>
   </nav>
@@ -170,83 +183,163 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">AI</span><span class="badge">ワークフロー</span>
-    <span>2026-07-24</span><span>・</span><span>読了 約6分</span>
+    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">VFX</span><span class="badge">ワークフロー</span>
+    <span>2026-07-24</span><span>・</span><span>読了 約12分</span>
   </div>
-  <h1>UE5 <em>×</em> XGRIDs SDKで3DGSを<br class="pc">「上空カット」に使う方法</h1>
-  <p class="lead">ドローンが飛ばせない都心部でも、上空アングルの映像は作れます。ロケハン3D代表・中村航が実際に検証した、<strong>3DGSスキャンをUE5に取り込み、仮想カメラで狙った画角を作ってからAIでライティングだけを変える</strong>という手法と、現時点での限界をまとめました。</p>
+  <h1>UE5 <em>×</em> XGRIDs SDKで<br class="pc">3DGSから素材を出力する</h1>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンを映像制作の「素材」として使うなら、ゲームエンジンに持ち込むのがいちばん自由が利きます。この記事では、私が渋谷スクランブル交差点のスキャンで実際に使っている<strong>XGRIDs SDK（LCC Plugin for UE）の導入から、仮想カメラでの素材出力、AIによるライティング変更</strong>まで、UE5連携のワークフロー全体をまとめます。あわせて、3DGSを扱う主要ソフトとUE5向け他プラグインの比較も載せておきます。</p>
 
   <figure>
-    <img src="images/ue5_xgrids_shibuya_topdown.jpg" alt="渋谷スクランブル交差点の3DGSデータをUE5に取り込み、上空から撮影した2つのアングル">
-    <figcaption><b>UE5に取り込んだ渋谷の3DGS。</b>ドローンを飛ばさずに、実際には撮れない上空アングルのビューポートを作っている。</figcaption>
+    <img src="images/ue5_shibuya_ground_day.jpg" alt="UE5のビューポートに読み込んだ渋谷スクランブル交差点の3DGSスキャン（地上アングル・昼）">
+    <figcaption><b>UE5に読み込んだ渋谷スクランブル交差点の3DGS。</b>LCC Plugin for UEでLCC2形式のスキャンをインポートすることで、ビューポート内をそのまま歩き回りながら画角を探せます。</figcaption>
   </figure>
 </header>
 
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#problem">課題：3Dスキャンは「行けない場所」がそのまま欠損になる</a></li>
-    <li><a href="#solution">解法：UE5 + XGRIDs SDKで3DGSを取り込み、仮想カメラを飛ばす</a></li>
-    <li><a href="#ai-relight">AIでライティング・季節を変える ── プロンプトは「夜にして」だけ</a></li>
-    <li><a href="#strengths">この手法の強み</a></li>
+    <li><a href="#why">なぜ3DGSをUE5に持ち込むのか</a></li>
+    <li><a href="#sdk">XGRIDs「LCC Plugin for UE」とは（ダウンロード先）</a></li>
+    <li><a href="#install">インストール手順</a></li>
+    <li><a href="#export">3DGSを読み込み、仮想カメラで素材を出力する</a></li>
+    <li><a href="#ai-relight">AIでライティング・季節を変える</a></li>
     <li><a href="#limits">現状の限界：看板・文字・人工物は崩れる</a></li>
-    <li><a href="#summary">まとめ：すべてを生成させず「1枚のスキャンCG」を経由させる優位性</a></li>
+    <li><a href="#software">3DGSを扱う主要ソフト比較</a></li>
+    <li><a href="#plugins">UE5で3DGSを扱える他プラグイン</a></li>
+    <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
     <b>3DGSスキャン（渋谷）</b><span class="a">→</span>
-    <b>UE5 + XGRIDs SDKでインポート（Lcc2形式）</b><span class="a">→</span>
-    <b>仮想カメラで上空アングルを配置</b><span class="a">→</span>
-    <b>AIでライティング・季節を変更</b>
+    <b>LCC Plugin for UEでインポート</b><span class="a">→</span>
+    <b>仮想カメラで画角を確定</b><span class="a">→</span>
+    <b>スチル／動画として出力</b><span class="a">→</span>
+    <b>AIでリライト</b>
   </div>
 
-  <h2 id="problem"><span class="n">01</span> 課題：3Dスキャンは「行けない場所」がそのまま欠損になる</h2>
-  <p>3Dスキャンは、スキャンできていないところがそのまま欠損になります。高層ビルの屋上など、そもそも人が歩いて行けない場所は、徒歩スキャンでは撮れません。ではドローンを飛ばせばいいかというと、<strong>都内中心部の多くはドローン飛行禁止区域</strong>で、そもそも上空から撮影すること自体が許可されていません。つまり「上空からの絵が欲しいが、そこに機材を持っていく手段がない」という状態が、都市部のロケハンではよく起こります。</p>
-
-  <h2 id="solution"><span class="n">02</span> 解法：UE5 + XGRIDs SDKで3DGSを取り込み、仮想カメラを飛ばす</h2>
-  <p>そこで使ったのが、<strong>渋谷スクランブル交差点の3DGSデータをLcc2形式でUE5にXGRIDs SDK経由でインポートする</strong>方法です。一度3DGSとしてシーン化してしまえば、そこから先はゲームエンジンの中の話になります。カメラは物理的な制約から解放され、実際には立てないビル屋上の高さにも、道路の真上にも、好きなだけ動かせます。地上を歩いて集めたスキャンデータを土台にしながら、<strong>上空からのアングルだけは仮想カメラで作る</strong>というのが、この手法の骨格です。</p>
-  <div class="callout note"><b>ポイント</b>あくまで土台になっているのは実際にスキャンした3DGSデータです。背景をゼロからAIに生成させているわけではなく、<strong>実写ベースの点群の上に、仮想カメラという「物理的にありえないカメラワーク」だけを足している</strong>点が、この手法の起点になっています。</div>
-
-  <h2 id="ai-relight"><span class="n">03</span> AIでライティング・季節を変える ── プロンプトは「夜にして」だけ</h2>
-  <p>UE5のビューポートで狙った画角が決まったら、その画面を<strong>そのままスクリーンショットして、画像生成AI（GPT）に渡す</strong>だけです。プロンプトは「夜にして」「冬にして」といった短い指示のみ。構図・カメラアングル・建物の配置といった正確性が必要な部分はUE5側（＝実スキャンデータ）ですでに確定しているので、AIに任せるのは<strong>ライティングと季節感の作り込みだけ</strong>で済みます。</p>
+  <h2 id="why"><span class="n">01</span> なぜ3DGSをUE5に持ち込むのか</h2>
+  <p>私はロケハン3Dで、都市部を中心にした3DGSスキャンデータを制作・販売しています。3DGSはビューアーで眺めるだけでも十分に使えますが、映像制作の素材として本気で使うなら、UE5に取り込むことで一段階上の自由度が手に入ります。具体的には、次のことができるようになります。</p>
+  <ul>
+    <li><strong>物理的に立てない位置にカメラを置く</strong> ── ビルの真上、道路の上空、駅の直上。現実には撮影許可が下りない画角も、スキャンデータの中では自由です。</li>
+    <li><strong>高解像度スチル・動画としての書き出し</strong> ── ビューポートで確定した画角を、そのまま素材として出力できます。</li>
+    <li><strong>VFX加工の下準備</strong> ── メッシュアセットとの合成、ライティング調整、AIリライトの元画像づくりまで、1つのシーンの中で完結します。</li>
+  </ul>
   <figure>
-    <img src="images/ue5_ai_relight_day_night_winter.jpg" alt="UE5でのビューポート画面（昼）と、AIで「夜にして」「冬にして」と指示して生成した夜景・雪景色のバリエーション">
-    <figcaption><b>同じ画角のまま、AIでライティングだけを変える。</b>左：UE5のビューポート（昼）。右上：「夜にして」で生成。右下：「冬にして」で雪を足して生成。構図はまったく同じまま。</figcaption>
+    <img src="images/ue5_shibuya_car_composite.jpg" alt="渋谷の3DGSスキャンの路上にCGのスポーツカーを合成した例">
+    <figcaption><b>スキャンにCGアセットを合成した例。</b>渋谷の3DGSスキャンの路上に、CGのカーモデルを配置しています。実写ベースのスキャンを土台にすることで、遠近・スケール・ライティングの整合が取りやすく、VFX合成の当たりを素早く作れます。</figcaption>
+  </figure>
+  <p>なお、出力した素材を空撮プレートとして仕上げる工程は別の解説記事で扱う予定なので、この記事は<strong>「UE5との連携」と「素材出力」の部分に絞って</strong>書きます。使うプラグインはXGRIDsのLCC Plugin for UE（無料）です。</p>
+
+  <h2 id="sdk"><span class="n">02</span> XGRIDs「LCC Plugin for UE」とは（ダウンロード先）</h2>
+  <p><strong>LCC Plugin for UE</strong>は、XGRIDsが公式配布しているUE5向けの3DGSプラグインです。3DGSシーンの読み込み・描画・編集・リライトまでを1つのプラグインで担います。私がこれを使っている理由は主に2つで、<strong>都市規模のスキャンを一括で扱えるスケール</strong>（ストリーミングLoDで数十億点規模まで対応）と、<strong>LCC2という圧縮フォーマットの存在</strong>です。渋谷のような大規模シーンでも、PLYで持ち回すよりファイルが大幅に軽く、読み込みが安定します。</p>
+  <dl class="spec">
+    <dt>対応エンジン</dt><dd>Unreal Engine 5.1〜5.8（Windows / Linux、DirectX 11・12 / Vulkan）</dd>
+    <dt>対応フォーマット</dt><dd>LCC2 / LCC / PLY / SOG / SPZ。PostshotやLuma、Polycamなどが書き出す標準的な3DGS PLYもそのまま読めます</dd>
+    <dt>スケール</dt><dd>点数無制限。ストリーミングLoDにより大規模シーンでもフレームレートを維持</dd>
+    <dt>料金</dt><dd>Free＋Pro の2ティア。Proは現在期間限定で無料（プロキシメッシュ・リライト、セルフシャドウ、ACES/OCIOカラーパイプラインなどが追加）</dd>
+    <dt>使い方</dt><dd>Blueprintベースでコード不要。C++ APIでのランタイム制御にも対応</dd>
+  </dl>
+  <div class="data-cta">
+    <span class="dc-tag">Download / XGRIDs 公式</span>
+    <h3>LCC Plugin for UE（プラグイン本体・サンプルデータ）</h3>
+    <p>プラグイン本体は、XGRIDsの開発者ポータルからUEバージョン別のzipとして入手できます。サンプルデータも同じページにあります。</p>
+    <p class="dc-url">https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54</p>
+    <a class="dc-btn" href="https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54" target="_blank" rel="noopener">ダウンロードページを開く →</a>
+  </div>
+
+  <h2 id="install"><span class="n">03</span> インストール手順</h2>
+  <p>導入はUE5の標準的なプラグイン追加の流れそのままです。私はUE5.5のプロジェクトに <code>LCC4Unreal-v3.0.0-win-UE5_5</code> を入れています。</p>
+  <ol>
+    <li>上のダウンロードページから、<strong>使っているUEバージョンに合ったzip</strong>を入手します。バージョン違いはロードエラーの元になるので、ここだけは正確に合わせます。</li>
+    <li>zipを解凍し、<strong>プロジェクト直下の <code>Plugins</code> フォルダに配置</strong>します（フォルダがなければ作成します）。全プロジェクトで共通利用したい場合は、エンジン側の <code>Engine/Plugins</code> に置くこともできます。</li>
+    <li>プロジェクトを起動し、<strong>編集 → プラグイン</strong> で「LCC」を検索して有効化します。エディタの再起動を求められるので、そのまま再起動します。</li>
+    <li>再起動後、プラグインのファイル選択ダイアログから <strong>.lcc / .lcc2 / .ply を読み込む</strong>ことで、3DGSシーンがレベルに配置されます。</li>
+  </ol>
+  <div class="callout note"><b>メニューの正確な位置について</b>プラグインのUIやメニュー配置はバージョンアップで変わることがあります。最新の正確な手順は、XGRIDs公式の<a href="https://developer.xgrids.com/#/tutorial?page=UE_SDK" target="_blank" rel="noopener">チュートリアル</a>と<a href="https://developer.xgrids.com/#/document?titleId=en-1720509312452" target="_blank" rel="noopener">開発者ドキュメント</a>が一次情報です。導入でつまずいたら、まずここを確認してください。</div>
+
+  <h2 id="export"><span class="n">04</span> 3DGSを読み込み、仮想カメラで素材を出力する</h2>
+  <p>読み込みが終われば、あとはUE5の標準操作です。パースペクティブビューでカメラを動かし、狙った画角を作ります。渋谷スクランブル交差点の場合、駅直上からの真俯瞰はドローン飛行禁止区域のため現実には撮影できませんが、スキャンデータの中では制約がありません。<strong>地上を歩いて集めた実スキャンを土台に、カメラだけを物理法則から解放する</strong>のがこのワークフローの核です。</p>
+  <figure>
+    <img src="images/ue5_shibuya_topdown_day.jpg" alt="UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
+    <figcaption><b>仮想カメラで作った真俯瞰アングル。</b>カメラを駅直上に移動することで、実際にはドローンを飛ばせない場所からの画角を作れます。交差点のペイントや横断歩道のディテールまで実スキャン由来です。</figcaption>
+  </figure>
+  <p>画角が決まったら、素材として書き出します。スチルなら<strong>高解像度スクリーンショット（HighResShot）</strong>で解像度を指定して出力することで、そのまま合成・レタッチに回せる静止画になります。動画素材が必要な場合は、<strong>シーケンサーでカメラアニメーションを組む</strong>ことで、カメラワーク付きのショットとしてレンダリングできます。</p>
+  <div class="callout note"><b>ポイント</b>土台になっているのはあくまで実際にスキャンした3DGSデータです。背景をゼロからAIに生成させるのではなく、<strong>実写ベースの点群の上に「物理的にありえないカメラワーク」だけを足す</strong>。構図・建物の配置・スケール感の正確性は、この時点ですべて確定します。</div>
+
+  <h2 id="ai-relight"><span class="n">05</span> AIでライティング・季節を変える</h2>
+  <p>UE5から出力したスチルを画像生成AIに渡し、<strong>「夜にして」「雪を降らせて」といった短いプロンプトだけ</strong>でライティングと季節を差し替えます。構図・カメラアングル・建物の配置はUE5側（＝実スキャン）で確定済みなので、AIに任せるのは光と空気感の作り込みだけで済みます。指示が短いほど構図が保たれやすく、この役割分担がいちばん破綻が少ないです。</p>
+  <figure>
+    <img src="images/ue5_shibuya_ground_night.jpg" alt="AIで「夜にして」と指示して生成した渋谷スクランブル交差点の夜景">
+    <figcaption><b>「夜にして」で生成した夜景。</b>ビルの窓明かり・看板の発光・路面の反射までAIが補完しつつ、構図は元のスチルと完全に一致しています。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/ue5_shibuya_ground_night_snow.jpg" alt="AIで「雪の夜にして」と指示して生成した渋谷スクランブル交差点の雪景色">
+    <figcaption><b>「雪の夜にして」で生成した雪景色。</b>同じ画角のまま、路面・街路樹・空だけが差し替わります。季節ものの企画カットを、ロケを待たずに検討できます。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/ue5_shibuya_topdown_dusk.jpg" alt="AIで夕方の光に変更した渋谷スクランブル交差点の真俯瞰アングル">
+    <figcaption><b>真俯瞰アングルにも同じ手順が使えます。</b>「夕方にして」と指示することで、マジックアワーの空撮風カットになります。</figcaption>
+  </figure>
+  <figure>
+    <img src="images/ue5_shibuya_topdown_night.jpg" alt="AIで夜に変更した渋谷スクランブル交差点の真俯瞰アングル">
+    <figcaption><b>同じ真俯瞰の夜バージョン。</b>1つの画角を確定させておくことで、時間帯違いのバリエーションを短時間で並べて比較できます。ドローン禁止区域の、実在しない時間帯の、実在の交差点です。</figcaption>
   </figure>
 
-  <h2 id="strengths"><span class="n">04</span> この手法の強み</h2>
-  <ul>
-    <li><strong>画角・ディレクション・正確性の担保</strong> ── カメラワークと構図はUE5側で確定するため、AIまかせの生成にありがちな「狙った通りにならない」問題が起きにくい。</li>
-    <li><strong>撮影コストの大幅カット＆スピード化</strong> ── 現地での再撮影・許可申請・機材手配なしに、パソコンの中だけで画角を決められる。</li>
-    <li><strong>何度でも試行・再撮影が可能</strong> ── 一度3DGS化してしまえば、カメラ位置も時間帯も何度でもやり直せる。</li>
-    <li><strong>撮影そのものの再発明</strong> ── 「現地に行って撮る」から「スキャン済みのデータの中でカメラを動かす」への発想の転換。動画（カメラアニメーション）にも対応できる。</li>
-  </ul>
-
-  <h2 id="limits"><span class="n">05</span> 現状の限界：看板・文字・人工物は崩れる</h2>
-  <p>ただし、条件付きの手法であることも正直に書いておきます。<strong>看板の文字や、電車・標識のような細かい人工物は、現状のAIデータ補完だと崩れます。</strong>実際に生成した画像を見ると、存在しないはずの構造物が現れる「ゴースト」や、電車が本来ないはずの場所に不自然に生成される破綻が確認できました。</p>
+  <h2 id="limits"><span class="n">06</span> 現状の限界：看板・文字・人工物は崩れる</h2>
+  <p>条件付きの手法であることも正直に書いておきます。<strong>看板の文字や、電車・標識のような細かい人工物は、現状のAI補完では崩れます。</strong>存在しないはずの構造物が現れる「ゴースト」や、本来ない場所に電車状の構造が生成される破綻が起きます。</p>
   <figure>
     <img src="images/ue5_ai_completion_limitations.jpg" alt="AIによるデータ補完で発生した破綻箇所（存在しない構造物のゴースト、不自然な電車の生成、看板の文字崩れなど）に赤・黄・青の丸と注釈を付けた画像">
     <figcaption><b>破綻箇所の例。</b>黄色の丸＝存在しないはずの構造物（GHOST）。青の線＝本来ないはずの場所に生成された電車状の構造（TRAIN）。赤の丸＝看板・標識の文字が崩れている箇所。</figcaption>
   </figure>
-  <p>看板や細かいディテールは、現状の手法だとこのようにざっくり欠損してしまいます。そこを細かくコントロールして、世に出せるクオリティで納品するのがプロの仕事だと考えています。具体的には、<strong>崩れやすい箇所はあらかじめ再撮影・手直しを前提に設計する</strong>ことで対応可能です。AIデータ補完の精度自体は、今後さらに向上を期待したいところです。</p>
-  <div class="callout warn"><b>現状わかっていること</b>この手法は「すべてのカットに使える万能な解法」ではありません。看板・文字・人工物が写り込まない画角や、多少の破綻が許容されるカットに向いています。逆に、看板の文字まで正確に見せたいカットには、現状は不向きです。</div>
+  <p>私はここを「プロの仕事の領域」だと考えています。崩れやすい箇所はあらかじめ再撮影・手直し前提で設計することで、世に出せるクオリティまで持っていけます。AI補完の精度そのものは、今後の向上に期待です。</p>
+  <div class="callout warn"><b>使いどころの判断基準</b>この手法は万能ではありません。看板・文字・人工物が写り込まない画角や、多少の破綻が許容されるカットに向いています。看板の文字まで正確に見せたいカットには、現状は不向きです。</div>
 
-  <h2 id="summary"><span class="n">06</span> まとめ：すべてを生成させず「1枚のスキャンCG」を経由させる優位性</h2>
-  <p>この手法のいちばんのポイントは、<strong>撮影のすべてをAIに生成させるのではなく、あくまで1枚の実スキャンCG（3DGS）を必ず経由させる</strong>ことです。構図・画角・正確性はスキャンデータと仮想カメラで担保し、AIには質感の仕上げだけを任せる。この役割分担があるからこそ、破綻を抑えながら「撮れないアングル」を実用レベルで作れます。ドローン禁止区域での上空カットに限らず、同様のワークフローに興味のある方はお気軽にお問い合わせください。</p>
+  <h2 id="software"><span class="n">07</span> 3DGSを扱う主要ソフト比較</h2>
+  <p>UE5に持ち込む前段、つまり<strong>3DGSを「作る・整える」段階のソフト選び</strong>も重要です。3DGSのワークフローは「撮る→学習する→編集する→エンジンで使う」で使うツールが分かれるので、私が把握している範囲で主要どころを整理しておきます。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>ツール</th><th>種別</th><th>得意</th><th>不得意</th></tr></thead>
+    <tbody>
+      <tr><td>Luma AI</td><td>クラウド（生成）</td><td>スマホの写真・動画から無料で高品質なスプラットを生成できる。手軽さは随一</td><td>クラウド前提でアップロードが必須（機密データに不向き）。量産パイプラインの再現性は作りにくい</td></tr>
+      <tr><td>Postshot</td><td>ローカル（学習＋編集）</td><td>完全ローカルで学習から編集まで完結。スプラット数・学習ステップを制御でき、再現性の高いパイプラインを組める</td><td>ローカルGPU必須・Windows専用</td></tr>
+      <tr><td>SuperSplat</td><td>ブラウザ（編集）</td><td>手持ちのスプラットのクロップ・クリーンアップ・形式変換が無料でできる</td><td>編集専用。撮影・学習の機能はない</td></tr>
+      <tr><td>Nerfstudio</td><td>OSS（学習）</td><td>NeRF/3DGSの各手法を横断できる研究グレードの柔軟性</td><td>CLI中心で学習コストが高い</td></tr>
+      <tr><td>Polycam / KIRI Engine</td><td>モバイル（撮影）</td><td>スマホだけでスキャン→スプラット化まで完結。現地での試し撮りに便利</td><td>大規模・高精細な用途ではモバイルセンサーの性能が頭打ち</td></tr>
+    </tbody>
+  </table></div>
+  <p>使い分けの目安としては、<strong>まず試すならLuma AIかPolycam、機密案件や自前パイプラインならPostshot、仕上げの整形はSuperSplat</strong>です。私の渋谷データはLCC形式で書き出してそのままUE5に渡しています。XGRIDsによれば、LCC書き出しはPLY比で最大約90%小さくなるとのことで、都市規模のデータを扱う場合はこの差がそのまま作業効率に響きます。</p>
+
+  <h2 id="plugins"><span class="n">08</span> UE5で3DGSを扱える他プラグイン</h2>
+  <p>UE5側の受け口も、XGRIDs SDKだけではありません。それぞれ設計思想が違うので、軽く紹介しておきます。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>プラグイン</th><th>料金</th><th>得意</th><th>注意点</th></tr></thead>
+    <tbody>
+      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">（XGRIDs・本記事で使用）</span></td><td>無料＋Pro</td><td>数十億点規模のストリーミングLoD、LCC2圧縮、PLY/SOG/SPZ対応、リライト・nDisplay・VRまで守備範囲が広い</td><td>Proは現在期間限定無料。将来の料金体系は要確認</td></tr>
+      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">（XVERSE）</span></td><td>無料・OSS</td><td>オープンソースで改造自由。UE5.3以降でリアルタイム表示・編集・ハイブリッド描画に対応</td><td>コミュニティ主体で、商用サポートはない</td></tr>
+      <tr><td>MLSLabs GS Renderer</td><td>無料・OSS</td><td>Niagara非依存の独自描画パイプラインで大規模シーンに強い。動く4DGS（ボリュメトリックビデオ）とシーケンサー再生に対応</td><td>比較的新しく、コミュニティ規模は小さめ</td></tr>
+      <tr><td>3D Gaussians Plugin<br><span style="color:var(--sub);font-size:.85em">（Fab）</span></td><td>有料</td><td>Epic公式のFabマーケット経由で導入・調達しやすく、スタジオでの購買稟議も通しやすい</td><td>都市規模の大規模シーン向け機能は専業ツールより限定的</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>無料</td><td>Lumaで撮ったデータをそのままUEへ。撮影からエンジンまでの一気通貫が楽</td><td>Luma自身のパイプライン前提の設計</td></tr>
+      <tr><td>NanoGS</td><td>無料</td><td>「Nanite風」のストリーミング描画で大規模シーンの表示に挑んでいる</td><td>コミュニティプロジェクトで発展途上</td></tr>
+    </tbody>
+  </table></div>
+  <p>共通の注意点として、現状のUE5向け3DGSプラグインの多くは、Niagaraまたは独自のコンピュートパイプラインでスプラットを描画していて、<strong>スプラットはLumenのグローバルイルミネーションには参加しません</strong>。また、巨大なシーンではメモリ管理のために分割が必要になることもあります。つまり、プラグインの機能表と同じくらい<strong>「フォーマットが圧縮とストリーミングを前提に設計されているか」</strong>が効いてきます。私がXGRIDs SDKを軸にしている理由もここで、都市1エリアを丸ごと1シーンとして扱えるのはLCC2の設計あってのものです。</p>
+
+  <h2 id="summary"><span class="n">09</span> まとめ</h2>
+  <p>この記事の流れをまとめると、<strong>3DGSスキャンをLCC Plugin for UEでUE5に取り込み、仮想カメラで画角を確定し、スチル・動画として出力し、AIで光と季節だけを差し替える</strong>、という一本道です。いちばんのポイントは、すべてをAIに生成させず、<strong>必ず実スキャンのCGを経由させる</strong>こと。構図と正確性はスキャンデータと仮想カメラで担保し、AIには仕上げだけを任せる。この役割分担があるからこそ、破綻を抑えながら「撮れない画」を実用レベルで出せます。</p>
+  <p>UE5連携やVFX素材としての3DGS活用に興味のある方は、お気軽にお問い合わせください。</p>
 
   <div class="data-cta">
     <span class="dc-tag">DATA / 3DGS</span>
-    <h3>この記事で使われている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
+    <h3>この記事で使っている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
     <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。スタンダードライセンス ¥200,000〜（商用・非商用利用可）。同じデータでUE5×AIのワークフローを試してみたい方は、ぜひご覧ください。</p>
     <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
   </div>
 </article>
 
 <section class="credit">
-  <div class="ey">Creators / 制作</div>
-  <h2>本ワークフローの検証</h2>
+  <div class="ey">Author / 執筆</div>
+  <h2>この記事を書いた人</h2>
   <div class="credit-card">
     <img class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
@@ -266,7 +359,7 @@
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA (AERIAL) → AI (RELIGHT / SEASON)</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA → STILLS / SEQUENCER → AI (RELIGHT / SEASON)</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
@@ -277,7 +370,7 @@
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
   function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
   function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
-  document.querySelectorAll('article img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
   lb.addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
   var pb=document.getElementById('progress');
@@ -290,7 +383,7 @@
 <script type="module">
   import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
   const bp = loadDefaultJapaneseParser();
-  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,.callout,figcaption,.spec dd';
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
   document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>

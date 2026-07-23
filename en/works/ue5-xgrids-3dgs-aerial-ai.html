@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Using 3DGS as an "Aerial Shot" in UE5 with the XGRIDs SDK｜Locahun 3D Tech Blog</title>
-<meta name="description" content="Even in no-fly zones, you can still get an aerial shot: import a 3DGS scan into UE5, place a virtual camera at an angle you could never actually shoot, then let AI handle only the lighting and season. Kou Nakamura's own workflow test, including its current limits.">
+<title>Exporting Assets from 3DGS Scans with UE5 × XGRIDs SDK｜Locahun 3D Tech Blog</title>
+<meta name="description" content="How to bring a 3DGS scan into UE5 with XGRIDs' LCC Plugin for UE and export image and video assets. Covers where to download the plugin, installation, virtual-camera asset output, AI relighting, plus comparisons of 3DGS software and other UE5 plugins.">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/ue5-xgrids-3dgs-aerial-ai.html">
@@ -36,6 +36,8 @@
   a{color:var(--brand-ink);text-decoration:none}
   a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}
+  @media(max-width:640px){ br.pc{display:none} br.sp{display:inline} }
   h1,h2,h3{text-wrap:balance}
 
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -86,6 +88,7 @@
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px}
 
   .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
   .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
@@ -103,10 +106,22 @@
   .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
   .stepflow .a{color:var(--brand-ink);font-weight:700}
 
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
   .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:0;line-height:1.5}
   .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.75;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
   .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
     border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
   .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
@@ -143,7 +158,7 @@
   @media(max-width:640px){
     body{font-size:16px}
     header.post{padding:34px 0 4px}
-    header.post h1{font-size:clamp(22px,6.4vw,30px)}
+    header.post h1{font-size:clamp(23px,6.2vw,32px)}
     article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
     .topbar b{display:none}
     .topbar .tag{display:none}
@@ -160,8 +175,8 @@
     <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
   </a>
   <nav class="nav">
-    <a href="index.html">Works</a>
-    <a href="blog.html">Tech Blog</a>
+    <a href="index.html#works">Works</a>
+    <a href="index.html#blog">Tech Blog</a>
     <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
     <a href="/works/ue5-xgrids-3dgs-aerial-ai.html">JA</a>
   </nav>
@@ -170,89 +185,169 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">AI</span><span class="badge">Workflow</span>
-    <span>2026-07-24</span><span>・</span><span>~6 min read</span>
+    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">VFX</span><span class="badge">Workflow</span>
+    <span>2026-07-24</span><span>・</span><span>~12 min read</span>
   </div>
-  <h1>Using 3DGS as an "Aerial Shot" in<br class="pc"> UE5 with the XGRIDs SDK</h1>
-  <p class="lead">You don't need a drone to get an aerial shot in a no-fly zone. Kou Nakamura, founder of Locahun 3D, tested a workflow that <strong>imports a 3DGS scan into UE5, places a virtual camera at an angle you could never actually shoot, and then lets AI handle only the lighting</strong> — along with an honest look at where the technique breaks down today.</p>
+  <h1>Exporting Assets from 3DGS Scans<br class="pc"> with UE5 <em>×</em> XGRIDs SDK</h1>
+  <p class="lead">I'm Kou Nakamura, founder of Locahun 3D. If you want to use 3DGS scans as real production assets, nothing beats bringing them into a game engine. In this article I walk through the UE5 workflow I actually use with my scan of the Shibuya scramble crossing: <strong>installing the XGRIDs SDK (LCC Plugin for UE), exporting assets with a virtual camera, and changing the lighting with AI</strong>. I've also included comparisons of the major 3DGS tools and the other UE5 plugins that can handle splats.</p>
 
   <figure>
-    <img src="/works/images/ue5_xgrids_shibuya_topdown.jpg" alt="Two aerial angles of the Shibuya scramble crossing 3DGS data imported into UE5">
-    <figcaption><b>The Shibuya 3DGS data loaded into UE5.</b> No drone was flown — this is a viewport angle that couldn't physically be shot.</figcaption>
+    <img src="/works/images/ue5_shibuya_ground_day.jpg" alt="The Shibuya scramble crossing 3DGS scan loaded into a UE5 viewport, ground-level angle, daytime">
+    <figcaption><b>The Shibuya scramble crossing 3DGS loaded into UE5.</b> Importing the LCC2-format scan with LCC Plugin for UE lets you walk around the viewport freely while hunting for angles.</figcaption>
   </figure>
 </header>
 
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
-    <li><a href="#problem">The problem: what a 3D scan can't reach, it can't show</a></li>
-    <li><a href="#solution">The fix: import 3DGS into UE5 with the XGRIDs SDK and fly a virtual camera</a></li>
-    <li><a href="#ai-relight">Changing lighting and season with AI — the prompt is just "make it night"</a></li>
-    <li><a href="#strengths">Why this works</a></li>
+    <li><a href="#why">Why bring 3DGS into UE5 at all</a></li>
+    <li><a href="#sdk">What is XGRIDs' "LCC Plugin for UE" (and where to get it)</a></li>
+    <li><a href="#install">Installation</a></li>
+    <li><a href="#export">Load the 3DGS and export assets with a virtual camera</a></li>
+    <li><a href="#ai-relight">Changing lighting and season with AI</a></li>
     <li><a href="#limits">Current limits: signage, text, and man-made detail break down</a></li>
-    <li><a href="#summary">Summary: the advantage of always routing through one real scan</a></li>
+    <li><a href="#software">Comparing the major 3DGS tools</a></li>
+    <li><a href="#plugins">Other UE5 plugins that handle 3DGS</a></li>
+    <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
     <b>3DGS scan (Shibuya)</b><span class="a">→</span>
-    <b>Import into UE5 via XGRIDs SDK (Lcc2 format)</b><span class="a">→</span>
-    <b>Place a virtual camera at an aerial angle</b><span class="a">→</span>
-    <b>AI changes lighting / season</b>
+    <b>Import via LCC Plugin for UE</b><span class="a">→</span>
+    <b>Lock the framing with a virtual camera</b><span class="a">→</span>
+    <b>Export stills / video</b><span class="a">→</span>
+    <b>Relight with AI</b>
   </div>
 
-  <h2 id="problem"><span class="n">01</span> The problem: what a 3D scan can't reach, it can't show</h2>
-  <p>With 3D scanning, anywhere the scan didn't reach simply comes out missing. The rooftop of a high-rise, for instance, isn't somewhere you can walk to with a handheld scanner. Flying a drone would solve that — except <strong>most of central Tokyo is a no-fly zone</strong>, so shooting from above isn't even permitted in the first place. In city-center location scouting, this exact situation comes up constantly: you want the aerial shot, but there's no legal way to get equipment up there.</p>
-
-  <h2 id="solution"><span class="n">02</span> The fix: import 3DGS into UE5 with the XGRIDs SDK and fly a virtual camera</h2>
-  <p>The workaround: import the <strong>Shibuya scramble crossing 3DGS data into UE5 via the XGRIDs SDK, in Lcc2 format</strong>. Once the scene exists as 3DGS, everything downstream becomes a game-engine problem. The camera is no longer bound by physics — it can sit at rooftop height, or directly above an intersection, moved anywhere you like. The ground-level scan data stays the foundation; <strong>only the aerial angle itself comes from a virtual camera.</strong></p>
-  <div class="callout note"><b>The key point</b>The foundation is still an actual 3DGS scan. Nothing about the background is generated from scratch by AI — what's been added on top of a real, scan-based point cloud is simply a camera move that would be physically impossible to shoot. That's the whole premise of this technique.</div>
-
-  <h2 id="ai-relight"><span class="n">03</span> Changing lighting and season with AI — the prompt is just "make it night"</h2>
-  <p>Once the framing is locked in the UE5 viewport, you just <strong>screenshot that view and hand it to an image-generation AI (GPT)</strong>. The prompt is a short instruction like "make it night" or "make it winter." Composition, camera angle, and building placement — everything that needs to be accurate — is already locked in on the UE5 side (i.e., the real scan data), so all that's left for the AI to do is <strong>the lighting and seasonal atmosphere.</strong></p>
-  <figure>
-    <img src="/works/images/ue5_ai_relight_day_night_winter.jpg" alt="The UE5 viewport (daytime) alongside AI-generated night and winter variations from the prompts 'make it night' and 'make it winter'">
-    <figcaption><b>Same framing, only the lighting changes.</b> Left: the UE5 viewport (daytime). Top right: generated with "make it night." Bottom right: generated with "make it winter," adding snow. The composition never moves.</figcaption>
-  </figure>
-
-  <h2 id="strengths"><span class="n">04</span> Why this works</h2>
+  <h2 id="why"><span class="n">01</span> Why bring 3DGS into UE5 at all</h2>
+  <p>At Locahun 3D I produce and sell 3DGS scan data, mostly of urban locations. A splat viewer is fine for scouting, but if you want to use a scan seriously as production material, importing it into UE5 unlocks a whole extra tier of freedom. Concretely, you get to:</p>
   <ul>
-    <li><strong>Guaranteed framing, direction, and accuracy</strong> — camera work and composition are locked in on the UE5 side, avoiding the "not quite what I asked for" problem common with pure AI generation.</li>
-    <li><strong>A major cut in shooting cost and time</strong> — no on-site reshoot, permit application, or equipment logistics; the framing gets decided entirely at a desk.</li>
-    <li><strong>Unlimited retries</strong> — once the scene exists as 3DGS, camera position and time of day can be redone as many times as needed.</li>
-    <li><strong>Reinventing the shoot itself</strong> — shifting from "go on location and shoot" to "move a camera inside data you've already scanned." Also works for video (camera animation).</li>
+    <li><strong>Put the camera where you physically can't stand</strong> — directly above a building, over the road, right on top of the station. Angles that would never get a filming permit are free inside the scan.</li>
+    <li><strong>Export high-resolution stills and video</strong> — once you lock a framing in the viewport, you can output it directly as an asset.</li>
+    <li><strong>Prep for VFX work</strong> — compositing with mesh assets, lighting adjustments, and producing base plates for AI relighting all happen inside one scene.</li>
   </ul>
-
-  <h2 id="limits"><span class="n">05</span> Current limits: signage, text, and man-made detail break down</h2>
-  <p>To be upfront: this is a conditional technique, not a universal one. <strong>Signage text and fine man-made details — trains, road signs, and similar structures — currently break down under AI data completion.</strong> Looking at the actual generated images, you can see "ghost" structures that shouldn't exist, and a train-like structure incorrectly generated where there shouldn't be one.</p>
   <figure>
-    <img src="/works/images/ue5_ai_completion_limitations.jpg" alt="An annotated image marking AI data-completion failures — a ghost structure that doesn't exist, an incorrectly generated train-like structure, and broken signage text — with colored circles and labels">
-    <figcaption><b>Examples of the breakdown.</b> Yellow circle — a structure that doesn't actually exist ("GHOST"). Blue lines — a train-like structure generated where there shouldn't be one ("TRAIN"). Red circles — signage and sign text that has come apart.</figcaption>
+    <img src="/works/images/ue5_shibuya_car_composite.jpg" alt="A CG sports car composited onto the street of the Shibuya 3DGS scan">
+    <figcaption><b>Compositing a CG asset into the scan.</b> A CG car model placed on the street of the Shibuya 3DGS scan. Because the base is a real-world scan, perspective, scale, and lighting stay consistent, which makes VFX blocking fast.</figcaption>
   </figure>
-  <p>Signage and fine detail are, roughly speaking, going to be missing with the current technique. Controlling for that in detail and delivering at a quality fit for public release is what makes this a professional job rather than a demo. In practice, that means <strong>designing the shots that are prone to breaking down with a reshoot or manual touch-up already planned in</strong>. The precision of AI data completion itself is something I'd like to see keep improving.</p>
-  <div class="callout warn"><b>What we know today</b>This isn't a universal solution for every shot. It suits framings where signage, text, and man-made objects don't end up in frame, or shots where some breakdown is acceptable. It is not, at least for now, suited to a shot where legible signage text matters.</div>
+  <p>The downstream step — finishing the exported frames into aerial plates — will get its own article, so this one stays focused on <strong>the UE5 integration and asset export</strong>. The plugin I use is XGRIDs' LCC Plugin for UE (free).</p>
 
-  <h2 id="summary"><span class="n">06</span> Summary: the advantage of always routing through one real scan</h2>
-  <p>The core idea here is that <strong>the shoot is never fully handed over to AI generation — it always routes through one real scan (3DGS)</strong>. Composition, framing, and accuracy stay anchored to the scan data and a virtual camera; AI is only ever responsible for finishing the look. That division of labor is exactly what keeps the breakdown in check while making a physically impossible angle usable in practice. If you're interested in a similar workflow — not just for no-fly-zone aerials — feel free to reach out.</p>
+  <h2 id="sdk"><span class="n">02</span> What is XGRIDs' "LCC Plugin for UE" (and where to get it)</h2>
+  <p><strong>LCC Plugin for UE</strong> is the official UE5 3DGS plugin distributed by XGRIDs. It handles loading, rendering, editing, and relighting of 3DGS scenes in a single plugin. I use it for two main reasons: <strong>it scales to city-sized scans</strong> (streaming LoD up to billions of points) and it supports <strong>LCC2, a heavily compressed format</strong>. For a large scene like Shibuya, the files are dramatically lighter than passing PLY around, and loading stays stable.</p>
+  <dl class="spec">
+    <dt>Engine support</dt><dd>Unreal Engine 5.1–5.8 (Windows / Linux, DirectX 11 &amp; 12 / Vulkan)</dd>
+    <dt>Formats</dt><dd>LCC2 / LCC / PLY / SOG / SPZ. Standard 3DGS PLY files from Postshot, Luma, Polycam, and similar tools load directly</dd>
+    <dt>Scale</dt><dd>No point-count limit. Streaming LoD keeps frame rates stable even in huge scenes</dd>
+    <dt>Pricing</dt><dd>Free + Pro tiers. Pro is currently free for a limited time (adds proxy-mesh relighting, self-shadowing, ACES/OCIO color pipeline, and more)</dd>
+    <dt>Usage</dt><dd>Blueprint-based, no code required. A C++ API is available for runtime control</dd>
+  </dl>
+  <div class="data-cta">
+    <span class="dc-tag">Download / Official XGRIDs</span>
+    <h3>LCC Plugin for UE (plugin + sample data)</h3>
+    <p>The plugin ships as a per-UE-version zip from XGRIDs' developer portal. Sample data is on the same page.</p>
+    <p class="dc-url">https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54</p>
+    <a class="dc-btn" href="https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54" target="_blank" rel="noopener">Open the download page →</a>
+  </div>
+
+  <h2 id="install"><span class="n">03</span> Installation</h2>
+  <p>Installation follows the standard UE5 plugin flow. I run <code>LCC4Unreal-v3.0.0-win-UE5_5</code> in a UE5.5 project.</p>
+  <ol>
+    <li>From the download page above, grab the <strong>zip that matches your exact UE version</strong>. A version mismatch is the classic cause of load errors, so this is the one step to get exactly right.</li>
+    <li>Extract the zip and place it in the <strong><code>Plugins</code> folder at your project root</strong> (create the folder if it doesn't exist). If you want it available to every project, you can put it in the engine-side <code>Engine/Plugins</code> instead.</li>
+    <li>Launch the project, open <strong>Edit → Plugins</strong>, search for "LCC", and enable it. The editor asks for a restart — go ahead and restart.</li>
+    <li>After the restart, use the plugin's file dialog to <strong>load a .lcc / .lcc2 / .ply file</strong>, and the 3DGS scene is placed into your level.</li>
+  </ol>
+  <div class="callout note"><b>About exact menu locations</b>The plugin's UI and menu placement can change between versions. XGRIDs' official <a href="https://developer.xgrids.com/#/tutorial?page=UE_SDK" target="_blank" rel="noopener">tutorials</a> and <a href="https://developer.xgrids.com/#/document?titleId=en-1720509312452" target="_blank" rel="noopener">developer docs</a> are the primary source for the current steps. If you hit a wall during setup, check there first.</div>
+
+  <h2 id="export"><span class="n">04</span> Load the 3DGS and export assets with a virtual camera</h2>
+  <p>Once the scan is loaded, everything else is standard UE5. Move the camera in the perspective view and build the framing you want. For the Shibuya scramble crossing, a straight-down view from above the station can't be shot in reality — it's a drone no-fly zone — but inside the scan there are no restrictions. <strong>The core of this workflow is using a real ground-level scan as the foundation, then freeing only the camera from physics.</strong></p>
+  <figure>
+    <img src="/works/images/ue5_shibuya_topdown_day.jpg" alt="A straight-down aerial angle of the Shibuya scramble crossing created with a UE5 virtual camera, daytime">
+    <figcaption><b>A straight-down angle built with the virtual camera.</b> Moving the camera directly above the station produces a framing no drone is allowed to shoot. The crossing paint and crosswalk detail all come from the real scan.</figcaption>
+  </figure>
+  <p>With the framing locked, export it as an asset. For stills, running a <strong>High Resolution Screenshot (HighResShot)</strong> at a specified resolution gives you a frame ready for compositing and retouching. For video, <strong>building a camera animation in Sequencer</strong> lets you render the shot with full camera movement.</p>
+  <div class="callout note"><b>Key point</b>The foundation is always the actually-scanned 3DGS data. You're not asking AI to generate a background from scratch — <strong>you're adding only a "physically impossible camera move" on top of a photo-based point cloud</strong>. Composition, building placement, and scale accuracy are all locked at this stage.</div>
+
+  <h2 id="ai-relight"><span class="n">05</span> Changing lighting and season with AI</h2>
+  <p>Hand the stills exported from UE5 to an image-generation AI, and swap the lighting and season with <strong>nothing more than a short prompt like "make it night" or "make it snow."</strong> Since composition, camera angle, and building placement are already fixed on the UE5 side (i.e. by the real scan), the AI only has to handle light and atmosphere. The shorter the prompt, the better the composition holds — this division of labor produces the fewest artifacts.</p>
+  <figure>
+    <img src="/works/images/ue5_shibuya_ground_night.jpg" alt="A night view of the Shibuya scramble crossing generated with the prompt 'make it night'">
+    <figcaption><b>Night, generated with "make it night."</b> The AI fills in window lights, glowing signage, and road reflections while the composition stays identical to the source still.</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/ue5_shibuya_ground_night_snow.jpg" alt="A snowy night view of the Shibuya scramble crossing generated with the prompt 'make it a snowy night'">
+    <figcaption><b>Snow, generated with "make it a snowy night."</b> Same framing; only the road surface, street trees, and sky change. You can explore seasonal concept shots without waiting for the season.</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/ue5_shibuya_topdown_dusk.jpg" alt="The straight-down Shibuya angle changed to dusk lighting with AI">
+    <figcaption><b>The same steps work on the straight-down angle.</b> Prompting "make it dusk" turns it into a magic-hour aerial-style shot.</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/ue5_shibuya_topdown_night.jpg" alt="The straight-down Shibuya angle changed to night with AI">
+    <figcaption><b>The night version of the same top-down framing.</b> Locking one angle lets you line up time-of-day variations side by side in minutes. A real crossing, in a drone no-fly zone, at a time that never existed.</figcaption>
+  </figure>
+
+  <h2 id="limits"><span class="n">06</span> Current limits: signage, text, and man-made detail break down</h2>
+  <p>To be honest about the constraints: <strong>signage text and fine man-made structures — trains, road signs — break down under current AI completion.</strong> It produces "ghosts" (structures that shouldn't exist) and artifacts like train-shaped geometry generated where no train belongs.</p>
+  <figure>
+    <img src="/works/images/ue5_ai_completion_limitations.jpg" alt="Annotated image marking AI completion artifacts: ghost structures, an implausible generated train, and broken signage text, circled in red, yellow, and blue">
+    <figcaption><b>Examples of breakdown.</b> Yellow circle = a structure that shouldn't exist (GHOST). Blue line = train-like geometry generated where no train belongs (TRAIN). Red circles = signage and road-sign text falling apart.</figcaption>
+  </figure>
+  <p>I consider this exactly where professional work lives. By planning reshoots and cleanup passes for the fragile areas in advance, you can bring the result up to deliverable quality. As for the AI completion itself, I expect the accuracy to keep improving.</p>
+  <div class="callout warn"><b>When to use it</b>This technique is not universal. It suits framings without signage, text, or fine man-made objects, and shots where minor artifacts are acceptable. For shots where sign text must read accurately, it's currently the wrong tool.</div>
+
+  <h2 id="software"><span class="n">07</span> Comparing the major 3DGS tools</h2>
+  <p>The stage before UE5 — <strong>the software you use to create and clean up the 3DGS itself</strong> — matters just as much. The workflow splits into capture → training → editing → engine, with different tools at each step. Here's how I'd map the major options.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Tool</th><th>Type</th><th>Strengths</th><th>Weaknesses</th></tr></thead>
+    <tbody>
+      <tr><td>Luma AI</td><td>Cloud (generation)</td><td>Free, high-quality splats from phone photos and video. Unmatched ease of entry</td><td>Cloud-only — uploads required (poor fit for confidential data); hard to build repeatable production pipelines around</td></tr>
+      <tr><td>Postshot</td><td>Local (training + editing)</td><td>Fully local from training through editing. Control over splat count and training steps makes pipelines reproducible</td><td>Needs a local GPU; Windows-only</td></tr>
+      <tr><td>SuperSplat</td><td>Browser (editing)</td><td>Free cropping, cleanup, and format conversion for splats you already have</td><td>Editing only — no capture or training</td></tr>
+      <tr><td>Nerfstudio</td><td>OSS (training)</td><td>Research-grade flexibility across NeRF/3DGS methods</td><td>CLI-centric with a steep learning curve</td></tr>
+      <tr><td>Polycam / KIRI Engine</td><td>Mobile (capture)</td><td>Scan-to-splat entirely on a phone; handy for quick field tests</td><td>Mobile sensors cap out for large or detail-critical scenes</td></tr>
+    </tbody>
+  </table></div>
+  <p>As a rule of thumb: <strong>Luma AI or Polycam to try things out, Postshot for confidential work or your own pipeline, SuperSplat for final cleanup.</strong> My Shibuya data is exported as LCC and handed straight to UE5. According to XGRIDs, LCC export is up to ~90% smaller than PLY — at city scale, that difference translates directly into iteration speed.</p>
+
+  <h2 id="plugins"><span class="n">08</span> Other UE5 plugins that handle 3DGS</h2>
+  <p>The XGRIDs SDK isn't the only way into UE5, either. Each plugin has a different design philosophy, so here's a quick tour.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Plugin</th><th>Price</th><th>Strengths</th><th>Caveats</th></tr></thead>
+    <tbody>
+      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">(XGRIDs — used in this article)</span></td><td>Free + Pro</td><td>Billion-point streaming LoD, LCC2 compression, PLY/SOG/SPZ support, plus relighting, nDisplay, and VR in one package</td><td>Pro is free for a limited time; check future pricing</td></tr>
+      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>Free, OSS</td><td>Open source and freely modifiable. Real-time display, editing, and hybrid rendering on UE5.3+</td><td>Community-run; no commercial support</td></tr>
+      <tr><td>MLSLabs GS Renderer</td><td>Free, OSS</td><td>Custom non-Niagara render pipeline built for large scenes; supports animated 4DGS (volumetric video) and Sequencer playback</td><td>Relatively new, with a smaller community</td></tr>
+      <tr><td>3D Gaussians Plugin<br><span style="color:var(--sub);font-size:.85em">(Fab)</span></td><td>Paid</td><td>Distributed through Epic's official Fab marketplace — easy procurement and studio purchasing</td><td>Fewer city-scale features than the specialist tools</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>Free</td><td>Takes Luma captures straight into UE — a smooth capture-to-engine path</td><td>Designed around Luma's own pipeline</td></tr>
+      <tr><td>NanoGS</td><td>Free</td><td>Tackles large-scene rendering with "Nanite-style" streaming</td><td>Community project, still maturing</td></tr>
+    </tbody>
+  </table></div>
+  <p>One caveat that applies across the board: most current UE5 3DGS plugins render splats through Niagara or a custom compute pipeline that sits beside Unreal's core renderer, so <strong>splats don't participate in Lumen global illumination</strong>, and very large scenes may need sectioning to manage memory. That's why <strong>whether the format itself is designed for compression and streaming</strong> matters as much as any feature list. It's also why I've settled on the XGRIDs SDK — treating an entire city block as a single scene is only possible because of how LCC2 is designed.</p>
+
+  <h2 id="summary"><span class="n">09</span> Summary</h2>
+  <p>The whole flow in one line: <strong>import the 3DGS scan into UE5 with LCC Plugin for UE, lock the framing with a virtual camera, export stills and video, and let AI swap only the light and season.</strong> The essential rule is to never let AI generate everything — <strong>always route through the real scan CG</strong>. Composition and accuracy are guaranteed by the scan data and the virtual camera; AI only does the finishing. That division of labor is what makes "impossible shots" usable at production quality with minimal artifacts.</p>
+  <p>If you're interested in UE5 integration or using 3DGS as VFX material, feel free to get in touch.</p>
 
   <div class="data-cta">
     <span class="dc-tag">DATA / 3DGS</span>
-    <h3>The Shibuya scramble crossing 3DGS data used in this article is available to purchase and browse<br class="pc"> on Locahun 3D's online platform</h3>
-    <p>Provided as PLY / OBJ (with a 3DGS walkthrough). Standard license from ¥200,000 (commercial and non-commercial use permitted). If you'd like to try this same UE5 × AI workflow yourself, take a look.</p>
+    <h3>The Shibuya scramble crossing 3DGS data used in this article is<br class="pc"> available on Locahun 3D Online</h3>
+    <p>Provided in PLY / OBJ format with a 3DGS walkthrough. Standard license from ¥200,000 (commercial and non-commercial use). If you'd like to try the same UE5 × AI workflow on the same data, take a look.</p>
     <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">View the property data →</a>
   </div>
 </article>
 
 <section class="credit">
-  <div class="ey">Creators</div>
-  <h2>Workflow testing</h2>
+  <div class="ey">Author</div>
+  <h2>About the author</h2>
   <div class="credit-card">
     <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
-      <div class="cname">Kou&nbsp;Nakamura</div>
-      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writeup</div>
-      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and tests capture workflows that combine 3DGS scanning with game engines and AI.</p>
+      <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
+      <div class="crole">Founder, Locahun 3D ／ Research &amp; Writing</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and validates production workflows that combine 3DGS scanning with game engines and AI.</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Follow @Kou45388803 →
@@ -264,9 +359,9 @@
 
 <footer>
   <div class="wrap">
-    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
-    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA (AERIAL) → AI (RELIGHT / SEASON)</p>
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS scanning, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA → STILLS / SEQUENCER → AI (RELIGHT / SEASON)</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
@@ -277,7 +372,7 @@
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
   function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
   function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
-  document.querySelectorAll('article img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
   lb.addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
   var pb=document.getElementById('progress');
