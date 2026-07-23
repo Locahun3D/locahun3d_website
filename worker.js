@@ -434,8 +434,8 @@ async function route(request, env) {
     return handleWorksAPI(request, env);
   }
 
-  // Works article gating — intercept individual article pages
-  const worksMatch = url.pathname.match(/^\/works\/([a-z0-9_-]+)\.html$/);
+  // Works article gating — intercept individual article pages (JP + EN share one KV entry per slug)
+  const worksMatch = url.pathname.match(/^(?:\/en)?\/works\/([a-z0-9_-]+)\.html$/);
   if (worksMatch && worksMatch[1] !== "index" && worksMatch[1] !== "blog" && worksMatch[1] !== "admin") {
     return handleWorksArticle(request, env, worksMatch[1]);
   }
