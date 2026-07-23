@@ -7,8 +7,8 @@
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <meta name="theme-color" content="#000000">
-<title>Locahun 3D｜SELECTED WORKS</title>
-<meta name="description" content="Production works by Locahun 3D (LOCAHUN 3D). Case studies and technical write-ups combining 3D Gaussian Splatting, live-action VFX compositing, and AI generation, including the Chevon “Rokunowa” music video (Baki-Dou season 2 OP).">
+<title>Locahun 3D｜Works &amp; Tech Blog</title>
+<meta name="description" content="Production works and the technical blog from Locahun 3D (LOCAHUN 3D), on one page: case studies (including the Chevon “Rokunowa” music video) and practical write-ups on 3D Gaussian Splatting, on-location capture, VFX and AI-assisted production.">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/index.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/index.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/index.html">
@@ -69,21 +69,41 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.22}
 .chapter-rule .en{font-family:'JetBrains Mono',monospace;opacity:.5;font-size:.85em}
 
+.section-head h2{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.5em,4.4vw,2.6em);line-height:1.3;letter-spacing:0}
+.section-head p{margin-top:16px;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
+
+.filters{display:flex;gap:0;margin:30px 0 0;border:1px solid var(--line);width:fit-content}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);background:none;border:none;border-right:1px solid var(--line);
+  padding:12px 22px;cursor:pointer;transition:color .2s,background .2s}
+.chip:last-child{border-right:none}
+.chip:hover{color:#fff}
+.chip.active{background:var(--accent);color:#000}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:0;
   border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:34px}
 .card{border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  display:flex;flex-direction:column;min-height:260px;background:#040404;transition:background .2s}
+  display:flex;flex-direction:column;min-height:260px;background:#040404;position:relative;transition:background .2s}
+.card.live:hover,a.card:hover{background:#0a0907}
 .card .thumb{aspect-ratio:16/10;background:#0a0a0a center/cover no-repeat;border-bottom:1px solid var(--line);
   display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.3em;
   text-transform:uppercase;color:rgba(255,255,255,.35)}
-.card .cb{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px}
-.card .cm{font-family:'JetBrains Mono',monospace;font-size:.58em;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);opacity:.8}
-.card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:0}
+.card.soon .thumb{filter:grayscale(.3) brightness(.78)}
+.card .cb{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card .cm{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:'JetBrains Mono',monospace;
+  font-size:.58em;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.card .cm .b{padding:4px 9px;border:1px solid var(--line)}
+.card .cm .b.tech{color:var(--accent);border-color:rgba(255,180,84,.5)}
+.card .cm .b.work{color:#fff}
+.card h2,.card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:0}
 .card p{font-size:.8em;color:var(--dim);line-height:1.75}
-a.card:hover{background:#0a0a0a}
-a.card:hover .thumb{opacity:.85}
-a.card .thumb{transition:opacity .3s}
+.card .more{margin-top:auto;font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--accent);padding-top:4px}
 .card.ph .thumb{background:repeating-linear-gradient(45deg,#080808,#080808 11px,#0d0d0d 11px,#0d0d0d 22px)}
+.card.ph .more{display:none}
+.soonbadge{position:absolute;top:12px;right:12px;z-index:2;font-family:'JetBrains Mono',monospace;
+  font-size:.56em;letter-spacing:.24em;text-transform:uppercase;color:#000;background:var(--accent);
+  padding:5px 11px;font-weight:500}
 
 .foot{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
   font-size:.62em;letter-spacing:.25em;text-transform:uppercase;opacity:.4;padding:54px 0 22px}
@@ -103,35 +123,55 @@ a.card .thumb{transition:opacity .3s}
   .hero{padding:22px 0 38px}
   .chapter-rule{font-size:.6em;gap:12px;margin:44px 0 24px;flex-wrap:wrap}
   .chapter-rule .en{flex-basis:100%;margin-top:6px}
+  .filters{width:100%}
+  .chip{flex:1;padding:11px 6px;text-align:center;letter-spacing:.12em}
 }
 </style>
 </head>
 <body>
 
 <header class="bar"><div class="wrap">
-  <a class="home" href="index.html">
+  <a class="home" href="#top">
     <svg class="mk" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
     <span class="bn">LOCAHUN&nbsp;3D <small>／ WORKS</small></span>
   </a>
   <nav>
-    <a href="index.html" class="cur">Works</a>
-    <a href="blog.html">Tech Blog</a>
+    <a href="#works">Works</a>
+    <a href="#blog">Tech Blog</a>
     <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
     <a href="/works/index.html">JA</a>
   </nav>
 </div></header>
 
-<div class="wrap">
-  <div class="tcr"><span>REEL 02 — SELECTED WORKS</span><span>2026 / LOCAHUN 3D</span></div>
+<div class="wrap" id="top">
+  <div class="tcr"><span>REEL 02 — WORKS &amp; TECH BLOG</span><span>2026 / LOCAHUN 3D</span></div>
 
   <section class="hero">
-    <div class="kick">Works</div>
+    <div class="kick">Works &amp; Tech Blog</div>
     <h1 class="big">Works</h1>
+    <p>Case studies and the production notes behind them, on one page — no need to jump between two destinations.</p>
   </section>
 
-  <div class="grid fade" id="works"></div>
+  <section id="works">
+    <div class="chapter-rule"><span class="num">01</span><span class="line"></span><span class="en">Selected Works</span></div>
+    <div class="grid fade" id="worksGrid"></div>
+  </section>
 
-  <div class="foot"><span>SELECTED WORKS</span><span>LOCAHUN 3D — EST. 2026</span></div>
+  <section id="blog">
+    <div class="chapter-rule"><span class="num">02</span><span class="line"></span><span class="en">Tech Blog</span></div>
+    <div class="section-head">
+      <h2>Production workflows for <em>3DGS</em>, built on real shoots.</h2>
+      <p>Practical workflows and production notes for 3D Gaussian Splatting, on-location capture, VFX and AI-assisted production. This is where we document how our work actually gets made.</p>
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip active" data-f="all">All</button>
+      <button class="chip" data-f="tech">Technical</button>
+      <button class="chip" data-f="work">Case studies</button>
+    </div>
+    <div class="grid" id="blogGrid"></div>
+  </section>
+
+  <div class="foot"><span>WORKS &amp; TECH BLOG</span><span>LOCAHUN 3D — EST. 2026</span></div>
 </div>
 <div class="filmstrip"></div>
 
@@ -141,7 +181,7 @@ var WORKS = [
   { meta:"WORK / COMING SOON", title:"(More works coming soon)", excerpt:"Client projects, adoption case studies and production credits will be added here.", ph:true },
   { meta:"WORK / COMING SOON", title:"(More works coming soon)", excerpt:"Scope, tools used and outcomes for each project will be introduced as cards.", ph:true }
 ];
-function card(p){
+function workCard(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
   var phTxt = p.ph ? 'COMING SOON' : '';
   var inner = '<div class="thumb" '+thumb+'>'+phTxt+'</div>'+
@@ -149,10 +189,67 @@ function card(p){
   if(p.ph || !p.href) return '<div class="card ph">'+inner+'</div>';
   return '<a class="card" href="'+p.href+'">'+inner+'</a>';
 }
-document.getElementById('works').innerHTML = WORKS.map(card).join('');
+document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
+var POSTS = [
+  {
+    tag:"tech", tagLabel:"Technical", date:"2026-07-24", read:"~6 min",
+    title:"Using 3DGS as an “aerial shot” in UE5 with the XGRIDs SDK",
+    excerpt:"Even in no-fly zones, you can get an aerial shot: import a 3DGS scan into UE5, place a virtual camera at an angle you could never actually shoot, then let AI handle only the lighting and season. Kou Nakamura's own workflow test, including its current limits.",
+    href:"ue5-xgrids-3dgs-aerial-ai.html", thumb:"/works/images/ue5_xgrids_shibuya_topdown.jpg"
+  },
+  {
+    tag:"tech", tagLabel:"Technical", date:"2026-07-23", read:"~7 min",
+    title:"Houdini 22 × ComfyUI — A VFX × AI hybrid workflow with Gaussian Splats",
+    excerpt:"Senior VFX artist hectorVFX put Locahun 3D's Shibuya scramble crossing data (3DGS) through a Houdini 22 × ComfyUI hybrid VFX/AI workflow — here's how it works.",
+    href:"houdini-comfyui-gsplat-workflow.html", thumb:"/works/images/hectorvfx_shibuya_ai_render.jpg"
+  },
+  {
+    tag:"tech", tagLabel:"Technical", date:"", read:"~9 min",
+    title:"Generating an “aerial shot” from 3DGS",
+    excerpt:"How to build a drone-style aerial shot from a 3DGS scan captured on foot with PortalCam — no drone required. Covers the basic pipeline (C4D camera → Octane render → plate cleanup) and the advanced technique (generating people and motion with AI).",
+    href:"portalcam-drone-ai-workflow.html", thumb:"/works/images/work04_bgfix.jpg", soon:true
+  },
+  { tag:"work", tagLabel:"Case study", date:"", title:"(More case studies coming soon)",
+    excerpt:"Behind-the-scenes write-ups and the tools used for each project on the Works page.", ph:true }
+];
+function blogCard(p){
+  var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
+  var phTxt = p.ph ? 'COMING SOON' : '';
+  var soonBadge = p.soon ? '<span class="soonbadge">Coming Soon</span>' : '';
+  var bcls = p.tag==='work' ? 'work' : 'tech';
+  var cm = '<span class="b '+bcls+'">'+p.tagLabel+'</span>'+(p.date?('<span>'+p.date+'</span>'):'')+(p.read?('<span>'+p.read+'</span>'):'');
+  var more = p.ph ? '' : (p.soon ? '<span class="more">Coming soon</span>' : '<span class="more">Read the article →</span>');
+  var inner = soonBadge + '<div class="thumb" '+thumb+'>'+phTxt+'</div>'+
+    '<div class="cb"><div class="cm">'+cm+'</div><h2>'+p.title+'</h2><p>'+p.excerpt+'</p>'+more+'</div>';
+  var cls = p.ph ? 'card ph' : (p.soon ? 'card soon' : 'card live');
+  if(p.ph || p.soon || !p.href) return '<div class="'+cls+'" data-tag="'+p.tag+'">'+inner+'</div>';
+  return '<a class="'+cls+'" href="'+p.href+'" data-tag="'+p.tag+'">'+inner+'</a>';
+}
+function renderBlog(f){
+  document.getElementById('blogGrid').innerHTML = POSTS.filter(function(p){return f==='all'||p.tag===f;}).map(blogCard).join('');
+  observeFades();
+}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+function observeFades(){document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});}
+renderBlog('all');
+observeFades();
+document.getElementById('filters').addEventListener('click',function(e){
+  var b=e.target.closest('.chip'); if(!b) return;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  b.classList.add('active'); renderBlog(b.dataset.f);
+});
+
+function syncNav(){
+  var y = window.scrollY || document.documentElement.scrollTop;
+  var blogTop = document.getElementById('blog').offsetTop - 120;
+  var atBlog = y >= blogTop;
+  document.querySelectorAll('.bar nav a[href="#works"], .bar nav a[href="#blog"]').forEach(function(a){
+    a.classList.toggle('cur', (a.getAttribute('href')==='#blog') === atBlog);
+  });
+}
+document.addEventListener('scroll', syncNav, {passive:true});
+syncNav();
 </script>
 
 </body>

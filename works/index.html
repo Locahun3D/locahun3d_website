@@ -7,8 +7,8 @@
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <meta name="theme-color" content="#000000">
-<title>ロケハン3D｜SELECTED WORKS — 制作実績</title>
-<meta name="description" content="ロケハン3D（LOCAHUN 3D）の制作実績。Chevon「六ノ輪」MV（『刃牙道』第2クールOPテーマ）で採用された、3D Gaussian Splatting・実写合成（VFX）・AI生成による空撮ルックの映像カット制作事例と技術ブログ。">
+<title>ロケハン3D｜実績＆技術ブログ</title>
+<meta name="description" content="ロケハン3D（LOCAHUN 3D）の制作実績と技術ブログを1画面に。Chevon「六ノ輪」MV（『刃牙道』第2クールOPテーマ）などの制作事例と、3D Gaussian Splatting・撮影・VFX・AI制作の実践的なワークフロー記事。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
@@ -77,22 +77,41 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.22}
 .chapter-rule .en{font-family:'JetBrains Mono',monospace;opacity:.5;font-size:.85em}
 
-/* ===== works grid ===== */
+.section-head h2{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.5em,4.4vw,2.4em);line-height:1.5;letter-spacing:.02em}
+.section-head p{margin-top:16px;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
+
+.filters{display:flex;gap:0;margin:30px 0 0;border:1px solid var(--line);width:fit-content}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);background:none;border:none;border-right:1px solid var(--line);
+  padding:12px 22px;cursor:pointer;transition:color .2s,background .2s}
+.chip:last-child{border-right:none}
+.chip:hover{color:#fff}
+.chip.active{background:var(--accent);color:#000}
+
+/* ===== grid（実績・ブログ共通） ===== */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:0;
   border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:34px}
 .card{border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  display:flex;flex-direction:column;min-height:260px;background:#040404;transition:background .2s}
+  display:flex;flex-direction:column;min-height:260px;background:#040404;position:relative;transition:background .2s}
+.card.live:hover,a.card:hover{background:#0a0907}
 .card .thumb{aspect-ratio:16/10;background:#0a0a0a center/cover no-repeat;border-bottom:1px solid var(--line);
   display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.3em;
   text-transform:uppercase;color:rgba(255,255,255,.35)}
-.card .cb{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px}
-.card .cm{font-family:'JetBrains Mono',monospace;font-size:.58em;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);opacity:.8}
-.card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:.02em}
+.card.soon .thumb{filter:grayscale(.3) brightness(.78)}
+.card .cb{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card .cm{font-family:'JetBrains Mono',monospace;font-size:.58em;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);opacity:.8;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.card .cm .b{padding:4px 9px;border:1px solid var(--line);color:var(--dim)}
+.card .cm .b.tech{color:var(--accent);border-color:rgba(255,180,84,.5)}
+.card .cm .b.work{color:#fff}
+.card h2,.card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:.02em}
 .card p{font-size:.8em;color:var(--dim);line-height:1.75}
-a.card:hover{background:#0a0a0a}
-a.card:hover .thumb{opacity:.85}
-a.card .thumb{transition:opacity .3s}
+.card .more{margin-top:auto;font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--accent);padding-top:4px}
 .card.ph .thumb{background:repeating-linear-gradient(45deg,#080808,#080808 11px,#0d0d0d 11px,#0d0d0d 22px)}
+.card.ph .more{display:none}
+.soonbadge{position:absolute;top:12px;right:12px;z-index:2;font-family:'JetBrains Mono',monospace;
+  font-size:.56em;letter-spacing:.24em;text-transform:uppercase;color:#000;background:var(--accent);
+  padding:5px 11px;font-weight:500}
 
 /* ===== foot ===== */
 .foot{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
@@ -114,36 +133,55 @@ a.card .thumb{transition:opacity .3s}
   .hero{padding:22px 0 38px}
   .chapter-rule{font-size:.6em;gap:12px;margin:44px 0 24px;flex-wrap:wrap}
   .chapter-rule .en{flex-basis:100%;margin-top:6px}
+  .filters{width:100%}
+  .chip{flex:1;padding:11px 6px;text-align:center;letter-spacing:.12em}
 }
 </style>
 </head>
 <body>
 
 <header class="bar"><div class="wrap">
-  <a class="home" href="index.html">
+  <a class="home" href="#top">
     <svg class="mk" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
     <span class="bn">LOCAHUN&nbsp;3D <small>／ WORKS</small></span>
   </a>
   <nav>
-    <a href="index.html" class="cur">実績</a>
-    <a href="blog.html">技術ブログ</a>
+    <a href="#works">実績</a>
+    <a href="#blog">技術ブログ</a>
     <a href="/locahun3d_manifesto.html" class="ext">サイトへ</a>
     <a href="/en/works/index.html">EN</a>
   </nav>
 </div></header>
 
-<div class="wrap">
-  <div class="tcr"><span>REEL 02 — SELECTED WORKS</span><span>2026 / LOCAHUN 3D</span></div>
+<div class="wrap" id="top">
+  <div class="tcr"><span>REEL 02 — 実績＆技術ブログ</span><span>2026 / LOCAHUN 3D</span></div>
 
   <section class="hero">
-    <div class="kick">Works / 制作実績</div>
+    <div class="kick">Works &amp; Tech Blog</div>
     <h1 class="big">実績</h1>
+    <p>制作事例と、その裏側の技術ノウハウを1画面で。実績とブログを行き来する必要はありません。</p>
   </section>
 
-  <!-- Works list -->
-  <div class="grid fade" id="works"></div>
+  <section id="works">
+    <div class="chapter-rule"><span class="num">01</span><span class="line"></span><span class="en">Selected Works</span></div>
+    <div class="grid fade" id="worksGrid"></div>
+  </section>
 
-  <div class="foot"><span>SELECTED WORKS</span><span>LOCAHUN 3D — EST. 2026</span></div>
+  <section id="blog">
+    <div class="chapter-rule"><span class="num">02</span><span class="line"></span><span class="en">Tech Blog</span></div>
+    <div class="section-head">
+      <h2>現場で動く <em>3DGS</em> の、<br class="pc">制作ワークフローを公開する。</h2>
+      <p>3D Gaussian Splatting・撮影・VFX・AI制作の実践的なワークフローや制作ノウハウを発信します。実績の「どう作ったか」をここに残していきます。</p>
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip active" data-f="all">すべて</button>
+      <button class="chip" data-f="tech">技術記事</button>
+      <button class="chip" data-f="work">実績解説</button>
+    </div>
+    <div class="grid" id="blogGrid"></div>
+  </section>
+
+  <div class="foot"><span>実績＆技術ブログ</span><span>LOCAHUN 3D — EST. 2026</span></div>
 </div>
 <div class="filmstrip"></div>
 
@@ -153,7 +191,7 @@ var WORKS = [
   { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"参加作品・導入事例・制作実績をここに掲載していきます。", ph:true },
   { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"案件ごとの担当範囲・使用技術・成果をカードで紹介します。", ph:true }
 ];
-function card(p){
+function workCard(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
   var phTxt = p.ph ? 'COMING SOON' : '';
   var inner = '<div class="thumb" '+thumb+'>'+phTxt+'</div>'+
@@ -161,18 +199,76 @@ function card(p){
   if(p.ph || !p.href) return '<div class="card ph">'+inner+'</div>';
   return '<a class="card" href="'+p.href+'">'+inner+'</a>';
 }
-document.getElementById('works').innerHTML = WORKS.map(card).join('');
+document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
+// 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
+var POSTS = [
+  {
+    tag:"tech", tagLabel:"技術", date:"2026-07-24", read:"約6分",
+    title:"UE5 × XGRIDs SDKで3DGSを「上空カット」に使う方法",
+    excerpt:"ドローン飛行禁止区域でも、3DGSスキャンをUE5に取り込み仮想カメラで上空アングルを作り、AIでライティング・季節だけを変える手法。ロケハン3D代表・中村航による検証と、現状の限界について。",
+    href:"ue5-xgrids-3dgs-aerial-ai.html", thumb:"images/ue5_xgrids_shibuya_topdown.jpg"
+  },
+  {
+    tag:"tech", tagLabel:"技術", date:"近日公開", read:"約9分",
+    title:"3DGSから「空撮カット」を生成する方法",
+    excerpt:"現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る方法。基本（C4Dカメラ→Octaneレンダ→背景修正）と、応用（人物・動きの生成）までを実素材で解説。",
+    href:"portalcam-drone-ai-workflow.html", thumb:"images/work04_bgfix.jpg", soon:true
+  },
+  {
+    tag:"tech", tagLabel:"技術", date:"2026-07-23", read:"約7分",
+    title:"Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー",
+    excerpt:"シニアVFXアーティスト hectorVFX 氏が、ロケハン3Dの渋谷スクランブル交差点データ（3DGS）を使って実証した、Houdini 22 × ComfyUI によるVFX × AIハイブリッドワークフローの事例紹介。",
+    href:"houdini-comfyui-gsplat-workflow.html", thumb:"images/hectorvfx_shibuya_ai_render.jpg"
+  },
+  { tag:"work", tagLabel:"実績解説", date:"", title:"（実績の制作解説を追加予定）",
+    excerpt:"実績ページの各案件について、制作の裏側・使用技術を解説していきます。", ph:true }
+];
+function blogCard(p){
+  var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
+  var phTxt = p.ph ? 'COMING SOON' : '';
+  var soonBadge = p.soon ? '<span class="soonbadge">Coming Soon</span>' : '';
+  var bcls = p.tag==='work' ? 'work' : 'tech';
+  var cm = '<span class="b '+bcls+'">'+p.tagLabel+'</span>'+(p.date?('<span>'+p.date+'</span>'):'')+(p.read?('<span>'+p.read+'</span>'):'');
+  var more = p.ph ? '' : (p.soon ? '<span class="more">近日公開</span>' : '<span class="more">記事を読む →</span>');
+  var inner = soonBadge + '<div class="thumb" '+thumb+'>'+phTxt+'</div>'+
+    '<div class="cb"><div class="cm">'+cm+'</div><h2>'+p.title+'</h2><p>'+p.excerpt+'</p>'+more+'</div>';
+  var cls = p.ph ? 'card ph' : (p.soon ? 'card soon' : 'card live');
+  if(p.ph || p.soon || !p.href) return '<div class="'+cls+'" data-tag="'+p.tag+'">'+inner+'</div>';
+  return '<a class="'+cls+'" href="'+p.href+'" data-tag="'+p.tag+'">'+inner+'</a>';
+}
+function renderBlog(f){
+  document.getElementById('blogGrid').innerHTML = POSTS.filter(function(p){return f==='all'||p.tag===f;}).map(blogCard).join('');
+  observeFades();
+  if(window.__budoux) window.__budoux(document.getElementById('blogGrid'));
+}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+function observeFades(){document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});}
+renderBlog('all');
+observeFades();
+document.getElementById('filters').addEventListener('click',function(e){
+  var b=e.target.closest('.chip'); if(!b) return;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  b.classList.add('active'); renderBlog(b.dataset.f);
+});
 
+function syncNav(){
+  var y = window.scrollY || document.documentElement.scrollTop;
+  var blogTop = document.getElementById('blog').offsetTop - 120;
+  var atBlog = y >= blogTop;
+  document.querySelectorAll('.bar nav a[href="#works"], .bar nav a[href="#blog"]').forEach(function(a){
+    a.classList.toggle('cur', (a.getAttribute('href')==='#blog') === atBlog);
+  });
+}
+document.addEventListener('scroll', syncNav, {passive:true});
+syncNav();
 </script>
 
 <!-- BudouX：日本語を文節単位で改行（中途半端な折返しを防ぐ） -->
 <script type="module">
   import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
   const bp = loadDefaultJapaneseParser();
-  const SEL = '.hero h1,.hero p,.card h3,.card p';
+  const SEL = '.hero h1,.hero p,.section-head h2,.section-head p,.card h2,.card h3,.card p';
   function apply(root){ (root||document).querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} }); }
   window.__budoux = apply;
   apply();
