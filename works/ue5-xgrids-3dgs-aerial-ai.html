@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>UE5 × XGRIDs SDKで3DGSから素材を出力する｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="UE5にXGRIDsのLCC Plugin for UEを導入し、3DGSスキャンから画像・映像素材を出力する方法。プラグインの入手先と導入手順、仮想カメラでの素材出力、AIによるライティング変更、3DGS制作ソフトとUE5向け他プラグインの比較まで。">
+<meta name="description" content="UE5にXGRIDsのLCC Plugin for UEを導入し、3DGSスキャンから画像・映像素材を出力する方法。プラグインの入手先と導入手順、仮想カメラでの素材出力、AIによるライティング変更、既存3DCGソフトの3DGS対応比較、リライト対応UE5プラグインの紹介まで。">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -204,8 +204,8 @@
     <li><a href="#export">3DGSを読み込み、仮想カメラで素材を出力する</a></li>
     <li><a href="#ai-relight">AIでライティング・季節を変える</a></li>
     <li><a href="#limits">現状の限界：看板・文字・人工物は崩れる</a></li>
-    <li><a href="#software">3DGSを扱う主要ソフト比較</a></li>
-    <li><a href="#plugins">UE5で3DGSを扱える他プラグイン</a></li>
+    <li><a href="#software">3DGSを扱える既存3DCGソフト比較（Houdini / Blender / 3ds Max / C4D）</a></li>
+    <li><a href="#plugins">UE5でリライトまでできる3DGSプラグイン</a></li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
@@ -228,7 +228,7 @@
   </ul>
   <figure>
     <img src="images/ue5_shibuya_car_composite.jpg" alt="渋谷の3DGSスキャンの路上にCGのスポーツカーを合成した例">
-    <figcaption><b>スキャンにCGアセットを合成した例。</b>渋谷の3DGSスキャンの路上に、CGのカーモデルを配置しています。実写ベースのスキャンを土台にすることで、遠近・スケール・ライティングの整合が取りやすく、VFX合成の当たりを素早く作れます。</figcaption>
+    <figcaption><b>スキャンにCGアセットを合成した例。</b>渋谷の3DGSスキャンの路上に、CGのカーモデルを配置しています。実写ベースのスキャンを土台にすることで、遠近・スケール・ライティングの整合が取りやすく、VFX合成の当たりを素早く作れます。<br>画像制作：シニアVFXアーティスト <a href="https://x.com/hectorVFX" target="_blank" rel="noopener">hectorVFX</a> 氏（ロケハン3Dの渋谷データを使用）</figcaption>
   </figure>
   <p>なお、出力した素材を空撮プレートとして仕上げる工程は別の解説記事で扱う予定なので、この記事は<strong>「UE5との連携」と「素材出力」の部分に絞って</strong>書きます。使うプラグインはXGRIDsのLCC Plugin for UE（無料）です。</p>
 
@@ -296,34 +296,30 @@
   <p>私はここを「プロの仕事の領域」だと考えています。崩れやすい箇所はあらかじめ再撮影・手直し前提で設計することで、世に出せるクオリティまで持っていけます。AI補完の精度そのものは、今後の向上に期待です。</p>
   <div class="callout warn"><b>使いどころの判断基準</b>この手法は万能ではありません。看板・文字・人工物が写り込まない画角や、多少の破綻が許容されるカットに向いています。看板の文字まで正確に見せたいカットには、現状は不向きです。</div>
 
-  <h2 id="software"><span class="n">07</span> 3DGSを扱う主要ソフト比較</h2>
-  <p>UE5に持ち込む前段、つまり<strong>3DGSを「作る・整える」段階のソフト選び</strong>も重要です。3DGSのワークフローは「撮る→学習する→編集する→エンジンで使う」で使うツールが分かれるので、私が把握している範囲で主要どころを整理しておきます。</p>
+  <h2 id="software"><span class="n">07</span> 3DGSを扱える既存3DCGソフト比較</h2>
+  <p>ゲームエンジンだけでなく、<strong>普段のVFXパイプラインで使っている3DCGソフト側でも、3DGSはそのまま扱える</strong>ようになってきています。「どこまでをDCCでやり、どこからをUE5でやるか」を決めるうえで、主要ソフトの対応状況を整理しておきます。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>ツール</th><th>種別</th><th>得意</th><th>不得意</th></tr></thead>
+    <thead><tr><th>ソフト</th><th>3DGS対応</th><th>得意</th><th>不得意</th></tr></thead>
     <tbody>
-      <tr><td>Luma AI</td><td>クラウド（生成）</td><td>スマホの写真・動画から無料で高品質なスプラットを生成できる。手軽さは随一</td><td>クラウド前提でアップロードが必須（機密データに不向き）。量産パイプラインの再現性は作りにくい</td></tr>
-      <tr><td>Postshot</td><td>ローカル（学習＋編集）</td><td>完全ローカルで学習から編集まで完結。スプラット数・学習ステップを制御でき、再現性の高いパイプラインを組める</td><td>ローカルGPU必須・Windows専用</td></tr>
-      <tr><td>SuperSplat</td><td>ブラウザ（編集）</td><td>手持ちのスプラットのクロップ・クリーンアップ・形式変換が無料でできる</td><td>編集専用。撮影・学習の機能はない</td></tr>
-      <tr><td>Nerfstudio</td><td>OSS（学習）</td><td>NeRF/3DGSの各手法を横断できる研究グレードの柔軟性</td><td>CLI中心で学習コストが高い</td></tr>
-      <tr><td>Polycam / KIRI Engine</td><td>モバイル（撮影）</td><td>スマホだけでスキャン→スプラット化まで完結。現地での試し撮りに便利</td><td>大規模・高精細な用途ではモバイルセンサーの性能が頭打ち</td></tr>
+      <tr><td>Houdini 22</td><td>ネイティブ対応</td><td>スプラットを通常のジオメトリ（点群）と同様に扱え、Bone Deform等の標準ノードでそのまま変形・アニメーションできる。Karmaでの直接レンダリングやCopernicus上でのリライトまで対応し、プロシージャルな加工の自由度は最強クラス</td><td>ライセンス費用と習得コストが高い。「まず表示したい」だけなら過剰装備</td></tr>
+      <tr><td>Blender</td><td>アドオン経由</td><td>KIRI Engine製「3DGS Render」などの無料アドオンで読み込み・編集・レンダリングまで無料で始められる</td><td>アドオン依存で機能・品質にばらつきがある。大規模スプラットでは動作が重い</td></tr>
+      <tr><td>3ds Max</td><td>V-Ray 7で対応</td><td>V-Ray 7がGaussian Splatの直接レンダリングに対応。既存のV-Ray中心のパイプライン（建築ビジュアライズ等）に自然に組み込める</td><td>V-Rayライセンス前提。スプラットの編集機能は限定的</td></tr>
+      <tr><td>Cinema 4D</td><td>レンダラー経由</td><td>Octaneなどサードパーティレンダラーの3DGS対応を使ってレンダリングできる。カメラワークづくり・モーショングラフィックスとの相性が良い</td><td>C4D標準機能ではなくレンダラー依存。対応状況はレンダラーのバージョン次第</td></tr>
     </tbody>
   </table></div>
-  <p>使い分けの目安としては、<strong>まず試すならLuma AIかPolycam、機密案件や自前パイプラインならPostshot、仕上げの整形はSuperSplat</strong>です。私の渋谷データはLCC形式で書き出してそのままUE5に渡しています。XGRIDsによれば、LCC書き出しはPLY比で最大約90%小さくなるとのことで、都市規模のデータを扱う場合はこの差がそのまま作業効率に響きます。</p>
+  <p>私の使い分けは、<strong>都市規模のシーンを丸ごと歩き回って画角を探すのはUE5、カット単位の絵作り・レンダリングはDCC側</strong>です。実際、空撮カットの制作ではC4D→Octaneのフローを使っています（この工程は別記事で解説予定です）。Houdiniでのスプラット加工については、hectorVFX氏が渋谷データで実証した<a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUI ハイブリッドワークフローの記事</a>で詳しく紹介しています。</p>
 
-  <h2 id="plugins"><span class="n">08</span> UE5で3DGSを扱える他プラグイン</h2>
-  <p>UE5側の受け口も、XGRIDs SDKだけではありません。それぞれ設計思想が違うので、軽く紹介しておきます。</p>
+  <h2 id="plugins"><span class="n">08</span> UE5でリライトまでできる3DGSプラグイン</h2>
+  <p>UE5に3DGSを「表示するだけ」のプラグインなら、無料・OSSを含めて数多くあります（XScene-UEPlugin、MLSLabs GS Renderer、NanoGSなど）。ただ、この記事のように素材出力まで考えると、実務の分かれ目は<strong>「読み込んだスプラットのライティングを変えられるか」</strong>です。そこで、リライトに対応しているものに絞って紹介します。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>プラグイン</th><th>料金</th><th>得意</th><th>注意点</th></tr></thead>
+    <thead><tr><th>プラグイン</th><th>料金</th><th>リライト</th><th>得意</th><th>注意点</th></tr></thead>
     <tbody>
-      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">（XGRIDs・本記事で使用）</span></td><td>無料＋Pro</td><td>数十億点規模のストリーミングLoD、LCC2圧縮、PLY/SOG/SPZ対応、リライト・nDisplay・VRまで守備範囲が広い</td><td>Proは現在期間限定無料。将来の料金体系は要確認</td></tr>
-      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">（XVERSE）</span></td><td>無料・OSS</td><td>オープンソースで改造自由。UE5.3以降でリアルタイム表示・編集・ハイブリッド描画に対応</td><td>コミュニティ主体で、商用サポートはない</td></tr>
-      <tr><td>MLSLabs GS Renderer</td><td>無料・OSS</td><td>Niagara非依存の独自描画パイプラインで大規模シーンに強い。動く4DGS（ボリュメトリックビデオ）とシーケンサー再生に対応</td><td>比較的新しく、コミュニティ規模は小さめ</td></tr>
-      <tr><td>3D Gaussians Plugin<br><span style="color:var(--sub);font-size:.85em">（Fab）</span></td><td>有料</td><td>Epic公式のFabマーケット経由で導入・調達しやすく、スタジオでの購買稟議も通しやすい</td><td>都市規模の大規模シーン向け機能は専業ツールより限定的</td></tr>
-      <tr><td>Luma AI UE Plugin</td><td>無料</td><td>Lumaで撮ったデータをそのままUEへ。撮影からエンジンまでの一気通貫が楽</td><td>Luma自身のパイプライン前提の設計</td></tr>
-      <tr><td>NanoGS</td><td>無料</td><td>「Nanite風」のストリーミング描画で大規模シーンの表示に挑んでいる</td><td>コミュニティプロジェクトで発展途上</td></tr>
+      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">（XGRIDs・本記事で使用）</span></td><td>無料＋Pro</td><td>基本リライト＝無料版。プロキシメッシュ・リライト＋セルフシャドウ＝Pro</td><td>数十億点規模のストリーミングLoDとLCC2圧縮で、都市丸ごとの巨大シーンに最も強い。PLY/SOG/SPZも読める</td><td>Proは現在期間限定無料。将来の料金体系は要確認</td></tr>
+      <tr><td>Volinga Plugin</td><td>無料版＋Pro</td><td>無料版＝シーンライトと干渉するadditiveライティング。Pro＝プロキシメッシュ・リライト（ジオメトリ・影・マテリアルを再現）</td><td>バーチャルプロダクションの本線向け。マルチGPU＋nDisplay、ACES/HDR、disguise連携。PLYと独自NVOL形式を読める</td><td>Pro機能は有料。LEDウォール等のVP用途に最適化された設計</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>無料</td><td>アナリティカルライト・サンライトでのリライトに対応</td><td>Lumaで撮ったデータをそのままUEへ。クロップ・カリング・マージまで無料で完結</td><td>リライトは直接光のみでエミッシブ非対応。対応エンジンはUE5.1〜5.3</td></tr>
     </tbody>
   </table></div>
-  <p>共通の注意点として、現状のUE5向け3DGSプラグインの多くは、Niagaraまたは独自のコンピュートパイプラインでスプラットを描画していて、<strong>スプラットはLumenのグローバルイルミネーションには参加しません</strong>。また、巨大なシーンではメモリ管理のために分割が必要になることもあります。つまり、プラグインの機能表と同じくらい<strong>「フォーマットが圧縮とストリーミングを前提に設計されているか」</strong>が効いてきます。私がXGRIDs SDKを軸にしている理由もここで、都市1エリアを丸ごと1シーンとして扱えるのはLCC2の設計あってのものです。</p>
+  <p>3つに共通する注意点として、スプラットの描画はUnrealのコアレンダラーの隣に置かれた独自パイプラインで行われるため、<strong>スプラットはLumenのグローバルイルミネーションには参加しません</strong>。リライトはどのプラグインでも「プロキシメッシュ（スプラットに沿わせた簡易ジオメトリ）」を介して影や光の当たりを再現する方式が主流です。そのうえで私がXGRIDs SDKを軸にしている理由は、リライト対応と<strong>都市1エリアを丸ごと1シーンとして扱えるLCC2の設計</strong>が両立しているからです。</p>
 
   <h2 id="summary"><span class="n">09</span> まとめ</h2>
   <p>この記事の流れをまとめると、<strong>3DGSスキャンをLCC Plugin for UEでUE5に取り込み、仮想カメラで画角を確定し、スチル・動画として出力し、AIで光と季節だけを差し替える</strong>、という一本道です。いちばんのポイントは、すべてをAIに生成させず、<strong>必ず実スキャンのCGを経由させる</strong>こと。構図と正確性はスキャンデータと仮想カメラで担保し、AIには仕上げだけを任せる。この役割分担があるからこそ、破綻を抑えながら「撮れない画」を実用レベルで出せます。</p>
@@ -338,8 +334,8 @@
 </article>
 
 <section class="credit">
-  <div class="ey">Author / 執筆</div>
-  <h2>この記事を書いた人</h2>
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
   <div class="credit-card">
     <img class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
@@ -350,6 +346,24 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @Kou45388803 をフォロー →
       </a>
+    </div>
+  </div>
+  <div class="credit-card" style="margin-top:14px">
+    <img class="av" src="images/creator_hector.jpg" alt="hectorVFX">
+    <div>
+      <div class="cname">hectorVFX</div>
+      <div class="crole">Senior VFX Artist ／ 合成例の図版提供</div>
+      <p>ハンガリー・ブダペスト拠点のシニアVFXアーティスト。本記事のCGカー合成例は、ロケハン3Dの渋谷データを使ったhectorVFX氏の制作画像です。Houdini 22×ComfyUIによるワークフローは<a href="houdini-comfyui-gsplat-workflow.html">解説記事</a>で詳しく紹介しています。</p>
+      <div class="btnrow">
+        <a class="xbtn" href="https://x.com/hectorVFX" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @hectorVFX をフォロー →
+        </a>
+        <a class="xbtn" href="https://www.youtube.com/channel/UCzcl9gETae-pWGki5-fRUdA" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>
+          YouTube チャンネル →
+        </a>
+      </div>
     </div>
   </div>
 </section>

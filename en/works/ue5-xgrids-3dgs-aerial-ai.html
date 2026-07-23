@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>Exporting Assets from 3DGS Scans with UE5 × XGRIDs SDK｜Locahun 3D Tech Blog</title>
-<meta name="description" content="How to bring a 3DGS scan into UE5 with XGRIDs' LCC Plugin for UE and export image and video assets. Covers where to download the plugin, installation, virtual-camera asset output, AI relighting, plus comparisons of 3DGS software and other UE5 plugins.">
+<meta name="description" content="How to bring a 3DGS scan into UE5 with XGRIDs' LCC Plugin for UE and export image and video assets. Covers where to download the plugin, installation, virtual-camera asset output, AI relighting, 3DGS support in existing DCC software, and relight-capable UE5 plugins.">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/ue5-xgrids-3dgs-aerial-ai.html">
@@ -206,8 +206,8 @@
     <li><a href="#export">Load the 3DGS and export assets with a virtual camera</a></li>
     <li><a href="#ai-relight">Changing lighting and season with AI</a></li>
     <li><a href="#limits">Current limits: signage, text, and man-made detail break down</a></li>
-    <li><a href="#software">Comparing the major 3DGS tools</a></li>
-    <li><a href="#plugins">Other UE5 plugins that handle 3DGS</a></li>
+    <li><a href="#software">Handling 3DGS in existing DCC software (Houdini / Blender / 3ds Max / C4D)</a></li>
+    <li><a href="#plugins">UE5 3DGS plugins that can relight</a></li>
     <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
@@ -230,7 +230,7 @@
   </ul>
   <figure>
     <img src="/works/images/ue5_shibuya_car_composite.jpg" alt="A CG sports car composited onto the street of the Shibuya 3DGS scan">
-    <figcaption><b>Compositing a CG asset into the scan.</b> A CG car model placed on the street of the Shibuya 3DGS scan. Because the base is a real-world scan, perspective, scale, and lighting stay consistent, which makes VFX blocking fast.</figcaption>
+    <figcaption><b>Compositing a CG asset into the scan.</b> A CG car model placed on the street of the Shibuya 3DGS scan. Because the base is a real-world scan, perspective, scale, and lighting stay consistent, which makes VFX blocking fast.<br>Image by senior VFX artist <a href="https://x.com/hectorVFX" target="_blank" rel="noopener">hectorVFX</a>, using Locahun 3D's Shibuya data.</figcaption>
   </figure>
   <p>The downstream step — finishing the exported frames into aerial plates — will get its own article, so this one stays focused on <strong>the UE5 integration and asset export</strong>. The plugin I use is XGRIDs' LCC Plugin for UE (free).</p>
 
@@ -298,34 +298,30 @@
   <p>I consider this exactly where professional work lives. By planning reshoots and cleanup passes for the fragile areas in advance, you can bring the result up to deliverable quality. As for the AI completion itself, I expect the accuracy to keep improving.</p>
   <div class="callout warn"><b>When to use it</b>This technique is not universal. It suits framings without signage, text, or fine man-made objects, and shots where minor artifacts are acceptable. For shots where sign text must read accurately, it's currently the wrong tool.</div>
 
-  <h2 id="software"><span class="n">07</span> Comparing the major 3DGS tools</h2>
-  <p>The stage before UE5 — <strong>the software you use to create and clean up the 3DGS itself</strong> — matters just as much. The workflow splits into capture → training → editing → engine, with different tools at each step. Here's how I'd map the major options.</p>
+  <h2 id="software"><span class="n">07</span> Handling 3DGS in existing DCC software</h2>
+  <p>Game engines aren't the only option — <strong>the DCC software already in your VFX pipeline can now handle 3DGS directly</strong>. To decide how much to do in a DCC versus in UE5, here's where the major packages stand.</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>Tool</th><th>Type</th><th>Strengths</th><th>Weaknesses</th></tr></thead>
+    <thead><tr><th>Software</th><th>3DGS support</th><th>Strengths</th><th>Weaknesses</th></tr></thead>
     <tbody>
-      <tr><td>Luma AI</td><td>Cloud (generation)</td><td>Free, high-quality splats from phone photos and video. Unmatched ease of entry</td><td>Cloud-only — uploads required (poor fit for confidential data); hard to build repeatable production pipelines around</td></tr>
-      <tr><td>Postshot</td><td>Local (training + editing)</td><td>Fully local from training through editing. Control over splat count and training steps makes pipelines reproducible</td><td>Needs a local GPU; Windows-only</td></tr>
-      <tr><td>SuperSplat</td><td>Browser (editing)</td><td>Free cropping, cleanup, and format conversion for splats you already have</td><td>Editing only — no capture or training</td></tr>
-      <tr><td>Nerfstudio</td><td>OSS (training)</td><td>Research-grade flexibility across NeRF/3DGS methods</td><td>CLI-centric with a steep learning curve</td></tr>
-      <tr><td>Polycam / KIRI Engine</td><td>Mobile (capture)</td><td>Scan-to-splat entirely on a phone; handy for quick field tests</td><td>Mobile sensors cap out for large or detail-critical scenes</td></tr>
+      <tr><td>Houdini 22</td><td>Native</td><td>Treats splats like regular geometry (point clouds) — deform and animate them with standard nodes like Bone Deform. Renders directly in Karma, relights in Copernicus. Unmatched freedom for procedural splat work</td><td>License cost and learning curve are steep. Overkill if you just want to view a scan</td></tr>
+      <tr><td>Blender</td><td>Via add-ons</td><td>Free add-ons like KIRI Engine's "3DGS Render" cover import, editing, and rendering at zero cost</td><td>Add-on dependent, so features and quality vary; heavy with large splat counts</td></tr>
+      <tr><td>3ds Max</td><td>Via V-Ray 7</td><td>V-Ray 7 renders Gaussian Splats directly — slots naturally into existing V-Ray pipelines (archviz and beyond)</td><td>Requires a V-Ray license; splat editing is limited</td></tr>
+      <tr><td>Cinema 4D</td><td>Via renderers</td><td>Renders 3DGS through third-party renderers such as Octane. Pairs well with camera work and motion graphics</td><td>Not a native C4D feature — depends on your renderer and its version</td></tr>
     </tbody>
   </table></div>
-  <p>As a rule of thumb: <strong>Luma AI or Polycam to try things out, Postshot for confidential work or your own pipeline, SuperSplat for final cleanup.</strong> My Shibuya data is exported as LCC and handed straight to UE5. According to XGRIDs, LCC export is up to ~90% smaller than PLY — at city scale, that difference translates directly into iteration speed.</p>
+  <p>My own split: <strong>UE5 for walking through city-scale scenes and hunting angles, the DCC side for per-shot look development and rendering.</strong> For aerial-plate work I use a C4D → Octane flow (that process will get its own article). For procedural splat work in Houdini, see <a href="houdini-comfyui-gsplat-workflow.html">the Houdini 22 × ComfyUI hybrid workflow article</a>, where hectorVFX demonstrates it on the same Shibuya data.</p>
 
-  <h2 id="plugins"><span class="n">08</span> Other UE5 plugins that handle 3DGS</h2>
-  <p>The XGRIDs SDK isn't the only way into UE5, either. Each plugin has a different design philosophy, so here's a quick tour.</p>
+  <h2 id="plugins"><span class="n">08</span> UE5 3DGS plugins that can relight</h2>
+  <p>There are plenty of UE5 plugins that can merely <em>display</em> 3DGS, including free and open-source options (XScene-UEPlugin, MLSLabs GS Renderer, NanoGS). But once you're exporting assets like in this article, the practical dividing line is <strong>whether you can change the lighting of an imported splat scene</strong>. So here I'm covering only the plugins that support relighting.</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>Plugin</th><th>Price</th><th>Strengths</th><th>Caveats</th></tr></thead>
+    <thead><tr><th>Plugin</th><th>Price</th><th>Relighting</th><th>Strengths</th><th>Caveats</th></tr></thead>
     <tbody>
-      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">(XGRIDs — used in this article)</span></td><td>Free + Pro</td><td>Billion-point streaming LoD, LCC2 compression, PLY/SOG/SPZ support, plus relighting, nDisplay, and VR in one package</td><td>Pro is free for a limited time; check future pricing</td></tr>
-      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>Free, OSS</td><td>Open source and freely modifiable. Real-time display, editing, and hybrid rendering on UE5.3+</td><td>Community-run; no commercial support</td></tr>
-      <tr><td>MLSLabs GS Renderer</td><td>Free, OSS</td><td>Custom non-Niagara render pipeline built for large scenes; supports animated 4DGS (volumetric video) and Sequencer playback</td><td>Relatively new, with a smaller community</td></tr>
-      <tr><td>3D Gaussians Plugin<br><span style="color:var(--sub);font-size:.85em">(Fab)</span></td><td>Paid</td><td>Distributed through Epic's official Fab marketplace — easy procurement and studio purchasing</td><td>Fewer city-scale features than the specialist tools</td></tr>
-      <tr><td>Luma AI UE Plugin</td><td>Free</td><td>Takes Luma captures straight into UE — a smooth capture-to-engine path</td><td>Designed around Luma's own pipeline</td></tr>
-      <tr><td>NanoGS</td><td>Free</td><td>Tackles large-scene rendering with "Nanite-style" streaming</td><td>Community project, still maturing</td></tr>
+      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">(XGRIDs — used in this article)</span></td><td>Free + Pro</td><td>Basic relighting in the free tier; proxy-mesh relighting + self-shadowing in Pro</td><td>Strongest for whole-city scenes, with billion-point streaming LoD and LCC2 compression. Also reads PLY/SOG/SPZ</td><td>Pro is free for a limited time; check future pricing</td></tr>
+      <tr><td>Volinga Plugin</td><td>Free + Pro</td><td>Free tier: additive lighting that interacts with scene lights. Pro: proxy-mesh relighting reproducing geometry, shadows, and materials</td><td>Built for professional virtual production — multi-GPU with nDisplay, ACES/HDR, disguise integration. Reads PLY and its own NVOL format</td><td>Pro features are paid; the design is optimized for LED-wall VP work</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>Free</td><td>Relighting via analytical and sun lights</td><td>Takes Luma captures straight into UE, with free crop, cull, and merge tools</td><td>Relighting covers direct light only (no emissive); supports UE 5.1–5.3</td></tr>
     </tbody>
   </table></div>
-  <p>One caveat that applies across the board: most current UE5 3DGS plugins render splats through Niagara or a custom compute pipeline that sits beside Unreal's core renderer, so <strong>splats don't participate in Lumen global illumination</strong>, and very large scenes may need sectioning to manage memory. That's why <strong>whether the format itself is designed for compression and streaming</strong> matters as much as any feature list. It's also why I've settled on the XGRIDs SDK — treating an entire city block as a single scene is only possible because of how LCC2 is designed.</p>
+  <p>One caveat shared by all three: splats are rendered by a custom pipeline that sits beside Unreal's core renderer, so <strong>they don't participate in Lumen global illumination</strong>. Relighting in every case works through proxy meshes — simplified geometry fitted to the splats — to reproduce shadows and light response. Within that field, I've settled on the XGRIDs SDK because it combines relighting support with <strong>the LCC2 format design that lets an entire city block live in a single scene</strong>.</p>
 
   <h2 id="summary"><span class="n">09</span> Summary</h2>
   <p>The whole flow in one line: <strong>import the 3DGS scan into UE5 with LCC Plugin for UE, lock the framing with a virtual camera, export stills and video, and let AI swap only the light and season.</strong> The essential rule is to never let AI generate everything — <strong>always route through the real scan CG</strong>. Composition and accuracy are guaranteed by the scan data and the virtual camera; AI only does the finishing. That division of labor is what makes "impossible shots" usable at production quality with minimal artifacts.</p>
@@ -340,8 +336,8 @@
 </article>
 
 <section class="credit">
-  <div class="ey">Author</div>
-  <h2>About the author</h2>
+  <div class="ey">Credits</div>
+  <h2>Credits</h2>
   <div class="credit-card">
     <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
@@ -352,6 +348,24 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Follow @Kou45388803 →
       </a>
+    </div>
+  </div>
+  <div class="credit-card" style="margin-top:14px">
+    <img class="av" src="/works/images/creator_hector.jpg" alt="hectorVFX">
+    <div>
+      <div class="cname">hectorVFX</div>
+      <div class="crole">Senior VFX Artist ／ Composite figure</div>
+      <p>Senior VFX artist based in Budapest, Hungary. The CG-car composite example in this article is hectorVFX's work, created with Locahun 3D's Shibuya data. His Houdini 22 × ComfyUI workflow is covered in detail in <a href="houdini-comfyui-gsplat-workflow.html">its own article</a>.</p>
+      <div class="btnrow">
+        <a class="xbtn" href="https://x.com/hectorVFX" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Follow @hectorVFX →
+        </a>
+        <a class="xbtn" href="https://www.youtube.com/channel/UCzcl9gETae-pWGki5-fRUdA" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>
+          YouTube channel →
+        </a>
+      </div>
     </div>
   </div>
 </section>
