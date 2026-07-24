@@ -62,15 +62,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   font-size:.62em;letter-spacing:.24em;text-transform:uppercase;opacity:.4;padding:22px 0 0}
 
 /* ===== hero ===== */
-.hero{padding:34px 0 54px;border-bottom:1px solid var(--line-2)}
+.hero{padding:34px 0 54px;border-bottom:1px solid var(--line-2);text-align:center}
 .hero .kick{font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.42em;
   text-transform:uppercase;color:var(--accent);margin-bottom:26px;text-indent:.42em}
 .hero h1{font-family:'Noto Serif JP',serif;font-weight:200;
   font-size:clamp(1.65em,6vw,4em);line-height:1.42;letter-spacing:.02em;text-wrap:balance}
-.hero h1.big{font-family:'Noto Sans JP',sans-serif;font-weight:900;
+.hero h1.big,.section-head h2.big{font-family:'Noto Sans JP',sans-serif;font-weight:900;
   font-size:clamp(2.8em,9vw,5.4em);letter-spacing:.08em;line-height:1.1;color:#fff;font-feature-settings:"palt"}
 .hero h1 em{font-style:normal;font-weight:700}
-.hero p{margin-top:24px;max-width:60ch;color:var(--dim);font-size:clamp(.92em,1.2vw,1.02em);line-height:2}
+.hero p{margin:24px auto 0;max-width:60ch;color:var(--dim);font-size:clamp(.92em,1.2vw,1.02em);line-height:2}
 
 /* ===== chapter rule ===== */
 .chapter-rule{display:flex;align-items:baseline;gap:22px;margin:64px 0 34px;
@@ -79,8 +79,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.22}
 .chapter-rule .en{font-family:'JetBrains Mono',monospace;opacity:.5;font-size:.85em}
 
+.section-head{text-align:center}
 .section-head h2{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.5em,4.4vw,2.4em);line-height:1.5;letter-spacing:.02em}
-.section-head p{margin-top:16px;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
+.section-head p{margin:16px auto 0;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
 
 .filters{display:flex;gap:0;margin:30px 0 0;border:1px solid var(--line);width:fit-content}
 .chip{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.22em;text-transform:uppercase;
@@ -218,7 +219,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .site-header .sh-left nav a{font-size:13px}
   .site-header .sh-left{padding-bottom:10px}
 }
-.site-header .sh-left nav a:focus-visible,.side-menu nav a:focus-visible{color:#fafaf6}
+.site-header .sh-left nav a:focus-visible{color:#fafaf6}
 .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
 @media(max-width:359px){
   .site-header .sh-center{gap:2px}
@@ -290,7 +291,7 @@ body{padding-top:64px}
   <section id="blog">
     <div class="chapter-rule"><span class="num">02</span><span class="line"></span><span class="en">Tech Blog</span></div>
     <div class="section-head">
-      <h2>現場で動く <em>3DGS</em> の、<br class="pc">制作ワークフローを公開する。</h2>
+      <h2 class="big">ブログ</h2>
       <p>3D Gaussian Splatting・撮影・VFX・AI制作の実践的なワークフローや制作ノウハウを発信します。実績の「どう作ったか」をここに残していきます。</p>
     </div>
     <div class="filters" id="filters">
