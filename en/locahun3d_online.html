@@ -389,6 +389,39 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .wk-feature .wk-body{padding:30px 24px}
 }
 
+/* Compact 3-up card grid — mirrors the works/index.html card language */
+.wk-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-top:4vh;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.wk-mini{border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;min-height:280px;background:#040404;
+  text-decoration:none;color:inherit;transition:background .2s}
+a.wk-mini:hover{background:#0a0907}
+.wk-mini .mini-thumb{aspect-ratio:16/10;background:#0a0a0a center/cover no-repeat;
+  border-bottom:1px solid var(--line);display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(255,255,255,.35)}
+.wk-mini.ph .mini-thumb{background:repeating-linear-gradient(45deg,#080808,#080808 11px,#0d0d0d 11px,#0d0d0d 22px)}
+.wk-mini .mini-body{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px;flex:1}
+.wk-mini .mini-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:.56em;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.5)}
+.wk-mini .mini-meta .b{padding:4px 9px;border:1px solid var(--line)}
+.wk-mini .mini-meta .b.tech{color:var(--accent);border-color:rgba(255,180,84,.5)}
+.wk-mini .mini-meta .b.work{color:#fff}
+.wk-mini h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.02em;line-height:1.5}
+.wk-mini p{font-size:.78em;color:rgba(255,255,255,.62);line-height:1.75}
+.wk-mini .mini-more{margin-top:auto;font-family:'JetBrains Mono',monospace;font-size:.6em;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--accent);padding-top:6px}
+.wk-mini.ph .mini-more{display:none}
+.wk-section-foot{margin-top:5vh;display:flex;justify-content:center}
+.section-btn{display:inline-block;padding:15px 32px;border:1px solid rgba(255,255,255,.5);
+  color:#fff;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:.68em;
+  letter-spacing:.3em;text-transform:uppercase;transition:background .2s,color .2s,letter-spacing .2s}
+.section-btn:hover{background:var(--accent);border-color:var(--accent);color:#000;letter-spacing:.36em}
+@media(max-width:820px){
+  .wk-mini-grid{grid-template-columns:1fr}
+}
+
 /* filmstrip footer */
 .filmstrip{position:absolute;left:0;right:0;bottom:0;height:32px;
   background-image:linear-gradient(90deg, #000 50%, transparent 50%);
@@ -470,21 +503,35 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 
   <h2 class="sec-title fade">Works</h2>
 
-  <div class="wk-feature fade">
-    <div class="wk-media">
-      <span class="wk-tag"><span class="bk"></span>WORKS / Production</span>
-      <img src="https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg" alt="Chevon “Rokunowa” Music Video">
-    </div>
-    <div class="wk-body">
-      <div class="wk-badges">
-        <span class="w">Works</span><span>3DGS</span><span>Music Video</span>
+  <div class="wk-mini-grid fade">
+    <a class="wk-mini" href="/en/works/chevron-rokunowa-mv.html">
+      <div class="mini-thumb" style="background-image:url('https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg')"></div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b work">Works</span><span class="b tech">3DGS</span><span>Music Video</span></div>
+        <h3>Chevon “Rokunowa” Music Video</h3>
+        <p>Opening theme for season 2 of the anime Baki-Dou. Produced using Locahun 3D's 3DGS capture data.</p>
+        <div class="mini-more">Read more →</div>
       </div>
-      <h3>Chevon “Rokunowa”<br class="pc"> Music Video</h3>
-      <p>Opening theme for season 2 of the anime Baki-Dou. Produced using Locahun 3D's 3DGS capture data.</p>
-      <div class="wk-foot">
-        <a class="wk-btn" href="/en/works/index.html">See all Works →</a>
+    </a>
+    <div class="wk-mini ph">
+      <div class="mini-thumb">Coming soon</div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b work">Works</span></div>
+        <h3>(More works coming soon)</h3>
+        <p>Client projects, adoption case studies and production credits will be added here.</p>
       </div>
     </div>
+    <div class="wk-mini ph">
+      <div class="mini-thumb">Coming soon</div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b work">Works</span></div>
+        <h3>(More works coming soon)</h3>
+        <p>Scope, tools used and outcomes for each project will be introduced as cards.</p>
+      </div>
+    </div>
+  </div>
+  <div class="wk-section-foot fade">
+    <a class="section-btn" href="/en/works/index.html">See all Works →</a>
   </div>
 
   <div class="foot">
@@ -506,21 +553,48 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 
   <h2 class="sec-title fade">Tech Blog</h2>
 
-  <div class="wk-feature fade">
-    <div class="wk-media">
-      <span class="wk-tag"><span class="bk"></span>TECH BLOG / Explainer</span>
-      <img src="/works/images/hectorvfx_shibuya_ai_render.jpg" alt="Houdini 22 × ComfyUI — A VFX × AI hybrid workflow with Gaussian Splats">
-    </div>
-    <div class="wk-body">
-      <div class="wk-badges">
-        <span class="w">Tech Blog</span><span>3DGS</span><span>Houdini</span><span>ComfyUI</span>
+  <div class="wk-mini-grid fade">
+    <a class="wk-mini" href="/en/works/ue5-xgrids-3dgs-aerial-ai.html">
+      <div class="mini-thumb" style="background-image:url('/works/images/ue5_shibuya_topdown_day.jpg')"></div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b tech">Technical</span><span>2026-07-24</span><span>~12 min</span></div>
+        <h3>Exporting Assets from 3DGS Scans with UE5 × XGRIDs SDK</h3>
+        <p>Importing a 3DGS scan into UE5, exporting stills/video with a virtual camera, and relighting with AI — plus plugin installation and software comparisons.</p>
+        <div class="mini-more">Read the article →</div>
       </div>
-      <h3>Houdini 22 × ComfyUI ──<br class="pc"> A VFX × AI Hybrid Workflow with Gaussian Splats</h3>
-      <p>Senior VFX artist hectorVFX put Locahun 3D's Shibuya scramble crossing data (3DGS) through a Houdini 22 × ComfyUI hybrid VFX/AI workflow — here's how it works.</p>
-      <div class="wk-foot">
-        <a class="wk-btn" href="/en/works/blog.html">See the Tech Blog →</a>
+    </a>
+    <a class="wk-mini" href="/en/works/houdini-comfyui-gsplat-workflow.html">
+      <div class="mini-thumb" style="background-image:url('/works/images/hectorvfx_shibuya_ai_render.jpg')"></div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b tech">Technical</span><span>2026-07-23</span><span>~7 min</span></div>
+        <h3>Houdini 22 × ComfyUI — A VFX × AI Hybrid Workflow</h3>
+        <p>Senior VFX artist hectorVFX runs Locahun 3D's Shibuya crossing data (3DGS) through a Houdini 22 × ComfyUI hybrid VFX/AI workflow.</p>
+        <div class="mini-more">Read the article →</div>
       </div>
-    </div>
+    </a>
+    <a class="wk-mini" href="/en/works/portalcam-drone-ai-workflow.html">
+      <div class="mini-thumb" style="background-image:url('/works/images/work04_bgfix.jpg')"></div>
+      <div class="mini-body">
+        <div class="mini-meta"><span class="b tech">Technical</span><span>2026-06-16</span><span>~9 min</span></div>
+        <h3>Generating an “Aerial Shot” from 3DGS</h3>
+        <p>Building a drone-style aerial shot from a 3DGS scan captured on foot with PortalCam — no drone required.</p>
+        <div class="mini-more">Read the article →</div>
+      </div>
+    </a>
+  </div>
+  <div class="wk-section-foot fade">
+    <a class="section-btn" href="/en/works/index.html#blog">See the Tech Blog →</a>
+  </div>
+
+  <div class="chapter-rule fade" style="margin-top:8vh">
+    <span class="num">NEXT</span>
+    <span class="line"></span>
+    <span>Continue exploring Locahun 3D</span>
+  </div>
+  <div class="cs-cta-row fade">
+    <span class="cs-caption">— Want to see it running on your own location, or talk specifics? —</span>
+    <a class="cs-cta" href="locahun3d_demo.html#estimate">See the Demo →</a>
+    <a class="cs-cta" href="locahun3d_demo.html#contact">Contact us →</a>
   </div>
 
   <div class="foot">
