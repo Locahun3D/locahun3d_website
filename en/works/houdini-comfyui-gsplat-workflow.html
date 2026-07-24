@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex,nofollow">
-<title>Houdini 22 × ComfyUI — A VFX × AI Hybrid Workflow with Gaussian Splats｜Locahun 3D Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Houdini 22 × ComfyUI — A VFX × AI Hybrid Workflow with Gaussian Splats｜Locahun 3D Tech Blog</title>
 <meta name="description" content="Senior VFX artist hectorVFX put Locahun 3D's Shibuya scramble crossing data (Gaussian Splats) through a Houdini 22 × ComfyUI VFX × AI hybrid workflow. A case-study write-up.">
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -28,7 +26,7 @@
     --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:80px}
   body{background:var(--bg);color:var(--body);
     font-family:var(--sans);font-weight:300;line-height:1.75;font-size:17px;letter-spacing:0;
     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
@@ -158,23 +156,127 @@
     .tweetcard{flex-wrap:wrap}
     .tweetcard .go{margin-left:0}
   }
+
+  /* ============================================
+     UNIFIED HEADER — matches locahun3d.com
+     ============================================ */
+  .site-header{position:fixed;top:0;left:0;right:0;z-index:1050;
+    height:64px;background:rgba(0,0,0,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;
+    padding:0 max(48px, calc((100vw - 1440px) / 2))}
+  .site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:16px}
+  .site-header .sh-left nav{display:flex;align-items:center;gap:16px}
+  .site-header .sh-left nav a{display:flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:300;color:rgba(255,255,255,.62);text-decoration:none;
+    white-space:nowrap;transition:color .2s}
+  .site-header .sh-left nav a:hover{color:#fafaf6}
+  .site-header .sh-left nav a .code{display:none;font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:.2em;opacity:.5;transition:color .2s,opacity .2s}
+  .site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}
+  .site-header .sh-center{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .site-header .sh-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+  .site-header .sh-brand svg{flex:none}
+  .site-header .sh-brand-text{font-family:'Noto Sans JP',sans-serif;font-weight:900;
+    font-size:18px;letter-spacing:.01em;white-space:nowrap;color:var(--ink)}
+  .site-header .sh-toggle{display:flex;align-items:stretch;
+    font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:11px;letter-spacing:.06em;margin-left:4px}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 12px;
+    border:1px solid rgba(255,255,255,.18);text-decoration:none;transition:background .2s,color .2s}
+  .site-header .sh-toggle span+a,.site-header .sh-toggle a+span{border-left:0}
+  .site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
+  .site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
+  .site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+  /* トグル各セルは常に自サービス色ボーダー50%（オンライン版と共通の状態規則） */
+  .site-header .sh-toggle:not(.sh-lang) a:not(.sh-active){border-color:rgba(94,200,232,.5)}
+  /* ENチップ: オンライン版 LangToggle と同スタイル (JetBrains Mono / 薄グレー) に統一 */
+  .site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:300;letter-spacing:.12em;padding:4px 8px;color:rgba(255,255,255,.62)}
+  .site-header .sh-toggle.sh-lang a:hover{color:var(--accent);border-color:var(--accent);background:none}
+  .site-header .sh-right{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
+  .site-header .sh-right a{font-family:'JetBrains Mono',monospace;font-size:12px;
+    letter-spacing:.2em;text-transform:uppercase;text-decoration:none;
+    padding:6px 16px;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+  .site-header .sh-btn-ghost{border:1px solid var(--line);color:var(--ink)}
+  .site-header .sh-btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .site-header .sh-btn-accent{border:1px solid var(--accent);color:var(--accent)}
+  .site-header .sh-btn-accent:hover{background:var(--accent);color:var(--bg)}
+  .site-header .sh-user{display:none;align-items:center;gap:10px}
+  .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
+  .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
+  @media(max-width:1199px){
+    /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
+       切替幅 1200px もオンライン版 min-[1200px] と同一（両サイト同時変更が必須）。
+       変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
+    .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
+    .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
+    .site-header .sh-center .sh-lang{margin-left:auto!important}
+    .site-header .sh-brand{gap:4px}
+    .site-header .sh-brand svg{width:18px;height:18px}
+    .site-header .sh-brand-text{font-size:13px;letter-spacing:.01em}
+    .site-header .sh-toggle{font-size:8px;letter-spacing:.02em;margin-left:0}
+    .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 4px;white-space:nowrap}
+    .site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:300;letter-spacing:.04em;padding:2px 4px;color:rgba(255,255,255,.62)}
+    .site-header .sh-left{order:2;flex:1 0 100%;justify-content:center;padding-bottom:8px}
+    .site-header .sh-left nav{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px}
+    .site-header .sh-left nav a{font-size:11px}
+    .site-header .sh-left nav a .code{display:none}
+    .site-header .sh-right{display:none}
+    .site-header .sh-user-name{display:none}
+  }
+  /* タブレット帯(768-1199px): スマホ極小サイズのままだと余白だらけで崩れて
+     見えるため中間サイズへ拡大。locahun3d.com site-header.tsx の min-[768px]:
+     値と1:1（変更時は両サイト同時に。検査=header-parity.mjs）。 */
+  @media(min-width:768px) and (max-width:1199px){
+    .site-header .sh-center{height:56px;gap:8px}
+    .site-header .sh-brand{gap:8px}
+    .site-header .sh-brand-text{font-size:16px}
+    .site-header .sh-toggle{font-size:10px;letter-spacing:.04em}
+    .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px}
+    .site-header .sh-toggle.sh-lang a{font-size:10px;letter-spacing:.08em;padding:3px 6px}
+    .site-header .sh-left nav{gap:6px 24px}
+    .site-header .sh-left nav a{font-size:13px}
+    .site-header .sh-left{padding-bottom:10px}
+  }
+  .site-header .sh-left nav a:focus-visible,.side-menu nav a:focus-visible{color:#fafaf6}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  @media(max-width:359px){
+    .site-header .sh-center{gap:2px}
+    .site-header .sh-brand-text{font-size:11px}
+    .site-header .sh-toggle{font-size:7px}
+    .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 3px}
+    .site-header .sh-toggle.sh-lang a{font-size:9px;padding:2px 4px}
+  }
+  body{padding-top:64px}
+  @media(max-width:1199px){ body{padding-top:96px} html{scroll-padding-top:112px} }
 </style>
 </head>
 <body>
 
 <div class="progress" id="progress"></div>
-<div class="topbar"><div class="wrap">
-  <a href="index.html" style="display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none">
-    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3.2"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
-    <b>LOCAHUN&nbsp;3D</b><span class="tag">／ BLOG</span>
-  </a>
-  <nav class="nav">
-    <a href="index.html">Works</a>
-    <a href="blog.html">Tech Blog</a>
-    <a href="/en/locahun3d_manifesto.html" class="ext">Main site</a>
-    <a href="/works/houdini-comfyui-gsplat-workflow.html">JA</a>
-  </nav>
-</div></div>
+<header class="site-header">
+  <div class="sh-left">
+    <nav>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data</a>
+      <a href="/en/locahun3d_pitch_hub.html"><span class="code">0.3</span>Use Cases</a>
+      <a href="/en/works/index.html"><span class="code">0.4</span>Work &amp; Blog</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.5</span>Demo &amp; Contact</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/en/properties" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en/properties">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang" style="margin-left:8px">
+      <a href="/works/houdini-comfyui-gsplat-workflow.html">JA</a>
+    </div>
+  </div>
+  <div class="sh-right" aria-hidden="true"></div>
+</header>
 
 <div class="wrap">
 <header class="post">

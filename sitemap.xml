@@ -19,12 +19,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://web.locahun3d.com/locahun3d_online.html</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://web.locahun3d.com/locahun3d_demo.html</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
@@ -35,5 +29,35 @@
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/works/index.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/en/works/index.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/works/ue5-xgrids-3dgs-aerial-ai.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/en/works/ue5-xgrids-3dgs-aerial-ai.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/works/houdini-comfyui-gsplat-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/en/works/houdini-comfyui-gsplat-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/works/portalcam-drone-ai-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/en/works/portalcam-drone-ai-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/works/chevron-rokunowa-mv.html</loc>
+  </url>
+  <url>
+    <loc>https://web.locahun3d.com/en/works/chevron-rokunowa-mv.html</loc>
   </url>
 </urlset>
