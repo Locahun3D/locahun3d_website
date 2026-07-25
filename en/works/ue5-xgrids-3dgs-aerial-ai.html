@@ -85,6 +85,29 @@
   figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
   figcaption b{color:var(--brand-ink);font-weight:500}
 
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
   .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
   .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
   .toc ol{margin-left:20px}
@@ -296,22 +319,47 @@
 
   <h2 id="ai-relight"><span class="n">05</span> Changing lighting and season with AI</h2>
   <p>Hand the stills exported from UE5 to an image-generation AI, and swap the lighting and season with <strong>nothing more than a short prompt like "make it night" or "make it snow."</strong> Since composition, camera angle, and building placement are already fixed on the UE5 side (i.e. by the real scan), the AI only has to handle light and atmosphere. The shorter the prompt, the better the composition holds — this division of labor produces the fewest artifacts.</p>
-  <figure>
-    <img src="/works/images/ue5_shibuya_ground_night.jpg" alt="A night view of the Shibuya scramble crossing generated with the prompt 'make it night'">
-    <figcaption><b>Night, generated with "make it night."</b> The AI fills in window lights, glowing signage, and road reflections while the composition stays identical to the source still.</figcaption>
-  </figure>
-  <figure>
-    <img src="/works/images/ue5_shibuya_ground_night_snow.jpg" alt="A snowy night view of the Shibuya scramble crossing generated with the prompt 'make it a snowy night'">
-    <figcaption><b>Snow, generated with "make it a snowy night."</b> Same framing; only the road surface, street trees, and sky change. You can explore seasonal concept shots without waiting for the season.</figcaption>
-  </figure>
-  <figure>
-    <img src="/works/images/ue5_shibuya_topdown_dusk.jpg" alt="The straight-down Shibuya angle changed to dusk lighting with AI">
-    <figcaption><b>The same steps work on the straight-down angle.</b> Prompting "make it dusk" turns it into a magic-hour aerial-style shot.</figcaption>
-  </figure>
-  <figure>
-    <img src="/works/images/ue5_shibuya_topdown_night.jpg" alt="The straight-down Shibuya angle changed to night with AI">
-    <figcaption><b>The night version of the same top-down framing.</b> Locking one angle lets you line up time-of-day variations side by side in minutes. A real crossing, in a drone no-fly zone, at a time that never existed.</figcaption>
-  </figure>
+  <div class="aiflow">
+    <div class="aiflow-h"><span class="k">Ground angle</span>The source is on the left. The framing stays fixed; only the time of day and season are swapped.</div>
+    <div class="aiflow-row">
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">Source</span>
+        <img src="/works/images/ue5_shibuya_ground_day.jpg" alt="Source still. The Shibuya scramble crossing exported from the 3DGS scene in UE5 (ground angle, daytime)">
+        <figcaption><b>Still exported from UE5 (daytime).</b> The framing of the raw scan.</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI &ldquo;make it night&rdquo;</span>
+        <img src="/works/images/ue5_shibuya_ground_night.jpg" alt="A night view of the Shibuya scramble crossing generated with the prompt 'make it night'">
+        <figcaption><b>Night.</b> The AI fills in window lights, glowing signage, and road reflections. The composition matches the source.</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI &ldquo;make it a snowy night&rdquo;</span>
+        <img src="/works/images/ue5_shibuya_ground_night_snow.jpg" alt="A snowy night view of the Shibuya scramble crossing generated with the prompt 'make it a snowy night'">
+        <figcaption><b>Snowy night.</b> Only the road surface, street trees, and sky change.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="aiflow">
+    <div class="aiflow-h"><span class="k">Straight-down angle</span>The same steps work on any framing. The source here is the top-down shot built in 04.</div>
+    <div class="aiflow-row">
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">Source</span>
+        <img src="/works/images/ue5_shibuya_topdown_day.jpg" alt="Source still. The straight-down angle of the Shibuya scramble crossing built with a virtual camera in UE5 (daytime)">
+        <figcaption><b>Straight-down, built with a virtual camera (daytime).</b> An angle you cannot fly a drone for.</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI &ldquo;make it dusk&rdquo;</span>
+        <img src="/works/images/ue5_shibuya_topdown_dusk.jpg" alt="The straight-down Shibuya angle changed to dusk lighting with AI">
+        <figcaption><b>Magic hour.</b> It reads as an aerial-style shot.</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI &ldquo;make it night&rdquo;</span>
+        <img src="/works/images/ue5_shibuya_topdown_night.jpg" alt="The straight-down Shibuya angle changed to night with AI">
+        <figcaption><b>Night.</b> Locking one angle lets you line up time-of-day variations side by side in minutes.</figcaption>
+      </figure>
+    </div>
+  </div>
 
   <h2 id="limits"><span class="n">06</span> Current limits: signage, text, and man-made detail break down</h2>
   <p>To be honest about the constraints: <strong>signage text and fine man-made structures — trains, road signs — break down under current AI completion.</strong> It produces "ghosts" (structures that shouldn't exist) and artifacts like train-shaped geometry generated where no train belongs.</p>

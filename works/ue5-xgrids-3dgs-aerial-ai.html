@@ -87,6 +87,29 @@
   figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
   figcaption b{color:var(--brand-ink);font-weight:500}
 
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
   .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
   .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
   .toc ol{margin-left:20px}
@@ -298,22 +321,47 @@
 
   <h2 id="ai-relight"><span class="n">05</span> AIでライティング・季節を変える</h2>
   <p>UE5から出力したスチルを画像生成AIに渡し、<strong>「夜にして」「雪を降らせて」といった短いプロンプトだけ</strong>でライティングと季節を差し替えます。構図・カメラアングル・建物の配置はUE5側（＝実スキャン）で確定済みなので、AIに任せるのは光と空気感の作り込みだけで済みます。指示が短いほど構図が保たれやすく、この役割分担がいちばん破綻が少ないです。</p>
-  <figure>
-    <img src="images/ue5_shibuya_ground_night.jpg" alt="AIで「夜にして」と指示して生成した渋谷スクランブル交差点の夜景">
-    <figcaption><b>「夜にして」で生成した夜景。</b>ビルの窓明かり・看板の発光・路面の反射までAIが補完しつつ、構図は元のスチルと完全に一致しています。</figcaption>
-  </figure>
-  <figure>
-    <img src="images/ue5_shibuya_ground_night_snow.jpg" alt="AIで「雪の夜にして」と指示して生成した渋谷スクランブル交差点の雪景色">
-    <figcaption><b>「雪の夜にして」で生成した雪景色。</b>同じ画角のまま、路面・街路樹・空だけが差し替わります。季節ものの企画カットを、ロケを待たずに検討できます。</figcaption>
-  </figure>
-  <figure>
-    <img src="images/ue5_shibuya_topdown_dusk.jpg" alt="AIで夕方の光に変更した渋谷スクランブル交差点の真俯瞰アングル">
-    <figcaption><b>真俯瞰アングルにも同じ手順が使えます。</b>「夕方にして」と指示することで、マジックアワーの空撮風カットになります。</figcaption>
-  </figure>
-  <figure>
-    <img src="images/ue5_shibuya_topdown_night.jpg" alt="AIで夜に変更した渋谷スクランブル交差点の真俯瞰アングル">
-    <figcaption><b>同じ真俯瞰の夜バージョン。</b>1つの画角を確定させておくことで、時間帯違いのバリエーションを短時間で並べて比較できます。ドローン禁止区域の、実在しない時間帯の、実在の交差点です。</figcaption>
-  </figure>
+  <div class="aiflow">
+    <div class="aiflow-h"><span class="k">地上アングル</span>左が変換元。同じ構図のまま、時間帯と季節だけを差し替えます。</div>
+    <div class="aiflow-row">
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">変換元</span>
+        <img src="images/ue5_shibuya_ground_day.jpg" alt="変換元。UE5の3DGSシーンから出力した渋谷スクランブル交差点の地上アングル（昼）">
+        <figcaption><b>UE5から出力した素材（昼）。</b>実スキャンそのままの構図。</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI「夜にして」</span>
+        <img src="images/ue5_shibuya_ground_night.jpg" alt="AIで「夜にして」と指示して生成した渋谷スクランブル交差点の夜景">
+        <figcaption><b>夜景。</b>窓明かり・看板の発光・路面の反射をAIが補完します。構図は変換元と一致。</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI「雪の夜にして」</span>
+        <img src="images/ue5_shibuya_ground_night_snow.jpg" alt="AIで「雪の夜にして」と指示して生成した渋谷スクランブル交差点の雪景色">
+        <figcaption><b>雪の夜。</b>路面・街路樹・空だけが差し替わります。</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="aiflow">
+    <div class="aiflow-h"><span class="k">真俯瞰アングル</span>同じ手順が別の画角にもそのまま使えます。変換元は 04 で作った真俯瞰カットです。</div>
+    <div class="aiflow-row">
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">変換元</span>
+        <img src="images/ue5_shibuya_topdown_day.jpg" alt="変換元。UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
+        <figcaption><b>仮想カメラで作った真俯瞰（昼）。</b>ドローンを飛ばせない場所の画角。</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI「夕方にして」</span>
+        <img src="images/ue5_shibuya_topdown_dusk.jpg" alt="AIで夕方の光に変更した渋谷スクランブル交差点の真俯瞰アングル">
+        <figcaption><b>マジックアワー。</b>空撮風のカットになります。</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag ai">AI「夜にして」</span>
+        <img src="images/ue5_shibuya_topdown_night.jpg" alt="AIで夜に変更した渋谷スクランブル交差点の真俯瞰アングル">
+        <figcaption><b>夜。</b>1つの画角を確定させておくことで、時間帯違いを短時間で並べて比較できます。</figcaption>
+      </figure>
+    </div>
+  </div>
 
   <h2 id="limits"><span class="n">06</span> 現状の限界：看板・文字・人工物は崩れる</h2>
   <p>条件付きの手法であることも正直に書いておきます。<strong>看板の文字や、電車・標識のような細かい人工物は、現状のAI補完では崩れます。</strong>存在しないはずの構造物が現れる「ゴースト」や、本来ない場所に電車状の構造が生成される破綻が起きます。</p>

@@ -119,7 +119,12 @@ def extract_header_css(html):
 
 def strip_header_css(html):
     def repl(m):
-        _, rest = partition_css(m.group(2))
+        head, rest = partition_css(m.group(2))
+        # ヘッダーCSSが無い<style>は一切書き換えない。
+        # 再構築するとページ固有CSSの空白まで正規化され、ページCSSを手で編集するたび
+        # --check が「drift」と誤検知する（driftの検査器が無関係な整形を強制してしまう）。
+        if not head.strip():
+            return m.group(0)
         return m.group(1) + rest + m.group(3)
     return STYLE_RE.sub(repl, html)
 
