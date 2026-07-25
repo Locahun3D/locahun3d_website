@@ -30,6 +30,11 @@ def target_pages():
                 out.append(f)
     return out
 
+def nl_of(text):
+    """そのファイルの支配的な改行を返す（生成物を混在させると偽のdriftになる）。"""
+    crlf = text.count("\r\n")
+    return "\r\n" if crlf and crlf * 2 >= text.count("\n") else "\n"
+
 def read(p):
     with open(p, encoding="utf-8", newline="") as f:
         return f.read()
@@ -214,7 +219,8 @@ def process(path, mode):
     src = read(path)
     out = strip_header_css(src)
     out = ensure_link(out)
-    out = HEADER_RE.sub(lambda m: header_markup(rel, lang), out, count=1)
+    nl = nl_of(src)
+    out = HEADER_RE.sub(lambda m: header_markup(rel, lang).replace("\n", nl), out, count=1)
     changed = out != src
     if changed and mode == "write":
         write(path, out)

@@ -29,6 +29,12 @@ EYECATCH = {
 START, END = "<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->", "<!-- OGP:END -->"
 BLOCK_RE = re.compile(re.escape(START) + r".*?" + re.escape(END), re.S)
 
+def nl_of(text):
+    """そのファイルの支配的な改行を返す。生成ブロックを混在させると
+       ファイルは同一内容なのに --check が毎回 drift と報告する。"""
+    crlf = text.count("\r\n")
+    return "\r\n" if crlf and crlf * 2 >= text.count("\n") else "\n"
+
 def read(p):
     with open(p, encoding="utf-8", newline="") as f: return f.read()
 
@@ -111,7 +117,7 @@ def build(rel, htm):
 def apply(rel, mode):
     path = os.path.join(ROOT, rel)
     src = read(path)
-    block = build(rel, src)
+    block = build(rel, src).replace("\n", nl_of(src))
     if BLOCK_RE.search(src):
         out = BLOCK_RE.sub(lambda _: block, src, count=1)
     else:

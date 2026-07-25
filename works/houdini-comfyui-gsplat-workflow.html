@@ -240,24 +240,26 @@
   </div>
 
   <h2 id="intro"><span class="n">01</span> きっかけ：Houdini 22でのGaussian Splattingネイティブ対応</h2>
-  <p>このワークフローの起点になっているのは、2026年7月にリリースされたばかりの<strong>Houdini 22</strong>で、<strong>Gaussian Splatting（3DGS）がネイティブ機能として実装された</strong>ことです。これまでサードパーティのプラグインや外部ツールに頼らざるを得なかった3DGSの扱いが、Houdini 22では<strong>スプラットを通常のジオメトリ（点群）と同じように扱えるように</strong>なり、Bone Deform・Surface Deformといった標準の変形ノードでそのままアニメーションできます。GPUによるリアルタイムラスタライズは60fps以上を実現し、数百万スプラット規模のシーンでもビューポート操作が可能なほか、Karmaレンダラーでの直接レンダリングや、Copernicus（2Dコンポジット環境）上でのラスタライズ・リライティングにも対応しました。3DGSを「見るだけの背景素材」ではなく<strong>3D DCCツールの中で本格的に加工できるレイヤー</strong>として扱えるようになったこの変化が、hectorVFX氏がこのハイブリッドワークフローの探求を進める後押しになっています。</p>
+  <p>このワークフローの起点は、2026年7月にリリースされた<strong>Houdini 22</strong>で<strong>Gaussian Splatting（3DGS）がネイティブ機能になった</strong>ことです。これまで外部プラグインに頼るしかなかった3DGSを、<strong>通常の点群と同じようにHoudiniのノードで加工できる</strong>ようになりました。標準の変形ノードでアニメーションさせることも、Karmaレンダラーでそのままレンダリングすることもできます。3DGSが「見るだけの背景素材」から<strong>3D DCCの中で加工できるレイヤー</strong>に変わったことが、このハイブリッドワークフローを成り立たせています。</p>
 
   <h2 id="workflow"><span class="n">02</span> ワークフローの流れ</h2>
-  <p>X投稿の本文では「3段階」という大枠しか語られていませんでしたが、hectorVFX氏が追加で公開した<strong>制作画面の録画（33秒）</strong>をもとに、具体的な手順を整理すると次のようになります。ポイントは、<strong>背景（渋谷の3DGS）と被写体（車両）をまったく別の経路で用意し、両方とも「Gaussian Splatsのまま」Houdini上で1つのシーンに合成する</strong>ことです。2D画像として合成するのではなく、点群（スプラット）同士を3D空間でマージします。</p>
+  <p>hectorVFX氏が公開した制作画面の録画をもとに手順を整理すると、次の4ステップになります。ポイントは、<strong>背景（渋谷の3DGS）と被写体（車両）を別々の経路で用意し、どちらも「Gaussian Splatsのまま」Houdini上で1つのシーンに合成する</strong>ことです。2D画像の合成ではなく、点群同士を3D空間でマージします。</p>
 
   <h3>① Houdini 22：渋谷の3DGSをネイティブに読み込む</h3>
-  <p>ロケハン3Dが提供した渋谷スクランブル交差点の3DGSデータを、<strong>Houdini 22（Indie ライセンス／build 22.0.368）</strong>に直接読み込みます。Houdini 22で新たにネイティブ対応した <code>bakegsplat → transform → normal → merge</code> という<strong>Gaussian Splatting専用ノード</strong>を順に通すことで、3DGSを「見るだけの点群」としてではなく、法線を持つジオメトリとして扱えるようになり、他のノードと組み合わせて加工できる状態になります。</p>
+  <p>ロケハン3Dが提供した渋谷スクランブル交差点の3DGSデータを、Houdini 22にそのまま読み込みます。Gaussian Splatting専用ノードを通すことで、3DGSは「見るだけの点群」ではなく<strong>法線を持つジオメトリ</strong>になり、他のノードと組み合わせて加工できる状態になります。</p>
 
   <h3>② ComfyUI：車両を「画像から3DGS」として生成する</h3>
-  <p>被写体の白いスポーツカーは、写真合成ではなく<strong>ComfyUI上でゼロから3D Gaussian Splatとして生成</strong>します。ワークフロー名は <code>ER_TripoSplat_Live</code>。KSamplerで20ステップ（cfg 3.0 ／ sampler: dpmpp_2m ／ scheduler: simple ／ denoise 1.0）のノイズ除去を行い、その結果を<strong>TripoSplat Decode</strong>ノードで <code>num_gaussians: 300,000</code> のスプラットへデコードし、<strong>Create 3D File (from Splat)</strong> ノードで書き出すことで、車両を「2D画像 → AIで3D化」ではなく、<strong>拡散モデルの潜在空間から直接3Dガウシアンとして生成</strong>できます。</p>
+  <p>被写体の白いスポーツカーは、写真合成ではなく<strong>ComfyUI上でゼロから3D Gaussian Splatとして生成</strong>します。2D画像を作ってから3D化するのではなく、<strong>拡散モデルから直接3Dガウシアンを書き出す</strong>のがポイントです。メッシュに変換されずスプラットのまま出てくるため、①のHoudiniシーンにそのまま合流できます。</p>
   <div class="callout note"><b>TripoSplatとは</b>画像／テキストto3Dモデルの生成結果を、メッシュではなくガウシアンスプラットとして出力するComfyUIカスタムノード群です。スプラットのまま出てくるため、①のHoudini上の3DGSシーンにそのままネイティブに合流させられる点が、このワークフローの肝になっています。</div>
 
   <h3>③ Houdiniで合成：2つの3DGSを1つのシーンへ</h3>
-  <p>②で生成した車両スプラットをHoudiniに読み込み、①の渋谷シーンと<code>merge</code>ノードで結合します。Transform SOPでスケール・回転・位置（Pivot／Translate／Rotate）を調整し、交差点の横断歩道上に車両を据えることで、実写スキャンとAI生成物という出自の異なる2つのデータを、単一の3Dシーンとして扱えるようになります。</p>
+  <p>②で生成した車両スプラットをHoudiniに読み込み、①の渋谷シーンと結合します。位置・回転・スケールを合わせて交差点の横断歩道上に据えることで、<strong>実写スキャンとAI生成物という出自の違うデータが、1つの3Dシーンになります</strong>。</p>
 
   <h3>④ カメラ・ライティング・最終レンダリング</h3>
-  <p>合成が済んだシーンに<code>cam1</code>カメラを設置し、Shutter Time 0.5 ／ Focus Distance 5 ／ F-stop 5.6でモーションブラーと被写界深度を作り込んでレンダリングします。仕上げに夜間のネオン反射・濡れた路面のライティングでグレーディングすることで、記事冒頭で紹介した最終カットに仕上がります。</p>
+  <p>合成が済んだシーンにカメラを立て、モーションブラーと被写界深度を設定してレンダリングします。仕上げに夜間のネオン反射や濡れた路面のライティングでグレーディングすることで、記事冒頭の最終カットになります。</p>
 
+  <h3>詳細スペック（再現したい方向け）</h3>
+  <p>本文では省いた設定値です。録画から読み取れた範囲でまとめています。</p>
   <dl class="spec">
     <dt>環境データ（背景）</dt><dd>渋谷スクランブル交差点の3DGS（ロケハン3D提供）／ Houdini 22 Indie（build 22.0.368）のネイティブGaussian Splattingノード（bakegsplat / transform / normal / merge）で読み込み</dd>
     <dt>被写体（車両）の生成</dt><dd>ComfyUI ワークフロー "ER_TripoSplat_Live" ／ KSampler(steps 20, cfg 3.0, dpmpp_2m, simple, denoise 1.0) → TripoSplat Decode(num_gaussians 300,000) → Create 3D File (from Splat)</dd>
