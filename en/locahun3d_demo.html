@@ -66,6 +66,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=fdaa6656">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/flatpickr.min.css">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
@@ -93,101 +94,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 .timecode{position:absolute;top:18px;font-size:.65em;letter-spacing:.2em;
   font-family:'JetBrains Mono',monospace;opacity:.4;text-transform:uppercase}
-.timecode.tl{left:max(48px, 6vw)} .timecode.tr{right:max(48px, 6vw)}
-@media(max-width:900px){.timecode.tl{left:max(48px, 6vw)}}
+.timecode.tl{left:max(48px, 6vw)} .timecode.tr{right:max(48px, 6vw)}@media(max-width:900px){.timecode.tl{left:max(48px, 6vw)}}
 
 .chapter-rule{display:flex;align-items:baseline;gap:22px;margin-bottom:60px;
   font-size:.78em;letter-spacing:.18em;text-transform:uppercase}
 .chapter-rule .num{font-family:'JetBrains Mono',monospace;opacity:.6}
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.25}
 
-@keyframes rec{0%,100%{opacity:1}50%{opacity:.25}}
-
-/* ============================================
-   UNIFIED HEADER — matches locahun3d.com
-   ============================================ */
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1050;
-  height:64px;background:rgba(0,0,0,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);display:flex;align-items:center;
-  padding:0 max(48px, calc((100vw - 1440px) / 2))}
-.site-header .sh-left{flex:1;min-width:0;display:flex;align-items:center;gap:28px}
-.site-header .sh-left nav{display:flex;align-items:center;gap:14px}
-.site-header .sh-left nav a{display:flex;align-items:center;gap:6px;
-  font-size:12px;font-weight:300;color:rgba(255,255,255,.62);text-decoration:none;
-  white-space:nowrap;transition:color .2s}
-.site-header .sh-left nav a:hover{color:#fafaf6}
-.site-header .sh-left nav a .code{display:none;font-family:'JetBrains Mono',monospace;
-  font-size:10px;letter-spacing:.2em;opacity:.5;transition:color .2s,opacity .2s}
-.site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}
-.site-header .sh-center{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.site-header .sh-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
-.site-header .sh-brand svg{flex:none}
-.site-header .sh-brand-text{font-family:'Noto Sans JP',sans-serif;font-weight:900;
-  font-size:18px;letter-spacing:.01em;white-space:nowrap;color:var(--ink)}
-.site-header .sh-toggle{display:flex;align-items:stretch;
-  font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:11px;letter-spacing:.06em;margin-left:4px}
-.site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 12px;
-  border:1px solid rgba(255,255,255,.18);text-decoration:none;transition:background .2s,color .2s}
-.site-header .sh-toggle span+a,.site-header .sh-toggle a+span{border-left:0}
-.site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
-.site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
-.site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
-/* トグル各セルは常に自サービス色ボーダー50%（オンライン版と共通の状態規則） */
-.site-header .sh-toggle:not(.sh-lang) a:not(.sh-active){border-color:rgba(94,200,232,.5)}
-/* ENチップ: オンライン版 LangToggle と同スタイル (JetBrains Mono / 薄グレー) に統一 */
-.site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:300;letter-spacing:.12em;padding:4px 8px;color:rgba(255,255,255,.62)}
-.site-header .sh-toggle.sh-lang a:hover{color:var(--accent);border-color:var(--accent);background:none}
-.site-header .sh-right{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
-.site-header .sh-right a{font-family:'JetBrains Mono',monospace;font-size:12px;
-  letter-spacing:.2em;text-transform:uppercase;text-decoration:none;
-  padding:6px 16px;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
-.site-header .sh-btn-ghost{border:1px solid var(--line);color:var(--ink)}
-.site-header .sh-btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
-.site-header .sh-btn-accent{border:1px solid var(--accent);color:var(--accent)}
-.site-header .sh-btn-accent:hover{background:var(--accent);color:var(--bg)}
-.site-header .sh-user{display:none;align-items:center;gap:10px}
-.site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
-.site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
-@media(max-width:1199px){
-  /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
-     切替幅 1200px もオンライン版 min-[1200px] と同一（両サイト同時変更が必須）。
-     変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
-  .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
-  .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
-  .site-header .sh-center .sh-lang{margin-left:auto!important}
-  .site-header .sh-brand{gap:4px}
-  .site-header .sh-brand svg{width:18px;height:18px}
-  .site-header .sh-brand-text{font-size:13px;letter-spacing:.01em}
-  .site-header .sh-toggle{font-size:8px;letter-spacing:.02em;margin-left:0}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 4px;white-space:nowrap}
-  .site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:300;letter-spacing:.04em;padding:2px 4px;color:rgba(255,255,255,.62)}
-  .site-header .sh-left{order:2;flex:1 0 100%;justify-content:center;padding-bottom:8px}
-  .site-header .sh-left nav{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px}
-  .site-header .sh-left nav a{font-size:11px}
-  .site-header .sh-left nav a .code{display:none}
-  .site-header .sh-right{display:none}
-  .site-header .sh-user-name{display:none}
-}
-/* タブレット帯(768-1199px): スマホ極小サイズのままだと余白だらけで崩れて
-   見えるため中間サイズへ拡大。locahun3d.com site-header.tsx の min-[768px]:
-   値と1:1（変更時は両サイト同時に。検査=header-parity.mjs）。 */
-@media(min-width:768px) and (max-width:1199px){
-  .site-header .sh-center{height:56px;gap:8px}
-  .site-header .sh-brand{gap:8px}
-  .site-header .sh-brand-text{font-size:16px}
-  .site-header .sh-toggle{font-size:10px;letter-spacing:.04em}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px}
-  .site-header .sh-toggle.sh-lang a{font-size:10px;letter-spacing:.08em;padding:3px 6px}
-  .site-header .sh-left nav{gap:6px 24px}
-  .site-header .sh-left nav a{font-size:13px}
-  .site-header .sh-left{padding-bottom:10px}
-}
-@media(max-width:1439px){
-  /* ナビ番号コードはオンライン版と同じく 1440px 以上のみ表示 */
-  .site-header .sh-left nav a .code{display:none}
-}
-
-/* ============================================
+@keyframes rec{0%,100%{opacity:1}50%{opacity:.25}}/* ============================================
    MOBILE NAV — hamburger toggle + drawer
    ============================================ */
 
@@ -242,8 +156,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     min-width:0;max-width:100%}
   .terms .closing{font-size:.9em;line-height:1.95;margin-top:36px;
     max-width:100%;padding:0 6px;box-sizing:border-box}
-  .terms .closing p{overflow-wrap:anywhere;word-break:break-word;max-width:100%}
-}
+  .terms .closing p{overflow-wrap:anywhere;word-break:break-word;max-width:100%}}
 
 .hero{justify-content:center;align-items:center;text-align:center}
 .hero h1{font-family:'Noto Serif JP',serif;font-weight:200;
@@ -337,10 +250,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   letter-spacing:.04em;color:#fff;font-weight:300}
 .campaign-banner .campaign-msg strong{color:var(--accent);font-weight:900;font-size:1.1em;letter-spacing:.04em}
 .campaign-banner .campaign-until{display:inline-block;margin-left:10px;padding-left:10px;
-  border-left:1px solid rgba(255,180,84,.35);font-size:.88em;color:rgba(255,255,255,.72);letter-spacing:.02em}
-@media (max-width:600px){
-  .campaign-banner .campaign-until{display:block;margin-left:0;padding-left:0;border-left:0;margin-top:2px}
-}
+  border-left:1px solid rgba(255,180,84,.35);font-size:.88em;color:rgba(255,255,255,.72);letter-spacing:.02em}@media (max-width:600px){
+  .campaign-banner .campaign-until{display:block;margin-left:0;padding-left:0;border-left:0;margin-top:2px}}
 @keyframes campaignPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,180,84,.45)}50%{box-shadow:0 0 0 8px rgba(255,180,84,0)}}
 .campaign-banner{animation:campaignPulse 2.2s ease-in-out infinite}
 .result .note{font-size:.78em;opacity:.6;margin-top:6px}
@@ -390,16 +301,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.25em;
   text-transform:uppercase;opacity:.4;padding-top:60px}
 .fade{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
-.fade.in{opacity:1;transform:none}
-
-@media(max-width:900px){
+.fade.in{opacity:1;transform:none}@media(max-width:900px){
   .demo-row,.form{grid-template-columns:1fr}
-  .result{grid-template-columns:1fr}
-}
-/* mobile-scale 1.2x + overflow guard */
+  .result{grid-template-columns:1fr}}/* mobile-scale 1.2x + overflow guard */
 @media(max-width:900px){  body{overflow-x:clip}
-  .field select,.field input,.field textarea{font-size:1em}
-}
+  .field select,.field input,.field textarea{font-size:1em}}
 
 /* ============================================
    CONTACT — merged from former contact page
@@ -521,16 +427,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   border:1px solid rgba(255,255,255,.45);color:#fff;cursor:pointer;
   font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.3em;
   text-transform:uppercase;transition:background .2s,color .2s,letter-spacing .2s}
-.sent-modal .sent-modal-close:hover{background:#fff;color:#000;letter-spacing:.36em}
-
-@media(max-width:1199px){
+.sent-modal .sent-modal-close:hover{background:#fff;color:#000;letter-spacing:.36em}@media(max-width:1199px){
   .contact-row{grid-template-columns:1fr;gap:40px}
   .cform{grid-template-columns:1fr}
   .info{border-left:none;border-top:1px solid var(--line);padding-left:0;padding-top:32px;gap:28px}
   .info .block{padding-bottom:24px;border-bottom:1px dotted rgba(255,255,255,.08)}
-  .info .block:last-child{border-bottom:none;padding-bottom:0}
-}
-@media(max-width:900px){
+  .info .block:last-child{border-bottom:none;padding-bottom:0}}@media(max-width:900px){
   .contact-row{margin-top:5vh;gap:32px}
   .cform{gap:18px 0}
   .cfield label{font-size:.58em;letter-spacing:.22em}
@@ -557,45 +459,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .submit-row{margin-top:24px}
   .contact-row,.cform,.info,.info .block,.emergency,.submit-row,.quote-preview,.quote-empty{min-width:0;max-width:100%}
   .cfield{min-width:0}
-  .cfield input,.cfield select,.cfield textarea{max-width:100%}
-}
-
-/* mobile: drop mid-clause forced breaks in body copy; keep punctuation & heading breaks */
+  .cfield input,.cfield select,.cfield textarea{max-width:100%}}/* mobile: drop mid-clause forced breaks in body copy; keep punctuation & heading breaks */
 @media(max-width:640px){p br.pc{display:none}}
 
 /* === Focus visibility — no-hover devices: TV remote / game controller / VR headset / keyboard === */
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible{outline:3px solid var(--accent,#ffb454);outline-offset:3px;border-radius:3px}
-.site-header .sh-left nav a:focus-visible{color:#fafaf6}
-.site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
-
-/* === Ultra-narrow (smartwatch / tiny screens ≤360px) — prevent header crowding === */
-@media(max-width:359px){
-  .site-header .sh-center{gap:2px}
-  .site-header .sh-brand-text{font-size:11px}
-  .site-header .sh-toggle{font-size:7px}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 3px}
-  .site-header .sh-toggle.sh-lang a{font-size:9px;padding:2px 4px}
-}
-
-/* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
+.site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}/* === Reduced motion — VR/MR comfort, E-Ink low-refresh, accessibility === */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
   html,body{scroll-behavior:auto!important}
-  .fade{opacity:1!important;transform:none!important}
-}
+  .fade{opacity:1!important;transform:none!important}}
 /* 内容なりの高さで下部の無駄な空白を解消（ヒーロー/締めのみ全画面維持） */
-.frame.hero,.frame.end,.frame.manifesto,.frame.pp-hero{min-height:100vh}
-</style>
+.frame.hero,.frame.end,.frame.manifesto,.frame.pp-hero{min-height:100vh}</style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="sh-left">
     <nav>
-      <a href="locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
-      <a href="locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
       <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
-      <a href="locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
     </nav>
   </div>
   <div class="sh-center">
