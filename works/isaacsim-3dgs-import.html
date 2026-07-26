@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NVIDIA Isaac Simに3DGSを持ち込む｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="XGRIDsの3DGSスキャンをNVIDIA Isaac Sim 6.0に読み込み、実写品質でレンダリングするまでの手順。1プリム1,677万点の描画上限、splat-transformによる間引き、USD変換と上下反転の補正、スキャン軌跡を使ったカメラ配置まで、実際に渋谷スクランブル交差点のデータで検証した内容をまとめます。">
+<link rel="canonical" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="NVIDIA Isaac Simに3DGSを持ち込む">
+<meta property="og:description" content="XGRIDsの3DGSスキャンをNVIDIA Isaac Sim 6.0に読み込み、実写品質でレンダリングするまでの手順。1プリム1,677万点の描画上限、splat-transformによる間引き、USD変換と上下反転の補正、スキャン軌跡を使ったカメラ配置まで、実際に渋谷スクランブル交差点のデータで検証した内容をまとめます。">
+<meta property="og:url" content="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/isaacsim_shibuya_walk.jpg">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta property="og:image:alt" content="NVIDIA Isaac Simでレンダリングした渋谷スクランブル交差点の3DGSスキャン（歩行者目線）">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NVIDIA Isaac Simに3DGSを持ち込む">
+<meta name="twitter:description" content="XGRIDsの3DGSスキャンをNVIDIA Isaac Sim 6.0に読み込み、実写品質でレンダリングするまでの手順。1プリム1,677万点の描画上限、splat-transformによる間引き、USD変換と上下反転の補正、スキャン軌跡を使ったカメラ配置まで、実際に渋谷スクランブル交差点のデータで検証した内容をまとめます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/isaacsim_shibuya_walk.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=fdaa6656">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:64px}@media(max-width:1199px){ body{padding-top:96px} html{scroll-padding-top:112px}}</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <div class="sh-left">
+    <nav>
+      <a href="/locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
+      <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
+      <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+      <a href="/locahun3d_demo.html"><span class="code">0.4</span>デモ・お問合せ</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/properties" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/properties">オンライン</a>
+    </div>
+  </div>
+  <div class="sh-right" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">Omniverse</span><span class="badge">ワークフロー</span>
+    <span>2026-07-26</span><span>・</span><span>読了 約10分</span>
+  </div>
+  <h1>NVIDIA Isaac Simに<br class="pc">3DGSを持ち込む</h1>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットや自律移動のシミュレーションに使いたい場合、行き先はゲームエンジンではなく<strong>NVIDIA Isaac Sim</strong>になります。この記事では、渋谷スクランブル交差点のスキャンデータをIsaac Sim 6.0へ実際に読み込んだ手順をまとめます。<strong>公式ドキュメントに書かれていない描画上限で丸一日ハマった</strong>ので、その回避方法も含めて、つまずきどころを省略せずに書きます。</p>
+
+  <figure>
+    <img src="images/isaacsim_shibuya_walk.jpg" alt="NVIDIA Isaac Simでレンダリングした渋谷スクランブル交差点の3DGSスキャン（歩行者目線）">
+    <figcaption><b>Isaac Simでレンダリングした渋谷スクランブル交差点。</b>1,650万ガウシアンをRTXで描画しています。QFRONT、SHIBUYA 109、大型ビジョンの表示内容まで、看板の文字が読める解像度で再現されます。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#why">なぜ3DGSをIsaac Simに持ち込むのか</a></li>
+    <li><a href="#prepare">用意するもの</a></li>
+    <li><a href="#limit">最大の落とし穴：1プリム1,677万点の描画上限</a></li>
+    <li><a href="#decimate">LCC2から間引いてPLYを書き出す</a></li>
+    <li><a href="#usd">USDに変換してステージに配置する</a></li>
+    <li><a href="#orientation">上下反転を補正する</a></li>
+    <li><a href="#camera">スキャン軌跡を使ってカメラを置く</a></li>
+    <li><a href="#limits">現状の限界</a></li>
+    <li><a href="#summary">まとめ</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>XGRIDs .lcc2</b><span class="a">→</span>
+    <b>splat-transformで間引き</b><span class="a">→</span>
+    <b>USDC変換</b><span class="a">→</span>
+    <b>ステージ配置＋向き補正</b><span class="a">→</span>
+    <b>軌跡からカメラ配置</b>
+  </div>
+
+  <h2 id="why"><span class="n">01</span> なぜ3DGSをIsaac Simに持ち込むのか</h2>
+  <p>私はロケハン3Dで、都市部を中心にした3DGSスキャンデータを制作・販売しています。映像制作の素材として使うならUE5に持ち込むのがいちばん自由が利きますが、用途が変わると行き先も変わります。<strong>ロボット・自律移動・センサーシミュレーション</strong>を扱うなら、NVIDIA Isaac Simが本命です。</p>
+  <ul>
+    <li><strong>実在の場所でロボットを動かせる</strong> ── CGで作り込んだ架空の街ではなく、実際にスキャンした渋谷の路上をそのままシミュレーション環境にできます。</li>
+    <li><strong>物理シミュレーションと同居できる</strong> ── PhysXの剛体・関節・センサーを、実写ベースの背景の中で動かせます。</li>
+    <li><strong>センサーの学習データを作れる</strong> ── 実在の街並みを背景にしたカメラ画像を、任意のアングル・任意の時間帯で無限に生成できます。</li>
+  </ul>
+  <p>Isaac Sim 6.0はガウシアンスプラットをネイティブに描画できます。RTXのパストレーシングに参加するため、被写界深度やモーションブラーもそのまま効きます。ただし<strong>実際に大規模スキャンを流し込むと、ドキュメントに書かれていない壁にぶつかります</strong>。この記事の主題はそこです。</p>
+
+  <h2 id="prepare"><span class="n">02</span> 用意するもの</h2>
+  <dl class="spec">
+    <dt>Isaac Sim</dt><dd>6.0.0（Windows standalone zip・約9.94GB）。展開後は約40GBになるので、空き50GBを見ておきます</dd>
+    <dt>スキャンデータ</dt><dd>XGRIDs PortalCamで取得した <code>.lcc2</code>（渋谷スクランブル交差点・3,523万点）</dd>
+    <dt>変換ツール</dt><dd>PlayCanvas <strong>splat-transform</strong>（npm・無料）。<code>npm install -g @playcanvas/splat-transform</code></dd>
+    <dt>USD変換</dt><dd><code>omni.kit.converter.gsplat</code>。Isaac Sim 6.0に標準同梱されているので追加インストールは不要です</dd>
+  </dl>
+  <div class="callout note"><b>なぜPLYではなく.lcc2から始めるのか</b>XGRIDsの <code>.lcc2</code> は単なる点群ファイルではなく、<strong>オクツリー分割されたLODチャンク、衝突用メッシュ、そしてスキャン時のカメラ軌跡</strong>を含むパッケージです。後半で使うカメラ配置は、この軌跡データがあるかどうかで手間がまったく変わります。PLYだけを渡されている場合でも手順は同じですが、<code>.lcc2</code> があるならそちらを使ってください。</div>
+  <p>Isaac Simの導入自体は、zipを展開して <code>post_install.bat</code> を実行するだけです。インストール先は <code>C:\Program Files</code> を避けます。Isaac Simは動作中にデータを書き込むため、管理者権限が必要な場所に置くと余計なトラブルを招きます。</p>
+
+  <h2 id="limit"><span class="n">03</span> 最大の落とし穴：1プリム1,677万点の描画上限</h2>
+  <p>ここが今回いちばん時間を溶かしたポイントです。先に結論を書きます。</p>
+  <div class="callout warn"><b>Isaac SimのRTXレンダラーは、1つのプリムあたり2<sup>24</sup>（16,777,216）点までしか描画できません。</b>これを超えると<strong>レイトレーシング用の構造（TLAS）の構築に失敗し、そのプリムは1点も表示されなくなります</strong>。しかも変換ツールにもPython APIにもエラーは一切出ません。「変換は成功、点数も正しい、なのに画面は真っ暗」という状態になります。</div>
+  <p>渋谷のデータは17,201,445点でした。上限をわずか42万点、率にして2.5%超えていただけです。この状態でも <code>convertPlyUSD</code> は正常終了し、USDファイルには17,201,445点すべての座標・スケール・不透明度・色が正しく書き込まれ、ステージに配置すればプリムの型も <code>ParticleField3DGaussianSplat</code> として認識されます。表示だけが行われません。</p>
+  <p>この上限は公式ドキュメントに記載がありません。判明したのは、Isaac Simのログファイルに残っていた次の1行からです。</p>
+  <div class="code"><pre><code>[Error] [rtx.scenedb] Failed to create TLAS for /World/ShibuyaSQ</code></pre></div>
+  <p>さらにレンダラーのバイナリ（<code>rtx.scenedb.plugin.dll</code>）を文字列検索すると、上限そのものを説明するメッセージが埋まっています。</p>
+  <div class="code"><pre><code>Max gaussian count has to be less than 2^24 for every prim.
+Skip loading the excessive gaussians...
+Please break the asset into separate...</code></pre></div>
+  <p>つまり<strong>「点数を減らすか、複数プリムに分割しろ」</strong>というのが仕様上の正解です。この記事では前者を採ります。渋谷のデータで必要な削減はわずか2.5%なので、見た目への影響はほぼありません。</p>
+  <div class="callout note"><b>読み込みが成功したかを確認する方法</b>ステージに配置したあと、Isaac Simのログ（<code>~/.nvidia-omniverse/logs/Kit/Isaac-Sim Full/6.0/</code>）を <code>Gaussian prim loaded</code> で検索します。<code>Gaussian prim loaded: /World/Shibuya, count=16500000</code> のように出ていれば描画対象として登録されています。代わりに <code>Failed to create TLAS</code> が出ていれば、そのプリムは表示されません。<strong>ビューポートを見る前にここを確認する</strong>のが確実です。</div>
+
+  <h2 id="decimate"><span class="n">04</span> LCC2から間引いてPLYを書き出す</h2>
+  <p>splat-transformで点数を上限未満に落とします。<code>--decimate</code> に絶対数を渡すことで、指定した点数まで削減できます。</p>
+  <div class="code"><pre><code>npm install -g @playcanvas/splat-transform
+
+splat-transform ShibuyaSQ.lcc2 -d 16500000 shibuya_16m.ply</code></pre></div>
+  <p>この処理は単純な間引きではなく、<strong>近接するガウシアンを段階的にペアマージ</strong>していく方式です。ランダムに削除するより情報の欠落が少なく、16,500,000点まで落としても見た目の劣化はほとんど分かりません。手元の環境（RTX 5090）で約3分、出力は881MBでした。</p>
+  <div class="callout warn"><b>使ってはいけないオプション</b>浮遊ゴミを除去する <code>--filter-floaters</code> は魅力的に見えますが、<strong>大規模データでは使えません</strong>。この処理はWebGPU経由でGPUバッファを確保するため、2GBのバッファ上限に当たって失敗します（渋谷のデータでは2.2GBを要求して停止しました）。また <code>--decimate</code> は必ず最後のアクションで、出力は <code>.ply</code> である必要があります。</div>
+
+  <h2 id="usd"><span class="n">05</span> USDに変換してステージに配置する</h2>
+  <p>Isaac Simに同梱されている <code>omni.kit.converter.gsplat</code> でPLYをUSDへ変換します。Isaac Sim内のPythonから次のように呼び出します。</p>
+  <div class="code"><pre><code>import omni.kit.app
+omni.kit.app.get_app().get_extension_manager() \
+    .set_extension_enabled_immediate("omni.kit.converter.gsplat", True)
+
+from omni.kit.converter.gsplat import convertPlyUSD
+convertPlyUSD(r"shibuya_16m.ply", r"shibuya_16m.usdc")</code></pre></div>
+  <div class="callout note"><b>出力は必ず .usdc にする</b>拡張子を <code>.usdz</code> にすると、内部レイヤーがテキスト形式（<code>.usda</code>）になってファイルサイズが2倍以上に膨れます。バイナリ形式の <code>.usdc</code> を指定してください。16,500,000点で約8分・1.07GBでした。</div>
+  <p>ステージへの配置では、参照する前に<strong>既存のガウシアンスプラットを掃除します</strong>。古いテスト資産が残っていると、「新しいデータの一部だけが表示されている」ように見えて原因の切り分けが極端に難しくなります。実際に私はこれで数時間を失いました。</p>
+  <div class="code"><pre><code>import omni.usd
+stage = omni.usd.get_context().get_stage()
+
+# 既存のガウシアンプリムを全削除
+for p in list(stage.Traverse()):
+    if p.GetTypeName() == "ParticleField3DGaussianSplat":
+        stage.RemovePrim(p.GetPath())
+
+# 型を指定せず OverridePrim で参照する
+prim = stage.OverridePrim("/World/Shibuya")
+prim.GetReferences().AddReference(r"shibuya_16m.usdc")</code></pre></div>
+  <div class="callout warn"><b>DefinePrimではなくOverridePrimを使う</b><code>stage.DefinePrim(path, "Xform")</code> のように型を明示してから参照を追加すると、ローカルの型指定が参照先より強く効いて <code>ParticleField3DGaussianSplat</code> 型が失われます。属性は入るのにプリムの型がXformのままになり、当然描画されません。型を指定しない <code>OverridePrim</code> で作成してください。</div>
+
+  <h2 id="orientation"><span class="n">06</span> 上下反転を補正する</h2>
+  <p><code>convertPlyUSD</code> は上方向の軸を指定できますが、Y-upを指定して変換すると<strong>元がZ-upのスキャンデータは上下逆さまになります</strong>。建物が地面から下向きに伸びる状態です。</p>
+  <p>これに気づかないまま「上空から見下ろす」つもりでカメラを置くと、地面を裏側から見ることになり画面は真っ暗になります。プリムにX軸まわりの−90度回転を適用することで、元のZ-upの向きに戻ります。</p>
+  <div class="code"><pre><code>from pxr import UsdGeom
+
+x = UsdGeom.Xformable(prim)
+x.ClearXformOpOrder()
+x.AddRotateXOp().Set(-90.0)</code></pre></div>
+  <p>座標の対応関係は <code>USD(x, y, z) = 元データ(x, -z, y)</code> です。この補正を入れておくことで、次に使うスキャン軌跡の座標をそのまま流用できるようになります。</p>
+
+  <h2 id="camera"><span class="n">07</span> スキャン軌跡を使ってカメラを置く</h2>
+  <p>ここが実用上のいちばんのコツです。<strong>カメラ位置は自分で計算せず、スキャン時に実際に歩いた軌跡をそのまま使います。</strong></p>
+  <p><code>.lcc2</code> に含まれる <code>info/poses.json</code> には、スキャン中の姿勢データが記録されています。渋谷のデータでは30,791点の位置・回転が入っていました。この座標は元データのZ-up系そのままなので、前節の補正を済ませていればそのまま使えます。</p>
+  <div class="code"><pre><code>import json
+poses = json.load(open("info/poses.json", encoding="utf-8"))
+# fusionPoses[グループ][フレーム]["T"] = [x, y, z]
+</code></pre></div>
+  <p>あとは軌跡上の1点を選び、目線の高さ（1.7m前後）にカメラを置いて水平方向を向けるだけです。向きの計算には <code>Gf.Matrix4d().SetLookAt(eye, target, up).GetInverse()</code> を使い、<code>AddTransformOp()</code> に設定します。この形なら転置の間違いが起きません。</p>
+  <div class="code"><pre><code>from pxr import Gf, UsdGeom
+
+eye    = Gf.Vec3d(35.28, -22.05, 1.7)   # 軌跡上の1点＋目線の高さ
+target = Gf.Vec3d(-10.0,  20.0, 12.0)
+
+xf = Gf.Matrix4d().SetLookAt(eye, target, Gf.Vec3d(0,0,1)).GetInverse()
+cx = UsdGeom.Xformable(cam_prim)
+cx.ClearXformOpOrder()
+cx.AddTransformOp().Set(xf)</code></pre></div>
+  <p>この方法が効くのは、<strong>スキャンした人が歩いた場所こそ、そのデータがいちばん高密度に記録されている場所だから</strong>です。撮影範囲の外にカメラを置くと、建物の裏側など、そもそも撮影されていない面を見ることになります。</p>
+  <div class="aiflow">
+    <div class="aiflow-h"><span class="k">カメラ位置の違い</span>同じデータでも、カメラを置く場所で結果がまったく変わります。</div>
+    <div class="aiflow-row">
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">スキャン範囲の外</span>
+        <img src="images/isaacsim_shibuya_lowangle.jpg" alt="スキャン範囲の外から見た渋谷の3DGS。建物の裏面が破綻して見える">
+        <figcaption><b>撮影されていない面。</b>建物の裏側にあたるため、ノイズが目立ちます。</figcaption>
+      </figure>
+      <figure class="aiflow-step">
+        <span class="aiflow-tag">軌跡上・目線の高さ</span>
+        <img src="images/isaacsim_shibuya_walk.jpg" alt="スキャン軌跡上に置いたカメラから見た渋谷スクランブル交差点。看板の文字まで再現されている">
+        <figcaption><b>実際に歩いた位置。</b>看板の文字まで読める品質になります。</figcaption>
+      </figure>
+    </div>
+  </div>
+  <p>俯瞰が必要な場合も、いきなり数百メートル上空に飛ばすのではなく、軌跡上から少しずつ引いていくのが確実です。バウンディングボックスから自動でカメラ距離を計算する方法は、<strong>疎な外れ値に引きずられて機能しません</strong>。渋谷のデータでは全体の範囲が484m×528mと算出されましたが、実際に密度がある範囲はその一部でした。</p>
+  <figure>
+    <img src="images/isaacsim_shibuya_overview.jpg" alt="Isaac Simでレンダリングした渋谷スクランブル交差点の俯瞰">
+    <figcaption><b>交差点全体の俯瞰。</b>スクランブル交差点の十字と、放射状に伸びる複数の道路が確認できます。1,650万ガウシアンをRTXで描画しています。</figcaption>
+  </figure>
+  <div class="callout note"><b>描画の待ち時間</b>1,650万点のRTX収束には時間がかかります。キャプチャ前に <code>await app.next_update_async()</code> を150フレーム以上回してください。待ちが足りないと真っ黒な画像が保存されます。またビューポートのキャプチャはIsaac Simのウィンドウを前面にしておくほうが安定します。</div>
+
+  <h2 id="limits"><span class="n">08</span> 現状の限界</h2>
+  <p>実際に運用してみて分かった制約を挙げます。</p>
+  <ul>
+    <li><strong>スプラット単体では物理判定を持ちません。</strong> ガウシアンスプラットは見た目のデータであり、PhysXの当たり判定はありません。ロボットに障害物として認識させるには、別途メッシュを用意してコリジョンを設定します。<code>.lcc2</code> には衝突用メッシュが同梱されているので、これを流用するのが早道です。「スプラット＝見た目、メッシュ＝物理」という役割分担が公式のアーキテクチャです。</li>
+    <li><strong>自動フレーミングは当てになりません。</strong> バウンディングボックスは疎な外れ値まで含むため、そこからカメラ距離を計算しても機能しません。<code>frame_viewport_prims</code> もIsaac Sim 6.0では引数の不一致で呼び出せませんでした。前節の軌跡ベースの配置が現実的です。</li>
+    <li><strong>ストリーミングLODはありません。</strong> Locahun3Dのビューアーが持つような、視点に応じてチャンクを読み込む仕組みはIsaac Sim側にはなく、1ファイルを丸ごとGPUに載せます。都市を広範囲に扱う場合は、ロボットが動く範囲を事前に切り出すほうが現実的です。</li>
+    <li><strong>スプラットの編集機能はありません。</strong> 不要な点の削除や色の調整は、Isaac Simに入れる前の工程（splat-transformなど）で済ませておきます。</li>
+  </ul>
+  <div class="callout note"><b>画面が真っ暗になったときの切り分け</b>まず<strong>スプラットを非表示にしてグリッドが表示されるか</strong>を確認します。グリッドも出ないならレンダラー側の問題なので、Isaac Simを再起動するのがいちばん早いです。グリッドが出るならカメラの位置か向き、あるいは点数上限を疑います。</div>
+
+  <h2 id="summary"><span class="n">09</span> まとめ</h2>
+  <p>手順としては、<strong>XGRIDsの <code>.lcc2</code> をsplat-transformで1,677万点未満に間引き、<code>.usdc</code> に変換してステージへ参照配置し、上下反転を補正して、スキャン軌跡の座標にカメラを置く</strong>、という一本道です。</p>
+  <p>いちばん重要なのは<strong>点数上限（2<sup>24</sup>）</strong>です。ここを超えているとエラーが出ないまま何も表示されないので、原因の切り分けが極端に難しくなります。読み込み後にログで <code>Gaussian prim loaded</code> を確認する習慣をつけておけば、この罠は避けられます。</p>
+  <p>もうひとつは<strong>カメラをスキャン軌跡の上に置く</strong>ことです。バウンディングボックスからの自動計算に頼らず、実際に歩いた座標をそのまま使う。これだけで、看板の文字が読める品質のショットが最短で得られます。</p>
+  <p>Isaac Simと組み合わせれば、実在の街並みをそのままロボットや自律移動の検証環境にできます。用途に応じてUE5と使い分けるのが現実的で、映像素材としての出力は<a href="ue5-xgrids-3dgs-aerial-ai.html">UE5×XGRIDs SDKの記事</a>にまとめています。3DGSの活用について気になることがあれば、お気軽にお問い合わせください。</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">DATA / 3DGS</span>
+    <h3>この記事で使っている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
+    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。スタンダードライセンス ¥200,000〜（商用・非商用利用可）。同じデータでIsaac Simのワークフローを試してみたい方は、ぜひご覧ください。</p>
+    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
+  </div>
+</article>
+
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: XGRIDS LCC2 → SPLAT-TRANSFORM (DECIMATE &lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>
