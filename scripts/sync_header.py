@@ -155,6 +155,7 @@ SCAN_LABEL = {"ja": "スキャン", "en": "Scan"}
 ONLINE_LABEL = {"ja": "オンライン", "en": "Online"}
 ONLINE_URL = {"ja": "https://locahun3d.com/properties", "en": "https://locahun3d.com/en/properties"}
 LANG_CHIP = {"ja": "EN", "en": "JA"}
+MENU_LABEL = {"ja": "メニュー", "en": "Menu"}
 
 def counterpart(relpath, lang):
     """JA<->EN の対応ページを返す（無ければトップ）。"""
@@ -167,9 +168,17 @@ def header_markup(relpath, lang):
     nav = "\n".join(
         '      <a href="%s"><span class="code">%s</span>%s</a>' % (href, code, label)
         for code, href, label in NAV[lang])
+    # ハンバーガー: タブレット縦(720–1023px)でだけ CSS で表示される。
+    # 他の帯では .sh-hb{display:none} のまま＝スマホ/PCの見た目は不変。
+    # 静的HTMLなので状態は .site-header へ class を付け外しするだけの inline onclick で持つ。
+    hb = ('  <button class="sh-hb" type="button" aria-label="%s" aria-expanded="false"'
+          ' aria-controls="sh-nav" onclick="var h=this.closest(\'.site-header\');'
+          'var o=h.classList.toggle(\'sh-open\');this.setAttribute(\'aria-expanded\',o)">'
+          '<i></i><i></i><i></i></button>\n') % MENU_LABEL[lang]
     return (
         '<header class="site-header">\n'
-        '  <div class="sh-left">\n'
+        '%s'
+        '  <div class="sh-left" id="sh-nav">\n'
         '    <nav>\n%s\n    </nav>\n'
         '  </div>\n'
         '  <div class="sh-center">\n'
@@ -181,13 +190,13 @@ def header_markup(relpath, lang):
         '      <span class="sh-active">%s</span>\n'
         '      <a href="%s">%s</a>\n'
         '    </div>\n'
-        '    <div class="sh-toggle sh-lang" style="margin-left:8px">\n'
+        '    <div class="sh-toggle sh-lang">\n'
         '      <a href="%s">%s</a>\n'
         '    </div>\n'
         '  </div>\n'
         '  <div class="sh-right" aria-hidden="true"></div>\n'
         '</header>'
-    ) % (nav, ONLINE_URL[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
+    ) % (hb, nav, ONLINE_URL[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
          ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)

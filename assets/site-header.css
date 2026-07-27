@@ -44,6 +44,11 @@
 .site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
 .site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
 .site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+/* ENチップの左マージン。以前は markup 側の inline style="margin-left:8px" だったが、
+   inline は @media の指定に必ず勝つためタブレット帯で右端へ寄せられなかった。
+   `.sh-toggle.sh-lang`(0,3,0) は帯側の `.sh-toggle`(0,2,0) より詳細度が高いので
+   これまでどおり全帯で 8px が効く（モバイル帯の margin-left:auto!important は維持）。 */
+.site-header .sh-toggle.sh-lang{margin-left:8px}
 /* トグル各セルは常に自サービス色ボーダー50%（オンライン版と共通の状態規則） */
 .site-header .sh-toggle:not(.sh-lang) a:not(.sh-active){border-color:rgba(94,200,232,.5)}
 /* ENチップ: オンライン版 LangToggle と同スタイル (JetBrains Mono / 薄グレー) に統一 */
@@ -61,13 +66,24 @@
 .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
 .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
 
-@media(max-width:767px){
-  /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
-     切替幅 768px もオンライン版 min-[768px] と同一（両サイト同時変更が必須）。
-     ⚠ 以前は 1200px 切替だったが、オンライン版は html に zoom がかかるため
-     iPad(768–1199px)ではレイアウト実効幅が広いのにヘッダーだけ2段になり、
-     2段目が丸ごと空白になる崩れが出ていた。両サイトとも 768px で1行に切り替える。
-     変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
+/* ハンバーガー（タブレット縦 720–1023px 専用）。それ以外の帯では出さない。
+   locahun3d.com(オンライン版) site-header.tsx の同帯ボタンと寸法1:1。 */
+.site-header .sh-hb{display:none;flex:none;width:40px;height:40px;margin-left:-8px;
+  align-items:center;justify-content:center;flex-direction:column;gap:4px;
+  background:none;border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none}
+.site-header .sh-hb i{display:block;width:20px;height:1.5px;background:rgba(255,255,255,.62);transition:background .2s}
+.site-header .sh-hb:hover i,.site-header .sh-hb:focus-visible i{background:var(--accent)}
+.site-header.sh-open .sh-hb i{background:var(--accent)}
+
+@media(max-width:719px){
+  /* 2段ヘッダー（スマホ専用） — locahun3d.com(オンライン版) site-header.tsx の
+     モバイル値と1:1で共通化。切替幅 720px もオンライン版 min-[720px] と同一
+     （両サイト同時変更が必須）。
+     ⚠ 経緯: 1200px → 768px → 720px。1200pxだとオンライン版は html の zoom で
+     レイアウト実効幅が広いのにヘッダーだけ2段になり2段目が空白になった。
+     768pxだと iPad mini 6 縦(744px)がスマホ扱いに落ちてしまうため 720px へ。
+     430px以下（スマホ実機）の見た目は3回とも不変であることを実測で確認済み。
+     パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
   .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
   .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
   .site-header .sh-center .sh-lang{margin-left:auto!important}
@@ -92,16 +108,67 @@
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 3px}
   .site-header .sh-toggle.sh-lang a{font-size:9px;padding:2px 4px}}
 
-/* タブレット帯(768-1199px): 1行ヘッダー。
-   2段のままだと iPad で2段目のナビ行が丸ごと余白になり崩れて見えるため、
-   デスクトップと同じ1行構成のまま寸法だけ詰める（下記は実測で決めた値）。
+/* ══ タブレット縦(720–1023px): ハンバーガー方式 ══
+   構成: 左=ハンバーガー / 中央=ブランド＋スキャン・オンライントグル / 右=EN。
+   ナビ4項目はハンバーガーで開くドロワーへ入れる。
+   なぜ: 1行フルナビのままだと、オンライン版はサインイン時に右側（EN/カート/
+   ベル/アバター）が重くなり、実測で 768px のナビと中央ブランドが重なっていた
+   （0.4お問い合わせ × ロケハン3D が 5px 重なり）。ナビを畳めば恒久的に余裕が出る。
+   ⚠ ブランドの水平中心を両サイトで一致させるのがこの帯の最重要要件。
+   そのため .sh-center をヘッダー全幅の絶対配置グリッド (1fr auto 1fr) にし、
+   ブランドを2列目＝ビューポート中央に固定する。
+   オンライン版は html に zoom(0.8) がかかるが、「中央＝幅の50%」は
+   ズーム倍率に依存しないので実画面座標でも一致する
+   （実測: ブランドリンク中心が両サイトとも 720/744/768/810/820/834/1023px の
+   全幅でぴったり vw/2、差 0.0px）。
+   ⚠ グループ全体(ブランド+トグル)を中央寄せにしてはいけない。トグル幅の半分だけ
+   ズレる上、zoom 差でそのズレ量が両サイトで揃わない（実測 約10px）。
+   下端を 720px にしてあるのは iPad mini 6 縦(744px)をタブレット扱いにするため
+   （globals.css の zoom ティア境界も 720px に合わせてある。片方だけ変えると
+   ヘッダーだけ帯が違う崩れが再発する）。 */
+@media(min-width:720px) and (max-width:1023px){
+  .site-header{height:56px;padding:0 24px;flex-wrap:nowrap}
+  .site-header .sh-hb{display:flex}
+  /* ナビ = ドロワー。ヘッダー直下に全幅で開く。 */
+  .site-header .sh-left{position:absolute;top:100%;left:0;right:0;
+    display:none;flex:none;min-width:0;gap:0;padding:4px 24px 12px;
+    background:#000;border-bottom:1px solid var(--line)}
+  .site-header.sh-open .sh-left{display:block}
+  .site-header .sh-left nav{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .site-header .sh-left nav a{font-size:14px;padding:11px 0;gap:10px}
+  /* 中央: ブランドを画面中央に固定（1fr auto 1fr の2列目）。ENは右端へ。 */
+  /* ⚠ 中心の基準は「ビューポート幅(100vw)の50%」で両サイト統一する。
+     素直に left:0/right:0 で中央に置くと、基準が ICB（クラシックなスクロールバーが
+     あればその分狭い / オンライン版は scrollbar-gutter:stable で必ず15px狭い）に
+     なり、環境によって両サイトの中心が 7.5px ずれる（実測）。
+     translateX((100vw - 100%)/2) で「自分の幅」と「ビューポート幅」の差の半分だけ
+     右へ戻すと、ガターの有無に関わらず中心が常に 50vw に一致する
+     （ガター0の環境では 100vw == 100% となり自動的に 0 になる）。 */
+  .site-header .sh-center{position:absolute;left:0;right:0;top:0;height:56px;padding:0 24px;
+    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0;
+    margin-left:0;pointer-events:none;
+    transform:translateX(calc((100vw - 100%) / 2))}
+  .site-header .sh-brand{grid-column:2;grid-row:1;gap:6px;pointer-events:auto}
+  .site-header .sh-brand-text{font-size:18px;letter-spacing:.01em}
+  .site-header .sh-brand svg{width:18px;height:18px}
+  .site-header .sh-toggle:not(.sh-lang){grid-column:3;grid-row:1;justify-self:start;
+    margin-left:8px;pointer-events:auto;
+    font-size:9px;letter-spacing:.04em}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 6px;white-space:nowrap}
+  .site-header .sh-center .sh-lang{grid-column:3;grid-row:1;justify-self:end;
+    margin-left:0;pointer-events:auto}
+  .site-header .sh-toggle.sh-lang a{font-size:11px;letter-spacing:.12em;padding:4px 8px}
+  .site-header .sh-right{display:none}
+  .site-header .sh-user-name{display:none}}
+
+/* タブレット横(1024-1199px): 1行フルナビ（従来どおり・変更しないこと）。
    構成: 左=ナビ / 右=ブランド＋トグル＋EN。.sh-right は空のスペーサーだが
    flex:1 のままだと sh-left(basis 0)が潰れてナビがはみ出すため display:none にし、
-   .sh-center を margin-left:auto で右寄せする（768px で +50px 前後の余裕）。
+   .sh-center を margin-left:auto で右寄せする。
    ⚠ 各要素の書体/サイズ/太さ/余白は locahun3d.com site-header.tsx の
-   min-[768px]: 値と1:1（brand 18px / toggle 10px・4px 8px / EN 11px・4px 8px /
+   min-[1024px]: 値と1:1（brand 18px / toggle 9px・3px 6px / EN 11px・4px 8px /
    nav 13px / マーク18px）。変更時は両サイト同時に。検査=header-parity.mjs */
-@media(min-width:768px) and (max-width:1199px){
+@media(min-width:1024px) and (max-width:1199px){
   .site-header{height:56px;padding:0 24px;flex-wrap:nowrap}
   .site-header .sh-left{flex:1 1 auto;min-width:0;justify-content:flex-start;padding-bottom:0;gap:16px}
   .site-header .sh-left nav{flex-wrap:nowrap;gap:16px}

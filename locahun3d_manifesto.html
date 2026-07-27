@@ -92,7 +92,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site-header.css?v=a71b9e45">
+<link rel="stylesheet" href="/assets/site-header.css?v=d0589162">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -435,13 +435,72 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   html,body{scroll-behavior:auto!important}
   .fade{opacity:1!important;transform:none!important}}
 /* 内容なりの高さで下部の無駄な空白を解消（ヒーロー/締めのみ全画面維持） */
-.frame.hero,.frame.end,.frame.manifesto,.frame.pp-hero{min-height:100vh}</style>
+.frame.hero,.frame.end,.frame.manifesto,.frame.pp-hero{min-height:100vh}
+/* ══ タブレット縦(720–1023px) — iPad縦の「間延び」対策 ══
+   実測(820x1180, 変更前): ヒーローは min-height:100vh のまま中身が 173px しか
+   無く、見出しの上下に各 330px 前後の死んだ余白があった。しかも 900px 以下の
+   スマホ用ブロックが効いて見出しは 38.4px(=上限2.4em)で頭打ち、900/901px を
+   境に 38.4px → 50.5px と不連続に飛んでいた。
+   この帯だけ「余白を詰める・見出しを引き上げる・見出しサイズを揃える」。
+   ⚠ 1024px 以上と 719px 以下には一切適用しない（両側とも現状維持が指示）。
+   ⚠ ≤900px のスマホ用ブロックより後に置くこと（720–900px はそちらが先に効く）。 */
+@media(min-width:720px) and (max-width:1023px){
+  /* 「1セクション=1画面」を縦長画面では上限つきにする。
+     横長(1023x768 等)は 100vh が 820px 未満なので実質これまでどおり。 */
+  .frame.hero,.frame.pp-hero{min-height:min(100vh,820px)}
+  /* マニフェスト/締めは中身が300–420pxしか無く、820pxだと上下に各170–260pxの
+     空白が残る（実測）。この2つはさらに詰めてスクロール負担を下げる。 */
+  .frame.manifesto,.frame.end{min-height:min(100vh,680px)}
+  /* 余白: ≤900px の 22px/54px/60px はタブレットでは窮屈＋縦に間延びする。
+     左右はデスクトップと同じ --pad-x(この帯では常に48px)へ戻す。 */
+  .frame{padding-left:var(--pad-l);padding-right:var(--pad-x);
+    padding-top:clamp(56px,6vh,96px);padding-bottom:clamp(56px,6vh,96px)}
+  .chapter-rule{margin-bottom:44px;font-size:.7em;gap:18px}
+
+  /* HERO — 見出しを引き上げる。1023pxで54.4px、1024px(デスクトップ)の57.3pxと
+     連続するように上限3.4emを選んである（実測で合わせた）。 */
+  .hero .h-main{font-size:clamp(2.4em,5.8vw,3.4em);gap:.36em;margin-bottom:40px;line-height:1.38}
+  /* 「全ては」「のために」(ln-s) と本体(ln-l)の比。スマホ .55/1.0、デスクトップ
+     .45/1.15 の中間に置き、どちらか一方だけが極端に見える状態を解消する。 */
+  .hero .h-main .ln-s{font-size:.5em;letter-spacing:.34em;gap:16px}
+  .hero .h-main .ln-s::before,.hero .h-main .ln-s::after{width:36px}
+  .hero .h-main .ln-l{font-size:1.15em;letter-spacing:-.01em}
+  .hero .h-sub{font-size:1em;line-height:1.9;max-width:36ch;padding:0}
+  .hero .brand{margin-bottom:3.2vh;font-size:.66em;letter-spacing:.5em;text-indent:.5em}
+  .hero .hero-logo{width:52px;margin-bottom:12px}
+  .hero .scroll-hint{bottom:40px;font-size:.66em}
+
+  /* 見出しの階層統一 — 各FRAMEのh2はインラインで 2.7vw / 3vw とバラバラなので
+     帯の中では同一値に揃える（nowrapも解除して自然に折り返させる）。 */
+  /* ⚠ 900px以下のブロックに .frame h2[style*="nowrap"]{...!important} があり、
+     こちらが後ろでも詳細度(0,2,1)で負ける。同じ形のセレクタを併記して勝つ。 */
+  .frame h2,.frame h2[style*="nowrap"]{font-size:clamp(1.75em,3vw,1.92em)!important;
+    line-height:1.55!important;white-space:normal!important}
+
+  /* バナー: ≤900px の 16/10 だと 820px幅で高さ485px＝画面の41%を占有していた。
+     デスクトップと同じ 21/9 に戻して 332px(28%)へ。 */
+  .method-banner{aspect-ratio:21/9;margin-top:3vh}
+
+  .prologue .pull{font-size:clamp(1.5em,3.4vw,2.1em);line-height:1.7;max-width:26ch}
+  .manifesto .lines{font-size:clamp(1.25em,2.6vw,1.7em);line-height:2.1;max-width:32ch}
+
+  .end{padding-top:clamp(56px,6vh,96px);padding-bottom:clamp(56px,6vh,96px)}
+  .end .marque{font-size:clamp(2.6em,7vw,4.4em);letter-spacing:.14em;margin-bottom:22px}
+  .end .tagline{font-size:.85em;letter-spacing:.26em;margin-bottom:32px;line-height:2}
+  /* ボタンは横並びにしない（.cta-row には「— GET STARTED —」キャプションも
+     入っており、row にするとキャプションがボタンの左に並んでしまう。実測で確認）。
+     デスクトップと同じ縦積みのまま、幅だけスマホの100%指定から自然幅へ戻す。 */
+  .end .cta{width:auto;max-width:none;min-width:280px;padding:15px 30px;font-size:.7em}
+  .end .cta-row{width:auto;margin-top:36px;gap:14px}
+}
+</style>
 </head>
 <body>
 
 <!-- Unified header — matches locahun3d.com -->
 <header class="site-header">
-  <div class="sh-left">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
     <nav>
       <a href="/locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
       <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
@@ -458,7 +517,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <span class="sh-active">スキャン</span>
       <a href="https://locahun3d.com/properties">オンライン</a>
     </div>
-    <div class="sh-toggle sh-lang" style="margin-left:8px">
+    <div class="sh-toggle sh-lang">
       <a href="/en/locahun3d_manifesto.html">EN</a>
     </div>
   </div>

@@ -60,7 +60,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700;900&family=Noto+Sans+JP:wght@200;300;400;600;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site-header.css?v=a71b9e45">
+<link rel="stylesheet" href="/assets/site-header.css?v=d0589162">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -160,7 +160,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 <body>
 
 <header class="site-header">
-  <div class="sh-left">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
     <nav>
       <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
       <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
@@ -177,7 +178,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
       <span class="sh-active">Scan</span>
       <a href="https://locahun3d.com/en/properties">Online</a>
     </div>
-    <div class="sh-toggle sh-lang" style="margin-left:8px">
+    <div class="sh-toggle sh-lang">
       <a href="/locahun3d_privacy.html">JA</a>
     </div>
   </div>
