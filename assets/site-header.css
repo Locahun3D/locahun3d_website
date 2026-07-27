@@ -110,8 +110,11 @@
   .site-header .sh-brand{gap:6px}
   .site-header .sh-brand-text{font-size:18px;letter-spacing:.01em}
   .site-header .sh-brand svg{width:18px;height:18px}
-  .site-header .sh-toggle{font-size:10px;letter-spacing:.04em;margin-left:0}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px;white-space:nowrap}
+  /* トグルはオンライン版の min-[768px]: 値と1:1（9px / 3px 6px）。
+     オンライン版はこの帯で右側にログイン/新規登録も並ぶため、この寸法まで
+     詰めないと 768px でナビと重なる（実測 -24px）。片側だけ変えるとパリティが崩れる。 */
+  .site-header .sh-toggle{font-size:9px;letter-spacing:.04em;margin-left:0}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:3px 6px;white-space:nowrap}
   .site-header .sh-toggle.sh-lang a{font-size:11px;letter-spacing:.12em;padding:4px 8px}
   .site-header .sh-right{display:none}
   .site-header .sh-user-name{display:none}}
