@@ -61,9 +61,12 @@
 .site-header .sh-user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);object-fit:cover;cursor:pointer}
 .site-header .sh-user-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
 
-@media(max-width:1199px){
+@media(max-width:767px){
   /* 2段ヘッダー — locahun3d.com(オンライン版) site-header.tsx のモバイル値と1:1で共通化。
-     切替幅 1200px もオンライン版 min-[1200px] と同一（両サイト同時変更が必須）。
+     切替幅 768px もオンライン版 min-[768px] と同一（両サイト同時変更が必須）。
+     ⚠ 以前は 1200px 切替だったが、オンライン版は html に zoom がかかるため
+     iPad(768–1199px)ではレイアウト実効幅が広いのにヘッダーだけ2段になり、
+     2段目が丸ごと空白になる崩れが出ていた。両サイトとも 768px で1行に切り替える。
      変更時は必ず両サイト同時に。パリティ検査 = locahun3d_online/scripts/header-parity.mjs */
   .site-header{height:auto;min-height:0;padding:0 16px;flex-wrap:wrap}
   .site-header .sh-center{order:1;flex:1 0 100%;justify-content:flex-start;gap:4px;height:48px}
@@ -89,19 +92,29 @@
   .site-header .sh-toggle a,.site-header .sh-toggle span{padding:2px 3px}
   .site-header .sh-toggle.sh-lang a{font-size:9px;padding:2px 4px}}
 
-/* タブレット帯(768-1199px): スマホ極小サイズのままだと余白だらけで崩れて
-   見えるため中間サイズへ拡大。locahun3d.com site-header.tsx の min-[768px]:
-   値と1:1（変更時は両サイト同時に。検査=header-parity.mjs）。 */
+/* タブレット帯(768-1199px): 1行ヘッダー。
+   2段のままだと iPad で2段目のナビ行が丸ごと余白になり崩れて見えるため、
+   デスクトップと同じ1行構成のまま寸法だけ詰める（下記は実測で決めた値）。
+   構成: 左=ナビ / 右=ブランド＋トグル＋EN。.sh-right は空のスペーサーだが
+   flex:1 のままだと sh-left(basis 0)が潰れてナビがはみ出すため display:none にし、
+   .sh-center を margin-left:auto で右寄せする（768px で +50px 前後の余裕）。
+   ⚠ 各要素の書体/サイズ/太さ/余白は locahun3d.com site-header.tsx の
+   min-[768px]: 値と1:1（brand 18px / toggle 10px・4px 8px / EN 11px・4px 8px /
+   nav 13px / マーク18px）。変更時は両サイト同時に。検査=header-parity.mjs */
 @media(min-width:768px) and (max-width:1199px){
-  .site-header .sh-center{height:56px;gap:8px}
-  .site-header .sh-brand{gap:8px}
-  .site-header .sh-brand-text{font-size:16px}
-  .site-header .sh-toggle{font-size:10px;letter-spacing:.04em}
-  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px}
-  .site-header .sh-toggle.sh-lang a{font-size:10px;letter-spacing:.08em;padding:3px 6px}
-  .site-header .sh-left nav{gap:6px 24px}
+  .site-header{height:56px;padding:0 24px;flex-wrap:nowrap}
+  .site-header .sh-left{flex:1 1 auto;min-width:0;justify-content:flex-start;padding-bottom:0;gap:16px}
+  .site-header .sh-left nav{flex-wrap:nowrap;gap:16px}
   .site-header .sh-left nav a{font-size:13px}
-  .site-header .sh-left{padding-bottom:10px}}
+  .site-header .sh-center{flex:0 0 auto;height:auto;gap:6px;margin-left:auto}
+  .site-header .sh-brand{gap:6px}
+  .site-header .sh-brand-text{font-size:18px;letter-spacing:.01em}
+  .site-header .sh-brand svg{width:18px;height:18px}
+  .site-header .sh-toggle{font-size:10px;letter-spacing:.04em;margin-left:0}
+  .site-header .sh-toggle a,.site-header .sh-toggle span{padding:4px 8px;white-space:nowrap}
+  .site-header .sh-toggle.sh-lang a{font-size:11px;letter-spacing:.12em;padding:4px 8px}
+  .site-header .sh-right{display:none}
+  .site-header .sh-user-name{display:none}}
 
 /* ナビ番号コード(0.1〜0.4)は 1560px 以上でのみ表示する。
    実測の根拠: .site-header の padding は max(48px, calc((100vw - 1440px)/2)) なので
