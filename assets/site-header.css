@@ -150,14 +150,16 @@
    左右対称である限り padding に依存しない。 */
 @media(min-width:0px){
   .site-header .sh-center{position:absolute;left:0;right:0;top:0;height:100%;padding:0 24px;
-    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0;
+    display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:0;
     margin-left:0;pointer-events:none;
     transform:translateX(calc((100vw - 100%) / 2))}
   .site-header .sh-brand{grid-column:2;grid-row:1;gap:6px;pointer-events:auto}
   .site-header .sh-brand svg{width:18px;height:18px}
-  /* ⚠ 列は minmax(0,1fr) にしないこと。col3の内容(トグル+EN)が列を押し広げると
-     ブランドが中央からずれるが、0許容にすると狭い画面でトグルが画面外へ出る。
-     狭い画面は「ENをドロワーへ退避」で幅を作る（R3）。 */
+  /* ⚠ 列は必ず minmax(0,1fr)。素の 1fr だと col3(トグル)の最小幅が col1(空)より
+     大きくなって列が広がり、ブランドが左へ押される（実測 375px:-16px / 390px:-8.5px。
+     トグルの white-space:nowrap を直して本来の幅に戻った途端に表面化した）。
+     0まで縮む指定なら左右の列は必ず同幅になり、ブランドは常に画面中央。
+     はみ出た分は外周padding内に収まる。オンライン版 site-header.tsx と同じ対処。 */
   .site-header .sh-toggle:not(.sh-lang){grid-column:3;grid-row:1;justify-self:start;
     margin-left:8px;pointer-events:auto}
   .site-header .sh-center .sh-lang{grid-column:3;grid-row:1;justify-self:end;
