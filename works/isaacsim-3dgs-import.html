@@ -131,6 +131,12 @@
      折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
      iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
   article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
 
   .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
   .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
