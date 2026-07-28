@@ -127,7 +127,10 @@
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
-  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
 
   .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
   .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
