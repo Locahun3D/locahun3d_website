@@ -353,16 +353,20 @@ async function handleContact(request, env) {
 // CSP allowlist matches actual external resources used by the site:
 //   - Google Fonts (CSS + woff2)
 //   - jsdelivr (flatpickr CSS + JS on demo page)
-//   - npmcdn (flatpickr ja locale)
+//   - static.cloudflareinsights.com (Cloudflare Web Analytics のビーコン。CF側が
+//     自動注入するので HTML には出てこないが、許可しないと計測が一切走らない)
+// ⚠ npmcdn.com は削除した。npmcdn は unpkg.com へ301するが CSP はリダイレクト先にも
+//    適用されるため、許可リストに npmcdn だけ入れても実際には unpkg でブロックされる
+//    （実害: 日本語デモページの日付ピッカーが英語表記のままだった）。CDNは jsdelivr に統一する。
 //   - challenges.cloudflare.com (Turnstile)
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://npmcdn.com https://clerk.locahun3d.com",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://clerk.locahun3d.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://clerk.locahun3d.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https: https://img.clerk.com",
   "media-src 'self' blob:",
-  "connect-src 'self' https://challenges.cloudflare.com https://clerk.locahun3d.com https://accounts.locahun3d.com",
+  "connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://clerk.locahun3d.com https://accounts.locahun3d.com",
   "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://clerk.locahun3d.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
