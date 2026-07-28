@@ -151,8 +151,16 @@
 @media(min-width:0px){
   .site-header .sh-center{position:absolute;left:0;right:0;top:0;height:100%;padding:0 24px;
     display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:0;
-    margin-left:0;pointer-events:none;
-    transform:translateX(calc((100vw - 100%) / 2))}
+    margin-left:0;pointer-events:none}
+/* ⚠ 中央の基準に 100vw を使わないこと。2026-07-29 に実Chromeで判明:
+   オンライン版は scrollbar-gutter:stable を敷いており、その環境では 100vw が
+   「予約分を除いた幅」(805px @820px)になる。スキャン側は auto なので 820px。
+   同じ式が両サイトで別の値になり、実測でブランド中心が 7.5px ずれていた
+   （scan 410 / online 402.5。ヘッドレスはスクロールバーが重なり型で再現しない）。
+   → 両サイトとも scrollbar-gutter:stable を敷き、"中央 = 自分の箱の中央" に統一する。
+   箱はスクロールバーを除いた表示領域そのものなので、ページの長短でも変わらない。 */
+.site-header{scrollbar-gutter:stable}
+html{scrollbar-gutter:stable}
   .site-header .sh-brand{grid-column:2;grid-row:1;gap:6px;pointer-events:auto}
   .site-header .sh-brand svg{width:18px;height:18px}
   /* ⚠ 列は必ず minmax(0,1fr)。素の 1fr だと col3(トグル)の最小幅が col1(空)より
