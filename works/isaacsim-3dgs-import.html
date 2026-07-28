@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NVIDIA Isaac Simに3DGSを持ち込む｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGSスキャンをNVIDIA Isaac Simに読み込んで実写品質でレンダリングするまでの手順。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限、間引き、USD変換、上下反転の補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点（オブジェクト分離不可・セマンティックラベルがシーンに1つ・当たり判定なし）と回避策を解説します。">
+<meta name="description" content="3DGSスキャンをNVIDIA Isaac Simに読み込み、実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。エラーが出ないまま何も表示されなくなる描画上限、変換、向きの補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点と回避策を解説します。">
 <link rel="canonical" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
 <link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
@@ -11,8 +11,9 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="NVIDIA Isaac Simに3DGSを持ち込む">
-<meta property="og:description" content="3DGSスキャンをNVIDIA Isaac Simに読み込んで実写品質でレンダリングするまでの手順。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限、間引き、USD変換、上下反転の補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点（オブジェクト分離不可・セマンティックラベルがシーンに1つ・当たり判定なし）と回避策を解説します。">
+<meta property="og:description" content="3DGSスキャンをNVIDIA Isaac Simに読み込み、実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。エラーが出ないまま何も表示されなくなる描画上限、変換、向きの補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点と回避策を解説します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/isaacsim-3dgs-import.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/isaacsim_shibuya_walk.jpg">
 <meta property="og:image:width" content="1920">
@@ -20,7 +21,7 @@
 <meta property="og:image:alt" content="NVIDIA Isaac Simでレンダリングした3DGSスキャン（歩行者目線）">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NVIDIA Isaac Simに3DGSを持ち込む">
-<meta name="twitter:description" content="3DGSスキャンをNVIDIA Isaac Simに読み込んで実写品質でレンダリングするまでの手順。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限、間引き、USD変換、上下反転の補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点（オブジェクト分離不可・セマンティックラベルがシーンに1つ・当たり判定なし）と回避策を解説します。">
+<meta name="twitter:description" content="3DGSスキャンをNVIDIA Isaac Simに読み込み、実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。エラーが出ないまま何も表示されなくなる描画上限、変換、向きの補正、カメラ配置まで。あわせて産業用シミュレーションで使う際の弱点と回避策を解説します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/isaacsim_shibuya_walk.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -28,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site-header.css?v=d0589162">
+<link rel="stylesheet" href="/assets/site-header.css?v=df90595f">
 <style>
   :root{
     --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
@@ -234,10 +235,10 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">Omniverse</span><span class="badge">ワークフロー</span>
-    <span>2026-07-26</span><span>・</span><span>読了 約10分</span>
+    <span>2026-07-26</span><span>・</span><span>読了 約7分</span>
   </div>
   <h1>NVIDIA Isaac Simに<br class="pc">3DGSを持ち込む</h1>
-  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットや自律移動のシミュレーションに使うなら、行き先はゲームエンジンではなく<strong>NVIDIA Isaac Sim</strong>になります。この記事では、3DGSをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。<strong>公式ドキュメントに書かれていない描画上限</strong>など、つまずきどころは省略せずに書きます。あわせて後半では、<strong>3DGSを産業用シミュレーションで使う際の本質的な弱点と、その回避策</strong>を扱います。</p>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットや自律移動のシミュレーションに使うなら、行き先はゲームエンジンではなく<strong>NVIDIA Isaac Sim</strong>になります。この記事では、読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。あわせて後半では、<strong>3DGSを産業用シミュレーションで使う際の本質的な弱点と、その回避策</strong>を扱います。</p>
 
   <figure>
     <img src="images/isaacsim_shibuya_walk.jpg" alt="NVIDIA Isaac Simでレンダリングした3DGSスキャン（歩行者目線）">
@@ -248,12 +249,10 @@
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#why">なぜ3DGSをIsaac Simに持ち込むのか</a></li>
+    <li><a href="#why">なぜIsaac Simなのか</a></li>
     <li><a href="#prepare">用意するもの</a></li>
-    <li><a href="#limit">最大の落とし穴：1プリム1,677万点の描画上限</a></li>
-    <li><a href="#decimate">LCC2から間引いてPLYを書き出す</a></li>
-    <li><a href="#usd">USDに変換してステージに配置する</a></li>
-    <li><a href="#orientation">上下反転を補正する</a></li>
+    <li><a href="#limit">最初の関門：描画上限を超えると何も映らない</a></li>
+    <li><a href="#import">読み込みの手順</a></li>
     <li><a href="#camera">カメラを置く</a></li>
     <li><a href="#industrial">産業用シミュレーションで使う場合の弱点</a></li>
     <li><a href="#solutions">弱点への対処</a></li>
@@ -263,68 +262,57 @@
 
 <article>
   <div class="stepflow">
-    <b>XGRIDs .lcc2</b><span class="a">→</span>
-    <b>splat-transformで間引き</b><span class="a">→</span>
-    <b>USDC変換</b><span class="a">→</span>
+    <b>3DGSスキャン</b><span class="a">→</span>
+    <b>点数を間引く</b><span class="a">→</span>
+    <b>USDに変換</b><span class="a">→</span>
     <b>ステージ配置＋向き補正</b><span class="a">→</span>
-    <b>軌跡からカメラ配置</b>
+    <b>カメラを置く</b>
   </div>
 
-  <h2 id="why"><span class="n">01</span> なぜ3DGSをIsaac Simに持ち込むのか</h2>
-  <p>私はロケハン3Dで、都市部を中心にした3DGSスキャンデータを制作・販売しています。スキャンの持ち込み先は用途によって変わり、映像素材として使うならUE5がいちばん自由が利きますが、<strong>ロボット・自律移動・センサーシミュレーション</strong>が目的ならNVIDIA Isaac Simが本命になります。実在の場所をそのまま検証環境にできるからです。</p>
+  <h2 id="why"><span class="n">01</span> なぜIsaac Simなのか</h2>
+  <p>3DGSスキャンの持ち込み先は、用途によって変わります。映像素材として使うならUE5がいちばん自由が利きますが、<strong>ロボット・自律移動・センサーシミュレーション</strong>が目的ならNVIDIA Isaac Simが本命になります。実在の場所を、そのまま検証環境にできるからです。</p>
   <ul>
-    <li><strong>実在の場所でロボットを動かせる</strong> ── CGで作り込んだ架空の空間ではなく、実際にスキャンした現場をシミュレーション環境にできます。</li>
+    <li><strong>実在の場所でロボットを動かせる</strong> ── 架空の空間ではなく、実際にスキャンした現場をシミュレーション環境にできます。</li>
     <li><strong>物理シミュレーションと同居できる</strong> ── PhysXの剛体・関節・センサーを、実写ベースの背景の中で動かせます。</li>
-    <li><strong>学習用の画像を量産できる</strong> ── 実在の風景を背景に、任意のアングル・任意の条件でカメラ画像を生成できます。</li>
+    <li><strong>学習用の画像を量産できる</strong> ── 実在の風景を背景に、任意のアングルでカメラ画像を生成できます。</li>
   </ul>
-  <p>Isaac Sim 6.0はガウシアンスプラットをネイティブに描画します。RTXのパストレーシングに参加するため、被写界深度やモーションブラーもそのまま効きます。ただし<strong>実際に持ち込むと、ドキュメントに書かれていない壁がいくつかあります</strong>。この記事では手順に加えて、産業用途で使う場合の制約と回避策までまとめます。</p>
+  <p>Isaac Sim 6.0はガウシアンスプラットをネイティブに描画します。RTXのパストレーシングに参加するため、被写界深度やモーションブラーもそのまま効きます。ただし<strong>実際に持ち込むと、ドキュメントに書かれていない壁がいくつかあります</strong>。</p>
 
   <h2 id="prepare"><span class="n">02</span> 用意するもの</h2>
   <dl class="spec">
-    <dt>Isaac Sim</dt><dd>6.0以降。Windows standalone zipは約10GB、展開後は約40GBになるので空き50GBを見ておきます</dd>
-    <dt>スキャンデータ</dt><dd>3DGSの <code>.ply</code>。XGRIDs系のスキャナを使っている場合は <code>.lcc2</code> のまま扱えます</dd>
-    <dt>変換ツール</dt><dd>PlayCanvas <strong>splat-transform</strong>（npm・無料）。<code>npm install -g @playcanvas/splat-transform</code></dd>
-    <dt>USD変換</dt><dd><code>omni.kit.converter.gsplat</code>。Isaac Simに標準同梱されているので追加インストールは不要です</dd>
+    <dt>Isaac Sim</dt><dd>6.0以降。展開後に約40GBになるので、空き50GBを見ておきます</dd>
+    <dt>スキャンデータ</dt><dd>3DGSの <code>.ply</code></dd>
+    <dt>変換ツール</dt><dd>PlayCanvas <strong>splat-transform</strong>（npm・無料）</dd>
+    <dt>USD変換</dt><dd>Isaac Simに標準同梱されているので、追加インストールは不要です</dd>
   </dl>
-  <p>Isaac Simの導入は、zipを展開して <code>post_install.bat</code> を実行するだけです。インストール先に <code>C:\Program Files</code> は避けてください。動作中にデータを書き込むため、管理者権限が必要な場所に置くと余計なトラブルを招きます。</p>
-  <div class="callout note"><b>スキャナ固有フォーマットを持っている場合</b>splat-transformは <code>.ply</code> のほか <code>.lcc</code> / <code>.lcc2</code>（XGRIDs）、<code>.spz</code>、<code>.ksplat</code>、<code>.splat</code> を読み込めます。中間形式に落とす手間が省けるうえ、これらのパッケージには<strong>衝突用メッシュやスキャン時のカメラ軌跡</strong>が同梱されていることがあり、後の工程で効いてきます。手元にあるなら元のフォーマットから始めるのが得です。</div>
+  <p>インストール先に <code>C:\Program Files</code> は避けてください。動作中にデータを書き込むため、管理者権限が必要な場所に置くと余計なトラブルを招きます。</p>
+  <div class="callout note"><b>スキャナ固有のフォーマットは変換せずに使えます</b>splat-transformは <code>.ply</code> のほか、主要なスキャナやビューアの独自形式をそのまま読み込めます。中間形式に落とす手間が省けるうえ、これらのパッケージには<strong>衝突用メッシュやスキャン時のカメラ軌跡</strong>が同梱されていることがあり、後の工程で効いてきます。手元にあるなら、元のフォーマットから始めるのが得です。</div>
 
-  <h2 id="limit"><span class="n">03</span> 最初の関門：1プリム1,677万点の描画上限</h2>
+  <h2 id="limit"><span class="n">03</span> 最初の関門：描画上限を超えると何も映らない</h2>
   <p>大きめのスキャンを扱うなら、まずここを押さえてください。</p>
-  <div class="callout warn"><b>Isaac SimのRTXレンダラーは、1つのプリムあたり2<sup>24</sup>（16,777,216）点までしか描画できません。</b>これを超えるとレイトレーシング用の構造（TLAS）の構築に失敗し、<strong>そのプリムは1点も表示されなくなります</strong>。変換ツールにもPython APIにもエラーは出ません。「変換は成功、点数も正しい、なのに画面は真っ暗」という状態になります。</div>
-  <p>厄介なのは、失敗しても各工程が正常終了することです。USDファイルには全点の座標・スケール・不透明度・色が正しく書き込まれ、ステージに配置すればプリムの型も <code>ParticleField3DGaussianSplat</code> として認識されます。表示だけが行われません。</p>
-  <p>この上限は公式ドキュメントに記載がありません。手がかりはログファイルに残る次の1行だけです。</p>
-  <div class="code"><pre><code>[Error] [rtx.scenedb] Failed to create TLAS for /World/YourScene</code></pre></div>
-  <p>レンダラーのバイナリ（<code>rtx.scenedb.plugin.dll</code>）を文字列検索すると、上限そのものを説明するメッセージが埋まっています。</p>
-  <div class="code"><pre><code>Max gaussian count has to be less than 2^24 for every prim.
-Skip loading the excessive gaussians...
-Please break the asset into separate...</code></pre></div>
-  <p>つまり<strong>「点数を減らすか、複数プリムに分割しろ」</strong>というのが仕様上の正解です。以下では前者を扱います。</p>
-  <div class="callout note"><b>読み込みが成功したかを確認する方法</b>ステージに配置したあと、Isaac Simのログ（<code>~/.nvidia-omniverse/logs/Kit/</code> 以下）を <code>Gaussian prim loaded</code> で検索します。<code>Gaussian prim loaded: /World/YourScene, count=16500000</code> のように出ていれば描画対象として登録されています。代わりに <code>Failed to create TLAS</code> が出ていれば表示されません。<strong>ビューポートを見る前にここを確認する</strong>のが確実です。</div>
+  <div class="callout warn"><b>Isaac SimのRTXレンダラーは、1つのプリムあたり2<sup>24</sup>（16,777,216）点までしか描画できません。</b>これを超えるとレイトレーシング用の構造の構築に失敗し、<strong>そのプリムは1点も表示されなくなります</strong>。変換ツールにもPython APIにもエラーは出ません。「変換は成功、点数も正しい、なのに画面は真っ暗」という状態になります。</div>
+  <p>厄介なのは、失敗しても各工程が正常終了することです。USDファイルには全点の座標・スケール・不透明度・色が正しく書き込まれ、ステージに配置すればプリムの型も正しく認識されます。表示だけが行われません。</p>
+  <p>この上限は公式ドキュメントに記載がありません。手がかりは、ログに残る <code>Failed to create TLAS</code> の1行だけです。仕様上の正解は<strong>「点数を減らすか、複数プリムに分割する」</strong>で、この記事では前者を扱います。</p>
+  <div class="callout note"><b>ビューポートを見る前にログを確認する</b>ステージに配置したあと、Isaac Simのログを <code>Gaussian prim loaded</code> で検索します。点数付きで出ていれば描画対象として登録されています。代わりに <code>Failed to create TLAS</code> が出ていれば表示されません。真っ黒な画面をカメラの問題と誤診しないために、先にここを見るのが確実です。</div>
 
-  <h2 id="decimate"><span class="n">04</span> 点数を上限未満に落とす</h2>
+  <h2 id="import"><span class="n">04</span> 読み込みの手順</h2>
+
+  <h3>点数を上限未満に落とす</h3>
   <p>splat-transformの <code>--decimate</code> に目標点数を渡します。</p>
-  <div class="code"><pre><code>npm install -g @playcanvas/splat-transform
-
-# 絶対数で指定（2^24 = 16,777,216 未満にする）
-splat-transform input.lcc2 -d 16500000 output.ply
+  <div class="code"><pre><code># 絶対数で指定（2^24 = 16,777,216 未満にする）
+splat-transform input.ply -d 16500000 output.ply
 
 # 割合でも指定できる
 splat-transform input.ply -d 95% output.ply</code></pre></div>
   <p>この処理は単純な間引きではなく、<strong>近接するガウシアンを段階的にペアマージ</strong>していく方式です。ランダムに削除するより情報の欠落が少なく、削減率が数％程度なら見た目の劣化はほとんど分かりません。</p>
-  <div class="callout warn"><b>使えないオプション</b>浮遊ゴミを除去する <code>--filter-floaters</code> は有用に見えますが、<strong>大規模データでは動きません</strong>。WebGPU経由でGPUバッファを確保するため、2GBのバッファ上限に当たって停止します。また <code>--decimate</code> は必ず最後のアクションで、出力は <code>.ply</code> である必要があります。</div>
 
-  <h2 id="usd"><span class="n">05</span> USDに変換してステージに配置する</h2>
-  <p>Isaac Sim内のPythonから、同梱のコンバータでPLYをUSDへ変換します。</p>
-  <div class="code"><pre><code>import omni.kit.app
-omni.kit.app.get_app().get_extension_manager() \
-    .set_extension_enabled_immediate("omni.kit.converter.gsplat", True)
+  <h3>USDに変換してステージに配置する</h3>
+  <p>Isaac Sim内のPythonから、同梱のコンバータでPLYをUSDへ変換します。<strong>出力の拡張子は <code>.usdc</code> にしてください。</strong><code>.usdz</code> にすると内部がテキスト形式になり、ファイルサイズが2倍以上に膨れます。</p>
+  <p>配置するときは、参照する前に<strong>既存のガウシアンスプラットを掃除します</strong>。古いデータが残っていると「新しいシーンの一部だけが表示されている」ように見えて、原因の切り分けが極端に難しくなります。</p>
+  <div class="code"><pre><code>from omni.kit.converter.gsplat import convertPlyUSD
+convertPlyUSD(r"output.ply", r"scene.usdc")
 
-from omni.kit.converter.gsplat import convertPlyUSD
-convertPlyUSD(r"output.ply", r"scene.usdc")</code></pre></div>
-  <div class="callout note"><b>出力は .usdc にする</b>拡張子を <code>.usdz</code> にすると内部レイヤーがテキスト形式（<code>.usda</code>）になり、ファイルサイズが2倍以上に膨れます。バイナリ形式の <code>.usdc</code> を指定してください。</div>
-  <p>ステージへの配置では、参照する前に<strong>既存のガウシアンスプラットを掃除します</strong>。古いデータが残っていると「新しいシーンの一部だけが表示されている」ように見えて、原因の切り分けが極端に難しくなります。</p>
-  <div class="code"><pre><code>import omni.usd
+import omni.usd
 stage = omni.usd.get_context().get_stage()
 
 # 既存のガウシアンプリムを削除
@@ -335,38 +323,30 @@ for p in list(stage.Traverse()):
 # 型を指定せず OverridePrim で参照する
 prim = stage.OverridePrim("/World/Scene")
 prim.GetReferences().AddReference(r"scene.usdc")</code></pre></div>
-  <div class="callout warn"><b>DefinePrimではなくOverridePrimを使う</b><code>stage.DefinePrim(path, "Xform")</code> のように型を明示してから参照を追加すると、ローカルの型指定が参照先より強く効いて <code>ParticleField3DGaussianSplat</code> 型が失われます。属性は入るのにプリムの型がXformのままになり、描画されません。型を指定しない <code>OverridePrim</code> で作成してください。</div>
+  <div class="callout warn"><b>DefinePrimではなくOverridePrimを使う</b>型を明示してから参照を追加すると、ローカルの型指定が参照先より強く効いてガウシアンスプラットの型が失われます。属性は入るのにプリムの型が変わってしまい、描画されません。型を指定しない <code>OverridePrim</code> で作成してください。</div>
 
-  <h2 id="orientation"><span class="n">06</span> 上下反転を補正する</h2>
-  <p><code>convertPlyUSD</code> は上方向の軸を指定できますが、<strong>Z-upで作られたスキャンデータをY-up指定で変換すると上下逆さまになります</strong>。建物が地面から下向きに伸びる状態です。</p>
+  <h3>上下反転を補正する</h3>
+  <p>コンバータは上方向の軸を指定できますが、<strong>Z-upで作られたスキャンデータをY-up指定で変換すると上下逆さまになります</strong>。建物が地面から下向きに伸びる状態です。</p>
   <p>これに気づかないまま「上空から見下ろす」つもりでカメラを置くと、地面を裏から見ることになり画面は真っ暗になります。プリムにX軸まわりの−90度回転を適用することで、元の向きに戻ります。</p>
   <div class="code"><pre><code>from pxr import UsdGeom
 
 x = UsdGeom.Xformable(prim)
 x.ClearXformOpOrder()
 x.AddRotateXOp().Set(-90.0)</code></pre></div>
-  <p>座標の対応は <code>USD(x, y, z) = 元データ(x, -z, y)</code> です。この補正を入れておくと、スキャン時の座標をそのまま流用できるようになります。</p>
 
-  <h2 id="camera"><span class="n">07</span> カメラを置く</h2>
+  <h2 id="camera"><span class="n">05</span> カメラを置く</h2>
   <p>実用上のコツは、<strong>カメラ位置を自分で計算しないこと</strong>です。バウンディングボックスから距離を自動計算する方法は、<strong>疎な外れ値に引きずられて機能しません</strong>。スキャンデータは撮影範囲の外にもまばらな点が散らばるため、全体の範囲は実際に見たい領域よりはるかに大きく算出されます。</p>
-  <p>代わりに、<strong>スキャン時に実際に通った軌跡の座標を使います</strong>。多くのスキャナは姿勢データを出力しており、XGRIDsの <code>.lcc2</code> なら <code>info/poses.json</code> に記録されています。</p>
-  <div class="code"><pre><code>import json
-poses = json.load(open("info/poses.json", encoding="utf-8"))
-# fusionPoses[グループ][フレーム]["T"] = [x, y, z]</code></pre></div>
-  <p>軌跡上の1点を選び、目線の高さ（1.7m前後）にカメラを置いて水平方向を向けます。向きの計算には <code>SetLookAt().GetInverse()</code> を使い、<code>AddTransformOp()</code> に設定します。この形なら行列の転置ミスが起きません。</p>
+  <p>代わりに、<strong>スキャン時に実際に通った軌跡の座標を使います</strong>。多くのスキャナは移動の軌跡を姿勢データとして出力しているので、そこから1点を選び、目線の高さ（1.7m前後）にカメラを置いて水平方向を向けます。</p>
+  <p>向きの計算には <code>SetLookAt().GetInverse()</code> を使い、<code>AddTransformOp()</code> に設定します。この形なら行列の転置ミスが起きません。</p>
   <div class="code"><pre><code>from pxr import Gf, UsdGeom
 
-eye    = Gf.Vec3d(35.28, -22.05, 1.7)   # 軌跡上の1点＋目線の高さ
-target = Gf.Vec3d(-10.0,  20.0, 12.0)
+eye    = Gf.Vec3d(...)   # 軌跡上の1点＋目線の高さ
+target = Gf.Vec3d(...)   # 見たい方向
 
 xf = Gf.Matrix4d().SetLookAt(eye, target, Gf.Vec3d(0,0,1)).GetInverse()
 cx = UsdGeom.Xformable(cam_prim)
 cx.ClearXformOpOrder()
-cx.AddTransformOp().Set(xf)
-
-# 検算：カメラ前方とターゲット方向の内積が 1.0 になるか
-fwd = xf.TransformDir(Gf.Vec3d(0,0,-1)).GetNormalized()
-print(Gf.Dot(fwd, (target-eye).GetNormalized()))   # → 1.0</code></pre></div>
+cx.AddTransformOp().Set(xf)</code></pre></div>
   <p>軌跡を使う理由は単純で、<strong>スキャンした人が通った場所こそ、そのデータがいちばん高密度に記録されている場所だから</strong>です。撮影範囲の外にカメラを置くと、そもそも撮影されていない面を見ることになります。姿勢データが手元にない場合も、まず近距離から試写して、写った範囲を見ながら引いていくほうが確実です。</p>
   <div class="aiflow">
     <div class="aiflow-h"><span class="k">カメラ位置の違い</span>同じデータでも、カメラを置く場所で結果がまったく変わります。</div>
@@ -389,30 +369,24 @@ print(Gf.Dot(fwd, (target-eye).GetNormalized()))   # → 1.0</code></pre></div>
   </figure>
   <div class="callout note"><b>描画の待ち時間</b>1,000万点を超えるとRTXの収束に時間がかかります。キャプチャ前に <code>await app.next_update_async()</code> を150フレーム以上回してください。待ちが足りないと真っ黒な画像が保存されます。</div>
 
-  <h2 id="industrial"><span class="n">08</span> 産業用シミュレーションで使う場合の弱点</h2>
-  <p>ここからが本題です。3DGSは「見た目」に関しては圧倒的ですが、<strong>産業用シミュレーションで求められる情報をほとんど持っていません</strong>。私がIsaac Sim 6.0上で実際に出力を取って確認した結果とあわせて整理します。</p>
+  <h2 id="industrial"><span class="n">06</span> 産業用シミュレーションで使う場合の弱点</h2>
+  <p>ここからが本題です。3DGSは「見た目」に関しては圧倒的ですが、<strong>産業用シミュレーションで求められる情報をほとんど持っていません</strong>。Isaac Sim上で実際に出力を取って確認した結果を整理します。</p>
 
   <h3>弱点1：シーン全体が「1つの塊」で、オブジェクト単位に分離できない</h3>
-  <p>これが最大の制約です。3DGSは数千万個のガウシアンが並んだ<strong>1つのプリム</strong>であり、「この建物」「この信号機」「この車」といった単位が存在しません。3DモデルのようにアウトライナーでオブジェクトA・Bを選び分けることはできず、特定の物体だけを移動・非表示・差し替えすることもできません。</p>
+  <p>これが最大の制約です。3DGSは数千万個のガウシアンが並んだ<strong>1つのプリム</strong>であり、「この建物」「この信号機」「この車」といった単位が存在しません。3DモデルのようにオブジェクトA・Bを選び分けることはできず、特定の物体だけを移動・非表示・差し替えすることもできません。</p>
   <p>シミュレーションでは「対象物だけを動かす」「障害物を入れ替える」といった操作が前提になりますが、<strong>スキャンしたままの3DGSではそれができません</strong>。</p>
 
   <h3>弱点2：セマンティックラベルが「シーンに1つ」しか付かない</h3>
-  <p>Isaac Simにはセマンティックセグメンテーション（画素ごとに「これは道路」「これは建物」と分類した画像）を出力する機能があり、これは知覚AIの学習データ生成の中核です。ガウシアンスプラットのプリムにもラベル自体は付与でき、セグメンテーション出力にも反映されます。</p>
-  <p>ただし<strong>ラベルを付けられる単位はプリムです</strong>。弱点1のとおりシーン全体が1プリムなので、結果として付けられるラベルはシーン全体で1つだけになります。実際にIsaac Sim 6.0で出力を取得すると、次のようになります。</p>
-  <div class="code"><pre><code># semantic_segmentation アノテータの出力
-SEG unique ids : [0, 2]
-idToLabels     : {'0': {'class': 'BACKGROUND'},
-                  '1': {'class': 'UNLABELLED'},
-                  '2': {'class': 'my_scene'}}   ← シーン全体でこの1つだけ</code></pre></div>
-  <p>建物も道路も歩道も信号機も、<strong>すべてが同じIDで塗られます</strong>。「道路領域だけを学習させたい」「標識だけを抽出したい」といった用途には、このままでは使えません。</p>
+  <p>Isaac Simにはセマンティックセグメンテーション（画素ごとに「これは道路」「これは建物」と分類した画像）を出力する機能があり、これは知覚AIの学習データ生成の中核です。ガウシアンスプラットにもラベル自体は付与でき、セグメンテーション出力にも反映されます。</p>
+  <p>ただし<strong>ラベルを付けられる単位はプリムです</strong>。弱点1のとおりシーン全体が1プリムなので、結果として付くラベルもシーン全体で1つだけになります。実際に出力を取ると、<strong>建物も道路も歩道も信号機も、すべてが同じIDで塗られます</strong>。「道路領域だけを学習させたい」「標識だけを抽出したい」といった用途には、このままでは使えません。</p>
 
   <h3>弱点3：物理的な当たり判定を持たない</h3>
-  <p>ガウシアンスプラットは見た目のデータであり、面の情報を持ちません。そのため<strong>PhysXの衝突判定に参加できません</strong>。ロボットは壁をすり抜け、床を貫通して落下します。見た目には床があるのに、物理的には何もない空間です。</p>
+  <p>ガウシアンスプラットは見た目のデータであり、面の情報を持ちません。そのため<strong>物理エンジンの衝突判定に参加できません</strong>。ロボットは壁をすり抜け、床を貫通して落下します。見た目には床があるのに、物理的には何もない空間です。</p>
 
   <h3>弱点4：ライティングを後から変えられない</h3>
   <p>3DGSは撮影時の光を色情報として焼き込んでいます。曇天でスキャンしたデータは、シーンに太陽光を追加しても曇天のままです。時間帯や天候を振った学習データを作りたい場合、この性質が制約になります。</p>
 
-  <h2 id="solutions"><span class="n">09</span> 弱点への対処</h2>
+  <h2 id="solutions"><span class="n">07</span> 弱点への対処</h2>
   <p>いずれも回避策があります。共通する考え方は<strong>「見た目は3DGS、それ以外はメッシュに持たせる」</strong>という役割分担です。これはNVIDIAが示しているアーキテクチャでもあります。</p>
 
   <h3>対処1：コリジョン用メッシュを併用する（物理）</h3>
@@ -422,17 +396,11 @@ idToLabels     : {'0': {'class': 'BACKGROUND'},
 mesh = stage.GetPrimAtPath("/World/CollisionMesh")
 UsdPhysics.CollisionAPI.Apply(mesh)          # 当たり判定を付与
 UsdGeom.Imageable(mesh).MakeInvisible()      # 見た目は消す</code></pre></div>
-  <p>メッシュの入手先は3つあります。<strong>スキャナが同時出力したメッシュを使う</strong>のがいちばん手軽で、XGRIDsの <code>.lcc2</code> には衝突用メッシュが同梱されています。無い場合は、点群からメッシュを再構成するか、床・壁・障害物を単純な箱で近似します。用途が「ロボットが通れるか」の検証なら、箱で十分なことも多いです。</p>
+  <p>メッシュの入手先は3つあります。<strong>スキャナが同時出力したメッシュを使う</strong>のがいちばん手軽です。無い場合は、splat-transformが3DGSから衝突用メッシュを直接生成できるので、それを使います。あるいは床・壁・障害物を単純な箱で近似します。用途が「ロボットが通れるか」の検証なら、箱で十分なことも多いです。</p>
 
   <h3>対処2：領域ごとに分割してラベルを付ける（セマンティクス）</h3>
   <p>ラベルの単位がプリムなら、<strong>プリムを分ければラベルを分けられます</strong>。スプラットを空間的に切り分け、別々のUSDとして書き出したうえで、それぞれにラベルを付与します。</p>
-  <div class="code"><pre><code>from semantics.schema.editor import PrimSemanticData
-
-for path, label in [("/World/Road", "road"),
-                    ("/World/Building", "building")]:
-    sd = PrimSemanticData(stage.GetPrimAtPath(path))
-    sd.add_entry("class", label)</code></pre></div>
-  <p>分割はIsaac Simに入れる前の工程で行います。SuperSplat（PlayCanvasの無料エディタ）などのツールで領域を選択して個別に書き出すか、座標で機械的に切り出します。ただし<strong>手間は分割の細かさに比例します</strong>。「道路／建物／それ以外」程度の粗い分類なら現実的ですが、物体ごとの細かいラベル付けを手作業で行うのは実用的ではありません。</p>
+  <p>分割はIsaac Simに入れる前の工程で行います。SuperSplat（PlayCanvasの無料エディタ）などで領域を選択して個別に書き出すか、座標で機械的に切り出します。ただし<strong>手間は分割の細かさに比例します</strong>。「道路／建物／それ以外」程度の粗い分類なら現実的ですが、物体ごとの細かいラベル付けを手作業で行うのは実用的ではありません。</p>
   <div class="callout note"><b>より確実な方法：ラベルはメッシュ側に持たせる</b>細かいセマンティクスが必要な場合は、<strong>ラベル付きのメッシュを別レイヤーとして重ねる</strong>のが現実的です。対処1のコリジョンメッシュを流用し、部位ごとに分けてラベルを付与します。セグメンテーション出力はメッシュ側から、見た目はスプラット側から得る、という分担です。公開データセットでも、スプラットのUSDとコリジョン用USDを分けて配布し、利用時に合成する構成が採られています。</div>
 
   <h3>対処3：ライティングは割り切るか、別手段を使う</h3>
@@ -453,7 +421,7 @@ for path, label in [("/World/Road", "road"),
   </table></div>
   <p>整理すると、<strong>3DGSは「実在する環境を、実写品質の背景として持ち込む」ための技術</strong>です。その中で動かす対象物や、正解ラベルが必要な部分は、従来どおりメッシュで用意する。この住み分けができていれば、3DGSは非常に強力な選択肢になります。</p>
 
-  <h2 id="summary"><span class="n">10</span> まとめ</h2>
+  <h2 id="summary"><span class="n">08</span> まとめ</h2>
   <p>読み込みの手順は<strong>「点数を2<sup>24</sup>未満に間引く → <code>.usdc</code> に変換 → <code>OverridePrim</code> で参照 → 向きを補正 → 軌跡上にカメラを置く」</strong>という一本道です。つまずきやすいのは最初と最後で、<strong>点数上限を超えているとエラーが出ないまま何も表示されず</strong>、<strong>カメラをスキャン範囲の外に置くと破綻した面しか見えません</strong>。この2つを押さえれば、あとは素直に進みます。</p>
   <p>産業用途で使うなら、<strong>3DGSは「実在する環境を実写品質の背景として持ち込む技術」であり、それ以上でも以下でもない</strong>と割り切るのが近道です。オブジェクト単位の分離もセマンティックラベルも当たり判定も、スプラット自体は持っていません。これらが必要なら、メッシュを別レイヤーとして重ねて役割分担させます。裏を返せば、<strong>「見た目の忠実さ」だけは他の手段では代えがたい</strong>ということでもあります。</p>
   <p>用途に応じてUE5と使い分けるのも現実的です。映像素材としての出力は<a href="ue5-xgrids-3dgs-aerial-ai.html">UE5×XGRIDs SDKの記事</a>にまとめています。3DGSの活用について気になることがあれば、お気軽にお問い合わせください。</p>
@@ -488,7 +456,7 @@ for path, label in [("/World/Road", "road"),
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: XGRIDS LCC2 → SPLAT-TRANSFORM (DECIMATE &lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → DECIMATE (&lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
