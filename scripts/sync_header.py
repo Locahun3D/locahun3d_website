@@ -179,7 +179,11 @@ def header_markup(relpath, lang):
         '<header class="site-header">\n'
         '%s'
         '  <div class="sh-left" id="sh-nav">\n'
-        '    <nav>\n%s\n    </nav>\n'
+        '    <nav>\n%s\n'
+        # 480px未満はバーからENを外すので、代わりに同じリンクをドロワー内へ置く。
+        # CSS 側で .sh-drawer-lang は既定 display:none、その帯だけ表示する。
+        '      <a class="sh-drawer-lang" href="%s">%s</a>\n'
+        '    </nav>\n'
         '  </div>\n'
         '  <div class="sh-center">\n'
         '    <a href="%s" class="sh-brand">\n'
@@ -196,7 +200,8 @@ def header_markup(relpath, lang):
         '  </div>\n'
         '  <div class="sh-right" aria-hidden="true"></div>\n'
         '</header>'
-    ) % (hb, nav, ONLINE_URL[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
+    ) % (hb, nav, counterpart(relpath, lang), LANG_CHIP[lang],
+         ONLINE_URL[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
          ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
