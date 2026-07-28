@@ -44,7 +44,7 @@
     --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
   body{background:var(--bg);color:var(--body);
     font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
@@ -201,7 +201,9 @@
     .topbar .tag{display:none}
     .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
   .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
-  body{padding-top:64px}/* 768-1199px: ヘッダーは1行56px（assets/site-header.css のタブレット帯）。以前は全幅で2段=96px を予約しており、iPadで40pxの空白が残っていた。 */@media(max-width:1199px){ body{padding-top:56px} html{scroll-padding-top:72px}}@media(max-width:767px){ body{padding-top:96px} html{scroll-padding-top:112px}}</style>
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */</style>
 </head>
 <body>
 
