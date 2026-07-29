@@ -171,7 +171,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
 body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
      以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
-     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */</style>
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 関連記事 ─────────────────────────────────
+     記事末尾から実績・ブログ一覧へ戻る導線と、関連記事の一覧。 */
+  .related{max-width:var(--max,760px);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--accent);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line);background:rgba(255,255,255,.02);
+    border-radius:3px;overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:#fafaf6;font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .back{margin:0}
+</style>
 </head>
 <body>
 
@@ -213,9 +231,9 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
 </header>
 
 <div class="wrap">
-  <a class="back" href="index.html">
+  <a class="back" href="index.html#works">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-    実績一覧に戻る
+    実績とブログの一覧へ戻る
   </a>
 
   <!-- Hero: YouTube facade -->
@@ -298,6 +316,37 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
           @undef_official
         </a>
       </div>
+    </div>
+  </section>
+
+
+  <section class="related" aria-labelledby="related-h">
+    <h2 id="related-h">関連する記事</h2>
+    <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約13分</span></div>
+          <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
+        </div>
+      </a>
+      <a class="rcard" href="ue5-xgrids-3dgs-aerial-ai.html">
+        <div class="rthumb" style="background-image:url('images/ue5_shibuya_topdown_day.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-24</span><span>約12分</span></div>
+          <h3>UE5 × XGRIDs SDKで3DGSから素材を出力する</h3>
+        </div>
+      </a>
+      <a class="rcard" href="portalcam-drone-ai-workflow.html">
+        <div class="rthumb" style="background-image:url('images/work04_bgfix.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-06-16</span><span>約9分</span></div>
+          <h3>3DGSから「空撮カット」を生成する方法</h3>
+        </div>
+      </a>
+    </div>
+    <div class="backwrap">
+      <a class="back" href="index.html#works"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
     </div>
   </section>
 

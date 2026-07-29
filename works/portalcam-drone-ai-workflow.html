@@ -180,7 +180,33 @@
   .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
   body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
      以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
-     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */</style>
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
 </head>
 <body>
 
@@ -221,6 +247,10 @@
     </div>
   </div>
 </header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
 
 <div class="wrap">
 <header class="post">
@@ -390,6 +420,36 @@
   <p>ポイントは、<strong>「空撮カット」は3DGSだけで作れる</strong>こと。現場を歩いてスキャンするだけで、ドローン不要の上空アングルが手に入ります。</p>
   <p>その先で人物や動きを足したいときは、3DGSの空撮カットを"設計図"にして、生成AIを応用として重ねるだけ。<strong>構図・カメラワーク・ポーズ</strong>は3DGSが保証し、質感はAIが埋める——「撮れない画」「飛ばせない場所」を現場データから後付けで作る、これがロケハン3Dの 3DGS ワークフローの核心です。</p>
 </article>
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">関連する記事</h2>
+  <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約13分</span></div>
+          <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
+        </div>
+      </a>
+      <a class="rcard" href="ue5-xgrids-3dgs-aerial-ai.html">
+        <div class="rthumb" style="background-image:url('images/ue5_shibuya_topdown_day.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-24</span><span>約12分</span></div>
+          <h3>UE5 × XGRIDs SDKで3DGSから素材を出力する</h3>
+        </div>
+      </a>
+      <a class="rcard" href="houdini-comfyui-gsplat-workflow.html">
+        <div class="rthumb" style="background-image:url('images/hectorvfx_shibuya_ai_render.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-23</span><span>約7分</span></div>
+          <h3>Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+  </div>
+</section>
+
 
 <section class="credit">
   <div class="ey">Creators / 制作</div>
