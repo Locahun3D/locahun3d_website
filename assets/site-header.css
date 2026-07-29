@@ -24,13 +24,13 @@
 .site-header .sh-left nav a{display:flex;align-items:center;gap:8px;
   font-size:13px;font-weight:300;color:rgba(255,255,255,.62);text-decoration:none;
   white-space:nowrap;transition:color .2s}
-.site-header .sh-left nav a:hover{color:#fafaf6}
+@media(hover:hover){.site-header .sh-left nav a:hover{color:#fafaf6}}
 /* 番号コードの表示可否は下部の @media(max-width:1439px) が唯一の担当。
    ここで display を指定しない（過去、ベースで display:none にして全幅で消え、
    オンライン版=1440px以上で表示 とのパリティが崩れた）。 */
 .site-header .sh-left nav a .code{font-family:'JetBrains Mono',monospace;
   font-size:10px;letter-spacing:.2em;opacity:.5;transition:color .2s,opacity .2s}
-.site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}
+@media(hover:hover){.site-header .sh-left nav a:hover .code{color:var(--accent);opacity:1}}
 .site-header .sh-center{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .site-header .sh-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
 .site-header .sh-brand svg{flex:none}
@@ -45,7 +45,14 @@
 .site-header .sh-toggle span+a,.site-header .sh-toggle a+span{border-left:0}
 .site-header .sh-toggle .sh-active{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5);color:#ffb454}
 .site-header .sh-toggle a:not(.sh-active){color:var(--ink)}
-.site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+/* ⚠ hover は必ず @media(hover:hover) で囲む。タッチ端末では一度触れた要素に
+   :hover が残り続け、スクロールしただけで「片方が選択されている」ように暗くなる
+   （ユーザー報告: どちらが選ばれているか分からない）。押した瞬間の反応は
+   :active が担当する。 */
+@media(hover:hover){
+  .site-header .sh-toggle a:not(.sh-active):hover{background:rgba(94,200,232,.15);color:#5ec8e8;border-color:rgba(94,200,232,.5)}
+}
+.site-header .sh-toggle a:not(.sh-active):active{background:rgba(94,200,232,.22)}
 /* ENチップの左マージン。以前は markup 側の inline style="margin-left:8px" だったが、
    inline は @media の指定に必ず勝つためタブレット帯で右端へ寄せられなかった。
    `.sh-toggle.sh-lang`(0,3,0) は帯側の `.sh-toggle`(0,2,0) より詳細度が高いので
@@ -55,7 +62,9 @@
 .site-header .sh-toggle:not(.sh-lang) a:not(.sh-active){border-color:rgba(94,200,232,.5)}
 /* ENチップ: オンライン版 LangToggle と同スタイル (JetBrains Mono / 薄グレー) に統一 */
 .site-header .sh-toggle.sh-lang a{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:300;letter-spacing:.12em;padding:4px 8px;color:rgba(255,255,255,.62)}
-.site-header .sh-toggle.sh-lang a:hover{color:var(--accent);border-color:var(--accent);background:none}
+@media(hover:hover){
+  .site-header .sh-toggle.sh-lang a:hover{color:var(--accent);border-color:var(--accent);background:none}
+}
 .site-header .sh-right{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
 .site-header .sh-right a{font-family:'JetBrains Mono',monospace;font-size:12px;
   letter-spacing:.2em;text-transform:uppercase;text-decoration:none;
@@ -74,7 +83,8 @@
   align-items:center;justify-content:center;flex-direction:column;gap:4px;
   background:none;border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none}
 .site-header .sh-hb i{display:block;width:20px;height:1.5px;background:rgba(255,255,255,.62);transition:background .2s}
-.site-header .sh-hb:hover i,.site-header .sh-hb:focus-visible i{background:var(--accent)}
+@media(hover:hover){.site-header .sh-hb:hover i{background:var(--accent)}}
+.site-header .sh-hb:focus-visible i{background:var(--accent)}
 .site-header.sh-open .sh-hb i{background:var(--accent)}
 
 /* ⚠ 2段ヘッダー(旧 max-width:719px)は 2026-07-28 に廃止した。
@@ -150,7 +160,7 @@
    左右対称である限り padding に依存しない。 */
 @media(min-width:0px){
   .site-header .sh-center{position:absolute;left:0;right:0;top:0;height:100%;padding:0 24px;
-    display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:0;
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto minmax(0,1fr);align-items:center;gap:0;
     margin-left:0;pointer-events:none}
 /* ⚠ 中央の基準に 100vw を使わないこと。2026-07-29 に実Chromeで判明:
    オンライン版は scrollbar-gutter:stable を敷いており、その環境では 100vw が
@@ -172,9 +182,14 @@ html{scrollbar-gutter:stable both-edges}
      トグルの white-space:nowrap を直して本来の幅に戻った途端に表面化した）。
      0まで縮む指定なら左右の列は必ず同幅になり、ブランドは常に画面中央。
      はみ出た分は外周padding内に収まる。オンライン版 site-header.tsx と同じ対処。 */
+  /* ⚠ ブランドとトグルは「1組」で中央に置く（列2+3を中央に、両端は同幅の1fr）。
+     2026-07-29 まではブランド単体を中央にしていたが、これは
+     「トグル幅が両サイトで違う」時代の回避策だった。ズームをヘッダーから外して
+     両サイトのトグル幅が 111.3px で完全一致したため制約が消え、
+     見た目どおり（ロゴ＋タブの重心が画面中央）に戻した。 */
   .site-header .sh-toggle:not(.sh-lang){grid-column:3;grid-row:1;justify-self:start;
     margin-left:8px;pointer-events:auto}
-  .site-header .sh-center .sh-lang{grid-column:3;grid-row:1;justify-self:end;
+  .site-header .sh-center .sh-lang{grid-column:4;grid-row:1;justify-self:end;
     margin-left:0;pointer-events:auto}}
 
 @media(max-width:1199px){
@@ -223,3 +238,51 @@ html{scrollbar-gutter:stable both-edges}
 @media(min-width:1560px){
   .site-header .sh-left nav a .code{display:inline}
 }
+
+/* ══════════════════════════════════════════════════════════════
+   オンライン版だけに出る要素（カート / 認証 / 通知ベル / アバター）。
+   スキャンサイトはこれらを持たないので、定義があっても影響しない。
+   ⚠ ここに置く理由: ヘッダーの見た目の正本を1ファイルに集約するため。
+      オンライン側で Tailwind に書くと、また2つのソースができて必ずズレる
+      （2026-07-29 に同じ構造が原因のズレが5件出た）。
+   ══════════════════════════════════════════════════════════════ */
+
+/* 右側グループ。scan では空divなので下の子要素セレクタは一致しない。 */
+.site-header .sh-right{gap:8px}
+
+/* カート（アイコン＋バッジ） */
+.site-header .sh-cart{position:relative;display:flex;align-items:center;
+  color:rgba(255,255,255,.62);transition:color .2s;white-space:nowrap}
+.site-header .sh-cart:hover{color:var(--accent)}
+.site-header .sh-cart svg{width:18px;height:18px}
+.site-header .sh-cart-badge{position:absolute;top:-8px;right:-10px;
+  min-width:16px;height:16px;padding:0 4px;display:flex;align-items:center;justify-content:center;
+  border-radius:9999px;background:var(--accent);color:var(--bg);
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700}
+
+/* 認証ボタン（ログイン / 新規登録）。寸法は全幅固定（R2）。 */
+.site-header .sh-auth{padding:4px 8px;border:1px solid var(--line);
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;white-space:nowrap;color:var(--ink);
+  background:none;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.site-header .sh-auth:hover{border-color:var(--accent);color:var(--accent)}
+.site-header .sh-auth.sh-auth-primary{border-color:var(--accent);color:var(--accent)}
+.site-header .sh-auth.sh-auth-primary:hover{background:var(--accent);color:var(--bg)}
+
+/* サインイン時の「マイページ」等 */
+.site-header .sh-account{display:flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(255,255,255,.62);text-decoration:none;
+  white-space:nowrap;transition:color .2s}
+.site-header .sh-account:hover{color:var(--accent)}
+.site-header .sh-role{border:1px solid var(--line);padding:2px 6px;font-size:10px}
+@media(max-width:1023px){.site-header .sh-role{display:none}}
+
+/* ドロワー内に退避させた要素の並び（R3 で「縮めず移す」先） */
+.site-header .sh-drawer-extra{display:none;flex-direction:column;align-items:stretch;
+  gap:8px;margin-top:4px;padding-top:8px;border-top:1px solid var(--line)}
+@media(max-width:1023px){.site-header .sh-drawer-extra{display:flex}}
+.site-header .sh-drawer-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* カート/認証は768px未満のみドロワー（バー側 768px以上表示と対にする） */
+.site-header .sh-drawer-auth{display:none}
+@media(max-width:767px){.site-header .sh-drawer-auth{display:flex;align-items:center;gap:8px;flex-wrap:wrap}}

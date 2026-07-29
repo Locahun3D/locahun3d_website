@@ -154,6 +154,10 @@ BRAND_TEXT = {"ja": "ロケハン3D", "en": "Locahun 3D"}
 SCAN_LABEL = {"ja": "スキャン", "en": "Scan"}
 ONLINE_LABEL = {"ja": "オンライン", "en": "Online"}
 ONLINE_URL = {"ja": "https://locahun3d.com/properties", "en": "https://locahun3d.com/en/properties"}
+# ⚠ ブランドロゴのリンク先は「自サイトのトップ」。以前は ONLINE_URL を使っており、
+#    スキャンサイトでロゴを押すとオンライン版へ飛んでしまっていた（ユーザー報告）。
+#    サイト間の移動はスキャン/オンラインのトグルが担当する役割分担。
+BRAND_HOME = {"ja": "/", "en": "/en/"}
 LANG_CHIP = {"ja": "EN", "en": "JA"}
 MENU_LABEL = {"ja": "メニュー", "en": "Menu"}
 
@@ -201,7 +205,7 @@ def header_markup(relpath, lang):
         '  <div class="sh-right" aria-hidden="true"></div>\n'
         '</header>'
     ) % (hb, nav, counterpart(relpath, lang), LANG_CHIP[lang],
-         ONLINE_URL[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
+         BRAND_HOME[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
          ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
