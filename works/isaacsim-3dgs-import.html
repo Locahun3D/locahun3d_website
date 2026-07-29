@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site-header.css?v=b7018b30">
+<link rel="stylesheet" href="/assets/site-header.css?v=ad16bb79">
 <style>
   :root{
     --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
@@ -224,7 +224,6 @@
       <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
       <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
       <a href="/locahun3d_demo.html"><span class="code">0.4</span>デモ・お問合せ</a>
-      <a class="sh-drawer-lang" href="/en/locahun3d_manifesto.html">EN</a>
     </nav>
   </div>
   <div class="sh-center">
@@ -240,7 +239,18 @@
       <a href="/en/locahun3d_manifesto.html">EN</a>
     </div>
   </div>
-  <div class="sh-right" aria-hidden="true"></div>
+  <div class="sh-right">
+    <button class="sh-acct" type="button" aria-label="言語・アカウント" aria-expanded="false" aria-controls="sh-acct-panel" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-acct-open');this.setAttribute('aria-expanded',o)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></button>
+  </div>
+  <div class="sh-acct-panel" id="sh-acct-panel">
+    <div class="sh-toggle sh-acct-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/properties">オンライン</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/en/locahun3d_manifesto.html">EN</a>
+    </div>
+  </div>
 </header>
 
 <div class="wrap">

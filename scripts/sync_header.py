@@ -160,6 +160,7 @@ ONLINE_URL = {"ja": "https://locahun3d.com/properties", "en": "https://locahun3d
 BRAND_HOME = {"ja": "/", "en": "/en/"}
 LANG_CHIP = {"ja": "EN", "en": "JA"}
 MENU_LABEL = {"ja": "メニュー", "en": "Menu"}
+ACCT_LABEL = {"ja": "言語・アカウント", "en": "Language & account"}
 
 def counterpart(relpath, lang):
     """JA<->EN の対応ページを返す（無ければトップ）。"""
@@ -179,14 +180,21 @@ def header_markup(relpath, lang):
           ' aria-controls="sh-nav" onclick="var h=this.closest(\'.site-header\');'
           'var o=h.classList.toggle(\'sh-open\');this.setAttribute(\'aria-expanded\',o)">'
           '<i></i><i></i><i></i></button>\n') % MENU_LABEL[lang]
+    # 右の●（言語・アカウント）。1024px未満でだけ CSS が表示する。
+    # オンライン版は同じ位置にログイン/新規登録も入るため、両サイトで
+    # 「EN がどこにあるか」が一致する（ユーザー報告の食い違いの是正）。
+    acct = ('    <button class="sh-acct" type="button" aria-label="%s" aria-expanded="false"'
+            ' aria-controls="sh-acct-panel" onclick="var h=this.closest(\'.site-header\');'
+            'var o=h.classList.toggle(\'sh-acct-open\');this.setAttribute(\'aria-expanded\',o)">'
+            '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"'
+            ' stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>'
+            '</button>\n') % ACCT_LABEL[lang]
     return (
         '<header class="site-header">\n'
         '%s'
         '  <div class="sh-left" id="sh-nav">\n'
         '    <nav>\n%s\n'
-        # 480px未満はバーからENを外すので、代わりに同じリンクをドロワー内へ置く。
-        # CSS 側で .sh-drawer-lang は既定 display:none、その帯だけ表示する。
-        '      <a class="sh-drawer-lang" href="%s">%s</a>\n'
         '    </nav>\n'
         '  </div>\n'
         '  <div class="sh-center">\n'
@@ -202,11 +210,25 @@ def header_markup(relpath, lang):
         '      <a href="%s">%s</a>\n'
         '    </div>\n'
         '  </div>\n'
-        '  <div class="sh-right" aria-hidden="true"></div>\n'
+        '  <div class="sh-right">\n%s'
+        '  </div>\n'
+        '  <div class="sh-acct-panel" id="sh-acct-panel">\n'
+        # 360px未満はバーにスキャン/オンラインのトグルが入らないので、ここへ同じものを置く
+        # （CSS の .sh-acct-toggle が出し分ける。既定は非表示）。
+        '    <div class="sh-toggle sh-acct-toggle">\n'
+        '      <span class="sh-active">%s</span>\n'
+        '      <a href="%s">%s</a>\n'
+        '    </div>\n'
+        '    <div class="sh-toggle sh-lang">\n'
+        '      <a href="%s">%s</a>\n'
+        '    </div>\n'
+        '  </div>\n'
         '</header>'
-    ) % (hb, nav, counterpart(relpath, lang), LANG_CHIP[lang],
+    ) % (hb, nav,
          BRAND_HOME[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
-         ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
+         ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang],
+         acct, SCAN_LABEL[lang], ONLINE_URL[lang], ONLINE_LABEL[lang],
+         counterpart(relpath, lang), LANG_CHIP[lang])
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
 LINK_RE = re.compile(r'<link rel="stylesheet" href="/%s(?:\?v=[0-9a-f]+)?">' % re.escape(SHARED_CSS))
