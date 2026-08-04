@@ -25,6 +25,7 @@ EYECATCH = {
     "portalcam-drone-ai-workflow":    ("/works/images/work03_poster.jpg", 1280, 720),
     "ue5-xgrids-3dgs-aerial-ai":      ("/works/images/ue5_shibuya_ground_day.jpg", 1575, 824),
     "isaacsim-3dgs-import":           ("/works/images/isaacsim_shibuya_walk.jpg", 1920, 1080),
+    "portalcam-xbin-raw-extraction":  ("/works/images/xbin_cam_pinholeA.jpg", 1100, 825),
 }
 
 START, END = "<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->", "<!-- OGP:END -->"

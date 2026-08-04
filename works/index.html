@@ -257,6 +257,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
+    tag:"tech", tagLabel:"技術", date:"2026-07-26", read:"約8分",
+    title:"PortalCamの生データ(.xbin)から4K元画像を取り出す",
+    excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
+    href:"portalcam-xbin-raw-extraction.html", thumb:"images/xbin_cam_pinholeA.jpg"
+  },
+  {
     tag:"tech", tagLabel:"技術", date:"2026-07-26", read:"約13分",
     title:"NVIDIA Isaac Simに3DGSを持ち込む",
     excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
