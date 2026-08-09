@@ -281,10 +281,10 @@
   <div class="tblwrap"><table>
     <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>Houdini 22</td><td>○ 上級者向け</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です</td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
+      <tr><td>Houdini 22</td><td>○ 上級者向け</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です。実例: <a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUIハイブリッドワークフロー</a></td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
       <tr><td>Blender</td><td>◎ コスパ最強</td><td>KIRI Engine製アドオン「3DGS Render」で対応します。無料で導入でき、ライトに反応してシャドウを落とせ、点群の編集・最適化にも対応します。サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
       <tr><td>3ds Max</td><td>○ 既存V-Ray勢向け</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
-      <tr><td>Cinema 4D</td><td>△ まだ実験段階</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Cinema 4D</td><td>△ まだ実験段階</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です。実例: <a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>(C4D→Octaneのフロー)</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
     </tbody>
   </table></div>
 
@@ -326,7 +326,7 @@
   <div class="tblwrap"><table>
     <thead><tr><th>プラグイン</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>XGRIDS LCC Plugin for UE</td><td>○ ライセンス要確認</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します</td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
+      <tr><td>XGRIDS LCC Plugin for UE</td><td>○ ライセンス要確認</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します。実例: <a href="ue5-xgrids-3dgs-aerial-ai.html">UE5 × XGRIDs SDKで3DGSから素材を出力する</a></td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
       <tr><td>Luma AI UE Plugin</td><td>○ お試しに最適</td><td>.plyや.lumaをドラッグ&amp;ドロップするだけでBlueprint化できます</td><td><a href="https://www.fab.com/listings/b52460e0-3ace-465e-a378-495a5531e318" target="_blank" rel="noopener">Fab →</a></td><td>無料</td></tr>
       <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>○ 無料でリアルタイム</td><td>Niagara経由でリアルタイムレンダリングでき、編集・管理機能も備えます</td><td><a href="https://github.com/xverse-engine/XScene-UEPlugin" target="_blank" rel="noopener">GitHub →</a></td><td>Apache 2.0・無料</td></tr>
       <tr><td>MLSLabs GS Renderer</td><td>○ 高性能・ニッチ</td><td>Niagaraを使わない独自パイプラインで、数百万ガウシアンでも高フレームレートを維持できます。動的な4DGS(ボリュメトリック映像)にも対応します</td><td><a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
