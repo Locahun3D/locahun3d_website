@@ -239,7 +239,7 @@
   </div>
   <h1>3DGSを扱えるソフト・ツール比較</h1>
   <p class="lead">3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるソフト・ツールを、<strong>DCC／ビューアー・エディタ／変換ツール／ゲームエンジンプラグイン</strong>の4カテゴリに分けて、入手先URL付きで整理します。「どこまでをDCCでやり、どこからをゲームエンジンに渡すか」を決めるときの早見表として使えます。</p>
-  <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGS周辺のツールは更新が速く、対応フォーマットやライセンス条件は変わることがあります。導入前に、リンク先の公式サイト・リポジトリで最新の状態を確認してください。</div>
+  <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGS周辺のツールは更新が速く、対応フォーマットやライセンス条件は変わることがあります。導入前に、リンク先の公式サイト・リポジトリで最新の状態を確認してください。「おすすめ度」欄は筆者の実務判断による目安(◎本命／○実用的／△用途を選ぶ・参考程度)で、プロジェクトの要件によって最適な選択は変わります。</div>
 
   <figure>
     <img src="images/3dgs-software-comparison_hero.jpg" alt="1つの3DGSスキャンデータが、複数の抽象的なパネルへ分岐していくイメージ図(概念イラスト)">
@@ -270,28 +270,28 @@
   <h2 id="dcc"><span class="n">01</span> DCC(3DCGソフト)</h2>
   <p>3DGSはゲームエンジンだけでなく、普段のVFXパイプラインで使う3DCGソフト側でもそのまま扱えるようになっています。ソフトごとの対応方式と入手先をまとめます。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>ソフト</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>Houdini 22</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です</td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
-      <tr><td>Blender</td><td>KIRI Engine製アドオン「3DGS Render」で対応します。無料で導入でき、ライトに反応してシャドウを落とせ、点群の編集・最適化にも対応します。サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
-      <tr><td>3ds Max</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
-      <tr><td>Cinema 4D</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Houdini 22</td><td>○ 上級者向け</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です</td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
+      <tr><td>Blender</td><td>◎ コスパ最強</td><td>KIRI Engine製アドオン「3DGS Render」で対応します。無料で導入でき、ライトに反応してシャドウを落とせ、点群の編集・最適化にも対応します。サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
+      <tr><td>3ds Max</td><td>○ 既存V-Ray勢向け</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Cinema 4D</td><td>△ まだ実験段階</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
     </tbody>
   </table></div>
 
   <h2 id="viewer"><span class="n">02</span> ビューアー・エディタ</h2>
   <p>納品前の確認や、クロップ・色調整までブラウザだけで完結させたいときに使えるツールです。ブラウザで完結するものから、開発者向けのレンダリングライブラリ、モバイルアプリまで幅広く並べます。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>ソフト</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>SuperSplat<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>ブラウザ完結の3DGSエディタです。クロップ・カラー編集ができ、書き出し専用の軽量ビューアーは別リポジトリで配布されています</td><td><a href="https://github.com/playcanvas/supersplat" target="_blank" rel="noopener">Editor →</a><br><a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">Viewer →</a></td><td>MIT・無料</td></tr>
-      <tr><td>splat<br><span style="color:var(--sub);font-size:.85em">(antimatter15)</span></td><td>最も初期から公開されている最小構成のWebGLビューアーです。.plyをドラッグ&amp;ドロップするだけで表示できます</td><td><a href="https://github.com/antimatter15/splat" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
-      <tr><td>GaussianSplats3D<br><span style="color:var(--sub);font-size:.85em">(mkkellogg)</span></td><td>Three.jsベースのレンダリングライブラリです。既存のThree.jsシーンに組み込んで自前のビューアーを作れます</td><td><a href="https://github.com/mkkellogg/GaussianSplats3D" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
-      <tr><td>Spark<br><span style="color:var(--sub);font-size:.85em">(sparkjsdev)</span></td><td>Three.js向けの高機能レンダラーです。PLY/SPZ/SPLAT/KSPLAT/SOGなど主要フォーマットに対応し、モバイルでも高速に動作します。ロケハン3Dの自社ビューアーもこのライブラリをベースに構築しています</td><td><a href="https://sparkjs.dev/" target="_blank" rel="noopener">sparkjs.dev →</a></td><td>MIT・無料</td></tr>
-      <tr><td>Luma AI<br><span style="color:var(--sub);font-size:.85em">(Interactive Scenes)</span></td><td>撮影したシーンをクラウドで処理し、Web上でそのまま共有・埋め込みできます。開発者向けにThree.js/WebGL用のnpmパッケージも公開されています</td><td><a href="https://lumalabs.ai/interactive-scenes" target="_blank" rel="noopener">lumalabs.ai →</a></td><td>無料(共有・埋め込み)</td></tr>
-      <tr><td>Postshot<br><span style="color:var(--sub);font-size:.85em">(Jawset)</span></td><td>撮影データの学習からリアルタイムのリライト・ビューまでを1本でこなすデスクトップアプリです。Windows専用</td><td><a href="https://www.jawset.com/" target="_blank" rel="noopener">jawset.com →</a></td><td>無料版あり(商用は有料プラン)</td></tr>
-      <tr><td>Polycam</td><td>ブラウザ・モバイルアプリの両方で撮影から閲覧・編集(クロップ・計測)まで完結します</td><td><a href="https://poly.cam/tools/gaussian-splatting" target="_blank" rel="noopener">poly.cam →</a></td><td>無料プランあり</td></tr>
-      <tr><td>Scaniverse<br><span style="color:var(--sub);font-size:.85em">(Niantic)</span></td><td>モバイルアプリでオンデバイス撮影・閲覧が完結します。Quest 3のブラウザ上でWebXR表示にも対応しています</td><td><a href="https://www.nianticspatial.com/products/capture" target="_blank" rel="noopener">nianticspatial.com →</a></td><td>無料</td></tr>
+      <tr><td>SuperSplat<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>◎ 本命</td><td>ブラウザ完結の3DGSエディタです。クロップ・カラー編集ができ、書き出し専用の軽量ビューアーは別リポジトリで配布されています</td><td><a href="https://github.com/playcanvas/supersplat" target="_blank" rel="noopener">Editor →</a><br><a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">Viewer →</a></td><td>MIT・無料</td></tr>
+      <tr><td>splat<br><span style="color:var(--sub);font-size:.85em">(antimatter15)</span></td><td>△ 参考実装</td><td>最も初期から公開されている最小構成のWebGLビューアーです。.plyをドラッグ&amp;ドロップするだけで表示できます</td><td><a href="https://github.com/antimatter15/splat" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
+      <tr><td>GaussianSplats3D<br><span style="color:var(--sub);font-size:.85em">(mkkellogg)</span></td><td>○ 開発者向け</td><td>Three.jsベースのレンダリングライブラリです。既存のThree.jsシーンに組み込んで自前のビューアーを作れます</td><td><a href="https://github.com/mkkellogg/GaussianSplats3D" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
+      <tr><td>Spark<br><span style="color:var(--sub);font-size:.85em">(sparkjsdev)</span></td><td>◎ 本命</td><td>Three.js向けの高機能レンダラーです。PLY/SPZ/SPLAT/KSPLAT/SOGなど主要フォーマットに対応し、モバイルでも高速に動作します。ロケハン3Dの自社ビューアーもこのライブラリをベースに構築しています</td><td><a href="https://sparkjs.dev/" target="_blank" rel="noopener">sparkjs.dev →</a></td><td>MIT・無料</td></tr>
+      <tr><td>Luma AI<br><span style="color:var(--sub);font-size:.85em">(Interactive Scenes)</span></td><td>○ 共有向け</td><td>撮影したシーンをクラウドで処理し、Web上でそのまま共有・埋め込みできます。開発者向けにThree.js/WebGL用のnpmパッケージも公開されています</td><td><a href="https://lumalabs.ai/interactive-scenes" target="_blank" rel="noopener">lumalabs.ai →</a></td><td>無料(共有・埋め込み)</td></tr>
+      <tr><td>Postshot<br><span style="color:var(--sub);font-size:.85em">(Jawset)</span></td><td>○ 商用は要検討</td><td>撮影データの学習からリアルタイムのリライト・ビューまでを1本でこなすデスクトップアプリです。Windows専用</td><td><a href="https://www.jawset.com/" target="_blank" rel="noopener">jawset.com →</a></td><td>無料版あり(商用は有料プラン)</td></tr>
+      <tr><td>Polycam</td><td>○ 手軽</td><td>ブラウザ・モバイルアプリの両方で撮影から閲覧・編集(クロップ・計測)まで完結します</td><td><a href="https://poly.cam/tools/gaussian-splatting" target="_blank" rel="noopener">poly.cam →</a></td><td>無料プランあり</td></tr>
+      <tr><td>Scaniverse<br><span style="color:var(--sub);font-size:.85em">(Niantic)</span></td><td>○ モバイル完結</td><td>モバイルアプリでオンデバイス撮影・閲覧が完結します。Quest 3のブラウザ上でWebXR表示にも対応しています</td><td><a href="https://www.nianticspatial.com/products/capture" target="_blank" rel="noopener">nianticspatial.com →</a></td><td>無料</td></tr>
     </tbody>
   </table></div>
 
@@ -305,9 +305,9 @@
   <h2 id="converter"><span class="n">03</span> 変換ツール</h2>
   <p>フォーマット間の変換やLOD生成をコマンドラインで自動化したいときに使えるツールです。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>ソフト</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>splat-transform<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>CLIとライブラリの両方を提供します。PLY/SPZ/SOG/KSPLAT/LCC/LCC2などを相互変換でき、LOD生成・シーンのマージ・ボクセル化まで1本でこなせます。ブラウザ完結版の「SuperSplat Convert」(WASM、インストール不要)も公開されています</td><td><code>npm install -g @playcanvas/splat-transform</code><br><a href="https://github.com/playcanvas/splat-transform" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
+      <tr><td>splat-transform<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>◎ 事実上の標準</td><td>CLIとライブラリの両方を提供します。PLY/SPZ/SOG/KSPLAT/LCC/LCC2などを相互変換でき、LOD生成・シーンのマージ・ボクセル化まで1本でこなせます。ブラウザ完結版の「SuperSplat Convert」(WASM、インストール不要)も公開されています</td><td><code>npm install -g @playcanvas/splat-transform</code><br><a href="https://github.com/playcanvas/splat-transform" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
     </tbody>
   </table></div>
 
@@ -315,21 +315,21 @@
   <p>UE5・Unityに3DGSを直接持ち込んで、仮想カメラでの素材出力やリアルタイム表示を行うためのプラグインです。</p>
   <h3>Unreal Engine 5</h3>
   <div class="tblwrap"><table>
-    <thead><tr><th>プラグイン</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>プラグイン</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>XGRIDS LCC Plugin for UE</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します</td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
-      <tr><td>Luma AI UE Plugin</td><td>.plyや.lumaをドラッグ&amp;ドロップするだけでBlueprint化できます</td><td><a href="https://www.fab.com/listings/b52460e0-3ace-465e-a378-495a5531e318" target="_blank" rel="noopener">Fab →</a></td><td>無料</td></tr>
-      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>Niagara経由でリアルタイムレンダリングでき、編集・管理機能も備えます</td><td><a href="https://github.com/xverse-engine/XScene-UEPlugin" target="_blank" rel="noopener">GitHub →</a></td><td>Apache 2.0・無料</td></tr>
-      <tr><td>MLSLabs GS Renderer</td><td>Niagaraを使わない独自パイプラインで、数百万ガウシアンでも高フレームレートを維持できます。動的な4DGS(ボリュメトリック映像)にも対応します</td><td><a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
-      <tr><td>NanoGS</td><td>Naniteのようなスクリーンスペース誤差ベースのLODクラスタリングで、大規模シーンを効率よく描画できます</td><td><a href="https://github.com/TimChen1383/NanoGaussianSplatting" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料(UE5.6以降)</td></tr>
+      <tr><td>XGRIDS LCC Plugin for UE</td><td>○ ライセンス要確認</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します</td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>○ お試しに最適</td><td>.plyや.lumaをドラッグ&amp;ドロップするだけでBlueprint化できます</td><td><a href="https://www.fab.com/listings/b52460e0-3ace-465e-a378-495a5531e318" target="_blank" rel="noopener">Fab →</a></td><td>無料</td></tr>
+      <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>○ 無料でリアルタイム</td><td>Niagara経由でリアルタイムレンダリングでき、編集・管理機能も備えます</td><td><a href="https://github.com/xverse-engine/XScene-UEPlugin" target="_blank" rel="noopener">GitHub →</a></td><td>Apache 2.0・無料</td></tr>
+      <tr><td>MLSLabs GS Renderer</td><td>○ 高性能・ニッチ</td><td>Niagaraを使わない独自パイプラインで、数百万ガウシアンでも高フレームレートを維持できます。動的な4DGS(ボリュメトリック映像)にも対応します</td><td><a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
+      <tr><td>NanoGS</td><td>◎ 注目株</td><td>Naniteのようなスクリーンスペース誤差ベースのLODクラスタリングで、大規模シーンを効率よく描画できます</td><td><a href="https://github.com/TimChen1383/NanoGaussianSplatting" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料(UE5.6以降)</td></tr>
     </tbody>
   </table></div>
   <h3>Unity</h3>
   <div class="tblwrap"><table>
-    <thead><tr><th>プラグイン</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>プラグイン</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>XGRIDS LCC Unity SDK</td><td>レンダリング・レイキャスト・クリッピングなどを一式提供します</td><td><a href="https://github.com/xgrids/LCC-Unity-SDK" target="_blank" rel="noopener">GitHub →</a></td><td>XGRIDS独自ライセンス</td></tr>
-      <tr><td>UnityGaussianSplatting<br><span style="color:var(--sub);font-size:.85em">(aras-p)</span></td><td>PLY・SPZ形式に対応した可視化実装です。D3D12/Metal/Vulkanで動作し、Quest・Vive・Varjoでの動作も確認されています</td><td><a href="https://github.com/aras-p/UnityGaussianSplatting" target="_blank" rel="noopener">GitHub →</a></td><td>MIT系OSS・無料</td></tr>
+      <tr><td>XGRIDS LCC Unity SDK</td><td>○ ライセンス要確認</td><td>レンダリング・レイキャスト・クリッピングなどを一式提供します</td><td><a href="https://github.com/xgrids/LCC-Unity-SDK" target="_blank" rel="noopener">GitHub →</a></td><td>XGRIDS独自ライセンス</td></tr>
+      <tr><td>UnityGaussianSplatting<br><span style="color:var(--sub);font-size:.85em">(aras-p)</span></td><td>○ 開発は停滞気味</td><td>PLY・SPZ形式に対応した可視化実装です。D3D12/Metal/Vulkanで動作し、Quest・Vive・Varjoでの動作も確認されています</td><td><a href="https://github.com/aras-p/UnityGaussianSplatting" target="_blank" rel="noopener">GitHub →</a></td><td>MIT系OSS・無料</td></tr>
     </tbody>
   </table></div>
   <div class="callout warn"><b>XGRIDS製プラグイン・SDKはライセンス確認を</b>XGRIDS LCC Plugin for UEとLCC Unity SDKは、XGRIDS独自ライセンスの下で配布されています。商用利用や再配布を検討する場合は、導入前に配布元でライセンス条件を必ず確認してください。</div>
