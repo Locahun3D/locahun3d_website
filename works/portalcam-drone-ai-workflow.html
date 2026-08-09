@@ -522,7 +522,7 @@
 <script type="module">
   import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
   const bp = loadDefaultJapaneseParser();
-  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,.callout,figcaption,.spec dd';
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd';
   document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>
