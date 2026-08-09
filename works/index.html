@@ -257,6 +257,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
+    tag:"tech", tagLabel:"技術", date:"2026-08-09", read:"約7分",
+    title:"3DGSのファイルフォーマットを整理する",
+    excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。",
+    href:"3dgs-file-formats.html", thumb:""
+  },
+  {
     tag:"tech", tagLabel:"技術", date:"2026-08-04", read:"約6分",
     title:"3DGSを扱えるソフト・ツール比較",
     excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。",
