@@ -109,6 +109,17 @@
   .tblwrap tr:last-child td{border-bottom:none}
   .tblwrap td b{color:#fff;font-weight:700}
   .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  @media(max-width:640px){
+    .tblwrap{overflow-x:visible}
+    .tblwrap table{min-width:0}
+    .tblwrap thead{display:none}
+    .tblwrap tr{display:block;padding:16px 16px;border-bottom:1px solid var(--line)}
+    .tblwrap tr:last-child{border-bottom:none}
+    .tblwrap td{display:block;padding:6px 0;border-bottom:none}
+    .tblwrap td:first-child{white-space:normal;font-size:16px;padding-bottom:10px}
+    .tblwrap td[data-label]::before{content:attr(data-label);display:block;font-family:var(--mono);
+      font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);margin-bottom:3px}
+  }
 
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
@@ -241,12 +252,12 @@
   <h2 id="dcc"><span class="n">01</span> DCC(3DCGソフト)</h2>
   <p>3DGSはゲームエンジンだけでなく、普段のVFXパイプラインで使う3DCGソフト側でもそのまま扱えるようになっています。ソフトごとの対応方式と入手先をまとめます。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>ソフト</th><th>3DGS対応方式</th><th>得意</th><th>不得意</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <thead><tr><th>ソフト</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>Houdini 22</td><td>ネイティブ対応</td><td>点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます</td><td>ライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です</td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
-      <tr><td>Blender</td><td>KIRI Engine製アドオン「3DGS Render」</td><td>無料で導入でき、ライトに反応してシャドウを落とせます。点群の編集・最適化にも対応します</td><td>サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
-      <tr><td>3ds Max</td><td>V-Ray 7(Chaos)がネイティブ対応</td><td>レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します</td><td>V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
-      <tr><td>Cinema 4D</td><td>Octane(OTOY)がプラグイン経由で対応</td><td>Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです</td><td>執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Houdini 22</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です</td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
+      <tr><td>Blender</td><td>KIRI Engine製アドオン「3DGS Render」で対応します。無料で導入でき、ライトに反応してシャドウを落とせ、点群の編集・最適化にも対応します。サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
+      <tr><td>3ds Max</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Cinema 4D</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
     </tbody>
   </table></div>
 
@@ -375,6 +386,16 @@
   function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
   document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
 })();
+</script>
+
+<!-- モバイルではtableをカード表示にするため、見出し列名をtdのdata-labelへ複製(先頭列は見出し不要なので除外) -->
+<script>
+document.querySelectorAll('.tblwrap table').forEach(function(table){
+  var heads = Array.from(table.querySelectorAll('thead th')).map(function(th){ return th.textContent.trim(); });
+  table.querySelectorAll('tbody tr').forEach(function(tr){
+    Array.from(tr.children).forEach(function(td, i){ if(i>0 && heads[i]) td.setAttribute('data-label', heads[i]); });
+  });
+});
 </script>
 
 <!-- BudouX：日本語を文節単位で改行 -->

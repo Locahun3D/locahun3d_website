@@ -158,6 +158,17 @@
   .tblwrap td b{color:#fff;font-weight:700}
   .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
   .tblwrap td:nth-child(2){white-space:nowrap}
+  @media(max-width:640px){
+    .tblwrap{overflow-x:visible}
+    .tblwrap table{min-width:0}
+    .tblwrap thead{display:none}
+    .tblwrap tr{display:block;padding:16px 16px;border-bottom:1px solid var(--line)}
+    .tblwrap tr:last-child{border-bottom:none}
+    .tblwrap td{display:block;padding:6px 0;border-bottom:none;white-space:normal}
+    .tblwrap td:first-child{font-size:16px;padding-bottom:10px}
+    .tblwrap td[data-label]::before{content:attr(data-label);display:block;font-family:var(--mono);
+      font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);margin-bottom:3px}
+  }
 
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
@@ -544,6 +555,16 @@
   function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
   document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
 })();
+</script>
+
+<!-- モバイルではtableをカード表示にするため、見出し列名をtdのdata-labelへ複製(先頭列は見出し不要なので除外) -->
+<script>
+document.querySelectorAll('.tblwrap table').forEach(function(table){
+  var heads = Array.from(table.querySelectorAll('thead th')).map(function(th){ return th.textContent.trim(); });
+  table.querySelectorAll('tbody tr').forEach(function(tr){
+    Array.from(tr.children).forEach(function(td, i){ if(i>0 && heads[i]) td.setAttribute('data-label', heads[i]); });
+  });
+});
 </script>
 
 <!-- BudouX：日本語を文節単位で改行 -->
