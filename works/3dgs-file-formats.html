@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSのファイルフォーマットを整理する｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
+<meta name="description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-file-formats.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-file-formats.html">
 <link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-file-formats.html">
@@ -13,14 +13,14 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="3DGSのファイルフォーマットを整理する">
-<meta property="og:description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
+<meta property="og:description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-file-formats.html">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGSのファイルフォーマットを整理する">
-<meta name="twitter:description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
+<meta name="twitter:description" content="3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -70,6 +70,12 @@
   .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
   header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
   header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  .logo-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:38px 0 14px}
+  .logo-chip{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 26px;
+    display:flex;align-items:center;justify-content:center;min-width:130px;height:64px}
+  .logo-chip img{max-width:120px;max-height:32px;width:auto;height:auto;display:block}
+  .logo-row-note{text-align:center;color:var(--faint);font-size:12px;line-height:1.7;margin:0 0 24px}
 
   .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
   .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
@@ -228,12 +234,20 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">フォーマット</span><span class="badge">リファレンス</span>
-    <span>2026-08-09</span><span>・</span><span>読了 約7分</span>
+    <span>2026-08-09</span><span>・</span><span>読了 約9分</span>
   </div>
   <h1>3DGSのファイルフォーマットを整理する</h1>
-  <p class="lead">3D Gaussian Splatting(3DGS)は、同じシーンでも<strong>保存フォーマットによってファイルサイズも読み込めるソフトも変わります</strong>。PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2という主要フォーマットを、圧縮方式・対応ツール・用途で整理します。<a href="3dgs-software-comparison.html">3DGSを扱えるソフト・ツール比較</a>と合わせて読むと、「どのソフトでどのフォーマットを使うか」が決めやすくなります。</p>
+  <p class="lead">3D Gaussian Splatting(3DGS)は、同じシーンでも<strong>保存フォーマットによってファイルサイズも読み込めるソフトも変わります</strong>。PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2という主要フォーマットを、圧縮方式・対応ツール・用途で整理します。<a href="3dgs-software-comparison.html">3DGSを扱えるソフト・ツール比較</a>と合わせて読むと、「どのソフトでどのフォーマットを使うか」が決めやすくなります。</p>
   <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGSのフォーマットは活発に更新されています。細かい仕様は各プロジェクトのリポジトリで最新版を確認してください。</div>
 </header>
+
+<div class="logo-row">
+  <div class="logo-chip"><img src="images/logos/spark.svg" alt="Spark(sparkjsdev)ロゴ"></div>
+  <div class="logo-chip"><img src="images/logos/niantic-spatial.png" alt="Niantic Spatialロゴ"></div>
+  <div class="logo-chip"><img src="images/logos/playcanvas.svg" alt="PlayCanvasロゴ"></div>
+  <div class="logo-chip"><img src="images/logos/xgrids.png" alt="XGRIDSロゴ"></div>
+</div>
+<p class="logo-row-note">記事で扱う主なフォーマットの開発元4社。各ロゴは各社の商標であり、フォーマットの識別・比較のために掲載しています。</p>
 
 <nav class="toc">
   <h2>目次</h2>
@@ -243,7 +257,9 @@
     <li><a href="#ksplat">KSPLAT(mkkellogg/GaussianSplats3D)</a></li>
     <li><a href="#spz">SPZ(Niantic Spatial)</a></li>
     <li><a href="#sog">SOG(PlayCanvas)</a></li>
+    <li><a href="#rad">RAD(Spark)</a></li>
     <li><a href="#lcc">LCC / LCC2(XGRIDS)</a></li>
+    <li><a href="#compare">早見表:7フォーマット比較</a></li>
     <li><a href="#guide">結局どれを選べばいいか</a></li>
   </ol>
 </nav>
@@ -309,7 +325,19 @@
     </tbody>
   </table></div>
 
-  <h2 id="lcc"><span class="n">06</span> LCC / LCC2(XGRIDS)</h2>
+  <h2 id="rad"><span class="n">06</span> RAD(Spark)</h2>
+  <p>Three.js向けレンダラー<a href="3dgs-software-comparison.html#viewer">Spark</a>が2.0で追加した、<strong>LODツリーをそのまま保存できるストリーミング専用フォーマット</strong>です。あらかじめ<code>build-lod</code>コマンドでLODツリーを構築して保存しておき、閲覧時はHTTP Range Requestでチャンク(<code>.radc</code>)を必要な分だけ取得します。粗いバージョンを一瞬で表示し、視点の移動に応じて詳細を追加でストリーミングする「coarse-to-fine」設計です。ロケハン3Dの自社ビューアーも、このRADフォーマットを軸にした独自の並列デコード・LOD制御を組み込んでいます。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>拡張子</td><td>.rad(ヘッダー・LODツリー)+ .radc(チャンク本体)</td></tr>
+      <tr><td>圧縮</td><td>内部は16バイト/ガウシアンのPackedSplatsが既定。チャンク単位でHTTP Range配信</td></tr>
+      <tr><td>対応ソフト</td><td>Spark(<code>paged:true</code>で読み込み)。他ツールへの対応は今のところ限定的</td></tr>
+      <tr><td>向いている用途</td><td>1億点を超えるような超大規模シーンを、GPUメモリに収まる範囲でストリーミング表示したいとき</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="lcc"><span class="n">07</span> LCC / LCC2(XGRIDS)</h2>
   <p>XGRIDSが開発した、<strong>都市規模のシーンをLOD(詳細度)付きで扱うためのコンテナフォーマット</strong>です。単一のファイルではなく、JSONメタデータ(octree型のLODツリー)と、実データを格納する<code>data/3dgs/</code>フォルダで構成されます。実データはSOGかSPZのどちらか一方で保存され、隣接するノードは1ファイルに統合されます。PortalCamのスキャンでも、LCC Studioの書き出しに<code>Lcc2/lcc2-result/</code>フォルダ(3dgsはSOG、meshはPLY)として含まれています。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>項目</th><th>内容</th></tr></thead>
@@ -322,12 +350,28 @@
   </table></div>
   <div class="callout warn"><b>ライセンスに注意</b>LCC/LCC2はXGRIDS独自ライセンスです。読み込むだけの自作ローダーであれば影響は小さいと考えていますが、商用での本格運用や再配布を検討する場合は、事前に公式のホワイトペーパーでライセンス条件を確認してください。</div>
 
-  <h2 id="guide"><span class="n">07</span> 結局どれを選べばいいか</h2>
+  <h2 id="compare"><span class="n">08</span> 早見表:7フォーマット比較</h2>
+  <p>ここまでの内容を1つの表にまとめました。まず全体を見比べてから、気になるフォーマットの詳細セクションを読むのがおすすめです。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>フォーマット</th><th>拡張子</th><th>圧縮</th><th>対応ソフト</th><th>向いている用途</th></tr></thead>
+    <tbody>
+      <tr><td>PLY</td><td>.ply</td><td>基本は非圧縮</td><td>ほぼ全ツール</td><td>ソフト間のやり取り、互換性優先</td></tr>
+      <tr><td>SPLAT</td><td>.splat</td><td>SH係数を削り量子化</td><td>初期のWebビューアー中心</td><td>手早くWebで試す</td></tr>
+      <tr><td>KSPLAT</td><td>.ksplat</td><td>チャンク分割+2段階圧縮</td><td>GaussianSplats3Dのみ</td><td>プログレッシブ表示の自前ビューアー</td></tr>
+      <tr><td>SPZ</td><td>.spz</td><td>v1-3=gzip／v4=zstd</td><td>Scaniverse、splat-transform、Spark等</td><td>配布・保存用の汎用コンパクト形式</td></tr>
+      <tr><td>SOG</td><td>フォルダ+meta.json</td><td>属性ソート+WebP(約20倍)</td><td>PlayCanvas系ツール</td><td>Webでの配信・ストリーミング</td></tr>
+      <tr><td>RAD</td><td>.rad + .radc</td><td>16byte/ガウシアン+チャンク配信</td><td>Sparkのみ</td><td>1億点超級の超大規模ストリーミング</td></tr>
+      <tr><td>LCC / LCC2</td><td>.lcc2 + SOG/SPZ</td><td>内部フォーマットに準拠</td><td>XGRIDS SDK、splat-transform(読込)</td><td>都市規模でのLOD切り替え</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="guide"><span class="n">09</span> 結局どれを選べばいいか</h2>
   <p>用途ごとの目安です。<a href="3dgs-software-comparison.html">3DGSを扱えるソフト・ツール比較</a>もあわせて、「どのソフトでどのフォーマットを使うか」を決めてください。</p>
   <ul>
     <li><strong>他のDCCソフト(Houdini/Blenderなど)に渡す</strong> ── PLY。互換性が最も高い</li>
     <li><strong>とにかく軽くWebで公開・共有したい</strong> ── SOGかSPZ。ファイルサイズが大きく変わる</li>
     <li><strong>都市規模のシーンでLODを切り替えたい</strong> ── LCC2。単一フォーマットでLODが完結する</li>
+    <li><strong>1億点を超える超大規模シーンをストリーミングしたい</strong> ── RAD。Spark専用だがLODツリーごと配信できる</li>
     <li><strong>GaussianSplats3Dで自前ビューアーを組む</strong> ── KSPLAT。プログレッシブ表示の恩恵を受けられる</li>
     <li><strong>まず手早く試したいだけ</strong> ── SPLAT。ただし視点依存の質感は失われる点に注意</li>
   </ul>

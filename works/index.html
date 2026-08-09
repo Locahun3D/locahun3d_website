@@ -229,7 +229,6 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
     <div class="filters" id="filters">
       <button class="chip active" data-f="all">すべて</button>
       <button class="chip" data-f="tech">技術記事</button>
-      <button class="chip" data-f="work">実績解説</button>
     </div>
     <div class="grid" id="blogGrid"></div>
   </section>
@@ -257,9 +256,9 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
-    tag:"tech", tagLabel:"技術", date:"2026-08-09", read:"約7分",
+    tag:"tech", tagLabel:"技術", date:"2026-08-09", read:"約9分",
     title:"3DGSのファイルフォーマットを整理する",
-    excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。どれを選べばいいか迷ったときの早見表。",
+    excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2)を、圧縮方式・対応ツール・用途で比較。7フォーマット早見表つき。",
     href:"3dgs-file-formats.html", thumb:""
   },
   {
@@ -297,9 +296,7 @@ var POSTS = [
     title:"Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー",
     excerpt:"シニアVFXアーティスト hectorVFX 氏が、ロケハン3Dの渋谷スクランブル交差点データ（3DGS）を使って実証した、Houdini 22 × ComfyUI によるVFX × AIハイブリッドワークフローの事例紹介。",
     href:"houdini-comfyui-gsplat-workflow.html", thumb:"images/hectorvfx_shibuya_ai_render.jpg"
-  },
-  { tag:"work", tagLabel:"実績解説", date:"", title:"（実績の制作解説を追加予定）",
-    excerpt:"実績ページの各案件について、制作の裏側・使用技術を解説していきます。", ph:true }
+  }
 ];
 function blogCard(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
