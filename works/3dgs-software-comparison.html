@@ -251,13 +251,27 @@
   </table></div>
 
   <h2 id="viewer"><span class="n">02</span> ビューアー・エディタ</h2>
-  <p>納品前の確認や、クロップ・色調整までブラウザだけで完結させたいときに使えるツールです。</p>
+  <p>納品前の確認や、クロップ・色調整までブラウザだけで完結させたいときに使えるツールです。ブラウザで完結するものから、開発者向けのレンダリングライブラリ、モバイルアプリまで幅広く並べます。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>ソフト</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
       <tr><td>SuperSplat<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>ブラウザ完結の3DGSエディタです。クロップ・カラー編集ができ、書き出し専用の軽量ビューアーは別リポジトリで配布されています</td><td><a href="https://github.com/playcanvas/supersplat" target="_blank" rel="noopener">Editor →</a><br><a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">Viewer →</a></td><td>MIT・無料</td></tr>
+      <tr><td>splat<br><span style="color:var(--sub);font-size:.85em">(antimatter15)</span></td><td>最も初期から公開されている最小構成のWebGLビューアーです。.plyをドラッグ&amp;ドロップするだけで表示できます</td><td><a href="https://github.com/antimatter15/splat" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
+      <tr><td>GaussianSplats3D<br><span style="color:var(--sub);font-size:.85em">(mkkellogg)</span></td><td>Three.jsベースのレンダリングライブラリです。既存のThree.jsシーンに組み込んで自前のビューアーを作れます</td><td><a href="https://github.com/mkkellogg/GaussianSplats3D" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
+      <tr><td>Spark<br><span style="color:var(--sub);font-size:.85em">(sparkjsdev)</span></td><td>Three.js向けの高機能レンダラーです。PLY/SPZ/SPLAT/KSPLAT/SOGなど主要フォーマットに対応し、モバイルでも高速に動作します。ロケハン3Dの自社ビューアーもこのライブラリをベースに構築しています</td><td><a href="https://sparkjs.dev/" target="_blank" rel="noopener">sparkjs.dev →</a></td><td>MIT・無料</td></tr>
+      <tr><td>Luma AI<br><span style="color:var(--sub);font-size:.85em">(Interactive Scenes)</span></td><td>撮影したシーンをクラウドで処理し、Web上でそのまま共有・埋め込みできます。開発者向けにThree.js/WebGL用のnpmパッケージも公開されています</td><td><a href="https://lumalabs.ai/interactive-scenes" target="_blank" rel="noopener">lumalabs.ai →</a></td><td>無料(共有・埋め込み)</td></tr>
+      <tr><td>Postshot<br><span style="color:var(--sub);font-size:.85em">(Jawset)</span></td><td>撮影データの学習からリアルタイムのリライト・ビューまでを1本でこなすデスクトップアプリです。Windows専用</td><td><a href="https://www.jawset.com/" target="_blank" rel="noopener">jawset.com →</a></td><td>無料版あり(商用は有料プラン)</td></tr>
+      <tr><td>Polycam</td><td>ブラウザ・モバイルアプリの両方で撮影から閲覧・編集(クロップ・計測)まで完結します</td><td><a href="https://poly.cam/tools/gaussian-splatting" target="_blank" rel="noopener">poly.cam →</a></td><td>無料プランあり</td></tr>
+      <tr><td>Scaniverse<br><span style="color:var(--sub);font-size:.85em">(Niantic)</span></td><td>モバイルアプリでオンデバイス撮影・閲覧が完結します。Quest 3のブラウザ上でWebXR表示にも対応しています</td><td><a href="https://www.nianticspatial.com/products/capture" target="_blank" rel="noopener">nianticspatial.com →</a></td><td>無料</td></tr>
     </tbody>
   </table></div>
+
+  <div class="data-cta">
+    <span class="dc-tag">Locahun3D Viewer</span>
+    <h3>ロケハン3Dの自社ビューアーもサンプルシーンで試せます</h3>
+    <p>上記のSparkをベースに、巨大な3DGSデータをオフライン・ブラウザだけで扱えるよう独自開発したビューアーです。ダウンロードや会員登録なしで、サンプルシーンをその場で操作できます。</p>
+    <a class="dc-btn" href="/locahun3d_demo.html" target="_blank" rel="noopener">サンプルシーンをブラウザで試す →</a>
+  </div>
 
   <h2 id="converter"><span class="n">03</span> 変換ツール</h2>
   <p>フォーマット間の変換やLOD生成をコマンドラインで自動化したいときに使えるツールです。</p>
