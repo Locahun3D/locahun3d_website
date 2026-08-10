@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Extracting 4K Source Images from PortalCam's Raw Data (.xbin)｜Locahun 3D Tech Blog</title>
+<meta name="description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what's inside xBin (XBAG format), the required flags for the extraction command, the constraint that only 2 of the 4 lenses can be output, and the limits we found trying photogrammetry reconstruction from the extracted images.">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/portalcam-xbin-raw-extraction.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/portalcam-xbin-raw-extraction.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/portalcam-xbin-raw-extraction.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/portalcam-xbin-raw-extraction.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun 3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Extracting 4K Source Images from PortalCam's Raw Data (.xbin)">
+<meta property="og:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what's inside xBin (XBAG format), the required flags for the extraction command, the constraint that only 2 of the 4 lenses can be output, and the limits we found trying photogrammetry reconstruction from the extracted images.">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/portalcam-xbin-raw-extraction.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/xbin_cam_pinholeA.jpg">
+<meta property="og:image:width" content="1100">
+<meta property="og:image:height" content="825">
+<meta property="og:image:alt" content="An example 4K source image extracted from PortalCam's raw data and converted from fisheye to perspective projection (a road and high-rise buildings)">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Extracting 4K Source Images from PortalCam's Raw Data (.xbin)">
+<meta name="twitter:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what's inside xBin (XBAG format), the required flags for the extraction command, the constraint that only 2 of the 4 lenses can be output, and the limits we found trying photogrammetry reconstruction from the extracted images.">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/xbin_cam_pinholeA.jpg">
+<!-- OGP:END -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=3fa834a1">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:38px 0}
+  .duo figure{margin:0}
+  .duo figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  @media(max-width:640px){.duo{grid-template-columns:1fr}}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:560px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
+      <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="/en/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en/properties">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/works/portalcam-xbin-raw-extraction.html">JA</a>
+    </div>
+  </div>
+  <div class="sh-right">
+    <button class="sh-acct" type="button" aria-label="Language & account" aria-expanded="false" aria-controls="sh-acct-panel" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-acct-open');this.setAttribute('aria-expanded',o)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></button>
+  </div>
+  <div class="sh-acct-panel" id="sh-acct-panel">
+    <div class="sh-toggle sh-acct-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en/properties">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/works/portalcam-xbin-raw-extraction.html">JA</a>
+    </div>
+  </div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">PortalCam</span><span class="badge">XGRIDS</span><span class="badge">3DGS</span><span class="badge">Workflow</span>
+    <span>2026-07-26</span><span>・</span><span>~8 min read</span>
+  </div>
+  <h1>Extracting 4K Source Images<br class="pc"> from PortalCam's Raw Data (.xbin)</h1>
+  <p class="lead">This is Kou Nakamura from Locahun 3D. When you scan with PortalCam, LCC Studio and Lixel Studio export 3DGS and point clouds for you — but behind that, the <strong>original 4K images taken by the camera itself</strong> are still sitting inside the raw data, untouched. This article covers how to extract 4K source images from the raw data (.xbin) using CLI tools alone, and lays out honestly what we learned trying photogrammetry reconstruction from those extracted images.</p>
+
+  <figure>
+    <img src="images/xbin_cam_pinholeA.jpg" alt="An example 4K source image extracted from PortalCam's raw data and converted from fisheye to perspective projection (a road and high-rise buildings)">
+    <figcaption><b>An extracted 4K source image, converted to perspective projection.</b> Inside the raw data it's recorded as a fisheye H.264 video, so it's converted here — as-is, it isn't easy to work with in ordinary image-processing software.</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#why">Why extract source images from raw data</a></li>
+    <li><a href="#structure">What's inside a PortalCam scan's output</a></li>
+    <li><a href="#xbin">What xBin actually is: H.264 video, not JPEG</a></li>
+    <li><a href="#extract">The command to extract 4K source images</a></li>
+    <li><a href="#stereo">The constraint: only 2 of the 4 cameras come out</a></li>
+    <li><a href="#photogrammetry">Testing it: photogrammetry from the extracted images fails across the board</a></li>
+    <li><a href="#summary">Where this is useful, and a summary</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>Scan with PortalCam</b><span class="a">→</span>
+    <b>.xbin (raw data)</b><span class="a">→</span>
+    <b>Extract with extract_images_h264.exe</b><span class="a">→</span>
+    <b>4K fisheye JPEG</b><span class="a">→</span>
+    <b>Convert to perspective projection</b>
+  </div>
+
+  <h2 id="why"><span class="n">01</span> Why extract source images from raw data</h2>
+  <p>Exporting a PortalCam scan through LCC Studio gives you 3DGS, a point cloud, and a LiDAR mesh. That covers most of what you need for video production, but there are cases where you separately want the <strong>4K images from the camera itself, as captured while walking the site</strong>. There are two use cases 3DGS alone can't cover.</p>
+  <ul>
+    <li><strong>Using them as AI reference material</strong> — real 4K photographic images give noticeably better precision than a 3DGS render when used as reference for background fixes or generative AI.</li>
+    <li><strong>Trying 3D reconstruction through a different pipeline</strong> — it's worth checking whether the same field-captured data can be reused for methods other than 3DGS, such as photogrammetry (later in this article, we'll be honest about what we found when we actually tried this).</li>
+  </ul>
+  <p>PortalCam's LCC Studio does have a GUI feature for exporting images, but this article uses a method that <strong>never opens the GUI and works entirely through CLI tools</strong>, since that's easier to fold into batch processing and automation.</p>
+
+  <h2 id="structure"><span class="n">02</span> What's inside a PortalCam scan's output</h2>
+  <p>Before extraction, it helps to know what's inside the folder PortalCam creates for a single scan. Under <code>ShotData/&lt;scan name&gt;/</code>, the layout roughly looks like this.</p>
+  <div class="code"><pre><code>ShotData/&lt;scan name&gt;/
+├─ 2026-XX-XX-XXXXXX.xbin        # Raw sensor recording (images + LiDAR + IMU + GNSS)
+├─ ply/ply-result/
+│  ├─ point_cloud/iteration_100/point_cloud.ply   # The 3DGS itself
+│  └─ cameras.json                # Dummy (only the startup.jpg entry — unusable)
+├─ Lcc2/lcc2-result/              # LCC2 export (3dgs/*.sog + mesh/*.ply + info/poses.json)
+├─ mesh-files/&lt;scan name&gt;.obj    # LiDAR mesh (coarse — tens of thousands of vertices, triangles ~20cm)
+└─ project_data/
+   ├─ poses.csv                  # Trajectory (ts,x,y,z,qx,qy,qz,qw)
+   └─ log/project.json           # DeviceInfo.CameraList shows the camera configuration</code></pre></div>
+  <p>The only thing we use here is <strong><code>.xbin</code></strong> — the heaviest file in the set. Its size scales with recording time; a scan of a few minutes lands around 1GB.</p>
+
+  <h2 id="xbin"><span class="n">03</span> What xBin actually is: H.264 video, not JPEG</h2>
+  <p>Running a binary analysis on <code>.xbin</code> reveals its real identity: an <strong>XBAG-format</strong> container (magic number "XBAG"), a "multiplexed sensor data" container similar in spirit to a ROS bag. Camera footage, LiDAR point clouds, IMU, and GNSS are all interleaved in a single file in time order.</p>
+  <div class="callout warn"><b>Simple JPEG carving doesn't work</b>Scanning the entire file for JFIF/PNG signatures turns up zero embedded still images. <strong>The camera footage is recorded as an H.264 video stream</strong>, so no image can be extracted without decoding it first.</div>
+  <p>You could demux the H.264 stream yourself and hand it to ffmpeg, but that requires correctly walking the XBAG record boundaries, which is a fair amount of work. The XGRIDS-native CLI tool covered in the next section lets you skip worrying about that step entirely.</p>
+
+  <h2 id="extract"><span class="n">04</span> The command to extract 4K source images</h2>
+  <p>The tool used here is <code>extract_images_h264.exe</code>, bundled with LixelStudio. There's no need to launch LCC Studio or Lixel Studio — it's a single command line.</p>
+  <div class="code"><pre><code>"C:\Program Files (x86)\LixelStudio\extract_images_h264.exe" ^
+  --hbc_path &lt;path to .xbin&gt; --out_dir &lt;output directory&gt; ^
+  --out_fps 5 --prj_version 1 --device_type 4 --use_blur_detect 1</code></pre></div>
+  <div class="callout warn"><b><code>--prj_version 1</code> is not optional</b>Omit it and the tool exits silently with just "hbc not exsit" — no error message at all. Use 0 for <code>.hbc</code> format, 1 for <code>.xbin</code> format.</div>
+  <p><code>--device_type</code> specifies the capture device, but PortalCam isn't listed among the documented options. After actually testing it, here's what worked.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>device_type</th><th>Target device</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Lixel L2</td><td>0 images</td></tr>
+      <tr><td>3</td><td>Lixel L2 Pro</td><td>0 images</td></tr>
+      <tr><td><b>4</b></td><td>Lixel K1<br><span style="color:var(--sub);font-size:.85em">(this is the value PortalCam needs)</span></td><td>Extraction succeeds</td></tr>
+      <tr><td>5 / 6</td><td>(other devices)</td><td>0 images</td></tr>
+    </tbody>
+  </table></div>
+  <p>Get just these two flags right, and <code>images/camera_0/</code> and <code>images/camera_1/</code> appear under your <code>--out_dir</code>, filled with <strong>4000×3000 (12-megapixel) fisheye JPEGs</strong> named by timestamp. Note that <code>--out_fps</code> effectively has no effect — every frame from the source data is output regardless.</p>
+  <div class="callout note"><b>If the fisheye distortion is a problem</b>The extracted images are the raw circular fisheye capture. To use them in ordinary image-processing or photogrammetry software, convert them to perspective projection with the bundled <code>fisheye2perspective.exe</code>. The image at the top of this article, and the figures below, are all post-conversion.</div>
+
+  <h2 id="stereo"><span class="n">05</span> The constraint: only 2 of the 4 cameras come out</h2>
+  <p>PortalCam's camera configuration can be checked in <code>project_data/log/project.json</code> under <code>DeviceInfo.CameraList</code>, and it's a <strong>4-lens setup: left_main / left_seco / right_main / right_seco</strong>. Definitions for all four channels exist inside the <code>.xbin</code> header's binary structure as well.</p>
+  <p>In practice, though, <code>extract_images_h264.exe</code> only decodes <strong>left_main and right_main</strong> — two streams. We haven't yet found a way to output the seco side.</p>
+  <p>Fortunately, <code>camera_0</code> and <code>camera_1</code> form a <strong>synchronized stereo pair with 0ms timestamp difference</strong>, so parallax information itself is preserved.</p>
+  <div class="duo">
+    <figure>
+      <img src="images/xbin_cam_pinholeA.jpg" alt="A 4K source image extracted from the camera_0 side (after perspective conversion)">
+      <figcaption><b>One frame from camera_0 (left_main).</b></figcaption>
+    </figure>
+    <figure>
+      <img src="images/xbin_cam_pinholeB.jpg" alt="A 4K source image extracted from the camera_1 side (after perspective conversion)">
+      <figcaption><b>One frame from camera_1 (right_main).</b>The other eye's view, recorded at the same instant.</figcaption>
+    </figure>
+  </div>
+
+  <h2 id="photogrammetry"><span class="n">06</span> Testing it: photogrammetry from the extracted images fails across the board</h2>
+  <p>From here on, the conclusion comes with caveats. We wondered whether, if 4K source images could be pulled out, photogrammetry could also build a mesh from them — and tested it on a conference-room scan (82 capture points × 2 lenses = 163 images). <strong>At this point, this route is a dead end.</strong></p>
+  <div class="callout warn"><b>RealityScan hangs completely</b>Loaded as-is (fisheye), it crashes with a Mini Dump right at launch. Even after converting to perspective projection (2000×2000, 100° horizontal FOV) with <code>fisheye2perspective.exe</code>, <strong>it stalls at the Aligning Images step with 0% CPU usage</strong>. In practice: 593 seconds of CPU time consumed, then 38 minutes with zero progress, memory usage draining from 1GB down to 0.29GB, and the main window becoming unresponsive — we force-quit it. Output: zero results.</div>
+  <div class="callout warn"><b>COLMAP won't even launch</b>It crashes immediately with <code>0xC0000142</code>. The cause is Windows Smart App Control blocking an unsigned DLL (<code>cholmod-*.dll</code>). Since <strong>disabling Smart App Control is an irreversible operation that can only be undone by reinstalling Windows</strong>, we didn't go down that path for this test.</p>
+  <p>The underlying cause is a matter of image count and spacing. <strong>82 capture points × 2 lenses is too sparse for feature matching to succeed.</strong> PortalCam is designed to collect 3DGS data continuously while walking, which is fundamentally at odds with the shooting style photogrammetry assumes: staying at one point and capturing with a high overlap ratio. On top of that, the conference room we tested had a lot of blank walls, meaning few distinguishable feature points to begin with. The fisheye-to-perspective conversion itself worked without issue (163 images processed in 8.2 seconds) — the bottleneck is entirely on the reconstruction side.</p>
+  <div class="callout note"><b>If we try again</b>Reproducing this on the same site would need a re-shoot with a much higher overlap ratio. Extracting the seco-side pair as well would simply double the amount of information, but for now only the main-side pair is available. For the time being, the most realistic use for the extracted images is as AI reference material, covered in the next section.</div>
+
+  <h2 id="summary"><span class="n">07</span> Where this is useful, and a summary</h2>
+  <p>To sum up this article: <strong>PortalCam's raw data (.xbin) is an XBAG-format H.264 video, and passing it through <code>extract_images_h264.exe</code> with <code>--prj_version 1</code> and <code>--device_type 4</code> extracts 4K source images</strong> — that's the whole path. That said, only 2 of the 4 lenses can be output, and photogrammetry reconstruction from the extracted images alone hasn't panned out so far.</p>
+  <p>The most practical use we've found is as <strong>AI reference material</strong>. The extracted sequential frames are real photographic capture of the actual site, which makes them a strong reference for correcting background artifacts with Nano Banana Pro or Gemini, and a strong input for Higgsfield's (SeeDance) <code>@location</code> feature. For a fuller walkthrough of that AI production workflow, see <a href="portalcam-drone-ai-workflow.html">How to generate an "aerial cut" from 3DGS</a>.</p>
+  <p>If you have questions about handling raw data or 3DGS production, feel free to reach out.</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">Contact</span>
+    <h3>Questions about PortalCam raw data or custom scans</h3>
+    <p>If your project needs adjustments at the raw-data level — outputting source images for AI reference, or designing a scan around a specific site's shooting conditions — feel free to get in touch.</p>
+    <a class="dc-btn" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+  </div>
+</article>
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Related articles</h2>
+  <div class="rgrid">
+      <a class="rcard" href="portalcam-drone-ai-workflow.html">
+        <div class="rthumb" style="background-image:url('images/work04_bgfix.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-06-16</span><span>~9 min</span></div>
+          <h3>How to generate an "aerial cut" from 3DGS</h3>
+        </div>
+      </a>
+      <a class="rcard" href="ue5-xgrids-3dgs-aerial-ai.html">
+        <div class="rthumb" style="background-image:url('images/ue5_shibuya_topdown_day.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-07-24</span><span>~12 min</span></div>
+          <h3>Producing assets from 3DGS with UE5 × XGRIDs SDK</h3>
+        </div>
+      </a>
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-07-26</span><span>~13 min</span></div>
+          <h3>Bringing 3DGS into NVIDIA Isaac Sim</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits / Production</div>
+  <h2>Production credit</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writing</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and tests capture workflows that combine 3DGS scanning with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM SCAN → .XBIN (XBAG/H.264) → EXTRACT_IMAGES_H264 → 4K FISHEYE JPEG → PERSPECTIVE CONVERT</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>

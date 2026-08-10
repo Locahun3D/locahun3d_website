@@ -243,6 +243,30 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 var POSTS = [
   {
+    tag:"tech", tagLabel:"Technical", date:"2026-08-09", read:"~10 min",
+    title:"A Field Guide to 3DGS File Formats",
+    excerpt:"The major 3D Gaussian Splatting file formats — PLY, SPLAT, KSPLAT, SPZ, SOG, RAD, LCC/LCC2 and glTF (KHR_gaussian_splatting) — compared by compression, tool support, and use case. Includes an 8-format cheat sheet.",
+    href:"3dgs-file-formats.html", thumb:"/works/images/logos/format-logos-thumb.svg"
+  },
+  {
+    tag:"tech", tagLabel:"Technical", date:"2026-08-04", read:"~8 min",
+    title:"Software & Tools That Handle 3DGS, Compared",
+    excerpt:"DCCs, viewers/editors, converters, game-engine plugins and industrial platforms that can load, edit, and export 3D Gaussian Splatting — with download links. From Maya+Arnold, Houdini, Blender, 3ds Max, Cinema 4D, Nuke and After Effects to SuperSplat, LichtFeld Studio, Volinga, splat-transform and UE5/Unity plugins.",
+    href:"3dgs-software-comparison.html", thumb:"/works/images/logos/dcc-logos-thumb.svg"
+  },
+  {
+    tag:"tech", tagLabel:"Technical", date:"2026-07-26", read:"~8 min",
+    title:"Extracting 4K Source Images from PortalCam Raw Data (.xbin)",
+    excerpt:"How to pull 4K source images out of the raw .xbin data buried in PortalCam scan output using nothing but CLI tools — the XBAG container layout, the required extraction flags, the two-of-four-camera limitation, and what we learned trying photogrammetry on the extracted frames.",
+    href:"portalcam-xbin-raw-extraction.html", thumb:"/works/images/xbin_cam_pinholeA.jpg"
+  },
+  {
+    tag:"tech", tagLabel:"Technical", date:"2026-07-26", read:"~13 min",
+    title:"Bringing 3DGS into NVIDIA Isaac Sim",
+    excerpt:"A repeatable walkthrough for loading a 3DGS scan into Isaac Sim and rendering it at photoreal quality — including the silent 16.77M-splat-per-prim draw limit, the upside-down import fix, and the weak points for industrial simulation (no per-object separation, one semantic label per scene, no collision) with workarounds.",
+    href:"isaacsim-3dgs-import.html", thumb:"/works/images/isaacsim_shibuya_walk.jpg"
+  },
+  {
     tag:"tech", tagLabel:"Technical", date:"2026-07-24", read:"~12 min",
     title:"Exporting Assets from 3DGS Scans with UE5 × XGRIDs SDK",
     excerpt:"A hands-on guide to importing a 3DGS scan into UE5 with XGRIDs' LCC Plugin for UE, exporting stills and video with a virtual camera, and relighting with AI — plus plugin installation, 3DGS support in Houdini/Blender/Max, and relight-capable UE5 plugins.",

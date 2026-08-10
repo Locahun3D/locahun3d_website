@@ -6,6 +6,7 @@
 <meta name="description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・After EffectsからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unity向けプラグインまで。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-software-comparison.html">
 <link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
 <!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
 <meta property="og:type" content="article">
@@ -244,7 +245,7 @@
     <span>2026-08-04</span><span>・</span><span>更新 2026-08-11</span><span>・</span><span>読了 約8分</span>
   </div>
   <h1>3DGSを扱えるソフト・ツール比較</h1>
-  <p class="lead">3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるソフト・ツールを、<strong>DCC／ビューアー・エディタ／変換ツール／ゲームエンジンプラグイン</strong>の4カテゴリに分けて、入手先URL付きで整理します。「どこまでをDCCでやり、どこからをゲームエンジンに渡すか」を決めるときの早見表として使えます。</p>
+  <p class="lead">3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるソフト・ツールを、<strong>DCC／ビューアー・エディタ／変換ツール／ゲームエンジンプラグイン／産業向けプラットフォーム</strong>の5カテゴリに分けて、入手先URL付きで整理します。「どこまでをDCCでやり、どこからをゲームエンジンに渡すか」を決めるときの早見表として使えます。</p>
   <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGS周辺のツールは更新が速く、対応フォーマットやライセンス条件は変わることがあります。導入前に、リンク先の公式サイト・リポジトリで最新の状態を確認してください。「おすすめ度」欄は筆者の実務判断による目安(◎本命／○実用的／△用途を選ぶ・参考程度)で、プロジェクトの要件によって最適な選択は変わります。自社製のツールは公平な比較にならないため、評価を付けていません(「—」)。</div>
 
   <div class="logo-row">
@@ -272,6 +273,10 @@
   <a class="cat-card" href="#engine">
     <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="20" height="8" rx="4"/><circle cx="7.5" cy="13" r=".6" fill="currentColor"/><circle cx="10" cy="11.2" r=".6" fill="currentColor"/><path d="M16 11.5v3M18 11.5v3"/></svg></span>
     <span class="cat-tx"><b>ゲームエンジンプラグイン</b>UE5 / Unity向けの読み込み・表示プラグイン</span>
+  </a>
+  <a class="cat-card" href="#industrial">
+    <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M8 10V6l4-3 4 3v4"/><circle cx="12" cy="15" r="2"/></svg></span>
+    <span class="cat-tx"><b>産業向けプラットフォーム</b>Omniverse / Isaac Sim・Cesiumでロボティクス・地理空間へ</span>
   </a>
 </nav>
 
@@ -352,6 +357,16 @@
   </table></div>
   <div class="callout warn"><b>XGRIDS製プラグイン・SDKはライセンス確認を</b>XGRIDS LCC Plugin for UEとLCC Unity SDKは、XGRIDS独自ライセンスの下で配布されています。商用利用や再配布を検討する場合は、導入前に配布元でライセンス条件を必ず確認してください。</div>
 
+  <h2 id="industrial"><span class="n">05</span> 産業向けプラットフォーム(ロボティクス / 地理空間)</h2>
+  <p>3DGSの用途は映像制作だけではありません。実空間のスキャンを「ロボットAIの学習環境」や「都市スケールの地理空間データ」として使う産業側のプラットフォームも、2026年に入って整備が一気に進みました。撮影素材の二次活用先として押さえておくと、スキャンデータの価値が変わります。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>プラットフォーム</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
+    <tbody>
+      <tr><td>NVIDIA Omniverse /<br>Isaac Sim<span style="color:var(--sub);font-size:.85em">(NuRec)</span></td><td>◎ ロボティクス本命</td><td>実世界のセンサーデータから3DGS環境を再構築するNuRecライブラリ群がIsaac Simに統合されており、OpenUSDのParticleFieldジオメトリ(3DGS/3DGUT)をOmniverse RTXがネイティブにレンダリングします。スキャンした実空間の中でロボットを走らせ、RGB・深度などの合成学習データ(SDG)を量産できます。自動運転向けにはCARLAとの連携もあります。実例: <a href="isaacsim-3dgs-import.html">NVIDIA Isaac Simに3DGSを持ち込む</a></td><td><a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">developer.nvidia.com →</a></td><td>無料(個人・評価)／商用はNVIDIAライセンス</td></tr>
+      <tr><td>Cesium<span style="color:var(--sub);font-size:.85em">(3D Tiles)</span></td><td>◎ 都市スケール本命</td><td>2026年4月に3DGSが3D Tilesへ正式に入り、CesiumJS・Cesium for Unreal・Cesium ionで階層LODストリーミングできるようになりました。都市スケールからセンチメートル級ディテールまでを地理座標付きで配信でき、ペイロードはglTFのKHR_gaussian_splatting拡張(2026年2月RC)+SPZ圧縮です。デジタルツイン・GIS用途で3DGSを扱うなら現状の本流です</td><td><a href="https://cesium.com/blog/2026/04/27/3d-gaussian-splats-lod/" target="_blank" rel="noopener">cesium.com →</a></td><td>CesiumJSはApache 2.0・ionは商用プラン</td></tr>
+    </tbody>
+  </table></div>
+
   <div class="data-cta">
     <span class="dc-tag">Contact</span>
     <h3>3DGSパイプライン設計・ツール選定のご相談</h3>
@@ -365,7 +380,7 @@
       <a class="rcard" href="3dgs-file-formats.html">
         <div class="rthumb" style="background-image:url('images/logos/dcc-logos-thumb.svg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-08-09</span><span>約7分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-08-09</span><span>約10分</span></div>
           <h3>3DGSのファイルフォーマットを整理する</h3>
         </div>
       </a>
