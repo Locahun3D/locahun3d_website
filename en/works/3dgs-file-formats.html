@@ -235,7 +235,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Formats</span><span class="badge">Reference</span>
-    <span>2026-08-09</span><span>・</span><span>Updated 2026-08-11</span><span>・</span><span>~10 min read</span>
+    <span>2026-08-09</span><span>・</span><span>Updated 2026-08-11</span><span>・</span><span>~13 min read</span>
   </div>
   <h1>Sorting Out 3DGS File Formats</h1>
   <p class="lead">Even for the same scene, 3D Gaussian Splatting (3DGS) file size and tool compatibility change depending on the storage format. This article sorts out the major formats — PLY, SPLAT, KSPLAT, SPZ, SOG, RAD, and LCC/LCC2 — by compression method, supported tools, and use case. Read it alongside <a href="3dgs-software-comparison.html">our comparison of 3DGS-capable software and tools</a> to make it easier to decide which format to use with which software.</p>
@@ -279,6 +279,9 @@
     </tbody>
   </table></div>
 
+    <p><strong>Inside the spec</strong> ── The header is plain ASCII text: <code>ply</code>, then <code>format binary_little_endian 1.0</code>, then <code>element vertex N</code> followed by the property lines. In the standard SH-degree-3 layout, one gaussian is 62 properties &times; float32 = <strong>248 bytes</strong>: position <code>x,y,z</code> / normals <code>nx,ny,nz</code> (unused in 3DGS) / <code>f_dc_0..2</code> (SH degree 0 = base color) / <code>f_rest_0..44</code> (SH degrees 1–3) / <code>opacity</code> / <code>scale_0..2</code> / <code>rot_0..3</code>. Values are stored in the raw training-time representation, so at display time you run opacity through a sigmoid, scale through an exponential, and normalize the quaternion. Open the header in a text editor and you can read the property layout directly — a quick first check of whether a given tool will load the file.</p>
+  <p><strong>In the wild</strong> ── This is the exact output of the official Inria implementation, and the exports from Polycam, Luma AI, and XGRIDS LCC Studio follow the same layout. SuperSplat reads and writes it directly, which makes PLY the hub for editing too.</p>
+
   <h2 id="splat"><span class="n">02</span> SPLAT (antimatter15)</h2>
   <p>A simple fixed-length binary format created for <a href="3dgs-software-comparison.html#viewer">splat (antimatter15)</a>, one of the earliest web viewers. Each Gaussian is a fixed 32 bytes (position, scale, color, covariance) and carries no SH coefficients for view-dependent color, so files end up roughly half the size of PLY.</p>
   <div class="tblwrap"><table>
@@ -290,6 +293,8 @@
       <tr><td>Best for</td><td>When you just want to get something on the web quickly. View-dependent effects like reflections and gloss are lost</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>Inside the spec</strong> ── There is no header: the file is a run of fixed <strong>32-byte</strong> records, one per gaussian — position float32&times;3 (12 bytes) + scale float32&times;3 (12 bytes) + RGBA color at 8 bits each (4 bytes) + quaternion at 8 bits per component (4 bytes). File size &divide; 32 gives you the point count. SH coefficients are discarded after baking the degree-0 color into RGBA, which is why view-dependent shading is lost. There is no formal spec — the antimatter15 repository's implementation and README are the de facto definition.</p>
 
   <h2 id="ksplat"><span class="n">03</span> KSPLAT (mkkellogg/GaussianSplats3D)</h2>
   <p>A compression format built specifically for the Three.js library <a href="3dgs-software-comparison.html#viewer">GaussianSplats3D</a>. Data is split into chunks and designed for progressive streaming, rendering each chunk as it arrives — even a scene over 100MB can show its first frame in 0.5-1 seconds. You can choose the compression level, including a setting that compresses SH coefficients down to 8 bits.</p>
@@ -303,6 +308,8 @@
     </tbody>
   </table></div>
 
+    <p><strong>Inside the spec</strong> ── Three compression levels: <strong>0</strong> = uncompressed (float32) / <strong>1</strong> = position, scale, rotation, and SH quantized from float32 to 16-bit / <strong>2</strong> = level 1 plus SH coefficients down to 8-bit. Space is partitioned into blocks (default 5.0) and stored in buckets (default 256 gaussians), and that structure doubles as the unit of progressive loading. Convert with the bundled <code>node util/create-ksplat.js [in] [out] [compression] …</code>, which also takes the SH degree (0–2) to preserve.</p>
+
   <h2 id="spz"><span class="n">04</span> SPZ (Niantic Spatial)</h2>
   <p>A compression format developed by Niantic Spatial (Scaniverse) that's becoming something of an industry standard. It was also adopted as the compression method for glTF's KHR_gaussian_splatting compression extension (<a href="#gltf">08</a>). v1 through v3 used gzip compression; the latest v4 switched to zstd compression plus a plain 32-byte header. The v4 header starts with the magic bytes "NGSP" and exposes the Gaussian count, SH degree, version, and more as directly readable text, so you can peek at the point count just by reading the header — no need to decode the whole file.</p>
   <div class="tblwrap"><table>
@@ -314,6 +321,19 @@
       <tr><td>Best for</td><td>As a general-purpose compact format for distribution and storage. A leading candidate for the future de facto standard</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>Inside the spec (v4)</strong> ── A 32-byte plaintext header (magic <code>NGSP</code> = 0x5053474E, gaussian count, SH degree 0–4, fractional bits, antialiasing flag, stream count, TOC offset) is followed by independently zstd-compressed streams, one per attribute. Independent streams are the point of v4 — they decompress in parallel (v1–3 used a single gzip stream). Quantization is tuned per attribute:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Attribute</th><th>Quantization</th></tr></thead>
+    <tbody>
+      <tr><td>Position</td><td>24-bit fixed point per coordinate</td></tr>
+      <tr><td>Scale</td><td>8-bit (log domain)</td></tr>
+      <tr><td>Rotation</td><td>Smallest-three: 2-bit index of the largest component + three 10-bit components</td></tr>
+      <tr><td>Color / opacity</td><td>8-bit each</td></tr>
+      <tr><td>SH coefficients</td><td>Degree 1 = 5-bit, degree 2+ = 4-bit (defaults)</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>In the wild</strong> ── Scaniverse exports SPZ, and Niantic open-sourced it under MIT (<a href="https://github.com/nianticlabs/spz" target="_blank" rel="noopener">nianticlabs/spz</a>). The stated compression is roughly 1/10 the size of the equivalent PLY.</p>
 
   <h2 id="sog"><span class="n">05</span> SOG (PlayCanvas)</h2>
   <p>Developed by PlayCanvas and sometimes described as "WebP for Gaussian Splatting." Gaussians are sorted by attributes such as position, scale, and color, then each attribute is compressed as a WebP image and linked together via <code>meta.json</code>. Because similar Gaussians end up adjacent before image compression is applied, the compression is highly efficient — there are reports of a 1GB PLY shrinking to around <strong>55MB (roughly 20x)</strong>.</p>
@@ -327,6 +347,19 @@
     </tbody>
   </table></div>
 
+    <p><strong>Inside the spec</strong> ── One scene is <code>meta.json</code> plus six kinds of WebP images. The core convention: the same pixel coordinate (x, y) refers to the same gaussian across every image:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>File</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td>means_l / means_u.webp</td><td>Position. 16-bit values quantized in log domain, split into low/high 8-bit images (RGB = xyz)</td></tr>
+      <tr><td>quats.webp</td><td>Rotation. Smallest-three (3 components &times; 8-bit + index of the dropped component)</td></tr>
+      <tr><td>scales.webp</td><td>Scale. 8-bit codebook indices (log domain)</td></tr>
+      <tr><td>sh0.webp</td><td>Base color. RGB = codebook indices, A = opacity</td></tr>
+      <tr><td>shN_centroids / shN_labels.webp</td><td>Higher-order SH. K-means palette of up to 65,536 entries, referenced by 16-bit labels</td></tr>
+    </tbody>
+  </table></div>
+  <p>The WebPs must be <strong>lossless</strong> to preserve the quantized values. A single-file <code>.sog</code> — all assets zipped together — is also defined. The spec is published in the <a href="https://developer.playcanvas.com/user-manual/gaussian-splatting/formats/sog/" target="_blank" rel="noopener">official PlayCanvas documentation</a>.</p>
+
   <h2 id="rad"><span class="n">06</span> RAD (Spark)</h2>
   <p>A streaming-only format that <a href="3dgs-software-comparison.html#viewer">Spark</a>, the Three.js renderer, added in 2.0, capable of storing an LOD tree as-is. You build and save the LOD tree ahead of time with the <code>build-lod</code> command, and at viewing time only the chunks (<code>.radc</code>) you need are fetched via HTTP Range Requests. It's a "coarse-to-fine" design: a rough version appears instantly, and more detail streams in as the viewpoint moves. Locahun 3D's own viewer builds its custom parallel decoding and LOD control around this RAD format as well.</p>
   <div class="tblwrap"><table>
@@ -338,6 +371,8 @@
       <tr><td>Best for</td><td>When streaming an ultra-large scene with over 100 million points while staying within GPU memory</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>In the wild</strong> ── Our own viewer streams a 934MB, 49.4-million-gaussian RAD to first render in about 6 seconds (after that, camera moves hit the resident cache with no wait). The only primary sources for the format are Spark's documentation and source code — there is no standalone spec document like SPZ's or SOG's yet.</p>
 
   <h2 id="lcc"><span class="n">07</span> LCC / LCC2 (XGRIDS)</h2>
   <p>A container format developed by XGRIDS for handling city-scale scenes with LOD (level of detail). Rather than a single file, it's made up of JSON metadata (an octree-style LOD tree) and a <code>data/3dgs/</code> folder holding the actual data. The underlying data is stored as either SOG or SPZ, and adjacent nodes are merged into a single file. PortalCam scans also include this: LCC Studio's export contains a <code>Lcc2/lcc2-result/</code> folder (3dgs as SOG, mesh as PLY).</p>
@@ -363,6 +398,8 @@
       <tr><td>Best for</td><td>Long-term storage and distribution on a standard format. City-scale geospatial delivery combined with 3D Tiles</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>Inside the spec (RC)</strong> ── On a mesh primitive, alongside <code>POSITION</code>, the extension defines prefixed attributes: <code>KHR_gaussian_splatting:ROTATION</code> (VEC4, unit quaternion) / <code>:SCALE</code> (VEC3) / <code>:OPACITY</code> (SCALAR, 0–1) / <code>:SH_DEGREE_0_COEF_0</code> (VEC3). Higher-order SH goes up to degree 3 (45 coefficients total) with a hierarchy rule: if you include a degree, you must include all lower degrees. Display color derives from the degree-0 coefficient as <code>Color = SH0 &times; 0.282095 + 0.5</code>. In proper standards fashion, you can also include a <code>COLOR_0</code> attribute so viewers without 3DGS support can fall back to point-cloud rendering. Read the spec in the <a href="https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting" target="_blank" rel="noopener">Khronos glTF repository</a>.</p>
 
   <h2 id="compare"><span class="n">09</span> Quick reference: comparing all 8 formats</h2>
   <p>Everything above, condensed into a single table. We'd suggest scanning the whole thing first, then jumping to the detail section for whichever format catches your eye.</p>

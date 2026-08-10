@@ -235,7 +235,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">フォーマット</span><span class="badge">リファレンス</span>
-    <span>2026-08-09</span><span>・</span><span>更新 2026-08-11</span><span>・</span><span>読了 約10分</span>
+    <span>2026-08-09</span><span>・</span><span>更新 2026-08-11</span><span>・</span><span>読了 約13分</span>
   </div>
   <h1>3DGSのファイルフォーマットを整理する</h1>
   <p class="lead">3D Gaussian Splatting(3DGS)は、同じシーンでも<strong>保存フォーマットによってファイルサイズも読み込めるソフトも変わります</strong>。PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2という主要フォーマットを、圧縮方式・対応ツール・用途で整理します。<a href="3dgs-software-comparison.html">3DGSを扱えるソフト・ツール比較</a>と合わせて読むと、「どのソフトでどのフォーマットを使うか」が決めやすくなります。</p>
@@ -279,6 +279,9 @@
     </tbody>
   </table></div>
 
+    <p><strong>仕様の中身</strong> ── ヘッダーはASCIIテキストで、<code>ply</code>→<code>format binary_little_endian 1.0</code>→<code>element vertex N</code>に続いてproperty行が並びます。SH次数3の標準レイアウトでは1ガウシアン=62プロパティ×float32=<strong>248バイト</strong>です: 位置<code>x,y,z</code>／法線<code>nx,ny,nz</code>(3DGSでは未使用)／<code>f_dc_0..2</code>(SH0次=ベース色)／<code>f_rest_0..44</code>(SH1〜3次)／<code>opacity</code>／<code>scale_0..2</code>／<code>rot_0..3</code>。値は学習時の内部表現のまま格納されるため、表示時にはopacityにシグモイド、scaleに指数関数を通し、クォータニオンを正規化します。テキストエディタでヘッダーを開けばproperty構成がそのまま読めるので、手元のツールで読めるかどうかの一次判定に使えます。</p>
+  <p><strong>実例</strong> ── Inria公式実装の出力そのもので、Polycam・Luma AI・XGRIDS LCC Studioのエクスポートもこのレイアウトを踏襲します。SuperSplatが直接読み書きするため、編集のハブになるのもPLYです。</p>
+
   <h2 id="splat"><span class="n">02</span> SPLAT(antimatter15)</h2>
   <p>初期のWebビューアー<a href="3dgs-software-comparison.html#viewer">splat(antimatter15)</a>のために作られた、シンプルな固定長バイナリです。1ガウシアンあたり32バイト固定(位置・スケール・色・共分散)で、視点による色変化を表すSH係数を持たないため、PLYよりおよそ半分のサイズになります。</p>
   <div class="tblwrap"><table>
@@ -290,6 +293,8 @@
       <tr><td>向いている用途</td><td>とにかく手早くWebで表示したいとき。視点依存の質感(反射・光沢)は失われる</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>仕様の中身</strong> ── ヘッダーはなく、1ガウシアン固定<strong>32バイト</strong>の連続です: 位置 float32×3(12バイト)＋スケール float32×3(12バイト)＋色 RGBA各8bit(4バイト)＋回転クォータニオン各8bit(4バイト)。ファイルサイズ÷32がそのまま点数になります。SH係数は0次から計算した色をRGBAに焼き込んで捨てるため、視点依存の質感が失われます。正式な仕様書はなく、antimatter15のリポジトリの実装とREADMEが事実上の定義です。</p>
 
   <h2 id="ksplat"><span class="n">03</span> KSPLAT(mkkellogg/GaussianSplats3D)</h2>
   <p>Three.jsライブラリ<a href="3dgs-software-comparison.html#viewer">GaussianSplats3D</a>専用の圧縮フォーマットです。データをチャンク単位に分割し、<strong>届いたチャンクから順に描画するプログレッシブストリーミング</strong>を前提に設計されています。100MBを超えるシーンでも0.5〜1秒で最初の絵が出せます。圧縮レベルを選べ、SH係数を8bitまで圧縮する設定もあります。</p>
@@ -303,6 +308,8 @@
     </tbody>
   </table></div>
 
+    <p><strong>仕様の中身</strong> ── 圧縮レベルは3段階です: <strong>0</strong>=非圧縮(float32)／<strong>1</strong>=位置・スケール・回転・SHをfloat32→16bitへ／<strong>2</strong>=レベル1に加えSH係数を8bitへ。空間をブロック(既定5.0)で区切り、バケット(既定256ガウシアン)単位に格納する構造が、そのままプログレッシブロードの単位になります。変換は同梱の<code>node util/create-ksplat.js [入力] [出力] [圧縮レベル] …</code>で行い、保持するSH次数(0〜2)も引数で指定します。</p>
+
   <h2 id="spz"><span class="n">04</span> SPZ(Niantic Spatial)</h2>
   <p>Niantic Spatial(Scaniverse)が開発した圧縮フォーマットで、業界標準になりつつあります。glTFのKHR_gaussian_splatting圧縮拡張(<a href="#gltf">08</a>)の圧縮方式にも採用されました。v1〜v3はgzip圧縮、最新のv4はzstd圧縮+平文32バイトヘッダーという構成に変わりました。v4のヘッダーはmagic「NGSP」から始まり、ガウシアン数・SH次数・バージョンなどがテキストで直接読めるため、<strong>ファイル全体をデコードしなくてもヘッダーだけ覗いて点数を確認できます</strong>。</p>
   <div class="tblwrap"><table>
@@ -314,6 +321,19 @@
       <tr><td>向いている用途</td><td>配布・保存用の汎用コンパクト形式として。今後の事実上のデファクトスタンダード候補</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>仕様の中身(v4)</strong> ── 32バイトの平文ヘッダー(magic <code>NGSP</code>=0x5053474E・ガウシアン数・SH次数0〜4・固定小数点ビット数・アンチエイリアスフラグ・ストリーム数・目次オフセット)に、属性ごとに独立したzstdストリームが続きます。ストリームが独立しているため並列に展開できるのがv4の狙いです(v1〜3はgzip一本)。量子化は属性ごとに変えてあります:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>属性</th><th>量子化</th></tr></thead>
+    <tbody>
+      <tr><td>位置</td><td>座標あたり24bit固定小数点</td></tr>
+      <tr><td>スケール</td><td>8bit(log域)</td></tr>
+      <tr><td>回転</td><td>smallest-three方式: 最大成分のインデックス2bit＋残り3成分を10bitずつ</td></tr>
+      <tr><td>色・不透明度</td><td>各8bit</td></tr>
+      <tr><td>SH係数</td><td>1次=5bit、2次以降=4bit(既定)</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>実例</strong> ── ScaniverseアプリのエクスポートがSPZで、NianticがMITライセンスでOSS化しています(<a href="https://github.com/nianticlabs/spz" target="_blank" rel="noopener">nianticlabs/spz</a>)。公称でPLY比およそ1/10に縮みます。</p>
 
   <h2 id="sog"><span class="n">05</span> SOG(PlayCanvas)</h2>
   <p>PlayCanvasが開発した、「Gaussian Splatting版のWebP」と呼ばれるフォーマットです。ガウシアンを位置・スケール・色などの属性でソートしてから、属性ごとにWebP画像として圧縮し、<code>meta.json</code>で紐付けます。似た性質のガウシアンを隣接させてから画像圧縮をかけるため圧縮効率が高く、<strong>1GBのPLYが55MB程度まで縮む(約20倍)</strong>例が報告されています。</p>
@@ -327,6 +347,19 @@
     </tbody>
   </table></div>
 
+    <p><strong>仕様の中身</strong> ── <code>meta.json</code>＋WebP画像6種で1シーンを表します。「同じピクセル座標(x,y)が全画像を通して同じガウシアンを指す」という取り決めがフォーマットの核心です:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>ファイル</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>means_l / means_u.webp</td><td>位置。16bit値をlog域で量子化し、下位/上位8bitを2枚に分割(RGB=xyz)</td></tr>
+      <tr><td>quats.webp</td><td>回転。smallest-three方式(3成分×8bit＋捨てた成分のインデックス)</td></tr>
+      <tr><td>scales.webp</td><td>スケール。8bitコードブック参照(log域)</td></tr>
+      <tr><td>sh0.webp</td><td>ベース色。RGB=コードブックのインデックス、A=不透明度</td></tr>
+      <tr><td>shN_centroids / shN_labels.webp</td><td>高次SH。K-meansで最大65,536個のパレットへ集約し、16bitラベルで参照</td></tr>
+    </tbody>
+  </table></div>
+  <p>WebPは量子化値を保つため<strong>ロスレス必須</strong>です。全ファイルをZIPに固めた単一<code>.sog</code>も定義されています。仕様は<a href="https://developer.playcanvas.com/user-manual/gaussian-splatting/formats/sog/" target="_blank" rel="noopener">PlayCanvas公式ドキュメント</a>で公開されています。</p>
+
   <h2 id="rad"><span class="n">06</span> RAD(Spark)</h2>
   <p>Three.js向けレンダラー<a href="3dgs-software-comparison.html#viewer">Spark</a>が2.0で追加した、<strong>LODツリーをそのまま保存できるストリーミング専用フォーマット</strong>です。あらかじめ<code>build-lod</code>コマンドでLODツリーを構築して保存しておき、閲覧時はHTTP Range Requestでチャンク(<code>.radc</code>)を必要な分だけ取得します。粗いバージョンを一瞬で表示し、視点の移動に応じて詳細を追加でストリーミングする「coarse-to-fine」設計です。ロケハン3Dの自社ビューアーも、このRADフォーマットを軸にした独自の並列デコード・LOD制御を組み込んでいます。</p>
   <div class="tblwrap"><table>
@@ -338,6 +371,8 @@
       <tr><td>向いている用途</td><td>1億点を超えるような超大規模シーンを、GPUメモリに収まる範囲でストリーミング表示したいとき</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>実例</strong> ── 当社ビューアーでは934MB・4,940万ガウシアンのRADを、初回表示まで約6秒でストリーミングできています(以降の視点移動は常駐キャッシュで待ちなし)。フォーマットの一次情報はSparkのドキュメントとソースコードのみで、SPZやSOGのような独立した仕様書はまだありません。</p>
 
   <h2 id="lcc"><span class="n">07</span> LCC / LCC2(XGRIDS)</h2>
   <p>XGRIDSが開発した、<strong>都市規模のシーンをLOD(詳細度)付きで扱うためのコンテナフォーマット</strong>です。単一のファイルではなく、JSONメタデータ(octree型のLODツリー)と、実データを格納する<code>data/3dgs/</code>フォルダで構成されます。実データはSOGかSPZのどちらか一方で保存され、隣接するノードは1ファイルに統合されます。PortalCamのスキャンでも、LCC Studioの書き出しに<code>Lcc2/lcc2-result/</code>フォルダ(3dgsはSOG、meshはPLY)として含まれています。</p>
@@ -363,6 +398,8 @@
       <tr><td>向いている用途</td><td>標準規格での長期保存・配布。3D Tilesと組み合わせた都市スケールの地理空間配信</td></tr>
     </tbody>
   </table></div>
+
+    <p><strong>仕様の中身(RC)</strong> ── メッシュprimitiveの属性として<code>POSITION</code>に加え、拡張名を接頭辞にした<code>KHR_gaussian_splatting:ROTATION</code>(VEC4・単位クォータニオン)／<code>:SCALE</code>(VEC3)／<code>:OPACITY</code>(SCALAR・0〜1)／<code>:SH_DEGREE_0_COEF_0</code>(VEC3)を定義します。高次SHは3次(計45係数)までで、使う場合は下位の次数を必ず含める階層ルールです。0次係数からの表示色は<code>Color = SH0 × 0.282095 + 0.5</code>で導出します。3DGS非対応ビューアー向けに、点群としてフォールバック表示するための<code>COLOR_0</code>を併記できるのも標準規格らしい設計です。仕様は<a href="https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting" target="_blank" rel="noopener">KhronosのglTFリポジトリ</a>で読めます。</p>
 
   <h2 id="compare"><span class="n">09</span> 早見表:8フォーマット比較</h2>
   <p>ここまでの内容を1つの表にまとめました。まず全体を見比べてから、気になるフォーマットの詳細セクションを読むのがおすすめです。</p>
