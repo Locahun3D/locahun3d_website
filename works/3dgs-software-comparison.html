@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSを扱えるソフト・ツール比較｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
+<meta name="description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
 <link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-software-comparison.html">
@@ -13,14 +13,14 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="3DGSを扱えるソフト・ツール比較">
-<meta property="og:description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
+<meta property="og:description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-software-comparison.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/dcc-og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGSを扱えるソフト・ツール比較">
-<meta name="twitter:description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
+<meta name="twitter:description" content="3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグインを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4DからSuperSplat、splat-transform、UE5/Unity向けプラグインまで。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/dcc-og-cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -241,11 +241,11 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">比較</span><span class="badge">ツール</span><span class="badge">リファレンス</span>
-    <span>2026-08-04</span><span>・</span><span>読了 約6分</span>
+    <span>2026-08-04</span><span>・</span><span>更新 2026-08-10</span><span>・</span><span>読了 約6分</span>
   </div>
   <h1>3DGSを扱えるソフト・ツール比較</h1>
   <p class="lead">3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるソフト・ツールを、<strong>DCC／ビューアー・エディタ／変換ツール／ゲームエンジンプラグイン</strong>の4カテゴリに分けて、入手先URL付きで整理します。「どこまでをDCCでやり、どこからをゲームエンジンに渡すか」を決めるときの早見表として使えます。</p>
-  <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGS周辺のツールは更新が速く、対応フォーマットやライセンス条件は変わることがあります。導入前に、リンク先の公式サイト・リポジトリで最新の状態を確認してください。「おすすめ度」欄は筆者の実務判断による目安(◎本命／○実用的／△用途を選ぶ・参考程度)で、プロジェクトの要件によって最適な選択は変わります。</div>
+  <div class="callout note"><b>この記事の情報は2026年8月時点のものです</b>3DGS周辺のツールは更新が速く、対応フォーマットやライセンス条件は変わることがあります。導入前に、リンク先の公式サイト・リポジトリで最新の状態を確認してください。「おすすめ度」欄は筆者の実務判断による目安(◎本命／○実用的／△用途を選ぶ・参考程度)で、プロジェクトの要件によって最適な選択は変わります。自社製のツールは公平な比較にならないため、評価を付けていません(「—」)。</div>
 
   <div class="logo-row">
     <div class="logo-chip"><img src="images/logos/houdini.svg" alt="Houdini（SideFX）ロゴ"></div>
@@ -253,13 +253,13 @@
     <div class="logo-chip"><img src="images/logos/3dsmax.svg" alt="3ds Max（Autodesk）ロゴ"></div>
     <div class="logo-chip"><img src="images/logos/cinema4d.svg" alt="Cinema 4D（Maxon）ロゴ"></div>
   </div>
-  <p class="logo-row-note">記事で扱う代表的なDCCソフト4種。各ロゴは各社の商標であり、ソフトウェアの識別・比較のために掲載しています。</p>
+  <p class="logo-row-note">記事で扱う代表的なDCCソフト。上記に加え、Arnold 7.5.2以降はMaya・Katanaでも同様に扱えます。各ロゴは各社の商標であり、ソフトウェアの識別・比較のために掲載しています。</p>
 </header>
 
 <nav class="cat-grid" aria-label="目次">
   <a class="cat-card" href="#dcc">
     <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12v9M12 12L4 7.5M12 12l8-4.5"/></svg></span>
-    <span class="cat-tx"><b>DCC(3DCGソフト)</b>Houdini・Blender・3ds Max・Cinema 4D</span>
+    <span class="cat-tx"><b>DCC(3DCGソフト)</b>Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D</span>
   </a>
   <a class="cat-card" href="#viewer">
     <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg></span>
@@ -281,10 +281,11 @@
   <div class="tblwrap"><table>
     <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>Houdini 22</td><td>○ 上級者向け</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です。実例: <a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUIハイブリッドワークフロー</a></td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
+      <tr><td>Maya + Arnold<br><span style="color:var(--sub);font-size:.85em">(Autodesk)</span></td><td>◎ リライト本命</td><td>Arnold 7.5.2(2026年6月)でネイティブ対応します。Pointsノードの <code>points.mode</code> を <code>gaussian</code> にし、<code>file_name</code> で .ply を指定して読み込みます。新設の <code>gaussian_splat_shader</code> のうち emission は撮影時のSH色をそのまま出し、diffuse のウェイトを上げるとシーンライトでリライトできるため、CG要素と馴染ませたいカットで効きます。OpenUSD 26.03の <code>ParticleField3DGaussianSplat</code> スキーマにも暫定対応します。統合プラグイン(MtoA/MAXtoA/HtoA/C4DtoA/KtoA)が揃って対応するため、Arnoldさえあればどの DCC でも同じ手順で扱えます。GPUレンダリングはWindows・LinuxのNVIDIA GPUのみです</td><td><a href="https://arnoldrenderer.com/" target="_blank" rel="noopener">arnoldrenderer.com →</a></td><td>商用(月55ドル／年430ドル・サブスクのみ)</td></tr>
+      <tr><td>Houdini 22</td><td>◎ 上級者向け本命</td><td>ネイティブ対応です。点群と同様にノードベースで変形・アニメーションでき、Karmaで直接レンダリングできます。HtoA 6.5.2以降はArnold側でもレンダリングできます。ただしライセンス費用と習得コストが高く、「まず表示したいだけ」には過剰です。実例: <a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUIハイブリッドワークフロー</a></td><td><a href="https://www.sidefx.com/" target="_blank" rel="noopener">sidefx.com →</a></td><td>商用(Indie/Apprentice等の無料版あり)</td></tr>
       <tr><td>Blender</td><td>◎ コスパ最強</td><td>KIRI Engine製アドオン「3DGS Render」で対応します。無料で導入でき、ライトに反応してシャドウを落とせ、点群の編集・最適化にも対応します。サードパーティアドオン依存のため、大規模データでは動作が重くなりやすいです</td><td><a href="https://github.com/Kiri-Innovation/3dgs-render-blender-addon" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
-      <tr><td>3ds Max</td><td>○ 既存V-Ray勢向け</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
-      <tr><td>Cinema 4D</td><td>△ まだ実験段階</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。執筆時点(2026 Alpha 3)でスプラット対応は実験的機能です。実例: <a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>(C4D→Octaneのフロー)</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>3ds Max</td><td>○ 既存V-Ray勢向け</td><td>V-Ray 7(Chaos)がネイティブ対応します。レイトレースで直接レンダリングでき、V-Ray 7.3以降はシーンライトによるリライトにも対応します。V-Rayライセンスが前提で、スプラットの編集機能は限定的です。MAXtoA 5.9.3以降ならArnoldでも同じことができるので、どちらのレンダラーを既に持っているかで選びます</td><td><a href="https://www.chaos.com/vray/3ds-max" target="_blank" rel="noopener">chaos.com →</a></td><td>商用(サブスクリプション)</td></tr>
+      <tr><td>Cinema 4D</td><td>○ モーグラ向き</td><td>Octane(OTOY)がプラグイン経由で対応します。Luma・Polycam・NeRDF Studio製のPLYを読み込め、モーショングラフィックスと相性が良いです。Octane側のスプラット対応は執筆時点(2026 Alpha 3)で実験的機能ですが、C4DtoA 4.9.2以降ならArnoldで安定して扱えます。実例: <a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>(C4D→Octaneのフロー)</td><td><a href="https://home.otoy.com/render/octane-render/" target="_blank" rel="noopener">home.otoy.com →</a></td><td>商用(サブスクリプション)</td></tr>
     </tbody>
   </table></div>
 
@@ -293,7 +294,7 @@
   <div class="tblwrap"><table>
     <thead><tr><th>ソフト</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>ロケハン3D Viewer<br><span style="color:var(--sub);font-size:.85em">(自社製)</span></td><td>◎ 自社製</td><td>Sparkをベースに自社開発した、巨大な3DGSデータをオフライン・ブラウザだけで扱えるビューアーです。ダウンロードや会員登録なしでサンプルシーンを今すぐ試せます</td><td><a href="/locahun3d_demo.html" target="_blank" rel="noopener">サンプルを試す →</a></td><td>自社製(デモ無料)</td></tr>
+      <tr><td>ロケハン3D Viewer<br><span style="color:var(--sub);font-size:.85em">(自社製)</span></td><td><span style="color:var(--sub)">— 自社製のため評価なし</span></td><td>Sparkをベースに自社開発した、巨大な3DGSデータをオフライン・ブラウザだけで扱えるビューアーです。ダウンロードや会員登録なしでサンプルシーンを今すぐ試せます</td><td><a href="/locahun3d_demo.html" target="_blank" rel="noopener">サンプルを試す →</a></td><td>自社製(デモ無料)</td></tr>
       <tr><td>SuperSplat<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>◎ 本命</td><td>ブラウザ完結の3DGSエディタです。クロップ・カラー編集ができ、書き出し専用の軽量ビューアーは別リポジトリで配布されています</td><td><a href="https://github.com/playcanvas/supersplat" target="_blank" rel="noopener">Editor →</a><br><a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">Viewer →</a></td><td>MIT・無料</td></tr>
       <tr><td>splat<br><span style="color:var(--sub);font-size:.85em">(antimatter15)</span></td><td>△ 参考実装</td><td>最も初期から公開されている最小構成のWebGLビューアーです。.plyをドラッグ&amp;ドロップするだけで表示できます</td><td><a href="https://github.com/antimatter15/splat" target="_blank" rel="noopener">GitHub →</a></td><td>MIT・無料</td></tr>
       <tr><td>GaussianSplats3D<br><span style="color:var(--sub);font-size:.85em">(mkkellogg)</span></td><td>○ 開発者向け</td><td>Three.jsベースのレンダリングライブラリです。既存のThree.jsシーンに組み込んで自前のビューアーを作れます</td><td><a href="https://github.com/mkkellogg/GaussianSplats3D" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
@@ -327,7 +328,7 @@
   <div class="tblwrap"><table>
     <thead><tr><th>プラグイン</th><th>おすすめ度</th><th>特徴</th><th>入手先</th><th>ライセンス</th></tr></thead>
     <tbody>
-      <tr><td>XGRIDS LCC Plugin for UE</td><td>○ ライセンス要確認</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します。実例: <a href="ue5-xgrids-3dgs-aerial-ai.html">UE5 × XGRIDs SDKで3DGSから素材を出力する</a></td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
+      <tr><td>XGRIDS LCC Plugin for UE</td><td>◎ 本命(ライセンス要確認)</td><td>LCC/LCC2をネイティブに読み込め、リライトにも対応します。実例: <a href="ue5-xgrids-3dgs-aerial-ai.html">UE5 × XGRIDs SDKで3DGSから素材を出力する</a></td><td><a href="https://developer.xgrids.com/" target="_blank" rel="noopener">developer.xgrids.com →</a></td><td>XGRIDS独自ライセンス</td></tr>
       <tr><td>Luma AI UE Plugin</td><td>○ お試しに最適</td><td>.plyや.lumaをドラッグ&amp;ドロップするだけでBlueprint化できます</td><td><a href="https://www.fab.com/listings/b52460e0-3ace-465e-a378-495a5531e318" target="_blank" rel="noopener">Fab →</a></td><td>無料</td></tr>
       <tr><td>XScene-UEPlugin<br><span style="color:var(--sub);font-size:.85em">(XVERSE)</span></td><td>○ 無料でリアルタイム</td><td>Niagara経由でリアルタイムレンダリングでき、編集・管理機能も備えます</td><td><a href="https://github.com/xverse-engine/XScene-UEPlugin" target="_blank" rel="noopener">GitHub →</a></td><td>Apache 2.0・無料</td></tr>
       <tr><td>MLSLabs GS Renderer</td><td>○ 高性能・ニッチ</td><td>Niagaraを使わない独自パイプラインで、数百万ガウシアンでも高フレームレートを維持できます。動的な4DGS(ボリュメトリック映像)にも対応します</td><td><a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE" target="_blank" rel="noopener">GitHub →</a></td><td>オープンソース・無料</td></tr>
