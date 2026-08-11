@@ -111,23 +111,11 @@
        左 ☰ = ページ移動 / 右 ● = 言語・アカウント */
 .site-header .sh-left nav a:focus-visible{color:#fafaf6}
 
-/* 右の●（アカウント/言語）ボタンとパネル。1024px未満でだけ出る。
-   オンライン版 header-account-menu.tsx と寸法1:1（36×36 / アイコン20px）。
-   ⚠ .site-header は sticky＝配置済みなので、パネルの absolute はヘッダー基準に解決される。 */
-.site-header .sh-acct{display:none;flex:none;width:36px;height:36px;margin-right:-6px;
-  align-items:center;justify-content:center;background:none;border:0;padding:0;cursor:pointer;
-  -webkit-appearance:none;appearance:none;color:rgba(255,255,255,.62);transition:color .2s}
-.site-header .sh-acct svg{display:block}
-@media(hover:hover){.site-header .sh-acct:hover{color:var(--accent)}}
-.site-header .sh-acct:focus-visible{color:var(--accent)}
-.site-header.sh-acct-open .sh-acct{color:var(--accent)}
-.site-header .sh-acct-panel{display:none;position:absolute;right:16px;top:100%;margin-top:4px;
-  z-index:20;background:#000;border:1px solid var(--line);padding:12px 16px;
-  align-items:center;gap:12px}
-/* パネル内のENチップは .sh-center 配下ではないので上の display:none に当たらない。
-   バー用の margin-left:8px だけ打ち消す。 */
-.site-header .sh-acct-panel .sh-toggle.sh-lang{margin-left:0}
-@media(max-width:479px){.site-header .sh-acct-panel{right:12px}}
+/* ● (言語・アカウント) ボタンは 2026-08-12 に廃止（スキャンサイトにログイン機能が
+   無く、押しても意味のないボタンだったため。ユーザー指摘）。EN チップは列4に常時表示。
+   375px未満で退避するスキャン/オンライン トグルの行き先は ☰ ドロワー内
+   （.sh-drawer-toggle。sh-open かつ ≤374px でだけ表示）。 */
+.site-header .sh-left .sh-drawer-toggle{display:none}
 
 /* 375px未満: スキャン/オンライン トグルもバーから●パネルへ退避する（R3）。
    実測（JA=最長ラベル・外周padding 8px）の ☰×ブランド／トグル×● の空き:
@@ -138,17 +126,12 @@
    トグルを外すとブランド単独が中央に来て ☰ とも十分離れる。
    ⚠ オンライン版 site-header.tsx の max-[375px] 指定と対。片方だけ変えない。
    ⚠ 外周padding 12px→8px も同じ計算に効いている。戻すと375pxで重なる。 */
-.site-header .sh-acct-panel .sh-acct-toggle{display:none}
 @media(max-width:374px){
   .site-header .sh-center .sh-toggle:not(.sh-lang){display:none}
-  .site-header .sh-acct-panel .sh-acct-toggle{display:flex}}
-/* ⚠ この帯指定は上の `.sh-acct{display:none}` より必ず後ろに置くこと。
-   同じ詳細度(0,2,0)なので、前に置くと基底のnoneが後勝ちして
-   ●ボタンが一切出ない（実測: スキャン390pxで消えた）。 */
-@media(max-width:1023px){
-  .site-header .sh-center .sh-lang{display:none}
-  .site-header .sh-acct{display:flex}
-  .site-header.sh-acct-open .sh-acct-panel{display:flex}}
+  .site-header.sh-open .sh-left .sh-drawer-toggle{display:flex;margin:10px 0 2px}}
+/* EN チップ（.sh-center 列4）は 2026-08-12 から全幅で表示する。
+   旧: <1024px は右の●パネル内へ格納していたが、●廃止に伴いバーへ戻した。
+   375px でも右側の 1fr 領域(実測 約64px)に EN 34px が収まることを確認済み。 */
 
 
 /* ══ 全幅共通: ブランドを「画面中央」に固定する ══

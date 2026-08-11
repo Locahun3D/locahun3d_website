@@ -180,22 +180,22 @@ def header_markup(relpath, lang):
           ' aria-controls="sh-nav" onclick="var h=this.closest(\'.site-header\');'
           'var o=h.classList.toggle(\'sh-open\');this.setAttribute(\'aria-expanded\',o)">'
           '<i></i><i></i><i></i></button>\n') % MENU_LABEL[lang]
-    # 右の●（言語・アカウント）。1024px未満でだけ CSS が表示する。
-    # オンライン版は同じ位置にログイン/新規登録も入るため、両サイトで
-    # 「EN がどこにあるか」が一致する（ユーザー報告の食い違いの是正）。
-    acct = ('    <button class="sh-acct" type="button" aria-label="%s" aria-expanded="false"'
-            ' aria-controls="sh-acct-panel" onclick="var h=this.closest(\'.site-header\');'
-            'var o=h.classList.toggle(\'sh-acct-open\');this.setAttribute(\'aria-expanded\',o)">'
-            '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"'
-            ' stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-            '<circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>'
-            '</button>\n') % ACCT_LABEL[lang]
+    # ● (言語・アカウント) ボタンは 2026-08-12 に廃止。スキャンサイトには
+    # ログイン機能が無く「押しても意味のないボタン」だったため（ユーザー指摘）。
+    # EN チップは .sh-center 列4 に常時表示へ変更（CSS 側の <1024px 非表示を撤去）。
     return (
         '<header class="site-header">\n'
         '%s'
         '  <div class="sh-left" id="sh-nav">\n'
         '    <nav>\n%s\n'
         '    </nav>\n'
+        # 375px未満はバーにスキャン/オンラインのトグルが入らない（実測360pxで☰×ブランド-6.9px）。
+        # ●パネル廃止後の退避先はこのドロワー内。CSSの .sh-drawer-toggle が
+        # ≤374px かつ sh-open の時だけ表示する。
+        '    <div class="sh-toggle sh-drawer-toggle">\n'
+        '      <span class="sh-active">%s</span>\n'
+        '      <a href="%s">%s</a>\n'
+        '    </div>\n'
         '  </div>\n'
         '  <div class="sh-center">\n'
         '    <a href="%s" class="sh-brand">\n'
@@ -210,25 +210,12 @@ def header_markup(relpath, lang):
         '      <a href="%s">%s</a>\n'
         '    </div>\n'
         '  </div>\n'
-        '  <div class="sh-right">\n%s'
-        '  </div>\n'
-        '  <div class="sh-acct-panel" id="sh-acct-panel">\n'
-        # 360px未満はバーにスキャン/オンラインのトグルが入らないので、ここへ同じものを置く
-        # （CSS の .sh-acct-toggle が出し分ける。既定は非表示）。
-        '    <div class="sh-toggle sh-acct-toggle">\n'
-        '      <span class="sh-active">%s</span>\n'
-        '      <a href="%s">%s</a>\n'
-        '    </div>\n'
-        '    <div class="sh-toggle sh-lang">\n'
-        '      <a href="%s">%s</a>\n'
-        '    </div>\n'
-        '  </div>\n'
+        '  <div class="sh-right"></div>\n'
         '</header>'
     ) % (hb, nav,
+         SCAN_LABEL[lang], ONLINE_URL[lang], ONLINE_LABEL[lang],
          BRAND_HOME[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
-         ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang],
-         acct, SCAN_LABEL[lang], ONLINE_URL[lang], ONLINE_LABEL[lang],
-         counterpart(relpath, lang), LANG_CHIP[lang])
+         ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
 LINK_RE = re.compile(r'<link rel="stylesheet" href="/%s(?:\?v=[0-9a-f]+)?">' % re.escape(SHARED_CSS))
