@@ -276,7 +276,7 @@
     <thead><tr><th>フォーマット</th><th>一言でいうと</th><th>拡張子</th><th>圧縮</th><th>対応ソフト</th><th>向いている用途</th></tr></thead>
     <tbody>
       <tr><td>PLY</td><td>全部入りの原本。でかい</td><td>.ply</td><td>基本は非圧縮</td><td>ほぼ全ツール</td><td>ソフト間のやり取り、互換性優先</td></tr>
-      <tr><td>SPLAT</td><td>初期の簡易版。今は選ばない</td><td>.splat</td><td>SH係数を削り量子化</td><td>初期のWebビューアー中心</td><td>手早くWebで試す</td></tr>
+      <tr><td>SPLAT</td><td>初期の簡易版。今は選ばない</td><td>.splat</td><td>SH係数を削り量子化</td><td>初期のWebビューアー中心</td><td>旧ビューアーとの互換用(新規では非推奨)</td></tr>
       <tr><td>KSPLAT</td><td>特定ビューアーの専用形式</td><td>.ksplat</td><td>チャンク分割+2段階圧縮</td><td>GaussianSplats3Dのみ</td><td>プログレッシブ表示の自前ビューアー</td></tr>
       <tr><td>SPZ</td><td>配布用の定番圧縮。PLYの1/10</td><td>.spz</td><td>v1-3=gzip／v4=zstd</td><td>Scaniverse、splat-transform、Spark等</td><td>配布・保存用の汎用コンパクト形式</td></tr>
       <tr><td>SOG</td><td>画像圧縮の技で最小クラス</td><td>フォルダ+meta.json</td><td>属性ソート+WebP(約20倍)</td><td>PlayCanvas系ツール</td><td>Webでの配信・ストリーミング</td></tr>
@@ -375,7 +375,7 @@
   </table></div>
 
     <details class="spec"><summary>仕様の中身(オタク向け)</summary>
-<p><strong>仕様の中身</strong> ── <code>meta.json</code>＋WebP画像6種で1シーンを表します。「同じピクセル座標(x,y)が全画像を通して同じガウシアンを指す」という取り決めがフォーマットの核心です:</p>
+<p><strong>仕様の中身</strong> ── <code>meta.json</code>＋WebP画像で1シーンを表します(必須5ファイル＋高次SH用の2ファイルは任意)。「同じピクセル座標(x,y)が全画像を通して同じガウシアンを指す」という取り決めがフォーマットの核心です:</p>
   <div class="tblwrap"><table>
     <thead><tr><th>ファイル</th><th>内容</th></tr></thead>
     <tbody>

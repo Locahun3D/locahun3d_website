@@ -276,7 +276,7 @@
     <thead><tr><th>Format</th><th>In one line</th><th>Extension</th><th>Compression</th><th>Supported tools</th><th>Best for</th></tr></thead>
     <tbody>
       <tr><td>PLY</td><td>The full original. Huge</td><td>.ply</td><td>Uncompressed by default</td><td>Nearly all tools</td><td>Data exchange, compatibility priority</td></tr>
-      <tr><td>SPLAT</td><td>Early simplified format. Skip it today</td><td>.splat</td><td>SH coefficients dropped + quantized</td><td>Mainly early web viewers</td><td>Quick web experiments</td></tr>
+      <tr><td>SPLAT</td><td>Early simplified format. Skip it today</td><td>.splat</td><td>SH coefficients dropped + quantized</td><td>Mainly early web viewers</td><td>Compatibility with older viewers (not recommended for new work)</td></tr>
       <tr><td>KSPLAT</td><td>One viewer's private format</td><td>.ksplat</td><td>Chunked + two-tier compression</td><td>GaussianSplats3D only</td><td>Custom viewers with progressive display</td></tr>
       <tr><td>SPZ</td><td>The go-to compressed format. 1/10 of PLY</td><td>.spz</td><td>v1-3 = gzip ／ v4 = zstd</td><td>Scaniverse, splat-transform, Spark, etc.</td><td>General-purpose compact format for distribution/storage</td></tr>
       <tr><td>SOG</td><td>Image-compression tricks, smallest class</td><td>Folder + meta.json</td><td>Attribute sort + WebP (~20x)</td><td>PlayCanvas-ecosystem tools</td><td>Web delivery / streaming</td></tr>
@@ -375,7 +375,7 @@
   </table></div>
 
     <details class="spec"><summary>Inside the spec (for the nerds)</summary>
-<p><strong>Inside the spec</strong> ── One scene is <code>meta.json</code> plus six kinds of WebP images. The core convention: the same pixel coordinate (x, y) refers to the same gaussian across every image:</p>
+<p><strong>Inside the spec</strong> ── One scene is <code>meta.json</code> plus a set of WebP images (5 required files, plus 2 optional files for higher-order SH). The core convention: the same pixel coordinate (x, y) refers to the same gaussian across every image:</p>
   <div class="tblwrap"><table>
     <thead><tr><th>File</th><th>Contents</th></tr></thead>
     <tbody>
