@@ -326,7 +326,7 @@
   <p>この状態でロボットを置くと何が起きるか。以前の検証では、床の被覆が薄い地点にロボットを配置した結果<strong>そのまま床をすり抜けて無限に落下しました</strong>。</p>
 
   <h2 id="nvidia"><span class="n">02</span> NVIDIAの答えと、そこにある前提</h2>
-  <p>2026年8月、NVIDIAがこの問題への解決策を公開しました。Niantic Spatialの再構成パイプラインを使い、<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力する</strong>という方式です。前者がロボットの見る映像、後者が衝突判定になります。</p>
+  <p>2026年8月、NVIDIAが<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">この問題への解決策を公開しました</a>（<a href="https://www.moguravr.com/nvidia-3dgs-humanoid-sim-to-real/" target="_blank" rel="noopener">日本語の解説記事</a>）。<a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>の再構成パイプラインを使い、<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力する</strong>という方式です。前者がロボットの見る映像、後者が衝突判定になります。ガウシアンをIsaac Simで扱う基盤は<a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">Omniverse NuRec</a>として公開されています。</p>
   <p>肝は<strong>「独自の深度モデルで形状を拘束する」</strong>という部分でした。見た目の一致だけを最適化すると浮遊粒子や床の穴が残るので、深度の情報で形を押さえつける。学習の枠組みでいえば、これは深度を教師信号として与える正則化にあたります。研究の世界では<a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a>などが同じ系譜で、実装も公開されています。</p>
   <div class="callout note"><b>ここで気づいた前提</b>Nianticの事例は<strong>360度カメラで撮影しています</strong>。カメラしか無いので、深度は「AIで推定する」しかありません。ではLiDARスキャナで<strong>実測した深度</strong>を持っている場合はどうなのか——ここが今回の出発点です。</div>
 
