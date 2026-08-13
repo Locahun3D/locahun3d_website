@@ -153,7 +153,11 @@ NAV = {
 BRAND_TEXT = {"ja": "ロケハン3D", "en": "Locahun 3D"}
 SCAN_LABEL = {"ja": "スキャン", "en": "Scan"}
 ONLINE_LABEL = {"ja": "オンライン", "en": "Online"}
-ONLINE_URL = {"ja": "https://locahun3d.com/properties", "en": "https://locahun3d.com/en/properties"}
+# ⚠ 「オンライン」トグルの飛び先は**オンライン版のトップ**にする（2026-08-13）。
+#    以前は /properties(カタログ)直行だったため、スキャンサイトのどこからも
+#    https://locahun3d.com/ のトップページへ行けなかった（ユーザー報告）。
+#    カタログはトップからも上部ナビからも1クリックで届く。
+ONLINE_URL = {"ja": "https://locahun3d.com/", "en": "https://locahun3d.com/en"}
 # ⚠ ブランドロゴのリンク先は「自サイトのトップ」。以前は ONLINE_URL を使っており、
 #    スキャンサイトでロゴを押すとオンライン版へ飛んでしまっていた（ユーザー報告）。
 #    サイト間の移動はスキャン/オンラインのトグルが担当する役割分担。
