@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSのノイズをLiDARで消す｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<link rel="canonical" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="3DGSのノイズをLiDARで消す">
+<meta property="og:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta property="og:url" content="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="3DGSのノイズをLiDARで消す">
+<meta name="twitter:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
+      <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
+      <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+      <a href="/locahun3d_demo.html"><span class="code">0.4</span>デモ・お問合せ</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/en/works/3dgs-lidar-denoise.html">EN</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">検証</span>
+    <span>2026-08-14</span><span>・</span><span>読了 約9分</span>
+  </div>
+  <h1>3DGSのノイズを<br class="pc">LiDARで消す</h1>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使おうとすると、必ず二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）が幻の障害物になること</strong>と、<strong>床に開いた穴からロボットがすり抜けること</strong>です。NVIDIAが最近この解決策を発表しましたが、そこで使われている手法は「深度をAIで推定して形状を拘束する」というものでした。ではLiDARで<strong>実測した深度</strong>を持っている場合、どうするのがいちばん良いのか。両方の道を実際に走らせて比較した記録です。</p>
+
+  <figure>
+    <img src="images/envgen_floaters.jpg" alt="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
+    <figcaption><b>これが3DGSの「フローター」です。</b>会議室スキャンから除去対象となった8,406個のガウシアンだけを表示しています。空中や壁の向こうに実体のない粒が浮いていて、シミュレーションではこれが幻の障害物として振る舞います。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#problem">3DGSをシミュレーションに使うときの二つの壁</a></li>
+    <li><a href="#nvidia">NVIDIAの答えと、そこにある前提</a></li>
+    <li><a href="#routes">二つの道</a></li>
+    <li><a href="#routeA">道A：実測LiDARで後から削る</a></li>
+    <li><a href="#routeB">道B：深度を教師にして学習し直す</a></li>
+    <li><a href="#result">比較結果</a></li>
+    <li><a href="#why">なぜこうなったのか</a></li>
+    <li><a href="#summary">まとめ</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>3DGSスキャン</b><span class="a">→</span>
+    <b>LiDARから距離を測る</b><span class="a">→</span>
+    <b>離れた粒を消す</b><span class="a">→</span>
+    <b>点群から水密メッシュ</b><span class="a">→</span>
+    <b>ロボットが走れる環境</b>
+  </div>
+
+  <h2 id="problem"><span class="n">01</span> 3DGSをシミュレーションに使うときの二つの壁</h2>
+  <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。この違いが、ロボットのシミュレーションでは具体的な事故として表れます。</p>
+
+  <h3>壁1：空中の粒が、幻の障害物になる</h3>
+  <p>3DGSには実体のない場所にガウシアンが残ることがあります。見る角度によっては絵として辻褄が合ってしまうため、学習の途中で消えずに生き残ります。これがロボットのカメラに映り込むと、存在しない障害物として学習を汚します。</p>
+
+  <h3>壁2：床の穴から、ロボットがすり抜ける</h3>
+  <p>当たり判定を作るには面の情報が要りますが、3DGSは粒の集合なので面を持ちません。そこでスキャナが出力するメッシュを使うことになりますが、こちらには別の問題があります。実際に計測したところ、<strong>スキャナ純正のメッシュは全エッジの4.86%が「どの面にも閉じていない縁」でした</strong>。つまり穴だらけです。</p>
+  <p>この状態でロボットを置くと何が起きるか。以前の検証では、床の被覆が薄い地点にロボットを配置した結果<strong>そのまま床をすり抜けて無限に落下しました</strong>。</p>
+
+  <h2 id="nvidia"><span class="n">02</span> NVIDIAの答えと、そこにある前提</h2>
+  <p>2026年8月、NVIDIAがこの問題への解決策を公開しました。Niantic Spatialの再構成パイプラインを使い、<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力する</strong>という方式です。前者がロボットの見る映像、後者が衝突判定になります。</p>
+  <p>肝は<strong>「独自の深度モデルで形状を拘束する」</strong>という部分でした。見た目の一致だけを最適化すると浮遊粒子や床の穴が残るので、深度の情報で形を押さえつける。学習の枠組みでいえば、これは深度を教師信号として与える正則化にあたります。研究の世界では<a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a>などが同じ系譜で、実装も公開されています。</p>
+  <div class="callout note"><b>ここで気づいた前提</b>Nianticの事例は<strong>360度カメラで撮影しています</strong>。カメラしか無いので、深度は「AIで推定する」しかありません。ではLiDARスキャナで<strong>実測した深度</strong>を持っている場合はどうなのか——ここが今回の出発点です。</div>
+
+  <h2 id="routes"><span class="n">03</span> 二つの道</h2>
+  <p>実測LiDARがある場合、取れる道は二つあります。どちらが良いかは、やってみないと分かりません。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th></th><th>道A：後から削る</th><th>道B：学習し直す</th></tr></thead>
+    <tbody>
+      <tr><td>やること</td><td>完成した3DGSの粒を、LiDARから遠いものだけ消す</td><td>LiDAR深度を教師にして3DGSを再学習する</td></tr>
+      <tr><td>所要時間</td><td>数分</td><td>30,000ステップの学習</td></tr>
+      <tr><td>期待</td><td>手軽だが、粒を消すだけなので限界がありそう</td><td>NVIDIAと同じ原理なので、本命はこちら</td></tr>
+    </tbody>
+  </table></div>
+  <p>直感では道Bが勝ちそうです。学習の中で形を直すほうが、後から消すより根本的だからです。両方を実際に作って、同じ物差しで測りました。</p>
+
+  <h2 id="routeA"><span class="n">04</span> 道A：実測LiDARで後から削る</h2>
+  <p>考え方は単純です。<strong>ガウシアン一粒ごとに、LiDARが測った点群までの距離を計算し、遠すぎるものを消す</strong>。実測面から離れた場所にある粒は、実体のないフローターだからです。</p>
+  <p>会議室スキャン（93万6,016ガウシアン）で測った分布がこちらです。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>LiDAR面からの距離</th><th>値</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td>中央値</td><td>6mm</td><td>大半の粒は実測面にぴたりと乗っている</td></tr>
+      <tr><td>90%点</td><td>18mm</td><td>表面の毛羽立ちは数cmの帯に収まる</td></tr>
+      <tr><td>10cmより遠い粒</td><td>8,406個（0.90%）</td><td>これがフローター</td></tr>
+    </tbody>
+  </table></div>
+  <p>ここで一つ分かったことがあります。<strong>LiDARスキャナ由来の3DGSは、そもそもフローターが1%未満と少ない</strong>のです。LiDARの点を出発点として学習が始まるので、最初から実測面の近くに粒が置かれるからです。カメラだけで作る3DGSとは前提が違います。</p>
+  <p>消した粒だけを表示したのが冒頭の画像です。半透明のゴミではなく<strong>不透明度0.93という「濃い」実体アーティファクト</strong>で、床下や壁の向こうにゴースト形状として溜まっていました。除去の前後を同じカメラで撮り比べても、机・椅子・ブラインドといった実在物は消えていません。</p>
+
+  <h3>当たり判定は、点群から作り直す</h3>
+  <p>穴だらけのスキャナ純正メッシュを使う代わりに、<strong>LiDAR点群からPoisson再構成で面を張り直します</strong>。この手法は閉じた面を作るので、原理的に穴が開きません。</p>
+  <p>候補をいくつか作って比較したところ、結果ははっきりしていました。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>作り方</th><th>三角形数</th><th>穴（境界エッジ）</th><th>LiDARとのズレ</th><th>ロボット落下試験</th></tr></thead>
+    <tbody>
+      <tr><td>スキャナ純正メッシュ</td><td>19,344</td><td>1,444本</td><td>—</td><td>落下する</td></tr>
+      <tr><td>3DGSからボクセル化</td><td>1,825,066</td><td>0本</td><td>3.4cm</td><td>合格</td></tr>
+      <tr><td><strong>LiDAR点群からPoisson</strong></td><td><strong>94,292</strong></td><td><strong>0本</strong></td><td><strong>2.3cm</strong></td><td><strong>合格</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p>Poissonが<strong>精度も軽さも両取り</strong>でした。ボクセル化と比べて19分の1の軽さで、精度は上です。0.1mの立方体を56個ばらまく落下試験でも、56個すべてが床の上で静止しました。</p>
+
+  <figure>
+    <img src="images/envgen_robot_drive.jpg" alt="クリーンな3DGS環境の中を走行するロボット">
+    <figcaption><b>できあがった環境の中を、ロボットが走っています。</b>見た目はフローターを除いた3DGS、当たり判定は見えないPoissonメッシュ。机の間の通路を約5m走破し、落下もすり抜けも起きませんでした。</figcaption>
+  </figure>
+
+  <h2 id="routeB"><span class="n">05</span> 道B：深度を教師にして学習し直す</h2>
+  <p>NVIDIAと同じ原理を、実測LiDARで試します。ただしここに一つ大きな障害がありました。<strong>学習には「どの位置から撮った写真か」というカメラの位置姿勢が必要ですが、スキャナの出力からこれが失われていました</strong>。</p>
+
+  <h3>まずカメラ位置を復元する</h3>
+  <p>写真からカメラ位置を復元する標準手法はCOLMAPですが、<strong>163枚中6枚しか復元できず失敗しました</strong>。無地の壁が多い室内は、従来の特徴点抽出が苦手とする条件です。</p>
+  <p>そこで学習ベースの特徴点抽出（DISK）とマッチング（LightGlue）に切り替えたところ、<strong>126枚の復元に成功しました</strong>。ここは素直に新しい手法が効きます。</p>
+  <div class="callout warn"><b>つまずいた点：スケールが決まらない</b>写真から復元した空間には<strong>「実際の大きさ」の情報がありません</strong>。LiDAR点群と重ね合わせて縮尺を決めようとしたのですが、点群同士の位置合わせは<strong>「小さく縮めて相手の中に埋め込む」と見かけ上よく合ってしまう</strong>という罠があり、実行のたびに違う答えが出ました。<br><br>解決策は遠回りに見えて確実な方法でした。<strong>すでにLiDAR座標系にある3DGSから48枚の絵をレンダリングし、それを「位置が分かっている写真」として実写と照合する</strong>。これで一枚ずつ実寸のカメラ位置が求まり、縮尺が確定しました。</div>
+
+  <figure>
+    <img src="images/envgen_depth_check.jpg" alt="実写画像と、復元したカメラ位置から投影したLiDAR深度マップの比較">
+    <figcaption><b>カメラ位置の復元が正しいことの確認。</b>左が実写、右が復元した位置からLiDARメッシュを投影した深度マップです。椅子・テーブル・奥の壁の輪郭が一致しているので、位置が合っていると判断できます。</figcaption>
+  </figure>
+
+  <p>復元したカメラ位置とLiDAR由来の深度マップを揃えて、DN-Splatterで30,000ステップ学習しました。学習は完走し、メッシュの同時出力にも成功しています。</p>
+
+  <h2 id="result"><span class="n">06</span> 比較結果</h2>
+  <p>両方を同じ物差し（LiDAR点群までの距離）で測りました。結果は予想と逆でした。</p>
+
+  <h3>当たり判定として</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>指標</th><th>道A：LiDARから直接</th><th>道B：学習し直し</th></tr></thead>
+    <tbody>
+      <tr><td>三角形数</td><td><strong>94,292</strong></td><td>9,585,384（102倍重い）</td></tr>
+      <tr><td>穴（境界エッジ）</td><td><strong>0本＝完全に閉じている</strong></td><td>1,013,769本（6.81%）</td></tr>
+      <tr><td>LiDARとのズレ（中央値）</td><td><strong>2.3cm</strong></td><td>22.0cm</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>見た目として</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>指標</th><th>道A：元データ＋除去</th><th>道B：学習し直し</th></tr></thead>
+    <tbody>
+      <tr><td>LiDARとのズレ（中央値）</td><td><strong>0.6cm</strong></td><td>19.8cm（33倍悪い）</td></tr>
+      <tr><td>フローター（10cm超）</td><td><strong>0.68%</strong></td><td>62.47%（92倍多い）</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>両面で道Aの圧勝でした。</strong>手軽なほうが、本命だと思っていたほうに勝ったことになります。</p>
+
+  <h2 id="why"><span class="n">07</span> なぜこうなったのか</h2>
+  <p>結果を「DN-Splatterが劣る」と読むのは間違いです。原因は<strong>こちらが与えた入力の質</strong>にあります。</p>
+  <p>3DGSの学習は<strong>カメラ位置がサブセンチ単位で合っていることを前提にした手法</strong>です。今回復元できた位置の精度は中央値13.2cmでした。13cmずれた教師データで学習すれば、当然ぼやけた結果にしかなりません。加えて画像も126枚だけで、元の3DGSがスキャナ純正パイプラインで全フレームとLiDAR初期値を使って作られているのに対し、あまりに不利な条件でした。</p>
+  <p>つまり測れたのは「DN-Splatterの実力」ではなく、<strong>「復元したカメラ位置で学習し直すと、元データには勝てない」</strong>という事実です。スキャナ純正の正確なカメラ位置が手に入れば、結論は変わりえます。</p>
+  <p>そのうえで、より本質的な理由もあります。<strong>道Bのメッシュは「学習した3DGSをレンダリングした深度」から作られるので、品質の上限が3DGSの学習結果に縛られます</strong>。対して道AはLiDARの実測値を直接使います。センサーの実測値を持っているなら、間に学習表現を挟むぶんだけ情報が落ちる、というのは考えてみれば当然のことでした。</p>
+  <div class="callout note"><b>Nianticが深度モデルを使った理由</b>ここまで来て腑に落ちました。彼らは<strong>360度カメラしか持っていないので、深度を推定するしかなかった</strong>のです。実測LiDARを持っている側には、もっと短くて確実な道があります。同じ問題でも、手持ちの機材によって最適な解法は変わります。</div>
+
+  <h2 id="summary"><span class="n">08</span> まとめ</h2>
+  <p>LiDARスキャナで撮ったデータをロボットのシミュレーションに使うなら、手順はこうなります。</p>
+  <ul>
+    <li><strong>フローターは、LiDARからの距離で消す</strong> ── 一粒ずつ実測面までの距離を測り、10cmより遠いものを削除します。会議室では0.90%が該当しました。</li>
+    <li><strong>当たり判定は、LiDAR点群からPoisson再構成で作る</strong> ── スキャナ純正メッシュは穴だらけなので使いません。9万4千三角形で穴ゼロ、精度2.3cmの面が得られます。</li>
+    <li><strong>学習し直す必要はない</strong> ── 少なくともカメラ位置が正確に得られない状況では、後処理のほうが速くて良い結果になります。</li>
+  </ul>
+  <p>この手順は<strong>再学習を伴わないので、数分で全スキャンに適用できます</strong>。依存するのもPythonと点群処理ライブラリだけで、GPU学習環境の構築が要りません。運用に乗せやすいという意味でも、実務ではこちらが現実的です。</p>
+  <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。3DGS単体では持てない情報（当たり判定・セマンティックラベル）の扱い方も、そちらで整理しました。</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>ロケハン3Dでは、実在の空間を<br class="pc">シミュレーションに使える形でスキャンします</h3>
+    <p>LiDARと写真を同時に取得するため、見た目と実測形状の両方が揃ったデータになります。ロボット検証・デジタルツイン・映像制作まで、用途に合わせた形式でお渡しします。</p>
+    <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">関連する記事</h2>
+  <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約7分</span></div>
+          <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
+        </div>
+      </a>
+      <a class="rcard" href="houdini-comfyui-gsplat-workflow.html">
+        <div class="rthumb" style="background-image:url('images/hectorvfx_shibuya_ai_render.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-23</span><span>約7分</span></div>
+          <h3>Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー</h3>
+        </div>
+      </a>
+      <a class="rcard" href="portalcam-xbin-raw-extraction.html">
+        <div class="rthumb" style="background-image:url('images/xbin_cam_pinholeA.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約8分</span></div>
+          <h3>PortalCamの生データ(.xbin)から4K元画像を取り出す</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → DECIMATE (&lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>
