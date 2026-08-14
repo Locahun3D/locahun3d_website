@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSのノイズをLiDARで消す｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta name="description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
@@ -14,7 +14,7 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="3DGSのノイズをLiDARで消す">
-<meta property="og:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta property="og:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
 <meta property="og:image:width" content="1280">
@@ -22,7 +22,7 @@
 <meta property="og:image:alt" content="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGSのノイズをLiDARで消す">
-<meta name="twitter:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子が幻の障害物になり、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta name="twitter:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -284,11 +284,11 @@
     <span>2026-08-14</span><span>・</span><span>読了 約9分</span>
   </div>
   <h1>3DGSのノイズを<br class="pc">LiDARで消す</h1>
-  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使おうとすると、必ず二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）が幻の障害物になること</strong>と、<strong>床に開いた穴からロボットがすり抜けること</strong>です。NVIDIAが最近この解決策を発表しましたが、そこで使われている手法は「深度をAIで推定して形状を拘束する」というものでした。ではLiDARで<strong>実測した深度</strong>を持っている場合、どうするのがいちばん良いのか。両方の道を実際に走らせて比較した記録です。</p>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使おうとすると、必ず二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）がロボットのカメラに映り込むこと</strong>と、<strong>床に開いた穴からロボットがすり抜けること</strong>です。NVIDIAが最近この解決策を発表しましたが、そこで使われている手法は「深度をAIで推定して形状を拘束する」というものでした。ではLiDARで<strong>実測した深度</strong>を持っている場合、どうするのがいちばん良いのか。両方の道を実際に走らせて比較した記録です。</p>
 
   <figure>
     <img src="images/envgen_floaters.jpg" alt="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
-    <figcaption><b>これが3DGSの「フローター」です。</b>会議室スキャンから除去対象となった8,406個のガウシアンだけを表示しています。空中や壁の向こうに実体のない粒が浮いていて、シミュレーションではこれが幻の障害物として振る舞います。</figcaption>
+    <figcaption><b>これが3DGSの「フローター」です。</b>会議室スキャンから除去対象となった8,406個のガウシアンだけを表示しています。空中や壁の向こうに実体のない粒が浮いています。これがロボットのカメラに映り込み、画像から学習させるときのノイズになります。</figcaption>
   </figure>
 </header>
 
@@ -318,12 +318,22 @@
   <h2 id="problem"><span class="n">01</span> 3DGSをシミュレーションに使うときの二つの壁</h2>
   <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。この違いが、ロボットのシミュレーションでは具体的な事故として表れます。</p>
 
-  <h3>壁1：空中の粒が、幻の障害物になる</h3>
-  <p>3DGSには実体のない場所にガウシアンが残ることがあります。見る角度によっては絵として辻褄が合ってしまうため、学習の途中で消えずに生き残ります。これがロボットのカメラに映り込むと、存在しない障害物として学習を汚します。</p>
+  <h3>壁1：空中の粒が、ロボットの視界を汚す</h3>
+  <p>3DGSには実体のない場所にガウシアンが残ることがあります。見る角度によっては絵として辻褄が合ってしまうため、学習の途中で消えずに生き残ります。</p>
+  <p>ここで誤解しやすいのですが、<strong>3DGS自体は当たり判定を持たないので、フローターがロボットにぶつかることはありません</strong>。問題はそこではなく<strong>「ロボットのカメラに映り込む」</strong>ことです。カメラ画像から行動を学習させる場合、視界に実在しない粒が漂っていれば、それは学習データのノイズになります。加えて3DGSから深度やメッシュを起こす場合には、この粒が形状として拾われてしまいます。</p>
 
   <h3>壁2：床の穴から、ロボットがすり抜ける</h3>
   <p>当たり判定を作るには面の情報が要りますが、3DGSは粒の集合なので面を持ちません。そこでスキャナが出力するメッシュを使うことになりますが、こちらには別の問題があります。実際に計測したところ、<strong>スキャナ純正のメッシュは全エッジの4.86%が「どの面にも閉じていない縁」でした</strong>。つまり穴だらけです。</p>
-  <p>この状態でロボットを置くと何が起きるか。以前の検証では、床の被覆が薄い地点にロボットを配置した結果<strong>そのまま床をすり抜けて無限に落下しました</strong>。</p>
+  <p>穴の分布には偏りがあります。今回のスキャンで真上から光線を落として調べたところ、<strong>会議室の中の床はほぼ塞がっていた（穴は0.4%、ロボットが落ちる大きさの穴はゼロ）のに対し、通路側は床として成立していた面積が22%しかありませんでした</strong>。見た目には同じ床でも、当たり判定として使えるかどうかは場所によって別物です。</p>
+  <p>実際に穴の上へロボットを置くとこうなります。落下は止まらず、高さは1秒あたり加速しながら床下38mまで進みました。</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
+      <source src="videos/envgen_fall_fail.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>失敗の様子。</b>見た目には床があるのに、当たり判定のメッシュに穴が開いている地点です。ロボットはそのまま加速しながら落ち続けます（高さ −1.09m から −37.93m まで確認）。</figcaption>
+  </figure>
 
   <h2 id="nvidia"><span class="n">02</span> NVIDIAの答えと、そこにある前提</h2>
   <p>2026年8月、NVIDIAが<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">この問題への解決策を公開しました</a>（<a href="https://www.moguravr.com/nvidia-3dgs-humanoid-sim-to-real/" target="_blank" rel="noopener">日本語の解説記事</a>）。<a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>の再構成パイプラインを使い、<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力する</strong>という方式です。前者がロボットの見る映像、後者が衝突判定になります。ガウシアンをIsaac Simで扱う基盤は<a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">Omniverse NuRec</a>として公開されています。</p>
@@ -354,6 +364,14 @@
     </tbody>
   </table></div>
   <p>ここで一つ分かったことがあります。<strong>LiDARスキャナ由来の3DGSは、そもそもフローターが1%未満と少ない</strong>のです。LiDARの点を出発点として学習が始まるので、最初から実測面の近くに粒が置かれるからです。カメラだけで作る3DGSとは前提が違います。</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/envgen_fly_ab_poster.jpg">
+      <source src="videos/envgen_fly_ab.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>同じ経路を通り抜けたA/B比較。</b>左が元の3DGS、右がLiDARで粒を削ったあと。実在する机・椅子・ブラインドはそのまま残り、視界に漂っていた粒だけが消えています。</figcaption>
+  </figure>
+
   <p>消した粒だけを表示したのが冒頭の画像です。半透明のゴミではなく<strong>不透明度0.93という「濃い」実体アーティファクト</strong>で、床下や壁の向こうにゴースト形状として溜まっていました。除去の前後を同じカメラで撮り比べても、机・椅子・ブラインドといった実在物は消えていません。</p>
 
   <h3>当たり判定は、点群から作り直す</h3>
