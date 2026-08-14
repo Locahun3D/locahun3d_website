@@ -388,6 +388,16 @@
   <p>Poissonが<strong>精度も軽さも両取り</strong>でした。ボクセル化と比べて19分の1の軽さで、精度は上です。0.1mの立方体を56個ばらまく落下試験でも、56個すべてが床の上で静止しました。</p>
 
   <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/envgen_coll_ab_poster.jpg">
+      <source src="videos/envgen_coll_ab.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>当たり判定だけを差し替えたA/B比較。</b>同じ地点にロボットを置き、左はスキャナ純正メッシュ（床をすり抜けて落下し続ける）、右はLiDAR-Poissonメッシュ（着地して静止）。見た目の3DGSは同一なので、違いは当たり判定の質だけです。</figcaption>
+  </figure>
+
+  <div class="callout note"><b>残る限界と、強化学習側での対処</b>Poissonメッシュは水密ですが、<strong>LiDARが観測していない場所には面を作れません</strong>（今回のスキャンでは通路の奥など）。ここは環境生成だけでは埋まらないので、学習側で対処します——<strong>スポーンと経由地点を観測済み領域に限定し、未観測領域への進入でエピソードを打ち切る</strong>のが定石です（レースRLの「コース外」と同じ扱い）。保険として床の下に不可視のセーフティ面を敷けば、万一の落下も「失敗」として正しく学習に返せます。未観測領域は見た目の3DGSも崩れているため、そもそも方策の行動範囲はスキャン範囲の内側に収めるべきです。</div>
+
+  <figure>
     <img src="images/envgen_robot_drive.jpg" alt="クリーンな3DGS環境の中を走行するロボット">
     <figcaption><b>できあがった環境の中を、ロボットが走っています。</b>見た目はフローターを除いた3DGS、当たり判定は見えないPoissonメッシュ。机の間の通路を約5m走破し、落下もすり抜けも起きませんでした。</figcaption>
   </figure>

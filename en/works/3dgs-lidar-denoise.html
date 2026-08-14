@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Cleaning Up 3DGS Noise with LiDAR｜LOCAHUN 3D Tech Blog</title>
+<meta name="description" content="Put a 3DGS scan into a robotics simulator and floaters pollute the robot's camera while holes in the floor swallow the robot. NVIDIA's fix estimates depth with a neural model; we had measured LiDAR depth instead. We built both routes and measured them on one ruler.">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun 3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Cleaning Up 3DGS Noise with LiDAR">
+<meta property="og:description" content="Put a 3DGS scan into a robotics simulator and floaters pollute the robot">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Only the floater gaussians removed from a 3DGS scan, shown in isolation">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cleaning Up 3DGS Noise with LiDAR">
+<meta name="twitter:description" content="Put a 3DGS scan into a robotics simulator and floaters pollute the robot">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
+      <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/en/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/works/3dgs-lidar-denoise.html">JA</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Benchmark</span>
+    <span>2026-08-14</span><span>・</span><span>9 min read</span>
+  </div>
+  <h1>Cleaning Up 3DGS Noise<br class="pc">with LiDAR</h1>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up immediately: <strong>stray specks floating in mid-air that pollute what the robot's camera sees</strong>, and <strong>holes in the floor that the robot drops straight through</strong>. NVIDIA recently published a fix for this, and the method behind it estimates depth with a neural model to constrain the geometry. But what if you already have <strong>measured depth</strong> from a LiDAR scanner? We built both routes and measured them against each other.</p>
+
+  <figure>
+    <img src="/works/images/envgen_floaters.jpg" alt="Only the floater gaussians removed from a 3DGS scan, shown in isolation">
+    <figcaption><b>These are 3DGS floaters.</b>Showing only the 8,406 gaussians that were removed from a meeting-room scan. Specks with nothing behind them hang in the air and behind walls.</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#problem">Two walls you hit in simulation</a></li>
+    <li><a href="#nvidia">NVIDIA's answer, and the assumption inside it</a></li>
+    <li><a href="#routes">Two routes</a></li>
+    <li><a href="#routeA">Route A: subtract using measured LiDAR</a></li>
+    <li><a href="#routeB">Route B: retrain with depth supervision</a></li>
+    <li><a href="#result">Results</a></li>
+    <li><a href="#why">Why it came out this way</a></li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>3DGS scan</b><span class="a">&rarr;</span>
+    <b>measure distance to LiDAR</b><span class="a">&rarr;</span>
+    <b>drop distant specks</b><span class="a">&rarr;</span>
+    <b>watertight mesh from points</b><span class="a">&rarr;</span>
+    <b>a floor the robot can drive on</b>
+  </div>
+
+  <h2 id="problem"><span class="n">01</span> Two walls you hit in simulation</h2>
+  <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong>. In robotics simulation that distinction turns into concrete failures.</p>
+
+  <h3>Wall 1: airborne specks pollute the robot's view</h3>
+  <p>3DGS leaves gaussians in places where nothing exists. From certain angles they make visual sense, so they survive training instead of being pruned away.</p>
+  <p>It is easy to misread what this costs you. <strong>3DGS carries no collision geometry, so a floater will never physically hit the robot.</strong> The damage is that <strong>it lands in the robot's camera image</strong>. If you are training behaviour from camera frames, specks drifting through the view are noise in the training data. And if you derive depth or a mesh from the 3DGS, those specks get picked up as shape.</p>
+
+  <h3>Wall 2: the robot falls through holes in the floor</h3>
+  <p>Collision needs surfaces, and 3DGS is a cloud of specks with no surfaces. So you reach for the mesh the scanner exports &mdash; which brings its own problem. Measured on our scan, <strong>4.86% of the scanner mesh's edges were boundary edges that close onto nothing</strong>. In other words, it is full of holes.</p>
+  <p>The holes are not spread evenly. Casting rays straight down across the scan, <strong>the floor inside the meeting room was essentially closed (0.4% holes, and no hole large enough for the robot), while out in the corridor only 22% of the area registered as floor at all</strong>. Two patches of floor that look identical can be completely different as collision geometry.</p>
+  <p>Put the robot over one of the real holes and this happens. The fall does not stop; it keeps accelerating past 38 metres below the floor.</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fall_poster.jpg">
+      <source src="/works/videos/envgen_fall_fail.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole in it. The robot accelerates downward without stopping (measured from &minus;1.09&thinsp;m to &minus;37.93&thinsp;m).</figcaption>
+  </figure>
+
+  <h2 id="nvidia"><span class="n">02</span> NVIDIA's answer, and the assumption inside it</h2>
+  <p>In August 2026 NVIDIA <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">published a solution to exactly this</a>. Using <a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>'s reconstruction pipeline, <strong>a single capture emits gaussians and a mesh in one shared coordinate frame</strong> &mdash; the former is what the robot sees, the latter is what it collides with. The gaussian side of this in Isaac Sim ships as <a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">Omniverse NuRec</a>.</p>
+  <p>The crux is <strong>"constraining the geometry with a proprietary depth model."</strong> Optimise for appearance alone and you keep the floaters and the holes; depth information pins the shape down. In learning terms this is regularisation with depth as a supervisory signal, and the research lineage is public &mdash; <a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a> implements the same idea with code you can run.</p>
+  <div class="callout note"><b>The assumption we noticed</b>Niantic's case <strong>was captured with a 360&deg; camera</strong>. With only cameras, estimating depth is the only option available. So what happens when you hold <strong>measured depth</strong> from a LiDAR scanner? That question is where this went.</div>
+
+  <h2 id="routes"><span class="n">03</span> Two routes</h2>
+  <p>With real LiDAR in hand there are two routes, and you cannot tell which wins without building both.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th></th><th>Route A: subtract afterwards</th><th>Route B: retrain</th></tr></thead>
+    <tbody>
+      <tr><td>What it does</td><td>Delete gaussians that sit far from the LiDAR surface</td><td>Retrain the 3DGS with LiDAR depth as supervision</td></tr>
+      <tr><td>Time</td><td>Minutes</td><td>30,000 training steps</td></tr>
+      <tr><td>Expectation</td><td>Cheap, but only deletes &mdash; surely limited</td><td>Same principle as NVIDIA, so this is the favourite</td></tr>
+    </tbody>
+  </table></div>
+  <p>Intuition says Route B wins: fixing the shape during training is more fundamental than deleting afterwards. We built both and put them on one ruler.</p>
+
+  <h2 id="routeA"><span class="n">04</span> Route A: subtract using measured LiDAR</h2>
+  <p>The idea is plain. <strong>For every gaussian, compute the distance to the LiDAR point cloud and delete the ones that sit too far away.</strong> A speck far from a measured surface has nothing real behind it.</p>
+  <p>Here is the distribution across the meeting-room scan (936,016 gaussians).</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Distance to LiDAR surface</th><th>Value</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>Median</td><td>6&thinsp;mm</td><td>Most gaussians sit right on the measured surface</td></tr>
+      <tr><td>90th percentile</td><td>18&thinsp;mm</td><td>Surface fuzz stays within a few centimetres</td></tr>
+      <tr><td>Beyond 10&thinsp;cm</td><td>8,406 (0.90%)</td><td>These are the floaters</td></tr>
+    </tbody>
+  </table></div>
+  <p>One thing became clear here. <strong>3DGS produced by a LiDAR scanner starts with under 1% floaters</strong>, because training begins from LiDAR points and so places gaussians near measured surfaces from the outset. That is a different starting position from 3DGS built out of photographs alone.</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fly_ab_poster.jpg">
+      <source src="/works/videos/envgen_fly_ab.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>The same path, before and after.</b>Left is the original 3DGS, right is after the LiDAR-based removal. The desks, chairs and blinds that actually exist are untouched; only the specks drifting through the view are gone.</figcaption>
+  </figure>
+
+  <p>The image at the top of this article shows the removed gaussians on their own. They are not faint debris but <strong>solid artefacts at 0.93 opacity</strong>, pooled below the floor and behind walls as ghost shapes.</p>
+
+  <h3>Rebuild collision from the point cloud</h3>
+  <p>Rather than using the holed scanner mesh, <strong>we rebuild surfaces from the LiDAR point cloud with Poisson reconstruction</strong>. That method produces closed surfaces, so holes do not appear by construction.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Method</th><th>Triangles</th><th>Holes (boundary edges)</th><th>Deviation from LiDAR</th><th>Drop test</th></tr></thead>
+    <tbody>
+      <tr><td>Scanner mesh</td><td>19,344</td><td>1,444</td><td>&mdash;</td><td>falls through</td></tr>
+      <tr><td>Voxelised from 3DGS</td><td>1,825,066</td><td>0</td><td>3.4&thinsp;cm</td><td>pass</td></tr>
+      <tr><td><strong>Poisson from LiDAR points</strong></td><td><strong>94,292</strong></td><td><strong>0</strong></td><td><strong>2.3&thinsp;cm</strong></td><td><strong>pass</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p>Poisson took both prizes: <strong>19&times; lighter than the voxelised mesh and more accurate</strong>. Dropping 56 cubes of 0.1&thinsp;m across the room, all 56 came to rest on the floor.</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_coll_ab_poster.jpg">
+      <source src="/works/videos/envgen_coll_ab.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>A/B with only the collision mesh swapped.</b>Same spot, same robot: on the left the scanner mesh lets it fall straight through; on the right the LiDAR-Poisson mesh catches it. The visible 3DGS is identical in both &mdash; the only difference is collision quality.</figcaption>
+  </figure>
+
+  <div class="callout note"><b>The remaining limit, and the RL-side fix</b>A Poisson mesh is watertight, but <strong>it cannot invent surfaces where the LiDAR never looked</strong> (the far corridor in this scan). Environment generation alone will not close that gap, so you handle it on the learning side: <strong>sample spawns and waypoints only inside the observed region, and terminate the episode when the robot leaves it</strong> &mdash; the same treatment racing RL gives &quot;off track.&quot; A hidden safety plane under the floor turns any residual fall into a clean failure signal. Since the 3DGS also degrades outside the scanned region, keeping the policy's operating envelope inside the scan is what you want anyway.</div>
+
+  <figure>
+    <img src="/works/images/envgen_robot_drive.jpg" alt="A robot driving through the cleaned 3DGS environment">
+    <figcaption><b>A robot driving through the finished environment.</b>Appearance from the floater-free 3DGS, collision from an invisible Poisson mesh. It covered about 5&thinsp;m down the aisle between the desks with no falls and no clipping.</figcaption>
+  </figure>
+
+  <h2 id="routeB"><span class="n">05</span> Route B: retrain with depth supervision</h2>
+  <p>Now the same principle as NVIDIA, driven by measured LiDAR. One obstacle stood in the way first: <strong>training needs to know where each photograph was taken from, and those camera poses were missing from the scanner output</strong>.</p>
+
+  <h3>Recovering the camera poses</h3>
+  <p>The standard tool for recovering poses from photographs is COLMAP, and it <strong>failed, registering 6 of 163 images</strong>. Indoor scenes full of blank walls are exactly what classical feature extraction struggles with.</p>
+  <p>Switching to learned features (DISK) and a learned matcher (LightGlue) <strong>recovered 126 images</strong>. The newer methods simply work better here.</p>
+  <div class="callout warn"><b>Where it went wrong: the scale would not settle</b>A reconstruction from photographs <strong>carries no information about real-world size</strong>. We tried to fix the scale by registering against the LiDAR point cloud, but point-cloud registration has a trap: <strong>shrinking one cloud until it nests inside the other scores well by the usual metrics</strong>, so every run produced a different answer.<br><br>The fix looks like a detour and is far more reliable. <strong>Render 48 views from the 3DGS that already lives in the LiDAR frame, and treat those as photographs whose positions are known.</strong> Matching the real photographs against them recovers each camera position at true scale.</div>
+
+  <figure>
+    <img src="/works/images/envgen_depth_check.jpg" alt="A real photograph beside a LiDAR depth map projected from the recovered camera pose">
+    <figcaption><b>Confirming the recovered poses.</b>Left is a real photograph; right is the LiDAR mesh projected from the recovered position. The chairs, tables and far wall line up, so the pose is right.</figcaption>
+  </figure>
+
+  <p>With the recovered poses and LiDAR-derived depth maps in place, we trained DN-Splatter for 30,000 steps. Training completed and the simultaneous mesh export worked.</p>
+
+  <h2 id="result"><span class="n">06</span> Results</h2>
+  <p>Both routes, measured on the same ruler: distance to the LiDAR point cloud. The result was the opposite of the prediction.</p>
+
+  <h3>As collision geometry</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Metric</th><th>Route A: straight from LiDAR</th><th>Route B: retrained</th></tr></thead>
+    <tbody>
+      <tr><td>Triangles</td><td><strong>94,292</strong></td><td>9,585,384 (102&times; heavier)</td></tr>
+      <tr><td>Holes (boundary edges)</td><td><strong>0 &mdash; fully closed</strong></td><td>1,013,769 (6.81%)</td></tr>
+      <tr><td>Median deviation from LiDAR</td><td><strong>2.3&thinsp;cm</strong></td><td>22.0&thinsp;cm</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>As appearance</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Metric</th><th>Route A: original + removal</th><th>Route B: retrained</th></tr></thead>
+    <tbody>
+      <tr><td>Median deviation from LiDAR</td><td><strong>0.6&thinsp;cm</strong></td><td>19.8&thinsp;cm (33&times; worse)</td></tr>
+      <tr><td>Floaters (beyond 10&thinsp;cm)</td><td><strong>0.68%</strong></td><td>62.47% (92&times; more)</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Route A won on both counts.</strong> The cheap option beat the one we expected to win.</p>
+
+  <h2 id="why"><span class="n">07</span> Why it came out this way</h2>
+  <p>Reading this as "DN-Splatter is worse" would be wrong. The cause is <strong>the quality of what we fed it</strong>.</p>
+  <p>3DGS training <strong>assumes camera poses accurate to well under a centimetre</strong>. The poses we recovered were accurate to 13.2&thinsp;cm at the median. Train on teachers that are 13&thinsp;cm off and a blurry result is the only possible outcome. We also had just 126 images, against an original 3DGS built by the scanner's own pipeline from every frame with LiDAR initialisation &mdash; a badly uneven contest.</p>
+  <p>So what we measured is not "how good DN-Splatter is" but <strong>"retraining from recovered poses cannot beat the original data."</strong> With accurate poses from the scanner itself, the conclusion could change.</p>
+  <p>There is also a more fundamental reason. <strong>Route B's mesh is built from depth rendered out of the trained 3DGS, so its quality ceiling is whatever the 3DGS learned.</strong> Route A uses the LiDAR measurements directly. Once you think about it, routing measured sensor data through a learned representation can only lose information along the way.</p>
+  <div class="callout note"><b>Why Niantic reached for a depth model</b>This is where it clicked. <strong>They had only a 360&deg; camera, so estimating depth was the only path open to them.</strong> Anyone holding measured LiDAR has a shorter and more certain route. The same problem has a different best answer depending on the hardware in your hands.</div>
+
+  <h2 id="summary"><span class="n">08</span> Summary</h2>
+  <p>If you are taking LiDAR-scanned data into robotics simulation, the procedure is this.</p>
+  <ul>
+    <li><strong>Remove floaters by distance from the LiDAR</strong> &mdash; measure each gaussian against the measured surface and delete anything beyond 10&thinsp;cm. In the meeting room that was 0.90% of them.</li>
+    <li><strong>Build collision from the LiDAR points with Poisson reconstruction</strong> &mdash; skip the scanner mesh, which is full of holes. You get 94k triangles, zero holes, 2.3&thinsp;cm accuracy.</li>
+    <li><strong>You do not need to retrain</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
+  </ul>
+  <p>Because <strong>no retraining is involved, this runs across an entire scan library in minutes</strong>. It depends on Python and a point-cloud library, with no GPU training stack to assemble &mdash; which matters just as much in production.</p>
+  <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>, along with how to handle what 3DGS cannot carry on its own, such as collision and semantic labels.</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>LOCAHUN 3D scans real spaces<br class="pc">in a form you can simulate with</h3>
+    <p>Because we capture LiDAR and photographs together, you get both the appearance and the measured geometry. We deliver in the format your work needs &mdash; robotics validation, digital twins, or film and VFX.</p>
+    <a class="dc-btn" href="/en/locahun3d_demo.html#contact">Talk to us about a scan &rarr;</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Related articles</h2>
+  <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('/works/images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-07-26</span><span>7 min</span></div>
+          <h3>Bringing 3DGS into NVIDIA Isaac Sim</h3>
+        </div>
+      </a>
+      <a class="rcard" href="portalcam-xbin-raw-extraction.html">
+        <div class="rthumb" style="background-image:url('/works/images/xbin_cam_pinholeA.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-07-26</span><span>8 min</span></div>
+          <h3>Extracting 4K Source Images from PortalCam&#x27;s Raw Data</h3>
+        </div>
+      </a>
+      <a class="rcard" href="3dgs-software-comparison.html">
+        <div class="rthumb" style="background-image:url('/works/images/logos/dcc-logos-thumb.svg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-08-04</span><span>8 min</span></div>
+          <h3>Software and Tools That Handle 3DGS</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits</div>
+  <h2>Production credit</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writing</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and validates capture workflows that combine 3DGS scans with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → DECIMATE (&lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>

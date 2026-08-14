@@ -236,6 +236,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 var POSTS = [
   {
+    tag:"tech", tagLabel:"Technical", date:"2026-08-14", read:"~9 min",
+    title:"Cleaning Up 3DGS Noise with LiDAR",
+    excerpt:"Put a 3DGS scan into a robotics simulator and floaters pollute the robot's camera while holes in the floor swallow the robot. NVIDIA's fix estimates depth with a neural model; we had measured LiDAR depth instead. We built both routes - post-hoc removal vs depth-supervised retraining - and measured them on one ruler.",
+    href:"3dgs-lidar-denoise.html", thumb:"/works/images/envgen_floaters.jpg"
+  },
+  {
     tag:"tech", tagLabel:"Technical", date:"2026-08-09", read:"~10 min",
     title:"A Field Guide to 3DGS File Formats",
     excerpt:"The major 3D Gaussian Splatting file formats — PLY, SPLAT, KSPLAT, SPZ, SOG, RAD, LCC/LCC2 and glTF (KHR_gaussian_splatting) — compared by compression, tool support, and use case. Includes an 8-format cheat sheet.",
