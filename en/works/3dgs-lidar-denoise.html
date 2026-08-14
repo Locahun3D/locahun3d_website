@@ -391,8 +391,29 @@
       <source src="/works/videos/envgen_room_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The same room, same camera, three ways.</b>Left is the 3DGS &mdash; what lands in the robot's camera. Middle is the scanner's collision mesh; right is the mesh rebuilt from the LiDAR points. The scanner mesh loses the desk edges and mashes the chairs into blobs, while the rebuilt one keeps their shape. That difference is exactly what the robot feels as obstacles.</figcaption>
+    <figcaption><b>The same room, same camera, three ways.</b>Left is the 3DGS &mdash; what lands in the robot's camera. Middle is the scanner's collision mesh; right is the mesh rebuilt from the LiDAR points. Floors and walls come out fine in both, but <strong>neither reproduces thin structures like desk legs and chairs</strong> &mdash; the next section looks at that.</figcaption>
   </figure>
+
+  <h3>Neither mesh can build a thin leg</h3>
+  <p>Collision has a second limit that has nothing to do with watertightness. <strong>Thin structures &mdash; desk legs, chair frames &mdash; survive in neither reconstruction.</strong></p>
+
+  <figure>
+    <img src="/works/images/envgen_legs_compare.jpg" alt="3DGS and two collision meshes seen from desk-leg height">
+    <figcaption><b>Camera dropped to desk-leg height.</b>The 3DGS on the left shows the legs and even the chair castors. In the middle, the scanner mesh has thinned them down to a few posts and the space under the desk is essentially open. On the right, the Poisson mesh has done the opposite and <strong>filled the entire under-desk volume into a solid mass</strong>.</figcaption>
+  </figure>
+
+  <p>The numbers say the same thing. Measuring how much of the 15&ndash;55&thinsp;cm band above the floor &mdash; leg height &mdash; is actually occupied:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Occupancy at leg height</th><th>Value</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>3DGS (ground truth)</td><td>27.2%</td><td>what is really there</td></tr>
+      <tr><td>Scanner mesh</td><td>18.6%</td><td>legs missing &mdash; robot passes through</td></tr>
+      <tr><td>LiDAR-Poisson</td><td>38.2%</td><td>over-filled &mdash; cannot get under the desk</td></tr>
+    </tbody>
+  </table></div>
+  <p>Poisson builds closed surfaces, so <strong>sealing the whole cavity under a desk is a more natural &quot;smooth closed surface&quot; than standing four thin legs</strong>. It is the price of watertightness, and it is not tunable away.</p>
+  <p>Driving the robot at a desk shows it directly. On the scanner mesh it stops early against the tabletop mass; on the Poisson mesh it climbs the filled slope and halts somewhere else. <strong>Neither is the correct behaviour of stopping against a desk leg.</strong></p>
+  <p>This is where environment generation runs out. For objects whose exact shape matters, <strong>placing a CG model and giving that the collision</strong> ends up both faster and more accurate. Meshes reconstructed from a scan are best treated as floors, walls and large structure &mdash; and nothing finer.</p>
 
   <div class="callout note"><b>The remaining limit, and the RL-side fix</b>A Poisson mesh is watertight, but <strong>it cannot invent surfaces where the LiDAR never looked</strong> (the far corridor in this scan). Environment generation alone will not close that gap, so you handle it on the learning side: <strong>sample spawns and waypoints only inside the observed region, and terminate the episode when the robot leaves it</strong> &mdash; the same treatment racing RL gives &quot;off track.&quot; A hidden safety plane under the floor turns any residual fall into a clean failure signal. Since the 3DGS also degrades outside the scanned region, keeping the policy's operating envelope inside the scan is what you want anyway.</div>
 
@@ -450,7 +471,7 @@
   <p>If you are taking LiDAR-scanned data into robotics simulation, the procedure is this.</p>
   <ul>
     <li><strong>Remove floaters by distance from the LiDAR</strong> &mdash; measure each gaussian against the measured surface and delete anything beyond 10&thinsp;cm. In the meeting room that was 0.90% of them.</li>
-    <li><strong>Build collision from the LiDAR points with Poisson reconstruction</strong> &mdash; skip the scanner mesh, which is full of holes. You get 94k triangles, zero holes, 2.3&thinsp;cm accuracy.</li>
+    <li><strong>Build collision from the LiDAR points with Poisson reconstruction</strong> &mdash; skip the scanner mesh, which is full of holes. You get 94k triangles, zero holes, 2.3&thinsp;cm accuracy. But <strong>thin objects like desk legs will not survive</strong>, so layer a CG model over anything whose shape has to be right.</li>
     <li><strong>You do not need to retrain</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
   </ul>
   <p>Because <strong>no retraining is involved, this runs across an entire scan library in minutes</strong>. It depends on Python and a point-cloud library, with no GPU training stack to assemble &mdash; which matters just as much in production.</p>
