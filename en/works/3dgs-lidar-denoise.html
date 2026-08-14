@@ -280,7 +280,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Benchmark</span>
-    <span>2026-08-14</span><span>・</span><span>9 min read</span>
+    <span>2026-08-14</span><span>・</span><span>10 min read</span>
   </div>
   <h1>Cleaning Up 3DGS Noise<br class="pc">with LiDAR</h1>
   <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up immediately: <strong>stray specks floating in mid-air that pollute what the robot's camera sees</strong>, and <strong>holes in the collision mesh that the robot drops straight through</strong>. NVIDIA recently published a fix for this, and the method behind it estimates depth with a neural model to constrain the geometry. But what if you already have <strong>measured depth</strong> from a LiDAR scanner? We built both routes and measured them against each other.</p>
@@ -413,7 +413,29 @@
   </table></div>
   <p>Poisson builds closed surfaces, so <strong>sealing the whole cavity under a desk is a more natural &quot;smooth closed surface&quot; than standing four thin legs</strong>. It is the price of watertightness, and it is not tunable away.</p>
   <p>Driving the robot at a desk shows it directly. On the scanner mesh it stops early against the tabletop mass; on the Poisson mesh it climbs the filled slope and halts somewhere else. <strong>Neither is the correct behaviour of stopping against a desk leg.</strong></p>
-  <p>This is where environment generation runs out. For objects whose exact shape matters, <strong>placing a CG model and giving that the collision</strong> ends up both faster and more accurate. Meshes reconstructed from a scan are best treated as floors, walls and large structure &mdash; and nothing finer.</p>
+  <p>We nearly settled for &quot;scan meshes are for floors and walls only&quot; &mdash; then tried two more approaches, and <strong>one of them turned out to be the answer</strong>.</p>
+
+  <h3>The breakthrough: seal the holes, keep the legs</h3>
+  <p>Flip the framing. The scanner mesh is full of holes, but <strong>it does carry partial legs</strong>. So instead of rebuilding surfaces from scratch, <strong>just seal the holes it has</strong>.</p>
+  <p>Three steps: voxelise the scanner mesh at 3&thinsp;cm, apply morphological closing (dilate then erode) to seal the small gaps, and run marching cubes to get a surface back. Nothing but classic image-processing tools, and it runs in tens of seconds.</p>
+
+  <figure>
+    <img src="/works/images/envgen_legs_4method.jpg" alt="Four collision meshes compared from desk-leg height">
+    <figcaption><b>Four methods, same viewpoint.</b>Top-left: scanner mesh (legs missing). Top-right: Poisson (under-desk filled). Bottom-left: learned reconstruction (NKSR &mdash; partial legs but holes remain). Bottom-right: <strong>morphological healing &mdash; legs stand as columns and the space under the desks stays open</strong>.</figcaption>
+  </figure>
+
+  <div class="tblwrap"><table>
+    <thead><tr><th>Method</th><th>Holes</th><th>Median accuracy</th><th>Leg occupancy<br>(truth 27.2%)</th><th>Drop test</th></tr></thead>
+    <tbody>
+      <tr><td>Scanner mesh</td><td>4.86%</td><td>&mdash;</td><td>18.6%</td><td>falls</td></tr>
+      <tr><td>Poisson</td><td>0%</td><td>2.3&thinsp;cm</td><td>38.2%</td><td>pass</td></tr>
+      <tr><td>NKSR (learned)</td><td>1.49%</td><td>2.5&thinsp;cm</td><td>18.3%</td><td>&mdash;</td></tr>
+      <tr><td><strong>Morphological healing</strong></td><td><strong>0%</strong></td><td><strong>1.1&thinsp;cm</strong></td><td><strong>29.7%</strong></td><td><strong>pass</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p>It won <strong>on every metric</strong>: zero holes (marching cubes over a closed volume is watertight by construction), twice Poisson's accuracy, and leg occupancy of 29.7% &mdash; the closest of any method to the 27.2% ground truth. All 56 cubes of the drop test came to rest.</p>
+  <p>We also ran NVIDIA's learned reconstruction (<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>): its legs came out at 18.3% &mdash; scanner-mesh level &mdash; and watertightness was lost. <strong>A plain rule of &quot;don't delete the legs you already have&quot; beat the learned prior.</strong></p>
+  <p>Centimetre-scale details like chair castors still do not survive. <strong>Anything that needs millimetre-accurate shape still deserves a CG model</strong> &mdash; the division of labour stands, but the line has moved from &quot;desk legs&quot; down to &quot;castors&quot;.</p>
 
   <div class="callout note"><b>The remaining limit, and the RL-side fix</b>A Poisson mesh is watertight, but <strong>it cannot invent surfaces where the LiDAR never looked</strong> (the far corridor in this scan). Environment generation alone will not close that gap, so you handle it on the learning side: <strong>sample spawns and waypoints only inside the observed region, and terminate the episode when the robot leaves it</strong> &mdash; the same treatment racing RL gives &quot;off track.&quot; A hidden safety plane under the floor turns any residual fall into a clean failure signal. Since the 3DGS also degrades outside the scanned region, keeping the policy's operating envelope inside the scan is what you want anyway.</div>
 
@@ -471,7 +493,7 @@
   <p>If you are taking LiDAR-scanned data into robotics simulation, the procedure is this.</p>
   <ul>
     <li><strong>Remove floaters by distance from the LiDAR</strong> &mdash; measure each gaussian against the measured surface and delete anything beyond 10&thinsp;cm. In the meeting room that was 0.90% of them.</li>
-    <li><strong>Build collision from the LiDAR points with Poisson reconstruction</strong> &mdash; skip the scanner mesh, which is full of holes. You get 94k triangles, zero holes, 2.3&thinsp;cm accuracy. But <strong>thin objects like desk legs will not survive</strong>, so layer a CG model over anything whose shape has to be right.</li>
+    <li><strong>Build collision by sealing only the holes in the scanner mesh</strong> &mdash; voxelise, morphological closing, marching cubes (tens of seconds). Zero holes, 1.1&thinsp;cm accuracy, and the desk legs survive. When a scan ships without a scanner mesh, fall back to Poisson over the LiDAR points.</li>
     <li><strong>You do not need to retrain</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
   </ul>
   <p>Because <strong>no retraining is involved, this runs across an entire scan library in minutes</strong>. It depends on Python and a point-cloud library, with no GPU training stack to assemble &mdash; which matters just as much in production.</p>
