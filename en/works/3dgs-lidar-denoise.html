@@ -283,7 +283,7 @@
     <span>2026-08-14</span><span>・</span><span>9 min read</span>
   </div>
   <h1>Cleaning Up 3DGS Noise<br class="pc">with LiDAR</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up immediately: <strong>stray specks floating in mid-air that pollute what the robot's camera sees</strong>, and <strong>holes in the floor that the robot drops straight through</strong>. NVIDIA recently published a fix for this, and the method behind it estimates depth with a neural model to constrain the geometry. But what if you already have <strong>measured depth</strong> from a LiDAR scanner? We built both routes and measured them against each other.</p>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up immediately: <strong>stray specks floating in mid-air that pollute what the robot's camera sees</strong>, and <strong>holes in the collision mesh that the robot drops straight through</strong>. NVIDIA recently published a fix for this, and the method behind it estimates depth with a neural model to constrain the geometry. But what if you already have <strong>measured depth</strong> from a LiDAR scanner? We built both routes and measured them against each other.</p>
 
   <figure>
     <img src="/works/images/envgen_floaters.jpg" alt="Only the floater gaussians removed from a 3DGS scan, shown in isolation">
@@ -321,10 +321,10 @@
   <p>3DGS leaves gaussians in places where nothing exists. From certain angles they make visual sense, so they survive training instead of being pruned away.</p>
   <p>It is easy to misread what this costs you. <strong>3DGS carries no collision geometry, so a floater will never physically hit the robot.</strong> The damage is that <strong>it lands in the robot's camera image</strong>. If you are training behaviour from camera frames, specks drifting through the view are noise in the training data. And if you derive depth or a mesh from the 3DGS, those specks get picked up as shape.</p>
 
-  <h3>Wall 2: the robot falls through holes in the floor</h3>
+  <h3>Wall 2: the robot falls through holes in the collision mesh</h3>
   <p>Collision needs surfaces, and 3DGS is a cloud of specks with no surfaces. So you reach for the mesh the scanner exports &mdash; which brings its own problem. Measured on our scan, <strong>4.86% of the scanner mesh's edges were boundary edges that close onto nothing</strong>. In other words, it is full of holes.</p>
-  <p>The holes are not spread evenly. Casting rays straight down across the scan, <strong>the floor inside the meeting room was essentially closed (0.4% holes, and no hole large enough for the robot), while out in the corridor only 22% of the area registered as floor at all</strong>. Two patches of floor that look identical can be completely different as collision geometry.</p>
-  <p>Put the robot over one of the real holes and this happens. The fall does not stop; it keeps accelerating past 38 metres below the floor.</p>
+  <p>The holes are heavily skewed, though. Casting rays straight down to test for floor, <strong>99.90% of the carefully scanned room was closed</strong>, while <strong>out where coverage thins &mdash; corridors and edges &mdash; only 22% of the area registered as floor at all</strong>. In other words, <strong>the holes cluster outside the well-scanned core</strong>. Two patches of floor that look identical can be completely different as collision geometry.</p>
+  <p>Put the robot down where coverage is thin and this happens. The fall does not stop; it keeps accelerating past 38 metres below the floor.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fall_poster.jpg">
@@ -387,11 +387,11 @@
   <p>Poisson took both prizes: <strong>19&times; lighter than the voxelised mesh and more accurate</strong>. Dropping 56 cubes of 0.1&thinsp;m across the room, all 56 came to rest on the floor.</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_coll_ab_poster.jpg">
-      <source src="/works/videos/envgen_coll_ab.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_room_triple_poster.jpg">
+      <source src="/works/videos/envgen_room_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>A/B with only the collision mesh swapped.</b>Same spot, same robot: on the left the scanner mesh lets it fall straight through; on the right the LiDAR-Poisson mesh catches it. The visible 3DGS is identical in both &mdash; the only difference is collision quality.</figcaption>
+    <figcaption><b>The same room, same camera, three ways.</b>Left is the 3DGS &mdash; what lands in the robot's camera. Middle is the scanner's collision mesh; right is the mesh rebuilt from the LiDAR points. The scanner mesh loses the desk edges and mashes the chairs into blobs, while the rebuilt one keeps their shape. That difference is exactly what the robot feels as obstacles.</figcaption>
   </figure>
 
   <div class="callout note"><b>The remaining limit, and the RL-side fix</b>A Poisson mesh is watertight, but <strong>it cannot invent surfaces where the LiDAR never looked</strong> (the far corridor in this scan). Environment generation alone will not close that gap, so you handle it on the learning side: <strong>sample spawns and waypoints only inside the observed region, and terminate the episode when the robot leaves it</strong> &mdash; the same treatment racing RL gives &quot;off track.&quot; A hidden safety plane under the floor turns any residual fall into a clean failure signal. Since the 3DGS also degrades outside the scanned region, keeping the policy's operating envelope inside the scan is what you want anyway.</div>
