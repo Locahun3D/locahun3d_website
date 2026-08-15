@@ -280,14 +280,14 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Benchmark</span>
-    <span>2026-08-14</span><span>・</span><span>10 min read</span>
+    <span>2026-08-14</span><span>・</span><span>7 min read</span>
   </div>
   <h1>Cleaning Up 3DGS Noise<br class="pc">with LiDAR</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up immediately: <strong>stray specks floating in mid-air that pollute what the robot's camera sees</strong>, and <strong>holes in the collision mesh that the robot drops straight through</strong>. NVIDIA recently published a fix for this, and the method behind it estimates depth with a neural model to constrain the geometry. But what if you already have <strong>measured depth</strong> from a LiDAR scanner? We built both routes and measured them against each other.</p>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. Put a 3DGS scan into a robotics simulator and two problems show up: <strong>stray specks (floaters) landing in the robot's camera</strong>, and <strong>holes in the collision mesh that the robot drops straight through</strong>. NVIDIA's recent fix constrains the geometry with an estimated depth model &mdash; but we hold <strong>measured depth</strong> from a LiDAR scanner. We benchmarked six approaches, learned ones included, on one ruler. The short version: <strong>plain post-processing on the measured data &mdash; delete and seal &mdash; beat every learning-based method</strong>.</p>
 
   <figure>
     <img src="/works/images/envgen_floaters.jpg" alt="Only the floater gaussians removed from a 3DGS scan, shown in isolation">
-    <figcaption><b>These are 3DGS floaters.</b>Showing only the 8,406 gaussians that were removed from a meeting-room scan. Specks with nothing behind them hang in the air and behind walls.</figcaption>
+    <figcaption><b>These are 3DGS floaters.</b>The 8,406 gaussians removed from a meeting-room scan, shown alone. Specks with nothing behind them hang in the air and behind walls, landing in the robot's camera as training noise.</figcaption>
   </figure>
 </header>
 
@@ -295,12 +295,9 @@
   <h2>Contents</h2>
   <ol>
     <li><a href="#problem">Two walls you hit in simulation</a></li>
-    <li><a href="#nvidia">NVIDIA's answer, and the assumption inside it</a></li>
-    <li><a href="#routes">Two routes</a></li>
-    <li><a href="#routeA">Route A: subtract using measured LiDAR</a></li>
-    <li><a href="#routeB">Route B: retrain with depth supervision</a></li>
-    <li><a href="#result">Results</a></li>
-    <li><a href="#why">Why it came out this way</a></li>
+    <li><a href="#nvidia">NVIDIA's answer, and our assumption</a></li>
+    <li><a href="#solution">The answer: delete, then seal</a></li>
+    <li><a href="#losers">The methods that lost</a></li>
     <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
@@ -308,196 +305,96 @@
 <article>
   <div class="stepflow">
     <b>3DGS scan</b><span class="a">&rarr;</span>
-    <b>measure distance to LiDAR</b><span class="a">&rarr;</span>
-    <b>drop distant specks</b><span class="a">&rarr;</span>
-    <b>watertight mesh from points</b><span class="a">&rarr;</span>
+    <b>delete specks far from LiDAR</b><span class="a">&rarr;</span>
+    <b>seal the scanner mesh's holes</b><span class="a">&rarr;</span>
     <b>a floor the robot can drive on</b>
   </div>
 
   <h2 id="problem"><span class="n">01</span> Two walls you hit in simulation</h2>
-  <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong>. In robotics simulation that distinction turns into concrete failures.</p>
+  <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong> &mdash; and in robotics simulation the difference turns into concrete failures.</p>
 
   <h3>Wall 1: airborne specks pollute the robot's view</h3>
-  <p>3DGS leaves gaussians in places where nothing exists. From certain angles they make visual sense, so they survive training instead of being pruned away.</p>
-  <p>It is easy to misread what this costs you. <strong>3DGS carries no collision geometry, so a floater will never physically hit the robot.</strong> The damage is that <strong>it lands in the robot's camera image</strong>. If you are training behaviour from camera frames, specks drifting through the view are noise in the training data. And if you derive depth or a mesh from the 3DGS, those specks get picked up as shape.</p>
+  <p>3DGS leaves gaussians where nothing exists. <strong>3DGS carries no collision, so nothing bumps into them</strong> &mdash; the damage is that they land in the robot's camera image as training noise, and get picked up as shape whenever you derive depth or a mesh from the 3DGS.</p>
 
   <h3>Wall 2: the robot falls through holes in the collision mesh</h3>
-  <p>Collision needs surfaces, and 3DGS is a cloud of specks with no surfaces. So you reach for the mesh the scanner exports &mdash; which brings its own problem. Measured on our scan, <strong>4.86% of the scanner mesh's edges were boundary edges that close onto nothing</strong>. In other words, it is full of holes.</p>
-  <p>The holes are heavily skewed, though. Casting rays straight down to test for floor, <strong>99.90% of the carefully scanned room was closed</strong>, while <strong>out where coverage thins &mdash; corridors and edges &mdash; only 22% of the area registered as floor at all</strong>. In other words, <strong>the holes cluster outside the well-scanned core</strong>. Two patches of floor that look identical can be completely different as collision geometry.</p>
-  <p>Put the robot down where coverage is thin and this happens. The fall does not stop; it keeps accelerating past 38 metres below the floor.</p>
+  <p>3DGS has no surfaces, so collision comes from the mesh the scanner exports &mdash; and measured on our scan, <strong>4.86% of its edges are boundary edges that close onto nothing: holes</strong>. They cluster where coverage thins. Inside the carefully scanned room 99.90% of the floor was closed; <strong>out in the corridor only 22% of the area registered as floor at all</strong>.</p>
+  <p>Put the robot down where coverage is thin and this happens.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fall_poster.jpg">
       <source src="/works/videos/envgen_fall_fail.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole in it. The robot accelerates downward without stopping (measured from &minus;1.09&thinsp;m to &minus;37.93&thinsp;m).</figcaption>
+    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole. The robot accelerated 38 metres below the floor without stopping.</figcaption>
   </figure>
 
-  <h2 id="nvidia"><span class="n">02</span> NVIDIA's answer, and the assumption inside it</h2>
-  <p>In August 2026 NVIDIA <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">published a solution to exactly this</a>. Using <a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>'s reconstruction pipeline, <strong>a single capture emits gaussians and a mesh in one shared coordinate frame</strong> &mdash; the former is what the robot sees, the latter is what it collides with. The gaussian side of this in Isaac Sim ships as <a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">Omniverse NuRec</a>.</p>
-  <p>The crux is <strong>"constraining the geometry with a proprietary depth model."</strong> Optimise for appearance alone and you keep the floaters and the holes; depth information pins the shape down. In learning terms this is regularisation with depth as a supervisory signal, and the research lineage is public &mdash; <a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a> implements the same idea with code you can run.</p>
-  <div class="callout note"><b>The assumption we noticed</b>Niantic's case <strong>was captured with a 360&deg; camera</strong>. With only cameras, estimating depth is the only option available. So what happens when you hold <strong>measured depth</strong> from a LiDAR scanner? That question is where this went.</div>
+  <h2 id="nvidia"><span class="n">02</span> NVIDIA's answer, and our assumption</h2>
+  <p>In August 2026 NVIDIA <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">published a fix for exactly this</a>: <a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>'s pipeline emits <strong>gaussians and a mesh in one coordinate frame from a single capture</strong> &mdash; appearance and collision respectively. The crux is <strong>constraining the geometry with a depth model</strong>; <a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a> is the public research lineage.</p>
+  <div class="callout note"><b>The assumption we noticed</b>Niantic captured with <strong>a 360&deg; camera</strong> &mdash; with only cameras, estimating depth is the only option. We hold <strong>measured depth</strong> from a LiDAR scanner. Then maybe neither the estimator nor the retraining is needed at all? That question drove everything below.</div>
 
-  <h2 id="routes"><span class="n">03</span> Two routes</h2>
-  <p>With real LiDAR in hand there are two routes, and you cannot tell which wins without building both.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th></th><th>Route A: subtract afterwards</th><th>Route B: retrain</th></tr></thead>
-    <tbody>
-      <tr><td>What it does</td><td>Delete gaussians that sit far from the LiDAR surface</td><td>Retrain the 3DGS with LiDAR depth as supervision</td></tr>
-      <tr><td>Time</td><td>Minutes</td><td>30,000 training steps</td></tr>
-      <tr><td>Expectation</td><td>Cheap, but only deletes &mdash; surely limited</td><td>Same principle as NVIDIA, so this is the favourite</td></tr>
-    </tbody>
-  </table></div>
-  <p>Intuition says Route B wins: fixing the shape during training is more fundamental than deleting afterwards. We built both and put them on one ruler.</p>
+  <h2 id="solution"><span class="n">03</span> The answer: delete, then seal</h2>
+  <p>What won is a two-step post-process with no training whatsoever. <strong>It finishes in minutes and depends on nothing but Python and a point-cloud library.</strong></p>
 
-  <h2 id="routeA"><span class="n">04</span> Route A: subtract using measured LiDAR</h2>
-  <p>The idea is plain. <strong>For every gaussian, compute the distance to the LiDAR point cloud and delete the ones that sit too far away.</strong> A speck far from a measured surface has nothing real behind it.</p>
-  <p>Here is the distribution across the meeting-room scan (936,016 gaussians).</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Distance to LiDAR surface</th><th>Value</th><th>Reading</th></tr></thead>
-    <tbody>
-      <tr><td>Median</td><td>6&thinsp;mm</td><td>Most gaussians sit right on the measured surface</td></tr>
-      <tr><td>90th percentile</td><td>18&thinsp;mm</td><td>Surface fuzz stays within a few centimetres</td></tr>
-      <tr><td>Beyond 10&thinsp;cm</td><td>8,406 (0.90%)</td><td>These are the floaters</td></tr>
-    </tbody>
-  </table></div>
-  <p>One thing became clear here. <strong>3DGS produced by a LiDAR scanner starts with under 1% floaters</strong>, because training begins from LiDAR points and so places gaussians near measured surfaces from the outset. That is a different starting position from 3DGS built out of photographs alone.</p>
+  <h3>Step 1: delete specks far from the LiDAR (floater removal)</h3>
+  <p>Measure each gaussian's distance to the LiDAR point cloud and <strong>delete anything beyond 10&thinsp;cm</strong> &mdash; a speck far from a measured surface has nothing real behind it. On the meeting room (930k gaussians) that was 0.90%, and nothing real &mdash; desks, chairs, blinds &mdash; disappeared with them.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fly_ab_poster.jpg">
       <source src="/works/videos/envgen_fly_ab.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The same path, before and after.</b>Left is the original 3DGS, right is after the LiDAR-based removal. The desks, chairs and blinds that actually exist are untouched; only the specks drifting through the view are gone.</figcaption>
+    <figcaption><b>The same path, before and after.</b>Left is the original 3DGS, right is after removal. Real objects untouched; only the drifting specks are gone.</figcaption>
   </figure>
 
-  <p>The image at the top of this article shows the removed gaussians on their own. They are not faint debris but <strong>solid artefacts at 0.93 opacity</strong>, pooled below the floor and behind walls as ghost shapes.</p>
-
-  <h3>Rebuild collision from the point cloud</h3>
-  <p>Rather than using the holed scanner mesh, <strong>we rebuild surfaces from the LiDAR point cloud with Poisson reconstruction</strong>. That method produces closed surfaces, so holes do not appear by construction.</p>
+  <h3>Step 2: seal only the holes in the scanner mesh (collision)</h3>
+  <p>The scanner mesh is full of holes &mdash; but <strong>it carries partial desk legs</strong>. So instead of rebuilding surfaces from scratch, seal the holes it has: voxelise at 3&thinsp;cm, apply morphological closing (dilate&ndash;erode), run marching cubes. Classic image-processing tools, tens of seconds.</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>Method</th><th>Triangles</th><th>Holes (boundary edges)</th><th>Deviation from LiDAR</th><th>Drop test</th></tr></thead>
+    <thead><tr><th>Metric</th><th>Scanner mesh</th><th>After healing</th></tr></thead>
     <tbody>
-      <tr><td>Scanner mesh</td><td>19,344</td><td>1,444</td><td>&mdash;</td><td>falls through</td></tr>
-      <tr><td>Voxelised from 3DGS</td><td>1,825,066</td><td>0</td><td>3.4&thinsp;cm</td><td>pass</td></tr>
-      <tr><td><strong>Poisson from LiDAR points</strong></td><td><strong>94,292</strong></td><td><strong>0</strong></td><td><strong>2.3&thinsp;cm</strong></td><td><strong>pass</strong></td></tr>
+      <tr><td>Holes (boundary edges)</td><td>4.86%</td><td><strong>0% &mdash; fully watertight</strong></td></tr>
+      <tr><td>Median deviation from LiDAR</td><td>&mdash;</td><td><strong>1.1&thinsp;cm</strong></td></tr>
+      <tr><td>Occupancy at desk-leg height<br>(3DGS ground truth = 27.2%)</td><td>18.6%</td><td><strong>29.7%</strong></td></tr>
+      <tr><td>Drop test (56 cubes)</td><td>falls through</td><td><strong>all 56 at rest</strong></td></tr>
     </tbody>
   </table></div>
-  <p>Poisson took both prizes: <strong>19&times; lighter than the voxelised mesh and more accurate</strong>. Dropping 56 cubes of 0.1&thinsp;m across the room, all 56 came to rest on the floor.</p>
+  <p>Zero holes, 1.1&thinsp;cm accuracy, legs intact. Robots drive on it without falls or clipping.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_room_triple_poster.jpg">
       <source src="/works/videos/envgen_room_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The same room, same camera, three ways.</b>Left is the 3DGS &mdash; what lands in the robot's camera. Middle is the scanner's collision mesh; right is the mesh rebuilt from the LiDAR points. Floors and walls come out fine in both, but <strong>neither reproduces thin structures like desk legs and chairs</strong> &mdash; the next section looks at that.</figcaption>
+    <figcaption><b>The same room, same camera.</b>Left is the 3DGS &mdash; what the robot's camera sees. Middle and right are collision meshes. Appearance and collision are separate data, and the collision side is what decides how the robot behaves.</figcaption>
   </figure>
 
-  <h3>Neither mesh can build a thin leg</h3>
-  <p>Collision has a second limit that has nothing to do with watertightness. <strong>Thin structures &mdash; desk legs, chair frames &mdash; survive in neither reconstruction.</strong></p>
-
-  <figure>
-    <img src="/works/images/envgen_legs_compare.jpg" alt="3DGS and two collision meshes seen from desk-leg height">
-    <figcaption><b>Camera dropped to desk-leg height.</b>The 3DGS on the left shows the legs and even the chair castors. In the middle, the scanner mesh has thinned them down to a few posts and the space under the desk is essentially open. On the right, the Poisson mesh has done the opposite and <strong>filled the entire under-desk volume into a solid mass</strong>.</figcaption>
-  </figure>
-
-  <p>The numbers say the same thing. Measuring how much of the 15&ndash;55&thinsp;cm band above the floor &mdash; leg height &mdash; is actually occupied:</p>
+  <h2 id="losers"><span class="n">04</span> The methods that lost</h2>
+  <p>Every alternative was measured on the same data and the same ruler (distance to the LiDAR cloud, leg-height occupancy, drop test).</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>Occupancy at leg height</th><th>Value</th><th>Reading</th></tr></thead>
+    <thead><tr><th>Method</th><th>Result</th><th>Why it lost</th></tr></thead>
     <tbody>
-      <tr><td>3DGS (ground truth)</td><td>27.2%</td><td>what is really there</td></tr>
-      <tr><td>Scanner mesh</td><td>18.6%</td><td>legs missing &mdash; robot passes through</td></tr>
-      <tr><td>LiDAR-Poisson</td><td>38.2%</td><td>over-filled &mdash; cannot get under the desk</td></tr>
+      <tr><td>Retrain 3DGS with depth supervision<br>(DN-Splatter, NVIDIA's recipe)</td><td>62.5% floaters<br>(original: 0.68%)</td><td>Camera poses recovered from photos were 13&thinsp;cm off &mdash; fatal for training that assumes sub-centimetre poses</td></tr>
+      <tr><td>Poisson reconstruction</td><td>38.2% leg occupancy<br>(over-filled)</td><td>Building closed surfaces, it finds sealing the whole under-desk cavity more &quot;natural&quot; than standing four thin legs</td></tr>
+      <tr><td>Learned reconstruction<br>(<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>)</td><td>18.3% leg occupancy<br>(scanner-mesh level)</td><td>Even a learned prior cannot recover thin structure at this LiDAR density</td></tr>
+      <tr><td>TSDF fusion of 3DGS depth</td><td>5.7% holes</td><td>Depth noise at grazing angles drags a heavy tail; useful as occupancy hints, not as the mesh</td></tr>
     </tbody>
   </table></div>
-  <p>Poisson builds closed surfaces, so <strong>sealing the whole cavity under a desk is a more natural &quot;smooth closed surface&quot; than standing four thin legs</strong>. It is the price of watertightness, and it is not tunable away.</p>
-  <p>Driving the robot at a desk shows it directly. On the scanner mesh it stops early against the tabletop mass; on the Poisson mesh it climbs the filled slope and halts somewhere else. <strong>Neither is the correct behaviour of stopping against a desk leg.</strong></p>
-  <p>We nearly settled for &quot;scan meshes are for floors and walls only&quot; &mdash; then tried two more approaches, and <strong>one of them turned out to be the answer</strong>.</p>
-
-  <h3>The breakthrough: seal the holes, keep the legs</h3>
-  <p>Flip the framing. The scanner mesh is full of holes, but <strong>it does carry partial legs</strong>. So instead of rebuilding surfaces from scratch, <strong>just seal the holes it has</strong>.</p>
-  <p>Three steps: voxelise the scanner mesh at 3&thinsp;cm, apply morphological closing (dilate then erode) to seal the small gaps, and run marching cubes to get a surface back. Nothing but classic image-processing tools, and it runs in tens of seconds.</p>
 
   <figure>
     <img src="/works/images/envgen_legs_4method.jpg" alt="Four collision meshes compared from desk-leg height">
-    <figcaption><b>Four methods, same viewpoint.</b>Top-left: scanner mesh (legs missing). Top-right: Poisson (under-desk filled). Bottom-left: learned reconstruction (NKSR &mdash; partial legs but holes remain). Bottom-right: <strong>morphological healing &mdash; legs stand as columns and the space under the desks stays open</strong>.</figcaption>
+    <figcaption><b>Four methods from desk-leg height.</b>Top-left: scanner mesh (legs missing). Top-right: Poisson (under-desk filled). Bottom-left: NKSR (legs stand but holes remain). Bottom-right: <strong>healing &mdash; legs stand as columns and the under-desk space stays open</strong>.</figcaption>
   </figure>
 
-  <div class="tblwrap"><table>
-    <thead><tr><th>Method</th><th>Holes</th><th>Median accuracy</th><th>Leg occupancy<br>(truth 27.2%)</th><th>Drop test</th></tr></thead>
-    <tbody>
-      <tr><td>Scanner mesh</td><td>4.86%</td><td>&mdash;</td><td>18.6%</td><td>falls</td></tr>
-      <tr><td>Poisson</td><td>0%</td><td>2.3&thinsp;cm</td><td>38.2%</td><td>pass</td></tr>
-      <tr><td>NKSR (learned)</td><td>1.49%</td><td>2.5&thinsp;cm</td><td>18.3%</td><td>&mdash;</td></tr>
-      <tr><td><strong>Morphological healing</strong></td><td><strong>0%</strong></td><td><strong>1.1&thinsp;cm</strong></td><td><strong>29.7%</strong></td><td><strong>pass</strong></td></tr>
-    </tbody>
-  </table></div>
-  <p>It won <strong>on every metric</strong>: zero holes (marching cubes over a closed volume is watertight by construction), twice Poisson's accuracy, and leg occupancy of 29.7% &mdash; the closest of any method to the 27.2% ground truth. All 56 cubes of the drop test came to rest.</p>
-  <p>We also ran NVIDIA's learned reconstruction (<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>): its legs came out at 18.3% &mdash; scanner-mesh level &mdash; and watertightness was lost. <strong>A plain rule of &quot;don't delete the legs you already have&quot; beat the learned prior.</strong></p>
-  <p>Centimetre-scale details like chair castors still do not survive. <strong>Anything that needs millimetre-accurate shape still deserves a CG model</strong> &mdash; the division of labour stands, but the line has moved from &quot;desk legs&quot; down to &quot;castors&quot;.</p>
+  <div class="callout note"><b>What this means</b><strong>A plain rule &mdash; do not delete or invent measured data &mdash; beat the learned priors.</strong> Niantic reached for a depth model because a 360&deg; camera was all they had. <strong>Anyone holding measured LiDAR has a shorter, more certain route.</strong> The best answer to the same problem changes with the hardware in your hands.</div>
 
-  <div class="callout note"><b>The remaining limit, and the RL-side fix</b>A Poisson mesh is watertight, but <strong>it cannot invent surfaces where the LiDAR never looked</strong> (the far corridor in this scan). Environment generation alone will not close that gap, so you handle it on the learning side: <strong>sample spawns and waypoints only inside the observed region, and terminate the episode when the robot leaves it</strong> &mdash; the same treatment racing RL gives &quot;off track.&quot; A hidden safety plane under the floor turns any residual fall into a clean failure signal. Since the 3DGS also degrades outside the scanned region, keeping the policy's operating envelope inside the scan is what you want anyway.</div>
-
-  <figure>
-    <img src="/works/images/envgen_robot_drive.jpg" alt="A robot driving through the cleaned 3DGS environment">
-    <figcaption><b>A robot driving through the finished environment.</b>Appearance from the floater-free 3DGS, collision from an invisible Poisson mesh. It covered about 5&thinsp;m down the aisle between the desks with no falls and no clipping.</figcaption>
-  </figure>
-
-  <h2 id="routeB"><span class="n">05</span> Route B: retrain with depth supervision</h2>
-  <p>Now the same principle as NVIDIA, driven by measured LiDAR. One obstacle stood in the way first: <strong>training needs to know where each photograph was taken from, and those camera poses were missing from the scanner output</strong>.</p>
-
-  <h3>Recovering the camera poses</h3>
-  <p>The standard tool for recovering poses from photographs is COLMAP, and it <strong>failed, registering 6 of 163 images</strong>. Indoor scenes full of blank walls are exactly what classical feature extraction struggles with.</p>
-  <p>Switching to learned features (DISK) and a learned matcher (LightGlue) <strong>recovered 126 images</strong>. The newer methods simply work better here.</p>
-  <div class="callout warn"><b>Where it went wrong: the scale would not settle</b>A reconstruction from photographs <strong>carries no information about real-world size</strong>. We tried to fix the scale by registering against the LiDAR point cloud, but point-cloud registration has a trap: <strong>shrinking one cloud until it nests inside the other scores well by the usual metrics</strong>, so every run produced a different answer.<br><br>The fix looks like a detour and is far more reliable. <strong>Render 48 views from the 3DGS that already lives in the LiDAR frame, and treat those as photographs whose positions are known.</strong> Matching the real photographs against them recovers each camera position at true scale.</div>
-
-  <figure>
-    <img src="/works/images/envgen_depth_check.jpg" alt="A real photograph beside a LiDAR depth map projected from the recovered camera pose">
-    <figcaption><b>Confirming the recovered poses.</b>Left is a real photograph; right is the LiDAR mesh projected from the recovered position. The chairs, tables and far wall line up, so the pose is right.</figcaption>
-  </figure>
-
-  <p>With the recovered poses and LiDAR-derived depth maps in place, we trained DN-Splatter for 30,000 steps. Training completed and the simultaneous mesh export worked.</p>
-
-  <h2 id="result"><span class="n">06</span> Results</h2>
-  <p>Both routes, measured on the same ruler: distance to the LiDAR point cloud. The result was the opposite of the prediction.</p>
-
-  <h3>As collision geometry</h3>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Metric</th><th>Route A: straight from LiDAR</th><th>Route B: retrained</th></tr></thead>
-    <tbody>
-      <tr><td>Triangles</td><td><strong>94,292</strong></td><td>9,585,384 (102&times; heavier)</td></tr>
-      <tr><td>Holes (boundary edges)</td><td><strong>0 &mdash; fully closed</strong></td><td>1,013,769 (6.81%)</td></tr>
-      <tr><td>Median deviation from LiDAR</td><td><strong>2.3&thinsp;cm</strong></td><td>22.0&thinsp;cm</td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>As appearance</h3>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Metric</th><th>Route A: original + removal</th><th>Route B: retrained</th></tr></thead>
-    <tbody>
-      <tr><td>Median deviation from LiDAR</td><td><strong>0.6&thinsp;cm</strong></td><td>19.8&thinsp;cm (33&times; worse)</td></tr>
-      <tr><td>Floaters (beyond 10&thinsp;cm)</td><td><strong>0.68%</strong></td><td>62.47% (92&times; more)</td></tr>
-    </tbody>
-  </table></div>
-  <p><strong>Route A won on both counts.</strong> The cheap option beat the one we expected to win.</p>
-
-  <h2 id="why"><span class="n">07</span> Why it came out this way</h2>
-  <p>Reading this as "DN-Splatter is worse" would be wrong. The cause is <strong>the quality of what we fed it</strong>.</p>
-  <p>3DGS training <strong>assumes camera poses accurate to well under a centimetre</strong>. The poses we recovered were accurate to 13.2&thinsp;cm at the median. Train on teachers that are 13&thinsp;cm off and a blurry result is the only possible outcome. We also had just 126 images, against an original 3DGS built by the scanner's own pipeline from every frame with LiDAR initialisation &mdash; a badly uneven contest.</p>
-  <p>So what we measured is not "how good DN-Splatter is" but <strong>"retraining from recovered poses cannot beat the original data."</strong> With accurate poses from the scanner itself, the conclusion could change.</p>
-  <p>There is also a more fundamental reason. <strong>Route B's mesh is built from depth rendered out of the trained 3DGS, so its quality ceiling is whatever the 3DGS learned.</strong> Route A uses the LiDAR measurements directly. Once you think about it, routing measured sensor data through a learned representation can only lose information along the way.</p>
-  <div class="callout note"><b>Why Niantic reached for a depth model</b>This is where it clicked. <strong>They had only a 360&deg; camera, so estimating depth was the only path open to them.</strong> Anyone holding measured LiDAR has a shorter and more certain route. The same problem has a different best answer depending on the hardware in your hands.</div>
-
-  <h2 id="summary"><span class="n">08</span> Summary</h2>
-  <p>If you are taking LiDAR-scanned data into robotics simulation, the procedure is this.</p>
+  <h2 id="summary"><span class="n">05</span> Summary</h2>
+  <p>Taking LiDAR-scanned data into robotics simulation fits in three lines.</p>
   <ul>
-    <li><strong>Remove floaters by distance from the LiDAR</strong> &mdash; measure each gaussian against the measured surface and delete anything beyond 10&thinsp;cm. In the meeting room that was 0.90% of them.</li>
+    <li><strong>Remove floaters by distance from the LiDAR</strong> &mdash; delete anything beyond 10&thinsp;cm. 0.90% of the meeting room qualified.</li>
     <li><strong>Build collision by sealing only the holes in the scanner mesh</strong> &mdash; voxelise, morphological closing, marching cubes (tens of seconds). Zero holes, 1.1&thinsp;cm accuracy, and the desk legs survive. When a scan ships without a scanner mesh, fall back to Poisson over the LiDAR points.</li>
-    <li><strong>You do not need to retrain</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
+    <li><strong>No retraining needed</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
   </ul>
-  <p>Because <strong>no retraining is involved, this runs across an entire scan library in minutes</strong>. It depends on Python and a point-cloud library, with no GPU training stack to assemble &mdash; which matters just as much in production.</p>
-  <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>, along with how to handle what 3DGS cannot carry on its own, such as collision and semantic labels.</p>
+  <p>Centimetre-scale details like chair castors still do not survive. <strong>Anything that needs millimetre-accurate shape still deserves a CG model</strong> &mdash; that part remains handwork.</p>
+  <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>.</p>
 
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>

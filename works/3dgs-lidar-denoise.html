@@ -281,10 +281,10 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">検証</span>
-    <span>2026-08-14</span><span>・</span><span>読了 約10分</span>
+    <span>2026-08-14</span><span>・</span><span>読了 約7分</span>
   </div>
   <h1>3DGSのノイズを<br class="pc">LiDARで消す</h1>
-  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使おうとすると、必ず二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）がロボットのカメラに映り込むこと</strong>と、<strong>当たり判定のメッシュに開いた穴からロボットがすり抜けること</strong>です。NVIDIAが最近この解決策を発表しましたが、そこで使われている手法は「深度をAIで推定して形状を拘束する」というものでした。ではLiDARで<strong>実測した深度</strong>を持っている場合、どうするのがいちばん良いのか。両方の道を実際に走らせて比較した記録です。</p>
+  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使うと、二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）がロボットのカメラに映り込むこと</strong>と、<strong>当たり判定のメッシュに開いた穴からロボットがすり抜けること</strong>です。NVIDIAはAIで深度を推定して形を拘束する方式を発表しましたが、こちらにはLiDARで<strong>実測した深度</strong>があります。学習ベースの手法を含む6通りを同じ物差しで測った結論から言うと——<strong>実測値で「消す・塞ぐ」だけの後処理が、すべての学習ベース手法に勝ちました</strong>。</p>
 
   <figure>
     <img src="images/envgen_floaters.jpg" alt="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
@@ -296,12 +296,9 @@
   <h2>目次</h2>
   <ol>
     <li><a href="#problem">3DGSをシミュレーションに使うときの二つの壁</a></li>
-    <li><a href="#nvidia">NVIDIAの答えと、そこにある前提</a></li>
-    <li><a href="#routes">二つの道</a></li>
-    <li><a href="#routeA">道A：実測LiDARで後から削る</a></li>
-    <li><a href="#routeB">道B：深度を教師にして学習し直す</a></li>
-    <li><a href="#result">比較結果</a></li>
-    <li><a href="#why">なぜこうなったのか</a></li>
+    <li><a href="#nvidia">NVIDIAの答えと、こちらの前提</a></li>
+    <li><a href="#solution">結論：削って、塞ぐ</a></li>
+    <li><a href="#losers">試して負けた方法たち</a></li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
@@ -309,9 +306,8 @@
 <article>
   <div class="stepflow">
     <b>3DGSスキャン</b><span class="a">→</span>
-    <b>LiDARから距離を測る</b><span class="a">→</span>
-    <b>離れた粒を消す</b><span class="a">→</span>
-    <b>点群から水密メッシュ</b><span class="a">→</span>
+    <b>LiDARから遠い粒を消す</b><span class="a">→</span>
+    <b>純正メッシュの穴を塞ぐ</b><span class="a">→</span>
     <b>ロボットが走れる環境</b>
   </div>
 
@@ -319,186 +315,87 @@
   <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。この違いが、ロボットのシミュレーションでは具体的な事故として表れます。</p>
 
   <h3>壁1：空中の粒が、ロボットの視界を汚す</h3>
-  <p>3DGSには実体のない場所にガウシアンが残ることがあります。見る角度によっては絵として辻褄が合ってしまうため、学習の途中で消えずに生き残ります。</p>
-  <p>ここで誤解しやすいのですが、<strong>3DGS自体は当たり判定を持たないので、フローターがロボットにぶつかることはありません</strong>。問題はそこではなく<strong>「ロボットのカメラに映り込む」</strong>ことです。カメラ画像から行動を学習させる場合、視界に実在しない粒が漂っていれば、それは学習データのノイズになります。加えて3DGSから深度やメッシュを起こす場合には、この粒が形状として拾われてしまいます。</p>
+  <p>3DGSには実体のない場所にガウシアンが残ることがあります。<strong>3DGS自体は当たり判定を持たないのでぶつかりはしません</strong>が、ロボットのカメラに映り込み、画像から行動を学習させる際のノイズになります。3DGSから深度やメッシュを起こす場合には、形状としても拾われてしまいます。</p>
 
   <h3>壁2：当たり判定の穴から、ロボットがすり抜ける</h3>
-  <p>当たり判定を作るには面の情報が要りますが、3DGSは粒の集合なので面を持ちません。そこでスキャナが出力するメッシュを使うことになりますが、こちらには別の問題があります。実際に計測したところ、<strong>スキャナ純正のメッシュは全エッジの4.86%が「どの面にも閉じていない縁」でした</strong>。つまり穴だらけです。</p>
-  <p>ただし穴の分布には強い偏りがあります。真上から光線を落として床の有無を調べると、<strong>丁寧にスキャンした部屋の中は99.90%が塞がっていた</strong>のに対し、<strong>通路など観測が薄い場所では床として成立していた面積が22%しかありませんでした</strong>。つまり<strong>穴は「スキャンが行き届いた範囲の外」に集中します</strong>。見た目には同じ床でも、当たり判定として使えるかは場所によって別物だということです。</p>
-  <p>観測が薄い場所へロボットを置くとこうなります。落下は止まらず、加速しながら床下38mまで進みました。</p>
+  <p>3DGSは面を持たないので、当たり判定にはスキャナが出力するメッシュを使うことになります。ところが実測すると、<strong>スキャナ純正メッシュは全エッジの4.86%が「どの面にも閉じていない縁」＝穴だらけ</strong>でした。穴は観測が薄い場所に集中します。丁寧にスキャンした部屋の中は床の99.90%が塞がっていた一方、<strong>通路側は床として成立していた面積が22%しかありません</strong>。</p>
+  <p>観測が薄い場所へロボットを置くとこうなります。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
       <source src="videos/envgen_fall_fail.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>失敗の様子。</b>見た目には床があるのに、当たり判定のメッシュに穴が開いている地点です。ロボットはそのまま加速しながら落ち続けます（高さ −1.09m から −37.93m まで確認）。</figcaption>
+    <figcaption><b>失敗の様子。</b>見た目には床があるのに、当たり判定のメッシュに穴が開いている地点です。ロボットは加速しながら床下38mまで落ち続けました。</figcaption>
   </figure>
 
-  <h2 id="nvidia"><span class="n">02</span> NVIDIAの答えと、そこにある前提</h2>
-  <p>2026年8月、NVIDIAが<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">この問題への解決策を公開しました</a>（<a href="https://www.moguravr.com/nvidia-3dgs-humanoid-sim-to-real/" target="_blank" rel="noopener">日本語の解説記事</a>）。<a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>の再構成パイプラインを使い、<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力する</strong>という方式です。前者がロボットの見る映像、後者が衝突判定になります。ガウシアンをIsaac Simで扱う基盤は<a href="https://developer.nvidia.com/omniverse/nurec" target="_blank" rel="noopener">Omniverse NuRec</a>として公開されています。</p>
-  <p>肝は<strong>「独自の深度モデルで形状を拘束する」</strong>という部分でした。見た目の一致だけを最適化すると浮遊粒子や床の穴が残るので、深度の情報で形を押さえつける。学習の枠組みでいえば、これは深度を教師信号として与える正則化にあたります。研究の世界では<a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a>などが同じ系譜で、実装も公開されています。</p>
-  <div class="callout note"><b>ここで気づいた前提</b>Nianticの事例は<strong>360度カメラで撮影しています</strong>。カメラしか無いので、深度は「AIで推定する」しかありません。ではLiDARスキャナで<strong>実測した深度</strong>を持っている場合はどうなのか——ここが今回の出発点です。</div>
+  <h2 id="nvidia"><span class="n">02</span> NVIDIAの答えと、こちらの前提</h2>
+  <p>2026年8月、NVIDIAが<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">この問題への解決策を公開しました</a>（<a href="https://www.moguravr.com/nvidia-3dgs-humanoid-sim-to-real/" target="_blank" rel="noopener">日本語の解説記事</a>）。<a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>のパイプラインで<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力</strong>し、前者を見た目、後者を衝突判定に使う方式です。肝は<strong>「深度モデルで形状を拘束する」</strong>こと。研究の世界では<a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a>が同じ系譜です。</p>
+  <div class="callout note"><b>ここで気づいた前提</b>Nianticの事例は<strong>360度カメラで撮影</strong>しています。カメラしか無いので深度は「AIで推定する」しかありません。こちらはLiDARスキャナで<strong>実測した深度</strong>を持っている——なら推定モデルも再学習も要らないのでは？　これが今回の出発点です。</div>
 
-  <h2 id="routes"><span class="n">03</span> 二つの道</h2>
-  <p>実測LiDARがある場合、取れる道は二つあります。どちらが良いかは、やってみないと分かりません。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th></th><th>道A：後から削る</th><th>道B：学習し直す</th></tr></thead>
-    <tbody>
-      <tr><td>やること</td><td>完成した3DGSの粒を、LiDARから遠いものだけ消す</td><td>LiDAR深度を教師にして3DGSを再学習する</td></tr>
-      <tr><td>所要時間</td><td>数分</td><td>30,000ステップの学習</td></tr>
-      <tr><td>期待</td><td>手軽だが、粒を消すだけなので限界がありそう</td><td>NVIDIAと同じ原理なので、本命はこちら</td></tr>
-    </tbody>
-  </table></div>
-  <p>直感では道Bが勝ちそうです。学習の中で形を直すほうが、後から消すより根本的だからです。両方を実際に作って、同じ物差しで測りました。</p>
+  <h2 id="solution"><span class="n">03</span> 結論：削って、塞ぐ</h2>
+  <p>最終的に勝ち残ったのは、再学習を一切伴わない2段階の後処理です。<strong>合わせて数分で終わり、依存はPythonと点群処理ライブラリだけ</strong>です。</p>
 
-  <h2 id="routeA"><span class="n">04</span> 道A：実測LiDARで後から削る</h2>
-  <p>考え方は単純です。<strong>ガウシアン一粒ごとに、LiDARが測った点群までの距離を計算し、遠すぎるものを消す</strong>。実測面から離れた場所にある粒は、実体のないフローターだからです。</p>
-  <p>会議室スキャン（93万6,016ガウシアン）で測った分布がこちらです。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>LiDAR面からの距離</th><th>値</th><th>意味</th></tr></thead>
-    <tbody>
-      <tr><td>中央値</td><td>6mm</td><td>大半の粒は実測面にぴたりと乗っている</td></tr>
-      <tr><td>90%点</td><td>18mm</td><td>表面の毛羽立ちは数cmの帯に収まる</td></tr>
-      <tr><td>10cmより遠い粒</td><td>8,406個（0.90%）</td><td>これがフローター</td></tr>
-    </tbody>
-  </table></div>
-  <p>ここで一つ分かったことがあります。<strong>LiDARスキャナ由来の3DGSは、そもそもフローターが1%未満と少ない</strong>のです。LiDARの点を出発点として学習が始まるので、最初から実測面の近くに粒が置かれるからです。カメラだけで作る3DGSとは前提が違います。</p>
+  <h3>手順1：LiDARから遠い粒を消す（フローター除去）</h3>
+  <p>ガウシアン一粒ごとにLiDAR点群までの距離を測り、<strong>10cmより遠いものを削除</strong>します。実測面から離れた粒は実体のないフローターだからです。会議室スキャン（93万粒）では0.90%が該当し、削除後も机・椅子・ブラインドといった実在物は消えていません。</p>
+
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fly_ab_poster.jpg">
       <source src="videos/envgen_fly_ab.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>同じ経路を通り抜けたA/B比較。</b>左が元の3DGS、右がLiDARで粒を削ったあと。実在する机・椅子・ブラインドはそのまま残り、視界に漂っていた粒だけが消えています。</figcaption>
+    <figcaption><b>同じ経路を通り抜けたA/B比較。</b>左が元の3DGS、右が除去後。実在物はそのまま、視界に漂っていた粒だけが消えています。</figcaption>
   </figure>
 
-  <p>消した粒だけを表示したのが冒頭の画像です。半透明のゴミではなく<strong>不透明度0.93という「濃い」実体アーティファクト</strong>で、床下や壁の向こうにゴースト形状として溜まっていました。除去の前後を同じカメラで撮り比べても、机・椅子・ブラインドといった実在物は消えていません。</p>
-
-  <h3>当たり判定は、点群から作り直す</h3>
-  <p>穴だらけのスキャナ純正メッシュを使う代わりに、<strong>LiDAR点群からPoisson再構成で面を張り直します</strong>。この手法は閉じた面を作るので、原理的に穴が開きません。</p>
-  <p>候補をいくつか作って比較したところ、結果ははっきりしていました。</p>
+  <h3>手順2：純正メッシュの「穴だけ」を塞ぐ（当たり判定）</h3>
+  <p>純正メッシュは穴だらけですが、<strong>机の脚は部分的に持っています</strong>。そこでゼロから面を作り直すのではなく、穴だけを塞ぎます。3cmのボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で小さな穴を封じ、marching cubesで面に戻す——古典的な画像処理だけで数十秒です。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>作り方</th><th>三角形数</th><th>穴（境界エッジ）</th><th>LiDARとのズレ</th><th>ロボット落下試験</th></tr></thead>
+    <thead><tr><th>指標</th><th>スキャナ純正</th><th>穴埋め修復後</th></tr></thead>
     <tbody>
-      <tr><td>スキャナ純正メッシュ</td><td>19,344</td><td>1,444本</td><td>—</td><td>落下する</td></tr>
-      <tr><td>3DGSからボクセル化</td><td>1,825,066</td><td>0本</td><td>3.4cm</td><td>合格</td></tr>
-      <tr><td><strong>LiDAR点群からPoisson</strong></td><td><strong>94,292</strong></td><td><strong>0本</strong></td><td><strong>2.3cm</strong></td><td><strong>合格</strong></td></tr>
+      <tr><td>穴（境界エッジ）</td><td>4.86%</td><td><strong>0%（完全水密）</strong></td></tr>
+      <tr><td>LiDARとのズレ（中央値）</td><td>—</td><td><strong>1.1cm</strong></td></tr>
+      <tr><td>机の脚の高さの占有率<br>（3DGSの正解=27.2%）</td><td>18.6%</td><td><strong>29.7%</strong></td></tr>
+      <tr><td>落下試験（立方体56個）</td><td>落下する</td><td><strong>56個すべて静止</strong></td></tr>
     </tbody>
   </table></div>
-  <p>Poissonが<strong>精度も軽さも両取り</strong>でした。ボクセル化と比べて19分の1の軽さで、精度は上です。0.1mの立方体を56個ばらまく落下試験でも、56個すべてが床の上で静止しました。</p>
+  <p>穴ゼロ・精度1.1cm・脚も残る。この上でロボットを走らせても落下やすり抜けは起きません。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_room_triple_poster.jpg">
       <source src="videos/envgen_room_triple.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>同じ部屋を、同じカメラで3通りに見たところ。</b>左が3DGS（ロボットのカメラに映る映像）、中がスキャナ純正の当たり判定メッシュ、右がLiDAR点群から作ったメッシュです。床と壁は両方とも問題なく作れていますが、<strong>机や椅子といった細い構造はどちらも再現できていません</strong>——詳しくは次項で見ます。</figcaption>
+    <figcaption><b>同じ部屋を同じカメラで見比べたところ。</b>左が3DGS（ロボットのカメラに映る映像）、中と右が当たり判定メッシュの例です。見た目と当たり判定は別のデータであり、当たり判定側の品質がロボットの挙動を決めます。</figcaption>
   </figure>
 
-  <h3>細い脚は、どちらのメッシュにも作れない</h3>
-  <p>ただし当たり判定には、水密性とは別の限界があります。<strong>机の脚や椅子のような細い構造は、どちらの作り方でも再現できません</strong>。</p>
-
-  <figure>
-    <img src="images/envgen_legs_compare.jpg" alt="机の脚の高さから見た、3DGSと2種類の当たり判定メッシュの比較">
-    <figcaption><b>机の脚の高さにカメラを下げて見たところ。</b>左の3DGSには脚もキャスターもはっきり写っているのに、中央のスキャナ純正メッシュでは脚が数本の柱に減って机の下がほぼ素通りになり、右のPoissonメッシュでは逆に<strong>机の下が丸ごと塊で埋まって</strong>います。</figcaption>
-  </figure>
-
-  <p>数字でも同じことが出ます。床から15〜55cm（脚の高さ）の帯で、実際に物がある割合を測ると次のとおりでした。</p>
+  <h2 id="losers"><span class="n">04</span> 試して負けた方法たち</h2>
+  <p>同じデータ・同じ物差し（LiDAR点群までの距離、脚の高さの占有率、落下試験）で、学習ベースを含む代替手法も測りました。</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>脚の高さ帯の占有率</th><th>値</th><th>意味</th></tr></thead>
+    <thead><tr><th>手法</th><th>結果</th><th>敗因</th></tr></thead>
     <tbody>
-      <tr><td>3DGS（実際の形）</td><td>27.2%</td><td>これが正解</td></tr>
-      <tr><td>スキャナ純正メッシュ</td><td>18.6%</td><td>脚が足りない＝すり抜ける</td></tr>
-      <tr><td>LiDAR-Poisson</td><td>38.2%</td><td>埋めすぎ＝机の下に入れない</td></tr>
+      <tr><td>深度教師で3DGSを再学習<br>（DN-Splatter＝NVIDIA方式）</td><td>フローター62.5%<br>（元データは0.68%）</td><td>写真から復元したカメラ位置の誤差13cmが致命傷。3DGS学習はサブcmの位置精度が前提</td></tr>
+      <tr><td>Poisson再構成</td><td>脚の占有38.2%<br>（埋めすぎ）</td><td>閉じた面を作る性質上、細い脚を立てるより机の下ごと塞ぐ方が「自然」になってしまう</td></tr>
+      <tr><td>学習型再構成<br>（<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>）</td><td>脚の占有18.3%<br>（純正メッシュ並み）</td><td>学習済みの事前知識でも、このLiDAR密度では細い構造を復元できない</td></tr>
+      <tr><td>3DGSの深度からTSDF融合</td><td>穴5.7%</td><td>斜めから見た深度のノイズが裾を引く。占有情報の補完には使える</td></tr>
     </tbody>
   </table></div>
-  <p>Poissonは閉じた面を作る手法なので、<strong>細い脚を4本立てるより、机の下ごと塞いでしまう方が「滑らかな閉じた面」として自然</strong>だからです。水密性と引き換えの性質で、避けられません。</p>
-  <p>ロボットを机に向かって走らせると挙動の違いがそのまま出ます。純正メッシュでは天板の塊に当たって手前で止まり、Poissonでは埋まった斜面を押し上がって別の位置で止まりました。<strong>どちらも「机の脚に当たって止まる」という正しい挙動ではありません</strong>。</p>
-  <p>ここで一度は「スキャンから作るメッシュは床・壁まで」と割り切りかけたのですが、<strong>さらに2つの方法を試したところ、決定打が見つかりました</strong>。</p>
-
-  <h3>決定打：穴だけ塞いで、脚は残す</h3>
-  <p>発想を変えます。スキャナ純正メッシュは「穴だらけ」ですが、<strong>脚は部分的に持っています</strong>。ならば、ゼロから面を作り直すのではなく、<strong>純正メッシュの穴だけを塞げばいい</strong>。</p>
-  <p>手順は3段階です。純正メッシュを3cmのボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で小さな穴を封じ、marching cubesで面に戻す。使うのは古典的な画像処理の道具だけで、実行時間は数十秒です。</p>
 
   <figure>
     <img src="images/envgen_legs_4method.jpg" alt="4手法の当たり判定メッシュを机の脚の高さから比較">
-    <figcaption><b>4手法を同じ視点で比較。</b>左上=スキャナ純正（脚が欠落）、右上=Poisson（机の下を充填）、左下=学習型再構成のNKSR（脚が部分的に立つが穴が残る）、右下=<strong>モルフォロジー修復（脚が柱として立ち、机の下も空いている）</strong>。</figcaption>
+    <figcaption><b>机の脚の高さから見た4手法。</b>左上=スキャナ純正（脚が欠落）、右上=Poisson（机の下を充填）、左下=NKSR（脚は立つが穴が残る）、右下=<strong>穴埋め修復（脚が柱として立ち、机の下も空く）</strong>。</figcaption>
   </figure>
 
-  <div class="tblwrap"><table>
-    <thead><tr><th>手法</th><th>穴</th><th>精度（中央値）</th><th>脚の占有率<br>（正解27.2%）</th><th>落下試験</th></tr></thead>
-    <tbody>
-      <tr><td>スキャナ純正</td><td>4.86%</td><td>—</td><td>18.6%</td><td>落下</td></tr>
-      <tr><td>Poisson</td><td>0%</td><td>2.3cm</td><td>38.2%</td><td>合格</td></tr>
-      <tr><td>NKSR（学習型）</td><td>1.49%</td><td>2.5cm</td><td>18.3%</td><td>—</td></tr>
-      <tr><td><strong>モルフォロジー修復</strong></td><td><strong>0%</strong></td><td><strong>1.1cm</strong></td><td><strong>29.7%</strong></td><td><strong>合格</strong></td></tr>
-    </tbody>
-  </table></div>
-  <p>結果は<strong>全指標で最良</strong>でした。穴ゼロ（クロージング後の閉じた体積からmarching cubesで面を作るため、構成的に水密）、精度はPoissonの2倍、脚の占有率は正解に最も近い29.7%。0.1mの立方体56個の落下試験も全数静止です。</p>
-  <p>NVIDIAの学習型再構成（<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>）も試しましたが、脚の再現は18.3%と純正メッシュ並みで、水密性も失われました。<strong>学習した事前知識より、「既にある脚を消さない」という単純な方針が勝った</strong>ことになります。</p>
-  <p>それでも椅子のキャスターのような数cmの構造までは残りません。<strong>ミリ単位で形が要る物はCGモデルを重ねる</strong>——この使い分け自体は変わりませんが、その線引きが「机の脚」から「キャスター」まで細かくなりました。</p>
+  <div class="callout note"><b>この結果が意味すること</b>学習した事前知識より、<strong>「既にある実測値を消さない・足さない」という単純な方針が勝ちました</strong>。Nianticが深度モデルを使ったのは、360度カメラしか無く深度を推定するしかなかったから。<strong>実測LiDARを持っている側には、もっと短く確実な道があります</strong>。同じ問題でも、手持ちの機材で最適解は変わります。</div>
 
-  <div class="callout note"><b>残る限界と、強化学習側での対処</b>Poissonメッシュは水密ですが、<strong>LiDARが観測していない場所には面を作れません</strong>（今回のスキャンでは通路の奥など）。ここは環境生成だけでは埋まらないので、学習側で対処します——<strong>スポーンと経由地点を観測済み領域に限定し、未観測領域への進入でエピソードを打ち切る</strong>のが定石です（レースRLの「コース外」と同じ扱い）。保険として床の下に不可視のセーフティ面を敷けば、万一の落下も「失敗」として正しく学習に返せます。未観測領域は見た目の3DGSも崩れているため、そもそも方策の行動範囲はスキャン範囲の内側に収めるべきです。</div>
-
-  <figure>
-    <img src="images/envgen_robot_drive.jpg" alt="クリーンな3DGS環境の中を走行するロボット">
-    <figcaption><b>できあがった環境の中を、ロボットが走っています。</b>見た目はフローターを除いた3DGS、当たり判定は見えないPoissonメッシュ。机の間の通路を約5m走破し、落下もすり抜けも起きませんでした。</figcaption>
-  </figure>
-
-  <h2 id="routeB"><span class="n">05</span> 道B：深度を教師にして学習し直す</h2>
-  <p>NVIDIAと同じ原理を、実測LiDARで試します。ただしここに一つ大きな障害がありました。<strong>学習には「どの位置から撮った写真か」というカメラの位置姿勢が必要ですが、スキャナの出力からこれが失われていました</strong>。</p>
-
-  <h3>まずカメラ位置を復元する</h3>
-  <p>写真からカメラ位置を復元する標準手法はCOLMAPですが、<strong>163枚中6枚しか復元できず失敗しました</strong>。無地の壁が多い室内は、従来の特徴点抽出が苦手とする条件です。</p>
-  <p>そこで学習ベースの特徴点抽出（DISK）とマッチング（LightGlue）に切り替えたところ、<strong>126枚の復元に成功しました</strong>。ここは素直に新しい手法が効きます。</p>
-  <div class="callout warn"><b>つまずいた点：スケールが決まらない</b>写真から復元した空間には<strong>「実際の大きさ」の情報がありません</strong>。LiDAR点群と重ね合わせて縮尺を決めようとしたのですが、点群同士の位置合わせは<strong>「小さく縮めて相手の中に埋め込む」と見かけ上よく合ってしまう</strong>という罠があり、実行のたびに違う答えが出ました。<br><br>解決策は遠回りに見えて確実な方法でした。<strong>すでにLiDAR座標系にある3DGSから48枚の絵をレンダリングし、それを「位置が分かっている写真」として実写と照合する</strong>。これで一枚ずつ実寸のカメラ位置が求まり、縮尺が確定しました。</div>
-
-  <figure>
-    <img src="images/envgen_depth_check.jpg" alt="実写画像と、復元したカメラ位置から投影したLiDAR深度マップの比較">
-    <figcaption><b>カメラ位置の復元が正しいことの確認。</b>左が実写、右が復元した位置からLiDARメッシュを投影した深度マップです。椅子・テーブル・奥の壁の輪郭が一致しているので、位置が合っていると判断できます。</figcaption>
-  </figure>
-
-  <p>復元したカメラ位置とLiDAR由来の深度マップを揃えて、DN-Splatterで30,000ステップ学習しました。学習は完走し、メッシュの同時出力にも成功しています。</p>
-
-  <h2 id="result"><span class="n">06</span> 比較結果</h2>
-  <p>両方を同じ物差し（LiDAR点群までの距離）で測りました。結果は予想と逆でした。</p>
-
-  <h3>当たり判定として</h3>
-  <div class="tblwrap"><table>
-    <thead><tr><th>指標</th><th>道A：LiDARから直接</th><th>道B：学習し直し</th></tr></thead>
-    <tbody>
-      <tr><td>三角形数</td><td><strong>94,292</strong></td><td>9,585,384（102倍重い）</td></tr>
-      <tr><td>穴（境界エッジ）</td><td><strong>0本＝完全に閉じている</strong></td><td>1,013,769本（6.81%）</td></tr>
-      <tr><td>LiDARとのズレ（中央値）</td><td><strong>2.3cm</strong></td><td>22.0cm</td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>見た目として</h3>
-  <div class="tblwrap"><table>
-    <thead><tr><th>指標</th><th>道A：元データ＋除去</th><th>道B：学習し直し</th></tr></thead>
-    <tbody>
-      <tr><td>LiDARとのズレ（中央値）</td><td><strong>0.6cm</strong></td><td>19.8cm（33倍悪い）</td></tr>
-      <tr><td>フローター（10cm超）</td><td><strong>0.68%</strong></td><td>62.47%（92倍多い）</td></tr>
-    </tbody>
-  </table></div>
-  <p><strong>両面で道Aの圧勝でした。</strong>手軽なほうが、本命だと思っていたほうに勝ったことになります。</p>
-
-  <h2 id="why"><span class="n">07</span> なぜこうなったのか</h2>
-  <p>結果を「DN-Splatterが劣る」と読むのは間違いです。原因は<strong>こちらが与えた入力の質</strong>にあります。</p>
-  <p>3DGSの学習は<strong>カメラ位置がサブセンチ単位で合っていることを前提にした手法</strong>です。今回復元できた位置の精度は中央値13.2cmでした。13cmずれた教師データで学習すれば、当然ぼやけた結果にしかなりません。加えて画像も126枚だけで、元の3DGSがスキャナ純正パイプラインで全フレームとLiDAR初期値を使って作られているのに対し、あまりに不利な条件でした。</p>
-  <p>つまり測れたのは「DN-Splatterの実力」ではなく、<strong>「復元したカメラ位置で学習し直すと、元データには勝てない」</strong>という事実です。スキャナ純正の正確なカメラ位置が手に入れば、結論は変わりえます。</p>
-  <p>そのうえで、より本質的な理由もあります。<strong>道Bのメッシュは「学習した3DGSをレンダリングした深度」から作られるので、品質の上限が3DGSの学習結果に縛られます</strong>。対して道AはLiDARの実測値を直接使います。センサーの実測値を持っているなら、間に学習表現を挟むぶんだけ情報が落ちる、というのは考えてみれば当然のことでした。</p>
-  <div class="callout note"><b>Nianticが深度モデルを使った理由</b>ここまで来て腑に落ちました。彼らは<strong>360度カメラしか持っていないので、深度を推定するしかなかった</strong>のです。実測LiDARを持っている側には、もっと短くて確実な道があります。同じ問題でも、手持ちの機材によって最適な解法は変わります。</div>
-
-  <h2 id="summary"><span class="n">08</span> まとめ</h2>
-  <p>LiDARスキャナで撮ったデータをロボットのシミュレーションに使うなら、手順はこうなります。</p>
+  <h2 id="summary"><span class="n">05</span> まとめ</h2>
+  <p>LiDARスキャナで撮ったデータをロボットのシミュレーションに使う手順は、この3行に収まります。</p>
   <ul>
-    <li><strong>フローターは、LiDARからの距離で消す</strong> ── 一粒ずつ実測面までの距離を測り、10cmより遠いものを削除します。会議室では0.90%が該当しました。</li>
-    <li><strong>当たり判定は、スキャナ純正メッシュの「穴だけ」を塞ぐ</strong> ── ボクセル化→クロージング→marching cubesの3段階（数十秒）。穴ゼロ・精度1.1cm・机の脚も残ります。純正メッシュが無いスキャンではLiDAR点群からのPoisson再構成で代用します。</li>
-    <li><strong>学習し直す必要はない</strong> ── 少なくともカメラ位置が正確に得られない状況では、後処理のほうが速くて良い結果になります。</li>
+    <li><strong>フローターは、LiDARからの距離で消す</strong> ── 10cmより遠い粒を削除。会議室では0.90%が該当しました。</li>
+    <li><strong>当たり判定は、スキャナ純正メッシュの「穴だけ」を塞ぐ</strong> ── ボクセル化→クロージング→marching cubes（数十秒）。穴ゼロ・精度1.1cm・机の脚も残ります。純正メッシュが無いスキャンではLiDAR点群からのPoisson再構成で代用します。</li>
+    <li><strong>再学習は要らない</strong> ── 少なくとも正確なカメラ位置が得られない状況では、後処理のほうが速くて良い結果になります。</li>
   </ul>
-  <p>この手順は<strong>再学習を伴わないので、数分で全スキャンに適用できます</strong>。依存するのもPythonと点群処理ライブラリだけで、GPU学習環境の構築が要りません。運用に乗せやすいという意味でも、実務ではこちらが現実的です。</p>
-  <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。3DGS単体では持てない情報（当たり判定・セマンティックラベル）の扱い方も、そちらで整理しました。</p>
+  <p>それでも椅子のキャスターのような数cmの構造は残りません。<strong>ミリ単位で形が要る物はCGモデルを重ねる</strong>——ここだけは今も人手の領域です。</p>
+  <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。</p>
 
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>

@@ -236,9 +236,9 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 var POSTS = [
   {
-    tag:"tech", tagLabel:"Technical", date:"2026-08-14", read:"~10 min",
+    tag:"tech", tagLabel:"Technical", date:"2026-08-14", read:"~7 min",
     title:"Cleaning Up 3DGS Noise with LiDAR",
-    excerpt:"Put a 3DGS scan into a robotics simulator and floaters pollute the robot's camera while holes in the floor swallow the robot. NVIDIA's fix estimates depth with a neural model; we had measured LiDAR depth instead. We built both routes - post-hoc removal vs depth-supervised retraining - and measured them on one ruler.",
+    excerpt:"Fixing 3DGS floaters and collision holes with nothing but measured LiDAR. We benchmarked six methods on one ruler - including NVIDIA-style retraining and learned reconstruction - and simple post-processing (delete far specks, seal the scanner mesh's holes) won on every metric.",
     href:"3dgs-lidar-denoise.html", thumb:"/works/images/envgen_floaters.jpg"
   },
   {
