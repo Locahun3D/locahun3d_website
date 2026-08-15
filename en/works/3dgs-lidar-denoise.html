@@ -310,11 +310,14 @@
     <b>a floor the robot can drive on</b>
   </div>
 
+  <div class="callout note"><b>What this article gives you</b>The inputs are the three standard outputs of a LiDAR-fusion scanner &mdash; <strong>the 3DGS, the scanner mesh, and the dense LiDAR point cloud</strong> (the procedure does not apply to camera-only 3DGS). Two post-processing steps later you hold <strong>a two-layer environment: the visible 3DGS stacked on an invisible watertight collider</strong>. The collider gives the robot its physics; the 3DGS gives it its camera feed.</div>
+
   <h2 id="problem"><span class="n">01</span> Two walls you hit in simulation</h2>
   <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong> &mdash; and in robotics simulation the difference turns into concrete failures.</p>
 
-  <h3>Wall 1: airborne specks pollute the robot's view</h3>
-  <p>3DGS leaves gaussians where nothing exists. <strong>3DGS carries no collision, so nothing bumps into them</strong> &mdash; the damage is that they land in the robot's camera image as training noise, and get picked up as shape whenever you derive depth or a mesh from the 3DGS.</p>
+  <h3>Wall 1: airborne specks pollute the robot's view (a low wall, honestly)</h3>
+  <p>3DGS leaves gaussians where nothing exists. <strong>3DGS carries no collision, so nothing bumps into them</strong> &mdash; the damage is that they land in the robot's camera image as training noise.</p>
+  <p>To be honest, on this data the wall was low: measured directly, <strong>a 3DGS trained from LiDAR seeds carries only 0.90% floaters</strong> (camera-only 3DGS starts from a very different place). It is not zero though, and removal costs minutes, so we remove them. <strong>The real wall is the next one.</strong></p>
 
   <h3>Wall 2: the robot falls through holes in the collision mesh</h3>
   <p>3DGS has no surfaces, so collision comes from the mesh the scanner exports &mdash; and measured on our scan, <strong>4.86% of its edges are boundary edges that close onto nothing: holes</strong>. They cluster where coverage thins. Inside the carefully scanned room 99.90% of the floor was closed; <strong>out in the corridor only 22% of the area registered as floor at all</strong>.</p>
@@ -336,7 +339,7 @@
   <p>What won is a two-step post-process with no training whatsoever. <strong>It finishes in minutes and depends on nothing but Python and a point-cloud library.</strong></p>
 
   <h3>Step 1: delete specks far from the LiDAR (floater removal)</h3>
-  <p>Measure each gaussian's distance to the LiDAR point cloud and <strong>delete anything beyond 10&thinsp;cm</strong> &mdash; a speck far from a measured surface has nothing real behind it. On the meeting room (930k gaussians) that was 0.90%, and nothing real &mdash; desks, chairs, blinds &mdash; disappeared with them.</p>
+  <p>Measure each gaussian's distance to the LiDAR point cloud and <strong>delete anything beyond 10&thinsp;cm</strong> &mdash; a speck far from a measured surface has nothing real behind it. We confirm with a same-camera before/after that nothing real &mdash; desks, chairs, blinds &mdash; disappears with them.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fly_ab_poster.jpg">
@@ -360,8 +363,11 @@
   <p>Zero holes, 1.1&thinsp;cm accuracy, legs intact. Robots drive on it without falls or clipping.</p>
 
   <figure>
-    <img src="/works/images/envgen_robot_drive.jpg" alt="A robot driving through the cleaned 3DGS environment">
-    <figcaption><b>A robot driving through the finished environment.</b>Appearance from the floater-free 3DGS, collision from the invisible healed mesh. It covered about 5&thinsp;m down the aisle between the desks with no falls and no clipping.</figcaption>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_bump_poster.jpg">
+      <source src="/works/videos/envgen_bump_test.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>Testing the healed mesh.</b>Drive the robot at a desk and it <strong>touches the edge and stops dead</strong> (position holds within &plusmn;5&thinsp;mm). With legs present in the collision mesh, there is no clipping and no climbing.</figcaption>
   </figure>
 
   <figure>
@@ -369,7 +375,7 @@
       <source src="/works/videos/envgen_room_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The same room, same camera.</b>Left is the 3DGS &mdash; what the robot's camera sees. Middle and right are collision meshes. Appearance and collision are separate data, and the collision side is what decides how the robot behaves.</figcaption>
+    <figcaption><b>The same room, same camera.</b>Left is the 3DGS &mdash; what the robot's camera sees, driving on the healed collider. Middle is the scanner mesh (holed); right is the healed mesh. Appearance and collision are separate data, and the collision side is what decides how the robot behaves.</figcaption>
   </figure>
 
   <h2 id="losers"><span class="n">04</span> The methods that lost</h2>
@@ -391,6 +397,8 @@
 
   <div class="callout note"><b>What this means</b><strong>A plain rule &mdash; do not delete or invent measured data &mdash; beat the learned priors.</strong> Niantic reached for a depth model because a 360&deg; camera was all they had. <strong>Anyone holding measured LiDAR has a shorter, more certain route.</strong> The best answer to the same problem changes with the hardware in your hands.</div>
 
+  <div class="callout warn"><b>Limits of this benchmark</b>Every number here comes from <strong>a single scene</strong> (the meeting room). The 3&thinsp;cm voxel and two closing iterations may need retuning for other room sizes and furniture. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Centimetre-scale details such as chair castors do not survive either &mdash; anything needing millimetre-accurate shape still deserves a CG model.</div>
+
   <h2 id="summary"><span class="n">05</span> Summary</h2>
   <p>Taking LiDAR-scanned data into robotics simulation fits in three lines.</p>
   <ul>
@@ -398,7 +406,6 @@
     <li><strong>Build collision by sealing only the holes in the scanner mesh</strong> &mdash; voxelise, morphological closing, marching cubes (tens of seconds). Zero holes, 1.1&thinsp;cm accuracy, and the desk legs survive. When a scan ships without a scanner mesh, fall back to Poisson over the LiDAR points.</li>
     <li><strong>No retraining needed</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
   </ul>
-  <p>Centimetre-scale details like chair castors still do not survive. <strong>Anything that needs millimetre-accurate shape still deserves a CG model</strong> &mdash; that part remains handwork.</p>
   <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>.</p>
 
   <div class="data-cta">
