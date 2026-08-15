@@ -222,7 +222,7 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
     <div class="filters" id="filters">
       <button class="chip active" data-f="all">すべて</button>
       <button class="chip" data-f="art">アート</button>
-      <button class="chip" data-f="industry">産業</button>
+      <button class="chip" data-f="industry">技術</button>
     </div>
     <div class="grid" id="blogGrid"></div>
   </section>
@@ -250,31 +250,31 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
-    tag:"industry", tagLabel:"産業", date:"2026-08-09", read:"約10分",
+    tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約10分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
     href:"3dgs-file-formats.html", thumb:"images/logos/format-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"産業", date:"2026-08-14", read:"約7分",
+    tag:"industry", tagLabel:"技術", date:"2026-08-14", read:"約7分",
     title:"3DGSのノイズをLiDARで消す",
     excerpt:"3DGSのフローターと当たり判定の穴を、LiDARの実測値だけで解決する手順。NVIDIA方式の再学習や学習型再構成を含む6手法を同じ物差しで比較した結果、「LiDARから遠い粒を消す＋純正メッシュの穴だけ塞ぐ」という単純な後処理が全指標で勝ちました。",
     href:"3dgs-lidar-denoise.html", thumb:"images/envgen_floaters.jpg"
   },
   {
-    tag:"industry", tagLabel:"産業", date:"2026-08-04", read:"約8分",
+    tag:"industry", tagLabel:"技術", date:"2026-08-04", read:"約8分",
     title:"3DGSを扱えるソフト・ツール比較",
     excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグイン・産業向けプラットフォームを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・AEからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unityプラグインまで。",
     href:"3dgs-software-comparison.html", thumb:"images/logos/dcc-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"産業", date:"2026-07-26", read:"約8分",
+    tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約8分",
     title:"PortalCamの生データ(.xbin)から4K元画像を取り出す",
     excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
     href:"portalcam-xbin-raw-extraction.html", thumb:"images/xbin_cam_pinholeA.jpg"
   },
   {
-    tag:"industry", tagLabel:"産業", date:"2026-07-26", read:"約13分",
+    tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約13分",
     title:"NVIDIA Isaac Simに3DGSを持ち込む",
     excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
     href:"isaacsim-3dgs-import.html", thumb:"images/isaacsim_shibuya_walk.jpg"
