@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSのノイズをLiDARで消す｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>渋谷スクランブル交差点を、ロボットが走れる環境にする｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="渋谷スクランブル交差点の3DGSスキャン（1,650万ガウシアン）を、フォークリフトが物理で走れるシミュレーション環境に変換しました。手順はLiDAR実測値で「削って、塞ぐ」の2段階だけ。屋外ではフローターが6.8%まで増えること、学習ベース手法との比較、パラメータ2つの変更で室内から街区スケールまで通ることを実測で示します。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
@@ -13,17 +13,17 @@
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:title" content="3DGSのノイズをLiDARで消す">
-<meta property="og:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
+<meta property="og:title" content="渋谷スクランブル交差点を、ロボットが走れる環境にする">
+<meta property="og:description" content="渋谷スクランブル交差点の3DGSスキャン（1,650万ガウシアン）を、フォークリフトが物理で走れるシミュレーション環境に変換。LiDAR実測値で「削って、塞ぐ」2段階の後処理だけで、室内から街区スケールまで同じ手順が通ることを実測で示します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
-<meta property="og:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta property="og:image:alt" content="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGSのノイズをLiDARで消す">
 <meta name="twitter:description" content="3DGSスキャンをロボットのシミュレーションに使うと、空中の浮遊粒子がロボットのカメラを汚し、床の穴からロボットがすり抜けます。NVIDIAはAIで深度を推定して形を拘束する方式を示しましたが、LiDARで実測した深度がある場合はどうか。後処理で削る道と、深度を教師に学習し直す道を実際に比較しました。">
-<meta name="twitter:image" content="https://web.locahun3d.com/works/images/envgen_floaters.jpg">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -281,14 +281,14 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">検証</span>
-    <span>2026-08-14</span><span>・</span><span>読了 約7分</span>
+    <span>2026-08-16</span><span>・</span><span>読了 約7分</span>
   </div>
-  <h1>3DGSのノイズを<br class="pc">LiDARで消す</h1>
-  <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットのシミュレーションに使うと、二つの問題にぶつかります。<strong>空中に浮かぶ粒（フローター）がロボットのカメラに映り込むこと</strong>と、<strong>当たり判定のメッシュに開いた穴からロボットがすり抜けること</strong>です。NVIDIAはAIで深度を推定して形を拘束する方式を発表しましたが、こちらにはLiDARで<strong>実測した深度</strong>があります。学習ベースの手法を含む6通りを同じ物差しで測った結論から言うと——<strong>実測値で「消す・塞ぐ」だけの後処理が、すべての学習ベース手法に勝ちました</strong>。</p>
+  <h1>渋谷スクランブル交差点を、<br class="pc">ロボットが走れる環境にする</h1>
+  <p class="lead">ロケハン3Dの中村です。渋谷スクランブル交差点のスキャン（3DGS 1,650万ガウシアン）を、<strong>フォークリフトが物理エンジンで走れるシミュレーション環境</strong>に変換しました。使った後処理は、LiDAR実測値を物差しに<strong>「削って、塞ぐ」の2段階だけ</strong>です。会議室スキャンで学習ベース手法を含む6通りを比較して選んだ手順を、パラメータ2つの変更でそのまま街区スケールに適用できます。</p>
 
   <figure>
-    <img src="images/envgen_floaters.jpg" alt="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
-    <figcaption><b>これが3DGSの「フローター」です。</b>会議室スキャンから除去対象となった8,406個のガウシアンだけを表示しています。空中や壁の向こうに実体のない粒が浮いています。これがロボットのカメラに映り込み、画像から学習させるときのノイズになります。</figcaption>
+    <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
+    <figcaption><b>後処理を終えた渋谷スクランブル交差点の3DGSです。</b>この見た目の下に、不可視の水密コライダー（三角形120万枚）を重ねることで、ロボットが物理で走行できるようになります。</figcaption>
   </figure>
 </header>
 
@@ -297,8 +297,8 @@
   <ol>
     <li><a href="#problem">3DGSをシミュレーションに使うときの二つの壁</a></li>
     <li><a href="#nvidia">NVIDIAの答えと、こちらの前提</a></li>
-    <li><a href="#solution">結論：削って、塞ぐ</a></li>
-    <li><a href="#losers">試して負けた方法たち</a></li>
+    <li><a href="#solution">結論：削って、塞ぐ──渋谷で実演</a></li>
+    <li><a href="#lab">数字の裏付け──会議室での定量検証</a></li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
@@ -316,13 +316,18 @@
   <h2 id="problem"><span class="n">01</span> 3DGSをシミュレーションに使うときの二つの壁</h2>
   <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。この違いが、ロボットのシミュレーションでは具体的な事故として表れます。</p>
 
-  <h3>壁1：空中の粒が、ロボットの視界を汚す（ただし小さい壁）</h3>
+  <h3>壁1：空中の粒が、ロボットの視界を汚す</h3>
   <p>3DGSには実体のない場所にガウシアンが残ることがあります。<strong>3DGS自体は当たり判定を持たないのでぶつかりはしません</strong>が、ロボットのカメラに映り込み、画像から行動を学習させる際のノイズになります。</p>
-  <p>正直に言うと、これは今回のデータでは小さい壁でした。実測すると<strong>LiDARを出発点に学習された3DGSは、フローターが全体の0.90%しかありません</strong>（カメラのみの3DGSとは前提が違います）。ただしゼロではなく、消すのに数分しかかからないので消します。<strong>本当の壁は次です</strong>。</p>
+  <p>この壁の高さは撮影環境で大きく変わります。室内の会議室スキャンではフローターは<strong>全体の0.90%</strong>でしたが、渋谷の屋外スキャンでは<strong>1,650万ガウシアン中112万個＝6.80%</strong>に跳ね上がりました。ガラス面・空・行き交う人が、実体のない粒を大量に残すためです。</p>
+
+  <figure>
+    <img src="images/shibuya_floaters.jpg" alt="渋谷スキャンから除去されたフローター112万個だけを表示した図">
+    <figcaption><b>渋谷スキャンから除去した112万個のフローターだけを表示したところです。</b>路面や空中を覆うモヤ状の粒がすべて、実測面から25cm以上離れた実体のないガウシアンです。ロボット目線ではこれがカメラに直接映り込みます。</figcaption>
+  </figure>
 
   <h3>壁2：当たり判定の穴から、ロボットがすり抜ける</h3>
-  <p>3DGSは面を持たないので、当たり判定にはスキャナが出力するメッシュを使うことになります。ところが実測すると、<strong>スキャナ純正メッシュは全エッジの4.86%が「どの面にも閉じていない縁」＝穴だらけ</strong>でした。穴は観測が薄い場所に集中します。丁寧にスキャンした部屋の中は床の99.90%が塞がっていた一方、<strong>通路側は床として成立していた面積が22%しかありません</strong>。</p>
-  <p>観測が薄い場所へロボットを置くとこうなります。</p>
+  <p>3DGSは面を持たないので、当たり判定にはスキャナが出力するメッシュを使うことになります。ところが実測すると、メッシュの穴（どの面にも閉じていないエッジの割合）は<strong>会議室で4.86%、渋谷では9.01%</strong>ありました。穴は観測が薄い場所——ガラス越し・人混みの陰・カメラが向かなかった路面——に集中します。</p>
+  <p>穴の開いた床にロボットを置くとこうなります。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
@@ -336,22 +341,44 @@
   <p>2026年8月、NVIDIAが<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">この問題への解決策を公開しました</a>（<a href="https://www.moguravr.com/nvidia-3dgs-humanoid-sim-to-real/" target="_blank" rel="noopener">日本語の解説記事</a>）。<a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>のパイプラインで<strong>1回の撮影からガウシアンとメッシュを同じ座標系で同時に出力</strong>し、前者を見た目、後者を衝突判定に使う方式です。肝は<strong>「深度モデルで形状を拘束する」</strong>こと。研究の世界では<a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a>が同じ系譜です。</p>
   <div class="callout note"><b>ここで気づいた前提</b>Nianticの事例は<strong>360度カメラで撮影</strong>しています。カメラしか無いので深度は「AIで推定する」しかありません。こちらはLiDARスキャナで<strong>実測した深度</strong>を持っている——なら推定モデルも再学習も要らないのでは？　これが今回の出発点です。</div>
 
-  <h2 id="solution"><span class="n">03</span> 結論：削って、塞ぐ</h2>
-  <p>最終的に勝ち残ったのは、再学習を一切伴わない2段階の後処理です。<strong>合わせて数分で終わり、依存はPythonと点群処理ライブラリだけ</strong>です。</p>
+  <h2 id="solution"><span class="n">03</span> 結論：削って、塞ぐ──渋谷で実演</h2>
+  <p>最終的に勝ち残ったのは、再学習を一切伴わない2段階の後処理です。<strong>依存はPythonと点群処理ライブラリだけ</strong>で、室内から街区スケールへは、しきい値とボクセルサイズの2つを変えるだけで移行できます。</p>
 
   <h3>手順1：LiDARから遠い粒を消す（フローター除去）</h3>
-  <p>ガウシアン一粒ごとにLiDAR点群までの距離を測り、<strong>10cmより遠いものを削除</strong>します。実測面から離れた粒は実体のないフローターだからです。削除後も机・椅子・ブラインドといった実在物は消えていないことを、同一カメラの前後比較で確認します。</p>
+  <p>ガウシアン一粒ごとに実測面（LiDAR点群またはスキャナ純正メッシュ表面）までの距離を測り、しきい値より遠いものを削除します。会議室では10cm、渋谷では街区スケールに合わせて<strong>25cm</strong>を使い、112万個（6.80%）を削除しました。ロボット目線で見ると効果がはっきり分かります。</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/envgen_fly_ab_poster.jpg">
-      <source src="videos/envgen_fly_ab.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_pov_ab_poster.jpg">
+      <source src="videos/shibuya_pov_ab.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>同じ経路を通り抜けたA/B比較。</b>左が元の3DGS、右が除去後。実在物はそのまま、視界に漂っていた粒だけが消えています。</figcaption>
+    <figcaption><b>ロボット搭載カメラの高さ（1.7m）で交差点を進んだA/B比較です。</b>左が元の3DGS、右が除去後。上空を覆っていた看板状の粒の塊や、空のスマッジが消え、建物や路面はそのまま残ります。</figcaption>
   </figure>
 
   <h3>手順2：純正メッシュの「穴だけ」を塞ぐ（当たり判定）</h3>
-  <p>純正メッシュは穴だらけですが、<strong>机の脚は部分的に持っています</strong>。そこでゼロから面を作り直すのではなく、穴だけを塞ぎます。3cmのボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で小さな穴を封じ、marching cubesで面に戻す——古典的な画像処理だけで数十秒です。</p>
+  <p>スキャナ純正メッシュをボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で小さな穴を封じ、marching cubesで面に戻します。渋谷では交差点まわり90×90mを切り出し、<strong>ボクセル6cm・クロージング2回</strong>で処理することで、穴9.01%のメッシュが<strong>境界エッジ0%＝完全水密のコライダー（三角形120万枚）</strong>になります。</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_look_collision_poster.jpg">
+      <source src="videos/shibuya_look_collision.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>同じカメラで「見た目」と「当たり判定」を見比べたところです。</b>左がロボットのカメラに映る3DGS、右が物理エンジンが衝突に使う修復メッシュ。信号柱・ガードレール・地下鉄出入口が、見えない側でも立体として立っています。</figcaption>
+  </figure>
+
+  <h3>仕上げ：フォークリフトを走らせる</h3>
+  <p>2層を重ねた環境をNVIDIA Isaac Simで開き、フォークリフト（全長3.7m）を物理エンジンで走らせます。</p>
+
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster.jpg">
+      <source src="videos/shibuya_drive.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>渋谷スクランブル交差点を走るフォークリフトです。</b>横断歩道を渡り、歩道の縁石（高さ約10cm）を乗り越え、最後はビルのガラス壁に接触して静止します——貫通はゼロです。走行中に一度だけ止まった別テイクの原因は、スキャンに写り込んだ路上の実在物（高さ1.2m）への衝突でした。見えるものにも見えないものにも、正しくぶつかります。</figcaption>
+  </figure>
+
+  <h2 id="lab"><span class="n">04</span> 数字の裏付け──会議室での定量検証</h2>
+  <p>手順の選定は、正解データを取りやすい会議室スキャンで行いました。スキャナ純正メッシュと穴埋め修復後を同じ物差しで測ると、次のようになります。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>指標</th><th>スキャナ純正</th><th>穴埋め修復後</th></tr></thead>
     <tbody>
@@ -361,25 +388,16 @@
       <tr><td>落下試験（立方体56個）</td><td>落下する</td><td><strong>56個すべて静止</strong></td></tr>
     </tbody>
   </table></div>
-  <p>穴ゼロ・精度1.1cm・脚も残る。この上でロボットを走らせても落下やすり抜けは起きません。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_bump_poster.jpg">
       <source src="videos/envgen_bump_test.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>修復メッシュのテスト。</b>ロボットを机に向かって走らせると、<strong>机の縁に接触してそのまま静止</strong>します（位置の変動±5mm）。脚のある当たり判定なので、貫通も乗り上げも起きません。</figcaption>
+    <figcaption><b>修復メッシュの精度テストです。</b>ロボットを机に向かって走らせると、<strong>机の縁に接触してそのまま静止</strong>します（位置の変動±5mm）。脚のある当たり判定なので、貫通も乗り上げも起きません。</figcaption>
   </figure>
 
-  <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/envgen_room_triple_poster.jpg">
-      <source src="videos/envgen_room_triple.mp4" type="video/mp4">
-      お使いのブラウザは動画再生に対応していません。
-    </video>
-    <figcaption><b>同じ部屋を同じカメラで見比べたところ。</b>左が3DGS（ロボットのカメラに映る映像・修復メッシュ上を走行）、中がスキャナ純正メッシュ（穴あり）、右が穴埋め修復後のメッシュです。見た目と当たり判定は別のデータであり、当たり判定側の品質がロボットの挙動を決めます。</figcaption>
-  </figure>
-
-  <h2 id="losers"><span class="n">04</span> 試して負けた方法たち</h2>
+  <h3>試して負けた方法たち</h3>
   <p>同じデータ・同じ物差し（LiDAR点群までの距離、脚の高さの占有率、落下試験）で、学習ベースを含む代替手法も測りました。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>手法</th><th>結果</th><th>敗因</th></tr></thead>
@@ -398,13 +416,13 @@
 
   <div class="callout note"><b>この結果が意味すること</b>学習した事前知識より、<strong>「既にある実測値を消さない・足さない」という単純な方針が勝ちました</strong>。Nianticが深度モデルを使ったのは、360度カメラしか無く深度を推定するしかなかったから。<strong>実測LiDARを持っている側には、もっと短く確実な道があります</strong>。同じ問題でも、手持ちの機材で最適解は変わります。</div>
 
-  <div class="callout warn"><b>この検証の限界</b>数値はすべて<strong>会議室1シーンでの実測</strong>です。ボクセル3cm・クロージング2回というパラメータは、部屋の広さや家具の細さで調整が要る可能性があります。また<strong>LiDARが観測していない領域には面を作れない</strong>ため、学習に使う際はスポーンと経路を観測済み範囲に限定してください。椅子のキャスターなど数cmの構造も残りません——ミリ単位で形が要る物はCGモデルを重ねます。</div>
+  <div class="callout warn"><b>この検証の限界</b>数値は<strong>会議室と渋谷の2シーンでの実測</strong>です。<strong>LiDARが観測していない領域には面を作れない</strong>ため、学習に使う際はスポーンと経路を観測済み範囲に限定してください。屋外特有の注意も二つあります。①スキャン時に写り込んだ通行人や仮設物は、当たり判定にも「実在の障害物」として残ります。②高所の看板などLiDARが届かない実在物は、フローター除去で消えることがあります（しきい値を上げると残せますが、フローターも残ります）。ミリ単位で形が要る物はCGモデルを重ねます。</div>
 
   <h2 id="summary"><span class="n">05</span> まとめ</h2>
   <p>LiDARスキャナで撮ったデータをロボットのシミュレーションに使う手順は、この3行に収まります。</p>
   <ul>
-    <li><strong>フローターは、LiDARからの距離で消す</strong> ── 10cmより遠い粒を削除。会議室では0.90%が該当しました。</li>
-    <li><strong>当たり判定は、スキャナ純正メッシュの「穴だけ」を塞ぐ</strong> ── ボクセル化→クロージング→marching cubes（数十秒）。穴ゼロ・精度1.1cm・机の脚も残ります。純正メッシュが無いスキャンではLiDAR点群からのPoisson再構成で代用します。</li>
+    <li><strong>フローターは、実測面からの距離で消す</strong> ── 会議室は10cm・渋谷は25cmのしきい値で削除。該当量は室内0.90%に対し、屋外は6.80%と桁が変わります。</li>
+    <li><strong>当たり判定は、スキャナ純正メッシュの「穴だけ」を塞ぐ</strong> ── ボクセル化→クロージング→marching cubes。ボクセルは室内3cm・街区6cm。どちらも穴0%の水密コライダーになり、机の脚も信号柱も残ります。</li>
     <li><strong>再学習は要らない</strong> ── 少なくとも正確なカメラ位置が得られない状況では、後処理のほうが速くて良い結果になります。</li>
   </ul>
   <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。</p>
