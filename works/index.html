@@ -221,7 +221,8 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
     </div>
     <div class="filters" id="filters">
       <button class="chip active" data-f="all">すべて</button>
-      <button class="chip" data-f="tech">技術記事</button>
+      <button class="chip" data-f="art">アート</button>
+      <button class="chip" data-f="industry">産業</button>
     </div>
     <div class="grid" id="blogGrid"></div>
   </section>
@@ -249,49 +250,49 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
-    tag:"tech", tagLabel:"技術", date:"2026-08-09", read:"約7分",
+    tag:"industry", tagLabel:"産業", date:"2026-08-09", read:"約10分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
     href:"3dgs-file-formats.html", thumb:"images/logos/format-logos-thumb.svg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-08-14", read:"約10分",
+    tag:"industry", tagLabel:"産業", date:"2026-08-14", read:"約7分",
     title:"3DGSのノイズをLiDARで消す",
     excerpt:"3DGSのフローターと当たり判定の穴を、LiDARの実測値だけで解決する手順。NVIDIA方式の再学習や学習型再構成を含む6手法を同じ物差しで比較した結果、「LiDARから遠い粒を消す＋純正メッシュの穴だけ塞ぐ」という単純な後処理が全指標で勝ちました。",
     href:"3dgs-lidar-denoise.html", thumb:"images/envgen_floaters.jpg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-08-04", read:"約8分",
+    tag:"industry", tagLabel:"産業", date:"2026-08-04", read:"約8分",
     title:"3DGSを扱えるソフト・ツール比較",
     excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグイン・産業向けプラットフォームを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・AEからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unityプラグインまで。",
     href:"3dgs-software-comparison.html", thumb:"images/logos/dcc-logos-thumb.svg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-07-26", read:"約8分",
+    tag:"industry", tagLabel:"産業", date:"2026-07-26", read:"約8分",
     title:"PortalCamの生データ(.xbin)から4K元画像を取り出す",
     excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
     href:"portalcam-xbin-raw-extraction.html", thumb:"images/xbin_cam_pinholeA.jpg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-07-26", read:"約13分",
+    tag:"industry", tagLabel:"産業", date:"2026-07-26", read:"約13分",
     title:"NVIDIA Isaac Simに3DGSを持ち込む",
     excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
     href:"isaacsim-3dgs-import.html", thumb:"images/isaacsim_shibuya_walk.jpg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-07-24", read:"約12分",
+    tag:"art", tagLabel:"アート", date:"2026-07-24", read:"約12分",
     title:"UE5 × XGRIDs SDKで3DGSから素材を出力する",
     excerpt:"3DGSスキャンをXGRIDsのLCC Plugin for UEでUE5に取り込み、仮想カメラで画像・映像素材を出力してAIでリライトするまでの実践手順。プラグインの導入方法、Houdini/Blender等の3DGS対応比較、リライト対応UE5プラグインの紹介まで。",
     href:"ue5-xgrids-3dgs-aerial-ai.html", thumb:"images/ue5_shibuya_topdown_day.jpg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-06-16", read:"約9分",
+    tag:"art", tagLabel:"アート", date:"2026-06-16", read:"約9分",
     title:"3DGSから「空撮カット」を生成する方法",
     excerpt:"現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る方法。基本（C4Dカメラ→Octaneレンダ→背景修正）と、応用（人物・動きの生成）までを実素材で解説。",
     href:"portalcam-drone-ai-workflow.html", thumb:"images/work04_bgfix.jpg"
   },
   {
-    tag:"tech", tagLabel:"技術", date:"2026-07-23", read:"約7分",
+    tag:"art", tagLabel:"アート", date:"2026-07-23", read:"約7分",
     title:"Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー",
     excerpt:"シニアVFXアーティスト hectorVFX 氏が、ロケハン3Dの渋谷スクランブル交差点データ（3DGS）を使って実証した、Houdini 22 × ComfyUI によるVFX × AIハイブリッドワークフローの事例紹介。",
     href:"houdini-comfyui-gsplat-workflow.html", thumb:"images/hectorvfx_shibuya_ai_render.jpg"
@@ -301,7 +302,7 @@ function blogCard(p){
   var thumb = p.thumb ? ('style="background-image:url(\''+p.thumb+'\')"') : '';
   var phTxt = p.ph ? 'COMING SOON' : '';
   var soonBadge = p.soon ? '<span class="soonbadge">Coming Soon</span>' : '';
-  var bcls = p.tag==='work' ? 'work' : 'tech';
+  var bcls = p.tag==='work' ? 'work' : 'tech';  // art/industry share the tech badge style
   var cm = '<span class="b '+bcls+'">'+p.tagLabel+'</span>'+(p.date?('<span>'+p.date+'</span>'):'')+(p.read?('<span>'+p.read+'</span>'):'');
   var more = p.ph ? '' : (p.soon ? '<span class="more">近日公開</span>' : '<span class="more">記事を読む →</span>');
   var inner = soonBadge + '<div class="thumb" '+thumb+'>'+phTxt+'</div>'+
