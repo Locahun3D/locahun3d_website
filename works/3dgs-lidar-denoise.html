@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Isaac Sim向けに3DGSシミュレーション環境をセットアップする｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、フローター除去、水密コライダー生成、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
+<meta name="description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、帯域式フローター除去、穴だけ塞ぐ合成コライダー、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
@@ -14,15 +14,15 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="Isaac Sim向けに3DGSシミュレーション環境をセットアップする">
-<meta property="og:description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、フローター除去、水密コライダー生成、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
+<meta property="og:description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、帯域式フローター除去、穴だけ塞ぐ合成コライダー、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
-<meta property="og:image:alt" content="3DGSから除去されたフローター（浮遊ガウシアン）だけを表示した図">
+<meta property="og:image:alt" content="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="3DGSのノイズをLiDARで消す">
-<meta name="twitter:description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、フローター除去、水密コライダー生成、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
+<meta name="twitter:title" content="Isaac Sim向けに3DGSシミュレーション環境をセットアップする">
+<meta name="twitter:description" content="LiDAR搭載スキャナの3DGSを、NVIDIA Isaac Simでロボットが走れるシミュレーション環境にする5ステップの手順。座標系とレンダラの罠、帯域式フローター除去、穴だけ塞ぐ合成コライダー、路面平滑化と写り込み除去、2層構造での走行までを、渋谷スクランブル交差点（1,650万ガウシアン）の実例と実測値つきで解説します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -288,7 +288,7 @@
 
   <figure>
     <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
-    <figcaption><b>後処理を終えた渋谷スクランブル交差点の3DGSです。</b>この見た目の下に、不可視の水密コライダー（三角形120万枚）を重ねることで、ロボットが物理で走行できるようになります。</figcaption>
+    <figcaption><b>後処理を終えた渋谷スクランブル交差点の3DGSです。</b>この見た目の下に、不可視の合成コライダー（純正メッシュ＋穴パッチ、三角形84万枚）を重ねることで、ロボットが物理で走行できるようになります。</figcaption>
   </figure>
 </header>
 
@@ -298,10 +298,10 @@
     <li><a href="#overview">全体像と前提──なぜ後処理が要るのか</a></li>
     <li><a href="#step1">STEP 1：3DGSをIsaac Simに読み込む</a></li>
     <li><a href="#step2">STEP 2：フローターを削る</a></li>
-    <li><a href="#step3">STEP 3：水密コライダーを作る</a></li>
+    <li><a href="#step3">STEP 3：穴だけを塞いだコライダーを作る</a></li>
     <li><a href="#step4">STEP 4：路面を均し、写り込みを消す</a></li>
     <li><a href="#step5">STEP 5：2層を重ねて、走らせる</a></li>
-    <li><a href="#relight">応用：影ベイクで時刻を変える</a></li>
+    <li><a href="#relight">検証：リライティングは（まだ）できない</a></li>
     <li><a href="#lab">検証データと限界</a></li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
@@ -312,16 +312,16 @@
     <b>3DGSスキャン</b><span class="a">→</span>
     <b>読み込み</b><span class="a">→</span>
     <b>フローター除去</b><span class="a">→</span>
-    <b>水密コライダー</b><span class="a">→</span>
+    <b>穴だけ塞ぐコライダー</b><span class="a">→</span>
     <b>路面均し・写り込み除去</b><span class="a">→</span>
     <b>2層で走行</b>
   </div>
 
-  <div class="callout note"><b>この記事で得られるもの</b>入力は、LiDAR搭載スキャナの標準出力3点——<strong>①3DGS ②スキャナ純正メッシュ ③密なLiDAR点群</strong>です（カメラのみで作った3DGSにはこの手順は適用できません）。5ステップの後処理を通すことで、<strong>「見た目の3DGS」と「不可視の水密コライダー」を重ねた2層構造の環境</strong>が得られ、Isaac Sim上でロボットの走行・衝突・センサ検証ができるようになります。依存はPython・点群処理ライブラリ・Isaac Simだけです。</div>
+  <div class="callout note"><b>この記事で得られるもの</b>入力は、LiDAR搭載スキャナの標準出力3点——<strong>①3DGS ②スキャナ純正メッシュ ③密なLiDAR点群</strong>です（カメラのみで作った3DGSにはこの手順は適用できません）。5ステップの後処理を通すことで、<strong>「見た目の3DGS」と「不可視のコライダー」を重ねた2層構造の環境</strong>が得られ、Isaac Sim上でロボットの走行・衝突・センサ検証ができるようになります。依存はPython・点群処理ライブラリ・Isaac Simだけです。</div>
 
   <h2 id="overview"><span class="n">01</span> 全体像と前提──なぜ後処理が要るのか</h2>
   <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。そのままシミュレーションに使うと、二つの事故が起きます。</p>
-  <p>一つ目は<strong>フローター</strong>。実体のない場所に残ったガウシアンがロボットのカメラに映り込み、学習ノイズになります。量は撮影環境で桁が変わり、実測では室内スキャンの0.90%に対し、<strong>渋谷の屋外スキャンは6.80%（1,650万個中112万個）</strong>でした。二つ目は<strong>当たり判定の穴</strong>。3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は<strong>会議室で4.86%、渋谷で9.01%</strong>あり、穴の上にロボットを置くとこうなります。</p>
+  <p>一つ目は<strong>フローター</strong>。実体のない場所に残ったガウシアンがロボットのカメラに映り込み、学習ノイズになります。量は撮影環境で桁が変わり、実測では室内スキャンの0.90%に対し、<strong>渋谷の屋外スキャンは6.80%（1,650万個中112万個・一律しきい値換算）</strong>でした。二つ目は<strong>当たり判定の穴</strong>。3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は<strong>会議室で4.86%、渋谷で9.01%</strong>あり、穴の上にロボットを置くとこうなります。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
@@ -331,7 +331,7 @@
     <figcaption><b>穴の開いた床にロボットを置いた失敗例です。</b>見た目には床があるのに当たり判定に穴があるため、ロボットは加速しながら床下38mまで落ち続けました。</figcaption>
   </figure>
 
-  <p>解決の設計は<strong>2層構造</strong>です。見た目はフローターを除去した3DGSが担当し、物理は不可視の水密コライダーが担当します。NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降の5ステップだけで同じものが作れます（学習ベース手法との定量比較は<a href="#lab">検証データ</a>にまとめています）。</p>
+  <p>解決の設計は<strong>2層構造</strong>です。見た目はフローターを除去した3DGSが担当し、物理は不可視のコライダーが担当します。NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降の5ステップだけで同じものが作れます（学習ベース手法との定量比較は<a href="#lab">検証データ</a>にまとめています）。</p>
 
   <h2 id="step1"><span class="n">02</span> STEP 1：3DGSをIsaac Simに読み込む</h2>
   <p>3DGSのPLYをUSD（ParticleField形式）へ変換して読み込みます。基本の変換・読み込み手順は<a href="isaacsim-3dgs-import.html">別記事</a>の通りです。セットアップとしてはここで二つの罠を先に潰しておきます。</p>
@@ -342,7 +342,7 @@
   <div class="callout note"><b>ロボットを置くときの単位の罠</b>cm単位で作られた参照アセット（Isaac標準のフォークリフト等）は、Kitが自動で0.01倍の補正スケールを付けます。ところがxformを<code>ClearXformOpOrder()</code>で組み直すとこの補正も消え、<strong>全長370mのフォークリフトが出現</strong>します。組み直した場合はscale 0.01を明示します。</div>
 
   <h2 id="step2"><span class="n">03</span> STEP 2：フローターを削る</h2>
-  <p>ガウシアン一粒ごとに実測面（LiDAR点群、またはスキャナ純正メッシュの表面サンプル）までの距離を測り、しきい値より遠いものを削除します。しきい値は<strong>室内10cm・街区25cm</strong>が実測での目安です。渋谷では112万個（6.80%）がこれで消えます。</p>
+  <p>ガウシアン一粒ごとに実測面（LiDAR点群、またはスキャナ純正メッシュの表面サンプル）までの距離を測り、浮いている粒を削除します。ただし一律のしきい値は使いません——高所の看板や通りの奥など、<strong>LiDARが届いていないだけの実在物まで消えて情報が欠損する</strong>ためです。距離で帯域を分けます：<strong>実測面から25cm〜2mは無条件削除</strong>（路面を覆うモヤの帯）、<strong>2m以遠は不透明度の低いモヤ状の粒だけ削除</strong>（実測では遠方帯の不透明度中央値は0.17と、実在物と明確に分かれます）。渋谷では97万個（5.88%）が消え、一律しきい値と比べて実在物の遠景・看板が約15万個ぶん画面に残ります。</p>
 
   <figure>
     <img src="images/shibuya_floaters.jpg" alt="渋谷スキャンから除去されたフローター112万個だけを表示した図">
@@ -354,23 +354,29 @@
       <source src="videos/shibuya_pov_ab.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>ロボット搭載カメラの高さ（1.7m）で交差点を進んだ前後比較です。</b>左が元の3DGS、右が処理後。上空の粒の塊や空のスマッジが消え、建物や路面はそのまま残ります。</figcaption>
+    <figcaption><b>ロボット搭載カメラの高さ（1.7m）で交差点を進んだ前後比較です。</b>上が元の3DGS、下が処理後。上空の粒の塊や空のスマッジが消え、建物や路面はそのまま残り、帯域ルールにより遠景の車両や看板も保持されます。</figcaption>
   </figure>
 
-  <h2 id="step3"><span class="n">04</span> STEP 3：水密コライダーを作る</h2>
-  <p>スキャナ純正メッシュをボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で穴を封じ、marching cubesで面に戻してからデシメートします。ボクセルは<strong>室内3cm・街区6cm</strong>が目安です。渋谷では交差点まわり90×90mを切り出して処理することで、穴9.01%のメッシュが<strong>境界エッジ0%＝完全水密のコライダー（三角形120万枚）</strong>になります。古典的な画像処理だけなので、処理は数分で終わります。</p>
+  <h2 id="step3"><span class="n">04</span> STEP 3：穴だけを塞いだコライダーを作る</h2>
+  <p>まず、スキャナ純正メッシュをボクセルに変換し、モルフォロジー処理のクロージング（膨張→収縮）で穴を封じ、marching cubesで面に戻します。ボクセルは<strong>室内3cm・街区6cm</strong>が目安で、渋谷の交差点まわり90×90mでは穴9.01%のメッシュが境界エッジ0%の水密シェルになります。</p>
+  <p>ただしこの水密シェルをそのまま使うと、ボクセル復元特有の「溶けたロウ」状の形になり、純正メッシュより形状が悪化します。そこで水密シェルは<strong>パッチの供給源としてだけ</strong>使います——シェルの三角形のうち<strong>純正メッシュの表面から5cm以上離れたもの＝穴の上に張られた部分だけ</strong>を切り出し、純正メッシュにそのまま重ねます。渋谷では純正51万枚＋パッチ31万枚の合成コライダーになり、<strong>精細さは純正のまま・穴だけが塞がった状態</strong>が得られます（走行域の鉛直レイテストでリーク0を確認。建物内部など元から未観測の空洞は対象外です）。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_triple_poster.jpg">
       <source src="videos/shibuya_triple.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>同じカメラで3層を見比べたところです。</b>左がロボットのカメラに映る3DGS、中央がスキャナ純正メッシュ（穴あり）、右が水密コライダー。信号柱や地下鉄出入口が、見えない側でも立体として立っています。</figcaption>
+    <figcaption><b>同じカメラで3層を見比べたところです。</b>上がロボットのカメラに映る3DGS、中央がスキャナ純正メッシュ（穴あり）、下が「穴だけ塞いだ」合成コライダー。信号柱や地下鉄出入口が、見えない側でも立体として立っています。</figcaption>
   </figure>
 
   <h2 id="step4"><span class="n">05</span> STEP 4：路面を均し、写り込みを消す</h2>
-  <p>STEP 3のコライダーだけでも衝突・経路・センサ遮蔽の検証には使えますが、車両を走らせるにはもう一段の処理が要ります。ボクセル復元は路面に階段状の凹凸を<strong>バンプp95=6.0cm</strong>（＝ボクセルピッチ）で残し、サスペンションのない車両はこれを全部拾って跳ねるためです。<strong>路面領域だけをLiDAR実測面に当てはめた滑らかな場にスナップする</strong>ことで、バンプは<strong>p95=1.0〜1.6cm＝実アスファルト級</strong>になり、コライダーと3DGSの接地位置も揃います（縁石・構造物はそのまま、水密も維持されます）。</p>
-  <p>あわせて、スキャン中に写り込んだ通行人や停車車両——「凍った障害物」——を消します。路面から浮いた突起をクラスタリングし、人・カートサイズ（幅0.25〜4.2m・高さ2.7m未満）と浮遊シャードを判定して、<strong>コライダー側は路面へ平坦化、3DGS側は対応するガウシアンを削除</strong>します（渋谷では210箇所・ガウシアン1.35%）。ポールやガードレールは細長い形状条件で保護されるため残ります。工事バリア等と融合して自動判定を逃れる個体もあるので、最後に目視して手動ボックスで補います。</p>
+  <p>車両を走らせるには路面の滑らかさが要ります。凹凸の物差しとして5m移動中央値からの逸脱（バンプ）を測ると、水密シェルの路面はボクセル階段のせいで<strong>p95=6.0cm</strong>あり、サスペンションのない車両はこれを全部拾って跳ねます。合成コライダーの路面は実測面そのものなので階段はありませんが、cm級のスキャンノイズは残るため、<strong>路面領域だけをLiDAR実測面に当てはめた滑らかな場へスナップ</strong>します。これでバンプは<strong>p95=1.0〜1.6cm＝実アスファルト級</strong>になり、コライダーと3DGSの接地位置も揃います（縁石・構造物はそのまま）。</p>
+  <p>あわせて、スキャン中に写り込んだ通行人や停車車両——「凍った障害物」——を消します。路面から浮いた突起をクラスタリングし、人・カートサイズ（幅0.25〜4.2m・高さ2.7m未満）と浮遊シャードを判定して、<strong>クラスタの実シルエットを10cmグリッドのマスクにラスタライズ</strong>し、マスク内だけをコライダー側は路面へ平坦化・3DGS側はガウシアン削除します（渋谷では210箇所）。矩形ボックスではなくシルエットを使うのが重要です——最初に矩形で消したときは、<strong>人物の隣に立つ街灯の柱まで巻き添えで消えて宙に笠だけが浮きました</strong>。ポールやガードレールは細長い形状条件でも保護されます。工事バリア等と融合して自動判定を逃れる個体は、最後に目視して手動マスクで補います。</p>
+
+  <figure>
+    <img src="images/shibuya_step4_ab.jpg" alt="コライダーの路面平滑化と写り込み除去の前後比較">
+    <figcaption><b>コライダーの前後比較です。</b>上が穴埋め直後の水密シェル（ボクセル凹凸＋交差点に凍った通行人）、下がSTEP 3〜4適用後（raw＋パッチ合成・路面スナップ・写り込み除去）。形の精細さを保ったまま、走れる路面になります。</figcaption>
+  </figure>
 
   <h2 id="step5"><span class="n">06</span> STEP 5：2層を重ねて、走らせる</h2>
   <p>仕上げに1つのUSDへまとめます。Z-upのステージにphysicsSceneを定義し、3DGSはそのまま参照、コライダーはMeshとして埋め込んで<code>CollisionAPI</code>（approximation=none）を適用し、<code>MakeInvisible()</code>で不可視にします。これで<strong>見た目は3DGS・物理はコライダー</strong>という2層環境が完成します。</p>
@@ -386,14 +392,13 @@
 
   <div class="callout note"><b>用途別の到達度</b>この5ステップで、<strong>衝突回避・経路計画・LiDAR/深度センサ系の検証は実用レベル</strong>になります。カメラ画像で学習する用途には、空の黒い虚無を埋めるスカイドームや、学習環境ラッパー（リセット・観測・報酬API）の整備を追加します。跳ねをさらに抑えたい場合は、スプリング/ダンパー付きのPhysX Vehicle（omni.physx.vehicle）へ車両を置き換えます。</div>
 
-  <h2 id="relight"><span class="n">07</span> 応用：影ベイクで時刻を変える</h2>
-  <p>3DGSの見た目は撮影時の光が焼き込まれた「その日」のものです。シーンライトでは変えられません——実測では、DistantLightの強度を8000→300・色を白→夕色に変えても、画素差は描画ノイズと同水準（平均2.7/255）でした。本格的な光の分離には<a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS³</a>などの再学習が必要です。</p>
-  <p>ただし2層構造なら近道があります。水密コライダーへガウシアン一粒ごとに太陽方向のレイを飛ばして遮蔽を判定し、<strong>照射側を暖色・陰側を暗い寒色に振ることで、擬似的な夕景が作れます</strong>（低い西日・高度18°で照射は全体の20%）。物理的に正確ではありませんが、ドメインランダマイゼーションの入力を増やす用途に使えます。</p>
-
-  <figure>
-    <img src="images/shibuya_relight_eye.jpg" alt="日中スキャンと影焼き込みによる夕景化の比較">
-    <figcaption><b>左が撮影時のままの日中、右がコライダー遮蔽で影を焼き込んだ夕景化です。</b>再学習なし・後処理だけで、時間帯のバリエーションを1つ増やせます。</figcaption>
-  </figure>
+  <h2 id="relight"><span class="n">07</span> 検証：リライティングは（まだ）できない</h2>
+  <p>3DGSの見た目は撮影時の光が焼き込まれた「その日」のものです。時刻や天候を後処理で変えられないか検証し、<strong>否定的な結果</strong>を得たので記録します。</p>
+  <ul>
+    <li><strong>シーンライトは効きません。</strong>Isaac Sim（ParticleField描画）でDistantLightの強度を8000→300・色を白→夕色に変えても、レンダリング結果の画素差は描画ノイズと同水準（平均2.7/255）でした。3DGSは自前の放射輝度をそのまま出すため、ライトでは照らせません。</li>
+    <li><strong>影のベイクも品質が出ません。</strong>水密コライダーにレイを飛ばして太陽遮蔽を判定し、照射側と陰側で色を振り分ける実験を高度18°と35°の2条件で行いましたが、<strong>焼き込み済みの元の陰影と新しい影が二重になり、「夕方の光」ではなく「色あせ・汚れ」に見えます</strong>。ガウシアン単位の色操作では、この二重陰影は原理的に回避できません。</li>
+    <li><strong>正攻法は逆レンダリング系の再学習だけです。</strong><a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS³</a>などが材質と光を分離しますが、撮影済みスキャンへの後付けはできません。時刻バリエーションが必要な場合は、現状はスキャンを複数の時間帯で撮るのが確実です。</li>
+  </ul>
 
   <h2 id="lab"><span class="n">08</span> 検証データと限界</h2>
   <p>手順の選定は、正解データを取りやすい室内スキャン（会議室）で行いました。穴埋め修復により、穴4.86%→<strong>0%</strong>・LiDARとのズレ中央値<strong>1.1cm</strong>・机の脚の占有率29.7%（3DGS正解27.2%に対しスキャナ純正は18.6%）・落下試験56/56静止、を同時に達成しています。ロボットを机に向かって走らせると縁に接触して静止し（±5mm）、貫通も乗り上げも起きません。</p>
@@ -423,9 +428,9 @@
   <p>LiDAR搭載スキャナの3DGSをIsaac Simのシミュレーション環境にする手順は、この5行に収まります。</p>
   <ul>
     <li><strong>STEP 1：</strong>座標系をZ-upへ揃え、レンダラをRaytracedLightingに固定してから読み込みます。</li>
-    <li><strong>STEP 2：</strong>実測面から遠いガウシアンを削除します（室内10cm・街区25cm。屋外は6.80%が消えます）。</li>
-    <li><strong>STEP 3：</strong>純正メッシュをボクセル化→クロージング→marching cubesで水密コライダーにします（室内3cm・街区6cm、穴0%）。</li>
-    <li><strong>STEP 4：</strong>路面を実測面へスナップして均し（バンプ6cm→1〜2cm）、写り込みを全層から消します。</li>
+    <li><strong>STEP 2：</strong>浮いた粒を帯域ルールで削除します（実測面から2mまで無条件・以遠は不透明度で選別。渋谷では5.88%）。未実測の実在物は残します。</li>
+    <li><strong>STEP 3：</strong>ボクセル穴埋めで作った水密シェルから「穴の上」だけをパッチとして切り出し、純正メッシュに重ねます（走行域リーク0・精細さは純正のまま）。</li>
+    <li><strong>STEP 4：</strong>路面を実測面へスナップして均し（バンプ6cm→1〜2cm）、写り込みをシルエットマスクで全層から消します。</li>
     <li><strong>STEP 5：</strong>2層を1つのUSDに重ね、コライダーを不可視化して走らせます。再学習は一切使いません。</li>
   </ul>
   <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。</p>
