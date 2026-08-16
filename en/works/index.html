@@ -235,13 +235,7 @@ function workCard(p){
 document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 var POSTS = [
-  {
-    tag:"industry", tagLabel:"Technical", date:"2026-08-16", read:"~7 min",
-    title:"3DGS Scans Do Not Work in Vectorworks",
-    excerpt:"We imported all three formats a scanner produces — 3DGS, point cloud and mesh — into Vectorworks Spotlight. None of them are usable in practice: the colour disappears, there is nothing to draft against, and the mesh makes you wait on every view change. Here are the measurements and what to do instead.",
-    href:"vectorworks-3dgs-mesh.html", thumb:"/works/images/vw_hero_block.jpg"
-  },
-  {
+    {
     tag:"industry", tagLabel:"Technical", date:"2026-08-16", read:"~7 min",
     title:"Setting Up a 3DGS Simulation Environment for Isaac Sim",
     excerpt:"A five-step guide to turning a LiDAR-fusion 3DGS scan into an environment robots can drive in Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight colliders, road smoothing and de-ghosting, and the two-layer drive - with measured numbers from Shibuya crossing.",

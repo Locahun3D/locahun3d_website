@@ -249,13 +249,7 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
-  {
-    tag:"industry", tagLabel:"技術", date:"2026-08-16", read:"約7分",
-    title:"3DGSスキャンはVectorworksでは使えない",
-    excerpt:"スキャナが出力する3形式(3DGS・点群・メッシュ)すべてをVectorworks Spotlightへ実際に取り込んだ結果、どれも実務では使えませんでした。色が消える、図面に使えない、視点を変えるたびに待たされる——それぞれの理由と、代わりの進め方を実測値でまとめます。",
-    href:"vectorworks-3dgs-mesh.html", thumb:"images/vw_hero_block.jpg"
-  },
-  {
+    {
     tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約10分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
