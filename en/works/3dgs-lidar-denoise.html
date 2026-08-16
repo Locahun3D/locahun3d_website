@@ -298,6 +298,7 @@
     <li><a href="#nvidia">NVIDIA's answer, and our assumption</a></li>
     <li><a href="#solution">The answer: delete, then seal &mdash; live in Shibuya</a></li>
     <li><a href="#lab">The numbers behind it &mdash; meeting-room benchmark</a></li>
+    <li><a href="#relight">Bonus benchmark: can 3DGS be relit?</a></li>
     <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
@@ -358,12 +359,16 @@
   <p>Voxelise the scanner mesh, apply morphological closing (dilate&ndash;erode) to seal the small holes, and run marching cubes to get a surface back. For Shibuya we cropped 90&times;90&thinsp;m around the crossing and processed it at <strong>6&thinsp;cm voxels with two closing iterations</strong> &mdash; turning a mesh with 9.01% holes into <strong>a fully watertight collider (0% boundary edges, 1.2 million triangles)</strong>.</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_look_collision_poster.jpg">
-      <source src="/works/videos/shibuya_look_collision.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_triple_poster.jpg">
+      <source src="/works/videos/shibuya_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>Appearance and collision, same camera.</b>Left is the 3DGS the robot's camera sees; right is the healed mesh the physics engine collides against. Signal poles, guard rails, and the subway entrance all stand as solids on the invisible side too.</figcaption>
+    <figcaption><b>Three layers, same camera.</b>Left is the 3DGS the robot's camera sees; middle is the raw scanner mesh (holed &mdash; you can also spot pedestrians frozen mid-crossing); right is the healed collider. Signal poles and the subway entrance stand as solids on the invisible side too.</figcaption>
   </figure>
+
+  <h3>Step 2.5: a road surface vehicles can drive (smoothing + de-ghosting)</h3>
+  <p>The healed collider as-is already serves collision, path-planning, and sensor-occlusion checks &mdash; but drive a vehicle on it and it bounces. Voxel reconstruction leaves a staircase texture on the road, measured at <strong>bump p95 = 6.0&thinsp;cm</strong> (exactly the voxel pitch), and a suspension-less vehicle transmits all of it. Snapping just the road region onto a smooth field fitted to the measured LiDAR surface brings bumps down to <strong>p95 = 1.0&ndash;1.6&thinsp;cm &mdash; real-asphalt territory</strong> (curbs and structures untouched, still watertight).</p>
+  <p>The same pass handles pedestrians and stopped vehicles caught mid-scan, which persist as frozen obstacles on the road. Clustering everything protruding from the road and classifying person/cart-sized shapes (0.25&ndash;4.2&thinsp;m wide, under 2.7&thinsp;m tall) plus floating shards, we <strong>flatten 210 footprints in the collider and delete the matching gaussians (1.35%) from the visual layer</strong>. Poles and guard rails survive on thin/elongated shape rules.</p>
 
   <h3>Finale: drive a forklift through it</h3>
   <p>Stack the two layers, open the result in NVIDIA Isaac Sim, and drive a forklift (3.7&thinsp;m long) under the physics engine.</p>
@@ -373,28 +378,11 @@
       <source src="/works/videos/shibuya_drive.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>A forklift driving the Shibuya scramble crossing.</b>It crosses the crosswalk, climbs the ~10&thinsp;cm curb onto the sidewalk, and finally touches the building's glass wall and stops &mdash; zero penetration. In another take it stopped mid-street: the cause was a real 1.2&thinsp;m-tall object that had been scanned into the street. It collides correctly with the visible and the invisible alike.</figcaption>
+    <figcaption><b>A forklift driving the Shibuya scramble crossing.</b>It runs 19&thinsp;m continuously on the smoothed road under a simple lane-keeping controller &mdash; no bouncing, no clipping, no falls. In other takes it climbed the ~10&thinsp;cm curb and stopped dead against a building's glass wall, and stopped correctly against a real 1.2&thinsp;m object scanned into the street. It collides correctly with the visible and the invisible alike.</figcaption>
   </figure>
 
   <h2 id="lab"><span class="n">04</span> The numbers behind it &mdash; meeting-room benchmark</h2>
-  <p>The recipe itself was selected indoors, where ground truth is easy to measure. Scanner mesh versus healed mesh, one ruler:</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Metric</th><th>Scanner mesh</th><th>After healing</th></tr></thead>
-    <tbody>
-      <tr><td>Holes (boundary edges)</td><td>4.86%</td><td><strong>0% &mdash; fully watertight</strong></td></tr>
-      <tr><td>Median deviation from LiDAR</td><td>&mdash;</td><td><strong>1.1&thinsp;cm</strong></td></tr>
-      <tr><td>Occupancy at desk-leg height<br>(3DGS ground truth = 27.2%)</td><td>18.6%</td><td><strong>29.7%</strong></td></tr>
-      <tr><td>Drop test (56 cubes)</td><td>falls through</td><td><strong>all 56 at rest</strong></td></tr>
-    </tbody>
-  </table></div>
-
-  <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_bump_poster.jpg">
-      <source src="/works/videos/envgen_bump_test.mp4" type="video/mp4">
-      Your browser does not support video playback.
-    </video>
-    <figcaption><b>Precision test on the healed mesh.</b>Drive the robot at a desk and it <strong>touches the edge and stops dead</strong> (position holds within &plusmn;5&thinsp;mm). With legs present in the collision mesh, there is no clipping and no climbing.</figcaption>
-  </figure>
+  <p>The recipe itself was selected indoors, where ground truth is easy to measure. Healing takes the scanner mesh from 4.86% holes to <strong>0%</strong>, with a median deviation from LiDAR of <strong>1.1&thinsp;cm</strong>, desk-leg occupancy of 29.7% (3DGS truth 27.2%; raw scanner mesh 18.6%), and 56/56 cubes at rest in the drop test. Drive a robot at a desk and it touches the edge and stops within &plusmn;5&thinsp;mm &mdash; no clipping, no climbing.</p>
 
   <h3>The methods that lost</h3>
   <p>Every alternative was measured on the same data and the same ruler (distance to the LiDAR cloud, leg-height occupancy, drop test).</p>
@@ -415,9 +403,19 @@
 
   <div class="callout note"><b>What this means</b><strong>A plain rule &mdash; do not delete or invent measured data &mdash; beat the learned priors.</strong> Niantic reached for a depth model because a 360&deg; camera was all they had. <strong>Anyone holding measured LiDAR has a shorter, more certain route.</strong> The best answer to the same problem changes with the hardware in your hands.</div>
 
-  <div class="callout warn"><b>Limits of this benchmark</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, pedestrians and temporary fixtures caught mid-scan persist into the collider as real obstacles. Second, real objects the LiDAR cannot reach &mdash; billboards high on facades &mdash; can be deleted along with the floaters (raising the threshold keeps them, but keeps floaters too). Anything needing millimetre-accurate shape still deserves a CG model.</div>
+  <div class="callout warn"><b>Limits of this benchmark</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, de-ghosting (step 2.5) removes the solids but <strong>not the shadow stains baked into the road colour</strong>, and road never observed under parked cars stays as dark holes. Second, real objects the LiDAR cannot reach &mdash; billboards high on facades &mdash; can be deleted along with the floaters (raising the threshold keeps them, but keeps floaters too). Anything needing millimetre-accurate shape still deserves a CG model.</div>
 
-  <h2 id="summary"><span class="n">05</span> Summary</h2>
+  <h2 id="relight"><span class="n">05</span> Bonus benchmark: can 3DGS be relit?</h2>
+  <p>A 3DGS scan bakes in the light of the day it was captured. We tested whether time-of-day can be changed. Two findings.</p>
+  <p><strong>First, scene lights do nothing.</strong> In Isaac Sim (ParticleField rendering), swinging a DistantLight from 8000 to 300 intensity and white to sunset colour changed the rendered pixels by no more than render noise (mean 2.7/255). 3DGS emits its own baked radiance, so lights cannot illuminate it. Properly separating material from light takes inverse-rendering retraining along the lines of <a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS&sup3;</a> &mdash; not something you bolt onto an existing scan.</p>
+  <p><strong>Second, the two-layer build enables a shadow-baking approximation.</strong> With a watertight collider available, each gaussian can be ray-tested toward the sun. Under a low western sun (18&deg; elevation) only 20% of gaussians are lit; warming the lit ones and darkening the shadowed ones toward blue yields a passable dusk. Not physically correct &mdash; but usable for widening domain-randomisation inputs.</p>
+
+  <figure>
+    <img src="/works/images/shibuya_relight_eye.jpg" alt="Day scan versus collider-shadow-baked dusk comparison">
+    <figcaption><b>Left: the day-lit scan as captured. Right: dusk baked via collider shadow rays.</b>One extra time-of-day variant, no retraining &mdash; post-processing only.</figcaption>
+  </figure>
+
+  <h2 id="summary"><span class="n">06</span> Summary</h2>
   <p>Taking LiDAR-scanned data into robotics simulation fits in three lines.</p>
   <ul>
     <li><strong>Remove floaters by distance from measured surfaces</strong> &mdash; threshold 10&thinsp;cm indoors, 25&thinsp;cm at street scale. The amount removed changes by an order of magnitude: 0.90% indoors versus 6.80% outdoors.</li>
