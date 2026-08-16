@@ -284,7 +284,7 @@
     <span>2026-08-16</span><span>・</span><span>読了 約8分</span>
   </div>
   <h1>Isaac Sim向けに<br class="pc">3DGSシミュレーション環境を<br class="pc">セットアップする</h1>
-  <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。賢い削除処理は入れません（試した結果、実在物を消す事故の方が高くつきました）。渋谷スクランブル交差点のスキャン（1,650万ガウシアン）を通し例に、実測値と実際に踏んだ罠を記録します。</p>
+  <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。削除系の後処理は行いません。渋谷スクランブル交差点のスキャン（1,650万ガウシアン）を通し例に、実測値と実際に踏んだ罠を記録します。</p>
 
   <figure>
     <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
@@ -355,21 +355,23 @@
   <p>車両は<strong>PhysX Vehicle（omni.physx.vehicle）</strong>で作ります。ウィザードAPI（<code>VehicleData</code>＋<code>create_vehicle</code>）で、スプリング/ダンパー付きサスペンションとアッカーマン操舵を備えた4輪車が数行で生成でき、<code>accelerator</code>（0〜1）と<code>steer</code>（-1〜1）の2値で運転できます。サスペンションが路面の細かな凹凸を吸収するため、無加工のスキャン路面でも滑らかに走れます。罠は二つ：<code>VehicleData</code>には<code>rootVehiclePath</code>と<code>rootSharedPath</code>を明示すること、コライダーを生成された<code>GroundSurfaceCollisionGroup</code>に登録することです。</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster_v4.jpg">
-      <source src="videos/shibuya_drive_v4.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster_v5.jpg">
+      <source src="videos/shibuya_drive_v5.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>完成した環境を走るPhysX Vehicleです。</b>スクランブル交差点の南側を、サスペンションで路面を吸収しながら32m直進します（横偏差±1cm・跳ねなし・すり抜けなし）。無加工方針のため、スキャンに写り込んだ通行人も路上に「実在の障害物」として残っており、ぶつかれば正しく停止します——走行レーンはコライダーの頂点データから障害物ゼロを機械的に確認して選びます。</figcaption>
+    <figcaption><b>完成した環境を走るPhysX Vehicleです。</b>スクランブル交差点の南側を横偏差±1cmで53m直進し、歩道の段差をサスペンションで越え、最後は交差点角の構造物に<strong>衝突してそのまま停止</strong>します——貫通もすり抜けもありません。無加工方針のため写り込んだ通行人も実在障害物として機能します。</figcaption>
   </figure>
 
-  <h2 id="cleanup"><span class="n">05</span> オプション：クリーンアップ処理と、その危険</h2>
-  <p>フローター（空中のモヤ）や写り込んだ通行人を後処理で消すことも技術的には可能で、当初この記事はその手順を主役にしていました。しかし実測を重ねた結論として、<strong>削除系の後処理は「実在物を消す事故」と常に隣り合わせ</strong>です。実際に起きた事故を記録しておきます。</p>
-  <ul>
-    <li>実測面までの距離でフローターを削除→<strong>参照のメッシュに載っていない細いポール・看板・遠景まで大量に消えた</strong>（メッシュのみ参照で削除6.80%。生LiDAR点群を参照に加えると0.74%まで減る＝差分は誤削除）。</li>
-    <li>写り込み除去の矩形マスク→<strong>人物の隣に立つ街灯の柱が巻き添えで消え、笠だけが宙に浮いた</strong>。シルエットマスク＋LiDARからのポール検出保護まで足してようやく安全側になった。</li>
-    <li>小さな浮遊断片の除去→<strong>地面と非連結にスキャンされた車止め（衝突判定として最重要級）が「デブリ」と誤判定されて消えた</strong>。</li>
-  </ul>
-  <p>それでも消したい場合は、①参照面は必ず「メッシュ＋生LiDAR点群」の合成にする、②削除は矩形でなくシルエットマスクで行い、ポール・車止めをLiDARの縦連続性で検出して保護する、③処理のたびに<strong>before/afterを同一視点でレンダして「消えた物」を1つずつ目視確認する</strong>——の3点を強く推奨します。用途が衝突・経路検証なら、消さないのが一番安全です。</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_carview_poster_v5.jpg">
+      <source src="videos/shibuya_carview_v5.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>同じ走行を車載カメラ（車窓）から見たところです。</b>カメラを車体に子付けしているため、サスペンションの揺れごと「ロボットのカメラに映る渋谷」が体験できます。横断歩道を渡り、MAGNET前の角に衝突して止まるまでの一部始終です。</figcaption>
+  </figure>
+
+  <h2 id="cleanup"><span class="n">05</span> オプション：クリーンアップは慎重に</h2>
+  <p>フローターや写り込んだ通行人を後処理で消すことも可能ですが、<strong>削除処理はポール・看板・車止めなどの実在物を巻き添えにしやすい</strong>ため、本手順では行いません。どうしても消す場合は、参照面に生LiDAR点群を含める・矩形でなくシルエット単位で消す・処理のたびにbefore/afterを同一視点で見比べて消えた物を目視確認する、の3点を守ってください。衝突・経路検証が目的なら、消さないのが一番安全です。</p>
 
   <h2 id="relight"><span class="n">06</span> 検証：リライティングは（まだ）できない</h2>
   <p>3DGSの見た目は撮影時の光が焼き込まれた「その日」のものです。時刻や天候を後処理で変えられないか検証し、<strong>否定的な結果</strong>を得たので記録します。</p>
@@ -382,24 +384,7 @@
   <h2 id="lab"><span class="n">07</span> 検証データと限界</h2>
   <p>手順の選定は、正解データを取りやすい室内スキャン（会議室）で行いました。穴埋め修復により、穴4.86%→<strong>0%</strong>・LiDARとのズレ中央値<strong>1.1cm</strong>・机の脚の占有率29.7%（3DGS正解27.2%に対しスキャナ純正は18.6%）・落下試験56/56静止、を同時に達成しています。ロボットを机に向かって走らせると縁に接触して静止し（±5mm）、貫通も乗り上げも起きません。</p>
 
-  <h3>試して負けた方法たち</h3>
-  <p>同じデータ・同じ物差し（LiDAR点群までの距離、脚の高さの占有率、落下試験）で、学習ベースを含む代替手法も測りました。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>手法</th><th>結果</th><th>敗因</th></tr></thead>
-    <tbody>
-      <tr><td>深度教師で3DGSを再学習<br>（DN-Splatter＝NVIDIA方式）</td><td>フローター62.5%<br>（元データは0.68%）</td><td>写真から復元したカメラ位置の誤差13cmが致命傷。3DGS学習はサブcmの位置精度が前提</td></tr>
-      <tr><td>Poisson再構成</td><td>脚の占有38.2%<br>（埋めすぎ）</td><td>閉じた面を作る性質上、細い脚を立てるより机の下ごと塞ぐ方が「自然」になってしまう</td></tr>
-      <tr><td>学習型再構成<br>（<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>）</td><td>脚の占有18.3%<br>（純正メッシュ並み）</td><td>学習済みの事前知識でも、このLiDAR密度では細い構造を復元できない</td></tr>
-      <tr><td>3DGSの深度からTSDF融合</td><td>穴5.7%</td><td>斜めから見た深度のノイズが裾を引く。占有情報の補完には使える</td></tr>
-    </tbody>
-  </table></div>
-
-  <figure>
-    <img src="images/envgen_legs_4method.jpg" alt="4手法の当たり判定メッシュを机の脚の高さから比較">
-    <figcaption><b>机の脚の高さから見た4手法。</b>左上=スキャナ純正（脚が欠落）、右上=Poisson（机の下を充填）、左下=NKSR（脚は立つが穴が残る）、右下=<strong>穴埋め修復（脚が柱として立ち、机の下も空く）</strong>。</figcaption>
-  </figure>
-
-  <div class="callout note"><b>この結果が意味すること</b>学習した事前知識より、<strong>「既にある実測値を消さない・足さない」という単純な方針が勝ちました</strong>。Nianticが深度モデルを使ったのは、360度カメラしか無く深度を推定するしかなかったから。<strong>実測LiDARを持っている側には、もっと短く確実な道があります</strong>。同じ問題でも、手持ちの機材で最適解は変わります。</div>
+  <p>学習ベースを含む代替手法（深度教師での3DGS再学習・Poisson再構成・学習型再構成NKSR・TSDF融合）も同じ物差しで測りましたが、いずれも純正メッシュを起点とする方式に及びませんでした。<strong>「既にある実測値を消さない・足さない」が一貫して最良</strong>です。</p>
 
   <div class="callout warn"><b>この手順の限界</b>数値は<strong>会議室と渋谷の2シーンでの実測</strong>です。<strong>LiDARが観測していない領域には面を作れない</strong>ため、学習に使う際はスポーンと経路を観測済み範囲に限定してください。屋外特有の注意も二つあります。①無加工方針のため、スキャンに写り込んだ通行人・停車車両・路面の影の染みはそのまま残ります（衝突検証には「実在障害物」として機能します）。②クリーンアップを行う場合の注意はオプション節のとおりです。ミリ単位で形が要る物はCGモデルを重ねます。</div>
 

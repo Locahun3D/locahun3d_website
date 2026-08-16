@@ -283,7 +283,7 @@
     <span>2026-08-16</span><span>・</span><span>8 min read</span>
   </div>
   <h1>Setting Up a 3DGS Simulation<br class="pc">Environment for Isaac Sim</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. The policy is radical simplicity: <strong>use the scanner's 3DGS and mesh untouched, and patch only the ground holes in the mesh</strong>. No clever deletion passes &mdash; we tried them, and destroying real content cost more than the noise they removed. A 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing serves as the running example.</p>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. The policy is radical simplicity: <strong>use the scanner's 3DGS and mesh untouched, and patch only the ground holes in the mesh</strong>. No deletion passes. A 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing serves as the running example.</p>
 
   <figure>
     <img src="/works/images/shibuya_hero.jpg" alt="Aerial render of the Shibuya scramble crossing 3DGS scan">
@@ -354,21 +354,23 @@
   <p>For the vehicle, use <strong>PhysX Vehicle (omni.physx.vehicle)</strong>. The wizard API (<code>VehicleData</code> + <code>create_vehicle</code>) generates a 4-wheel car with sprung suspension and Ackermann steering in a few lines, driven by <code>accelerator</code> (0&ndash;1) and <code>steer</code> (-1&ndash;1). The suspension absorbs the raw scan road's small bumps, so the ride is smooth without smoothing the data. Two traps: set <code>rootVehiclePath</code> and <code>rootSharedPath</code> on <code>VehicleData</code> explicitly, and register your collider in the generated <code>GroundSurfaceCollisionGroup</code>.</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_drive_poster_v4.jpg">
-      <source src="/works/videos/shibuya_drive_v4.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_drive_poster_v5.jpg">
+      <source src="/works/videos/shibuya_drive_v5.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>A PhysX Vehicle driving the finished environment.</b>It runs 32&thinsp;m straight through the south side of the scramble, suspension absorbing the road (lateral deviation &plusmn;1&thinsp;cm, no bouncing, no clipping). Because nothing was deleted, pedestrians caught mid-scan remain as real obstacles &mdash; hit one and the vehicle stops correctly. Driving lanes are picked by mechanically checking the collider vertices for an obstacle-free corridor.</figcaption>
+    <figcaption><b>A PhysX Vehicle driving the finished environment.</b>It runs 53&thinsp;m straight through the south side of the scramble at &plusmn;1&thinsp;cm lateral deviation, takes a sidewalk step on the suspension, and finally <strong>collides with the corner structure and stops dead</strong> &mdash; no clipping, no penetration. Under the untouched policy, scanned-in pedestrians act as real obstacles too.</figcaption>
   </figure>
 
-  <h2 id="cleanup"><span class="n">05</span> Optional: cleanup passes, and their dangers</h2>
-  <p>Deleting floaters and scanned-in pedestrians is technically possible &mdash; an earlier version of this article was built around those passes. After repeated measurement our conclusion is that <strong>every deletion pass lives next door to destroying real content</strong>. The accidents that actually happened:</p>
-  <ul>
-    <li>Distance-to-surface floater deletion <strong>destroyed thin poles, signs and far-street content missing from the reference mesh</strong> (mesh-only reference deletes 6.80%; merging the raw LiDAR cloud into the reference drops it to 0.74% &mdash; the difference was all mistakes).</li>
-    <li>Rectangle-mask de-ghosting <strong>took out a street lamp standing next to a pedestrian, leaving its head floating in mid-air</strong>; silhouette masks plus LiDAR-detected pole protection were needed to make it safe.</li>
-    <li>Floating-fragment removal <strong>misclassified bollards &mdash; safety-critical collision geometry scanned as disconnected pieces &mdash; as debris and deleted them</strong>.</li>
-  </ul>
-  <p>If you must clean up: (1) always merge the raw LiDAR cloud into the reference surface, (2) delete via silhouette masks with poles and bollards protected by LiDAR verticality detection, and (3) after every pass, <strong>render before/after from the same viewpoint and visually account for every object that disappeared</strong>. For collision and path-planning work, not deleting is the safest option.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_carview_poster_v5.jpg">
+      <source src="/works/videos/shibuya_carview_v5.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>The same run from an onboard camera.</b>The camera is parented to the vehicle body, so you experience "Shibuya as the robot's camera sees it" complete with suspension motion &mdash; across the crosswalk and into the corner by MAGNET, all the way to the stop.</figcaption>
+  </figure>
+
+  <h2 id="cleanup"><span class="n">05</span> Optional: clean up with care</h2>
+  <p>Deleting floaters and scanned-in pedestrians is possible, but <strong>deletion passes readily take real content &mdash; poles, signs, bollards &mdash; with them</strong>, so this procedure does not use any. If you must clean up: merge the raw LiDAR cloud into the reference surface, delete by silhouette rather than rectangles, and after every pass compare before/after renders from the same viewpoint and account for everything that disappeared. For collision and path-planning work, not deleting is the safest option.</p>
 
   <h2 id="relight"><span class="n">06</span> Benchmark: relighting does NOT work (yet)</h2>
   <p>A 3DGS bakes in the light of its capture day. We tested whether post-processing can change the time of day, and record the <strong>negative result</strong>.</p>
@@ -381,24 +383,7 @@
   <h2 id="lab"><span class="n">07</span> Benchmark data and limits</h2>
   <p>The recipe was selected indoors (a meeting room), where ground truth is easy to measure. Healing takes the scanner mesh from 4.86% holes to <strong>0%</strong>, with a median deviation from LiDAR of <strong>1.1&thinsp;cm</strong>, desk-leg occupancy of 29.7% (3DGS truth 27.2%; raw scanner mesh 18.6%), and 56/56 cubes at rest in the drop test. Drive a robot at a desk and it touches the edge and stops within &plusmn;5&thinsp;mm &mdash; no clipping, no climbing.</p>
 
-  <h3>The methods that lost</h3>
-  <p>Every alternative was measured on the same data and the same ruler (distance to the LiDAR cloud, leg-height occupancy, drop test).</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Method</th><th>Result</th><th>Why it lost</th></tr></thead>
-    <tbody>
-      <tr><td>Retrain 3DGS with depth supervision<br>(DN-Splatter, NVIDIA's recipe)</td><td>62.5% floaters<br>(original: 0.68%)</td><td>Camera poses recovered from photos were 13&thinsp;cm off &mdash; fatal for training that assumes sub-centimetre poses</td></tr>
-      <tr><td>Poisson reconstruction</td><td>38.2% leg occupancy<br>(over-filled)</td><td>Building closed surfaces, it finds sealing the whole under-desk cavity more &quot;natural&quot; than standing four thin legs</td></tr>
-      <tr><td>Learned reconstruction<br>(<a href="https://github.com/nv-tlabs/NKSR" target="_blank" rel="noopener">NKSR</a>)</td><td>18.3% leg occupancy<br>(scanner-mesh level)</td><td>Even a learned prior cannot recover thin structure at this LiDAR density</td></tr>
-      <tr><td>TSDF fusion of 3DGS depth</td><td>5.7% holes</td><td>Depth noise at grazing angles drags a heavy tail; useful as occupancy hints, not as the mesh</td></tr>
-    </tbody>
-  </table></div>
-
-  <figure>
-    <img src="/works/images/envgen_legs_4method.jpg" alt="Four collision meshes compared from desk-leg height">
-    <figcaption><b>Four methods from desk-leg height.</b>Top-left: scanner mesh (legs missing). Top-right: Poisson (under-desk filled). Bottom-left: NKSR (legs stand but holes remain). Bottom-right: <strong>healing &mdash; legs stand as columns and the under-desk space stays open</strong>.</figcaption>
-  </figure>
-
-  <div class="callout note"><b>What this means</b><strong>A plain rule &mdash; do not delete or invent measured data &mdash; beat the learned priors.</strong> Niantic reached for a depth model because a 360&deg; camera was all they had. <strong>Anyone holding measured LiDAR has a shorter, more certain route.</strong> The best answer to the same problem changes with the hardware in your hands.</div>
+  <p>Alternatives including learned methods (depth-supervised 3DGS retraining, Poisson reconstruction, NKSR, TSDF fusion) were measured on the same ruler; none matched starting from the raw scanner mesh. <strong>Do not delete or invent measured data</strong> remained the winning policy throughout.</p>
 
   <div class="callout warn"><b>Limits of this procedure</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, under the untouched policy, scanned-in pedestrians, parked vehicles and road shadow stains all remain (they act as real obstacles in collision work). Second, if you do clean up, follow the cautions in the optional section. Anything needing millimetre-accurate shape still deserves a CG model.</div>
 
