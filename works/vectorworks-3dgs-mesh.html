@@ -293,14 +293,14 @@
   </figure>
 </header>
 
-<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b><strong>1つ目はVectorworksが非対応、2つ目は図面作業に使えず、3つ目は表示できるものの視点を変えるたびに待たされます。</strong>Vectorworks用の対応プラグインもありません。CADに載せようとするのではなく、<strong>現況の確認と共有は専用ビューアーで行い、図面はCADで描く</strong>という分担が現実的です。</div>
+<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b><strong>1つ目はVectorworksが非対応、2つ目は測れるものの面がなく、3つ目は表示できるものの視点を変えるたびに待たされます。</strong>Vectorworks用の対応プラグインもありません。CADに載せようとするのではなく、<strong>現況の確認と共有は専用ビューアーで行い、図面はCADで描く</strong>という分担が現実的です。</div>
 
 <nav class="toc">
   <h2>目次</h2>
   <ol>
     <li><a href="#basics">まず、3つの形式とは何か</a></li>
     <li><a href="#gs">① 3DGS ── Vectorworksが非対応</a></li>
-    <li><a href="#pc">② 点群 ── 色は出るが図面に使えない</a></li>
+    <li><a href="#pc">② 点群 ── 測れるが、面がない</a></li>
     <li><a href="#mesh">③ メッシュ ── 表示できるが、作業には重い</a></li>
     <li><a href="#answer">では、どうするか</a></li>
   </ol>
@@ -309,7 +309,7 @@
 <article>
   <div class="stepflow">
     <b>① 3DGS</b><span class="a">→</span><b>非対応</b><span class="a">|</span>
-    <b>② 点群</b><span class="a">→</span><b>図面に使えない</b><span class="a">|</span>
+    <b>② 点群</b><span class="a">→</span><b>測れるが面がない</b><span class="a">|</span>
     <b>③ メッシュ</b><span class="a">→</span><b>表示できるが重い</b>
   </div>
 
@@ -334,7 +334,7 @@
   <p>色の情報をあらかじめ計算して、普通の色付きデータに変換してから読ませる方法も試しました。これなら色は出ます。ただしその時点で得られるのは②の点群であって、3DGSではありません。<strong>見る角度によって質感が変わるという3DGS最大の持ち味は、変換した瞬間に失われます</strong>。つまり、変換しても「3DGSをVectorworksで使う」ことにはなりません。</p>
   <div class="callout warn"><b>対応プラグインも存在しない</b>Vectorworksで3DGSを表示するための追加プラグインは、2026年8月時点で提供されていません。<a href="https://forum.vectorworks.net/index.php?/topic/129538-3dgs-gaussian-splatting-import-and-display/" target="_blank" rel="noopener">公式のユーザーコミュニティに要望は出ています</a>が、まだ実装されていません。点群向けの<a href="https://pointcab-software.com/en/point-cloud-software/vectorworks-point-cloud-plugin/" target="_blank" rel="noopener">PointCab 4Vectorworks</a>という製品はありますが、こちらも3DGSには対応していません。</div>
 
-  <h2 id="pc"><span class="n">02</span> ② 点群 ── 色は出るが図面に使えない</h2>
+  <h2 id="pc"><span class="n">02</span> ② 点群 ── 測れるが、面がない</h2>
   <p>点群はVectorworksが元から対応している形式なので、<strong>変換なしでそのまま読み込めます</strong>。色の再現という一点だけを見れば、3つのなかでこれが最良です。</p>
 
   <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を0〜65535の細かい段階（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。ファイル側の色情報は正常で、緑や赤の点は全体の2%程度しかありません。<strong>色を0〜255の段階（8ビット）に変換してから読み込ませると、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
@@ -343,7 +343,8 @@
     <figcaption><b>色を8ビットに変換してから読み込んだ点群です。</b>建物のレンガ・赤い舗装・街路樹・横断歩道まで実物どおりの色になりました。ただし近くで見れば分かる通り、面ではなく<strong>点が集まってできた見た目</strong>です。</figcaption>
   </figure>
 
-  <p>ただし<strong>点群は文字通り「点の集まり」で、面がありません</strong>。壁の面をクリックして選ぶことも、角にぴったり吸着させて線を引くことも、寸法を拾うこともできません。つまり<strong>眺めることしかできない</strong>ということです。そして眺めるだけなら、わざわざCADで開く理由がありません。</p>
+  <p>点群の点にはスナップが効くので、<strong>2点間の距離を測ったり、寸法線を引いたりはできます</strong>。現況の寸法を拾う用途であれば、これで足ります。</p>
+  <p>ただし<strong>点群は文字通り「点の集まり」で、面がありません</strong>。壁を面としてクリックして選ぶことも、その面を基準に押し出しや切り取りをすることもできません。<strong>測るのと、下敷きにしてなぞるところまで</strong>が点群でできることで、そこから先の設計作業には別途モデルを起こす必要があります。</p>
 
   <h2 id="mesh"><span class="n">03</span> ③ メッシュ ── 表示できるが、作業には重い</h2>
   <p>メッシュは面を持っているので、<strong>Vectorworks上でクリックして選択でき、写真の質感もちゃんと表示されます</strong>。3つのなかで唯一、図面作業の土台になり得る形式です。</p>

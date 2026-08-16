@@ -292,14 +292,14 @@
   </figure>
 </header>
 
-<div class="callout warn" style="margin:0 22px 8px"><b>The conclusion, up front</b><strong>Vectorworks does not support the first format at all, the second cannot be used for drafting, and the third displays correctly but makes you wait on every view change.</strong> There is no compatible plugin for Vectorworks either. Rather than forcing scans into CAD, <strong>review and share site conditions in a dedicated viewer and keep drafting in CAD</strong>.</div>
+<div class="callout warn" style="margin:0 22px 8px"><b>The conclusion, up front</b><strong>Vectorworks does not support the first format at all, the second can be measured but has no surfaces, and the third displays correctly but makes you wait on every view change.</strong> There is no compatible plugin for Vectorworks either. Rather than forcing scans into CAD, <strong>review and share site conditions in a dedicated viewer and keep drafting in CAD</strong>.</div>
 
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
     <li><a href="#basics">First — what are these three formats?</a></li>
     <li><a href="#gs">1. 3DGS — Vectorworks does not support it</a></li>
-    <li><a href="#pc">2. Point cloud — colour survives, drafting does not</a></li>
+    <li><a href="#pc">2. Point cloud — you can measure it, but it has no surfaces</a></li>
     <li><a href="#mesh">3. Mesh — it displays, but it is heavy to work in</a></li>
     <li><a href="#answer">So what should you do?</a></li>
   </ol>
@@ -308,7 +308,7 @@
 <article>
   <div class="stepflow">
     <b>1. 3DGS</b><span class="a">→</span><b>unsupported</b><span class="a">|</span>
-    <b>2. point cloud</b><span class="a">→</span><b>no drafting</b><span class="a">|</span>
+    <b>2. point cloud</b><span class="a">→</span><b>measurable, no surfaces</b><span class="a">|</span>
     <b>3. mesh</b><span class="a">→</span><b>displays, but heavy</b>
   </div>
 
@@ -333,7 +333,7 @@
   <p>Calculating the colour beforehand and converting the file to a conventional coloured format also works — the colour does come through. But at that point what you have is format 2, a point cloud, not 3DGS. <strong>The defining quality of 3DGS, where the surface changes as you move around it, is lost the moment you convert.</strong> Converting, in other words, is not "using 3DGS in Vectorworks".</p>
   <div class="callout warn"><b>No compatible plugin exists</b>As of August 2026 there is no add-on that lets Vectorworks display 3DGS. <a href="https://forum.vectorworks.net/index.php?/topic/129538-3dgs-gaussian-splatting-import-and-display/" target="_blank" rel="noopener">A request is open on the official user community</a> but has not been implemented. A point-cloud product called <a href="https://pointcab-software.com/en/point-cloud-software/vectorworks-point-cloud-plugin/" target="_blank" rel="noopener">PointCab 4Vectorworks</a> exists, but it does not support 3DGS either.</div>
 
-  <h2 id="pc"><span class="n">02</span> 2. Point cloud — colour survives, drafting does not</h2>
+  <h2 id="pc"><span class="n">02</span> 2. Point cloud — you can measure it, but it has no surfaces</h2>
   <p>Vectorworks supports point clouds natively, so they <strong>import without any conversion</strong>. On colour fidelity alone, this is the best of the three.</p>
 
   <div class="callout warn"><b>But 16-bit colour comes out wrong</b>The file this scanner produced stores colour in 0–65535 steps (16-bit). Open that directly in Vectorworks and <strong>building walls come out painted in fluorescent green and bright red</strong> — nothing like the real thing. The colour data in the file is fine: genuinely green or red points account for only about 2% of the cloud. <strong>Convert the colour to 0–255 steps (8-bit) before importing and it displays correctly.</strong> The image below is after that conversion.</div>
@@ -342,7 +342,8 @@
     <figcaption><b>The point cloud after converting its colour to 8-bit.</b> Brickwork, red paving, street trees and the crosswalk now match reality. Look closely, though, and it is clear this is <strong>an image made of dots, not surfaces</strong>.</figcaption>
   </figure>
 
-  <p>But <strong>a point cloud is literally a collection of dots — there are no surfaces</strong>. You cannot click a wall to select it, snap a line to a corner, or take a dimension off it. In other words, <strong>all you can do is look at it</strong>. And if looking is all you need, there was never a reason to open CAD in the first place.</p>
+  <p>Points in the cloud accept snapping, so <strong>you can measure between two points and place dimension lines</strong>. If all you need is to pull dimensions off the existing site, that is enough.</p>
+  <p>But <strong>a point cloud is literally a collection of dots — there are no surfaces</strong>. You cannot click a wall to select it as a face, or extrude and cut against that face. <strong>Measuring, and tracing over it as an underlay</strong>, is where a point cloud stops; anything beyond that needs geometry modelled separately.</p>
 
   <h2 id="mesh"><span class="n">03</span> 3. Mesh — it displays, but it is heavy to work in</h2>
   <p>A mesh has real surfaces, so <strong>you can click to select it inside Vectorworks and the photographic detail displays properly</strong>. It is the only one of the three that could serve as a base for drawing work.</p>
