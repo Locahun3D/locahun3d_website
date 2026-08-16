@@ -281,7 +281,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">手順</span>
-    <span>2026-08-16</span><span>・</span><span>読了 約8分</span>
+    <span>2026-08-16</span><span>・</span><span>読了 約5分</span>
   </div>
   <h1>Isaac Sim向けに<br class="pc">3DGSシミュレーション環境を<br class="pc">セットアップする</h1>
   <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。削除系の後処理は行いません。渋谷スクランブル交差点のスキャン（1,650万ガウシアン）を通し例に、実測値と実際に踏んだ罠を記録します。</p>
@@ -300,8 +300,6 @@
     <li><a href="#step3">STEP 2：メッシュの「地面の穴」だけを塞ぐ</a></li>
     <li><a href="#step5">STEP 3：2層を重ねて、走らせる</a></li>
     <li><a href="#cleanup">オプション：クリーンアップ処理と、その危険</a></li>
-    <li><a href="#relight">検証：リライティングは（まだ）できない</a></li>
-    <li><a href="#lab">検証データと限界</a></li>
     <li><a href="#summary">まとめ</a></li>
   </ol>
 </nav>
@@ -333,7 +331,7 @@
   <h2 id="step1"><span class="n">02</span> STEP 1：3DGSをIsaac Simに読み込む</h2>
   <p>3DGSのPLYをUSD（ParticleField形式）へ変換して読み込みます。基本の変換・読み込み手順は<a href="isaacsim-3dgs-import.html">別記事</a>の通りです。セットアップとしてはここで二つの罠を先に潰しておきます。</p>
   <ul>
-    <li><strong>座標系を揃える。</strong>Y-upで出力された3DGS（LCC2由来など）はZ-upへ変換します。位置は<code>(x, z, -y)</code>＝X軸まわり-90°回転、向きは同じ回転のクォータニオンを左から掛けます。USDのクォータニオン配列をnumpyで扱うときのメモリ並びは<strong>(x, y, z, w)＝虚部が先</strong>です——(w, x, y, z)と誤ると全ガウシアンの向きが壊れ、シーンがノイズ状になります。</li>
+    <li><strong>座標系を揃える。</strong>Y-upで出力された3DGS（LCC2由来など）は、参照した上で<strong>X軸まわり-90°回転</strong>させて立てるだけです。データの変換書き出しは不要です。</li>
     <li><strong>レンダラをRaytracedLightingに固定してからステージを開く。</strong>Path Tracing系のモードでは自己発光の3DGSが白飛びします。1,000万ガウシアン級のシーンを読み込んだ後のモード切替はクラッシュの原因になるため、必ず読み込み前に設定します。</li>
   </ul>
   <div class="callout note"><b>ロボットを置くときの単位の罠</b>cm単位で作られた参照アセット（Isaac標準のフォークリフト等）は、Kitが自動で0.01倍の補正スケールを付けます。ところがxformを<code>ClearXformOpOrder()</code>で組み直すとこの補正も消え、<strong>全長370mのフォークリフトが出現</strong>します。組み直した場合はscale 0.01を明示します。</div>
@@ -373,28 +371,14 @@
   <h2 id="cleanup"><span class="n">05</span> オプション：クリーンアップは慎重に</h2>
   <p>フローターや写り込んだ通行人を後処理で消すことも可能ですが、<strong>削除処理はポール・看板・車止めなどの実在物を巻き添えにしやすい</strong>ため、本手順では行いません。どうしても消す場合は、参照面に生LiDAR点群を含める・矩形でなくシルエット単位で消す・処理のたびにbefore/afterを同一視点で見比べて消えた物を目視確認する、の3点を守ってください。衝突・経路検証が目的なら、消さないのが一番安全です。</p>
 
-  <h2 id="relight"><span class="n">06</span> 検証：リライティングは（まだ）できない</h2>
-  <p>3DGSの見た目は撮影時の光が焼き込まれた「その日」のものです。時刻や天候を後処理で変えられないか検証し、<strong>否定的な結果</strong>を得たので記録します。</p>
-  <ul>
-    <li><strong>シーンライトは効きません。</strong>Isaac Sim（ParticleField描画）でDistantLightの強度を8000→300・色を白→夕色に変えても、レンダリング結果の画素差は描画ノイズと同水準（平均2.7/255）でした。3DGSは自前の放射輝度をそのまま出すため、ライトでは照らせません。</li>
-    <li><strong>影のベイクも品質が出ません。</strong>水密コライダーにレイを飛ばして太陽遮蔽を判定し、照射側と陰側で色を振り分ける実験を高度18°と35°の2条件で行いましたが、<strong>焼き込み済みの元の陰影と新しい影が二重になり、「夕方の光」ではなく「色あせ・汚れ」に見えます</strong>。ガウシアン単位の色操作では、この二重陰影は原理的に回避できません。</li>
-    <li><strong>正攻法は逆レンダリング系の再学習だけです。</strong><a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS³</a>などが材質と光を分離しますが、撮影済みスキャンへの後付けはできません。時刻バリエーションが必要な場合は、現状はスキャンを複数の時間帯で撮るのが確実です。</li>
-  </ul>
-
-  <h2 id="lab"><span class="n">07</span> 検証データと限界</h2>
-  <p>手順の選定は、正解データを取りやすい室内スキャン（会議室）で行いました。穴埋め修復により、穴4.86%→<strong>0%</strong>・LiDARとのズレ中央値<strong>1.1cm</strong>・机の脚の占有率29.7%（3DGS正解27.2%に対しスキャナ純正は18.6%）・落下試験56/56静止、を同時に達成しています。ロボットを机に向かって走らせると縁に接触して静止し（±5mm）、貫通も乗り上げも起きません。</p>
-
-  <p>学習ベースを含む代替手法（深度教師での3DGS再学習・Poisson再構成・学習型再構成NKSR・TSDF融合）も同じ物差しで測りましたが、いずれも純正メッシュを起点とする方式に及びませんでした。<strong>「既にある実測値を消さない・足さない」が一貫して最良</strong>です。</p>
-
-  <div class="callout warn"><b>この手順の限界</b>数値は<strong>会議室と渋谷の2シーンでの実測</strong>です。<strong>LiDARが観測していない領域には面を作れない</strong>ため、学習に使う際はスポーンと経路を観測済み範囲に限定してください。屋外特有の注意も二つあります。①無加工方針のため、スキャンに写り込んだ通行人・停車車両・路面の影の染みはそのまま残ります（衝突検証には「実在障害物」として機能します）。②クリーンアップを行う場合の注意はオプション節のとおりです。ミリ単位で形が要る物はCGモデルを重ねます。</div>
-
-  <h2 id="summary"><span class="n">08</span> まとめ</h2>
+  <h2 id="summary"><span class="n">06</span> まとめ</h2>
   <p>LiDAR搭載スキャナの3DGSをIsaac Simのシミュレーション環境にする手順は、この3行に収まります。</p>
   <ul>
     <li><strong>STEP 1：</strong>3DGSは無加工のまま参照し、X軸-90°回転でZ-upに立てます。レンダラはRaytracedLightingに固定してから読み込みます。</li>
     <li><strong>STEP 2：</strong>コライダーは純正メッシュ無加工＋「地面の穴」パッチのみ（渋谷では62.8万三角形・走行域リーク0）。壁の穴は放置します。</li>
     <li><strong>STEP 3：</strong>2層を1つのUSDに重ね、コライダーを不可視化し、PhysX Vehicle（サスペンション付き）で走らせます。削除処理も再学習も使いません。</li>
   </ul>
+  <p>限界は二つだけ覚えておけば十分です：<strong>LiDARが観測していない領域には面が無い</strong>ため走行経路は観測済み範囲に限ること、無加工方針のため<strong>写り込んだ通行人や停車車両は実在障害物として残る</strong>ことです。</p>
   <p>3DGSをIsaac Simに読み込む基本手順は<a href="isaacsim-3dgs-import.html">別の記事</a>にまとめています。</p>
 
   <div class="data-cta">

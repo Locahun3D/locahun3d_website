@@ -280,7 +280,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Guide</span>
-    <span>2026-08-16</span><span>・</span><span>8 min read</span>
+    <span>2026-08-16</span><span>・</span><span>5 min read</span>
   </div>
   <h1>Setting Up a 3DGS Simulation<br class="pc">Environment for Isaac Sim</h1>
   <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. The policy is radical simplicity: <strong>use the scanner's 3DGS and mesh untouched, and patch only the ground holes in the mesh</strong>. No deletion passes. A 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing serves as the running example.</p>
@@ -299,8 +299,6 @@
     <li><a href="#step3">STEP 2: Patch only the ground holes in the mesh</a></li>
     <li><a href="#step5">STEP 3: Stack the two layers and drive</a></li>
     <li><a href="#cleanup">Optional: cleanup passes, and their dangers</a></li>
-    <li><a href="#relight">Benchmark: relighting does not work (yet)</a></li>
-    <li><a href="#lab">Benchmark data and limits</a></li>
     <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
@@ -332,7 +330,7 @@
   <h2 id="step1"><span class="n">02</span> STEP 1: Load the 3DGS into Isaac Sim</h2>
   <p>Convert the 3DGS PLY to USD (ParticleField) and load it &mdash; the basic conversion workflow is covered in <a href="isaacsim-3dgs-import.html">a separate article</a>. For a working setup, defuse two traps first.</p>
   <ul>
-    <li><strong>Align the coordinate frame.</strong> A Y-up 3DGS (e.g. from LCC2) converts to Z-up with positions mapped <code>(x, z, -y)</code> &mdash; a -90&deg; rotation about X &mdash; and orientations left-multiplied by the same rotation's quaternion. When touching USD quaternion arrays from numpy, the memory layout is <strong>(x, y, z, w) &mdash; imaginary first</strong>; assume (w, x, y, z) and every gaussian's orientation breaks, turning the scene to noise.</li>
+    <li><strong>Align the coordinate frame.</strong> A Y-up 3DGS (e.g. from LCC2) just needs a <strong>-90&deg; rotation about X</strong> after referencing &mdash; no data re-export required.</li>
     <li><strong>Pin the renderer to RaytracedLighting before opening the stage.</strong> Path-tracing modes blow the self-emissive 3DGS out to white, and switching modes after a 10-million-gaussian scene is loaded is a reliable way to crash.</li>
   </ul>
   <div class="callout note"><b>The unit trap when placing robots</b>Reference assets authored in centimetres (Isaac's stock forklift among them) get an automatic 0.01 correction scale from Kit. Rebuild the xform with <code>ClearXformOpOrder()</code> and that correction disappears &mdash; <strong>enter a 370-metre forklift</strong>. After rebuilding, set scale 0.01 explicitly.</div>
@@ -372,28 +370,14 @@
   <h2 id="cleanup"><span class="n">05</span> Optional: clean up with care</h2>
   <p>Deleting floaters and scanned-in pedestrians is possible, but <strong>deletion passes readily take real content &mdash; poles, signs, bollards &mdash; with them</strong>, so this procedure does not use any. If you must clean up: merge the raw LiDAR cloud into the reference surface, delete by silhouette rather than rectangles, and after every pass compare before/after renders from the same viewpoint and account for everything that disappeared. For collision and path-planning work, not deleting is the safest option.</p>
 
-  <h2 id="relight"><span class="n">06</span> Benchmark: relighting does NOT work (yet)</h2>
-  <p>A 3DGS bakes in the light of its capture day. We tested whether post-processing can change the time of day, and record the <strong>negative result</strong>.</p>
-  <ul>
-    <li><strong>Scene lights do nothing.</strong> In Isaac Sim (ParticleField rendering), swinging a DistantLight from 8000 to 300 intensity and white to sunset colour changed the rendered pixels by no more than render noise (mean 2.7/255). 3DGS emits its own baked radiance; lights cannot illuminate it.</li>
-    <li><strong>Shadow baking fails on quality.</strong> We ray-tested each gaussian toward the sun against the watertight collider and graded lit versus shadowed gaussians, at both 18&deg; and 35&deg; sun elevations. <strong>The new shadows stack on top of the shading already baked into the scan, reading as fading and dirt rather than evening light.</strong> Per-gaussian colour edits cannot avoid this double-shading in principle.</li>
-    <li><strong>The only real route is inverse-rendering retraining</strong> along the lines of <a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS&sup3;</a>, which cannot be bolted onto an existing scan. If you need time-of-day variants today, scan at multiple times of day.</li>
-  </ul>
-
-  <h2 id="lab"><span class="n">07</span> Benchmark data and limits</h2>
-  <p>The recipe was selected indoors (a meeting room), where ground truth is easy to measure. Healing takes the scanner mesh from 4.86% holes to <strong>0%</strong>, with a median deviation from LiDAR of <strong>1.1&thinsp;cm</strong>, desk-leg occupancy of 29.7% (3DGS truth 27.2%; raw scanner mesh 18.6%), and 56/56 cubes at rest in the drop test. Drive a robot at a desk and it touches the edge and stops within &plusmn;5&thinsp;mm &mdash; no clipping, no climbing.</p>
-
-  <p>Alternatives including learned methods (depth-supervised 3DGS retraining, Poisson reconstruction, NKSR, TSDF fusion) were measured on the same ruler; none matched starting from the raw scanner mesh. <strong>Do not delete or invent measured data</strong> remained the winning policy throughout.</p>
-
-  <div class="callout warn"><b>Limits of this procedure</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, under the untouched policy, scanned-in pedestrians, parked vehicles and road shadow stains all remain (they act as real obstacles in collision work). Second, if you do clean up, follow the cautions in the optional section. Anything needing millimetre-accurate shape still deserves a CG model.</div>
-
-  <h2 id="summary"><span class="n">08</span> Summary</h2>
+  <h2 id="summary"><span class="n">06</span> Summary</h2>
   <p>Turning a LiDAR-fusion 3DGS scan into an Isaac Sim environment fits in three lines.</p>
   <ul>
     <li><strong>STEP 1:</strong> reference the 3DGS untouched, stand it up with a -90&deg; X rotation, and pin the renderer to RaytracedLighting before loading.</li>
     <li><strong>STEP 2:</strong> collider = untouched raw mesh + ground-hole patches only (628k triangles, zero drivable leaks in Shibuya). Wall holes stay.</li>
     <li><strong>STEP 3:</strong> stack the two layers in one USD, make the collider invisible, and drive a PhysX Vehicle with real suspension. No deletion, no retraining.</li>
   </ul>
+  <p>Only two limits worth remembering: <strong>no surface exists where the LiDAR never looked</strong>, so keep routes inside the observed region; and under the untouched policy, <strong>scanned-in pedestrians and parked vehicles remain as real obstacles</strong>.</p>
   <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>.</p>
 
   <div class="data-cta">
