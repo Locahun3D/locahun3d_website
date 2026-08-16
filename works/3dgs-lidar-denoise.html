@@ -351,8 +351,8 @@
   </figure>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_pov_ab_poster.jpg">
-      <source src="videos/shibuya_pov_ab.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_pov_ab_poster_v3.jpg">
+      <source src="videos/shibuya_pov_ab_v3.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <figcaption><b>ロボット搭載カメラの高さ（1.7m）で交差点を進んだ前後比較です。</b>上が元の3DGS、下が処理後（削除1.1%）。上空の粒の塊や空のスマッジが消え、建物・路面・ポール・看板・遠景の車両はそのまま残ります。</figcaption>
@@ -363,8 +363,8 @@
   <p>最終形は<strong>「rawメッシュ＋地面の穴埋めパッチのみ」</strong>です。滑らかな地面場（LiDAR実測面のグリッド）を作り、<strong>rawメッシュに地面が存在しないセルだけ</strong>をその高さで面化して敷きます。壁や建物の穴は走行に影響しないのでrawのまま残します。渋谷ではraw51万枚＋地面パッチ11万枚＝61万三角形になり、<strong>走行域の鉛直レイテストでリーク0</strong>（未観測の建物内部は対象外）。トゲの原因になる浮遊デブリ（小さな孤立断片3,650個）もここで除去します。</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_triple_poster.jpg">
-      <source src="videos/shibuya_triple.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_triple_poster_v3.jpg">
+      <source src="videos/shibuya_triple_v3.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <figcaption><b>同じカメラで3層を見比べたところです。</b>上がロボットのカメラに映る3DGS、中央が無加工のスキャナ純正メッシュ（穴あり）、下がraw＋地面パッチのコライダー。信号柱や地下鉄出入口が、見えない側でも立体として立っています。</figcaption>
@@ -375,7 +375,7 @@
   <p>あわせて、スキャン中に写り込んだ通行人や停車車両——「凍った障害物」——を消します。路面から浮いた突起をクラスタリングし、人・カートサイズ（幅0.25〜4.2m・高さ2.7m未満）と浮遊シャードを判定して、<strong>クラスタの実シルエットを10cmグリッドのマスクにラスタライズ</strong>し、マスク内だけをコライダー側は路面へ平坦化・3DGS側はガウシアン削除します（渋谷では210箇所・ガウシアン0.36%）。矩形ボックスで消すと<strong>人物の隣に立つ街灯の柱まで巻き添えで消えます</strong>。さらにシルエット化だけでは、人物がポールに接触していた場合の巻き添えが残るため、<strong>LiDAR点群から「縦に点が連続する細いセル」＝ポールを検出し、その周囲をマスクから除外（保護）します</strong>。工事バリア等と融合して自動判定を逃れる個体は、最後に目視して手動マスクで補います。フローター除去とあわせても、削除は全体の1.1%に収まります。</p>
 
   <figure>
-    <img src="images/shibuya_step4_ab.jpg" alt="コライダーの路面平滑化と写り込み除去の前後比較">
+    <img src="images/shibuya_step4_ab_v3.jpg" alt="コライダーの路面平滑化と写り込み除去の前後比較">
     <figcaption><b>コライダーの前後比較です。</b>上が穴埋め水密シェル（ボクセル凹凸＋交差点に凍った通行人＝負けた方式）、下が最終形（raw＋地面パッチ・路面スナップ・写り込み除去）。形の精細さを保ったまま、走れる路面になります。</figcaption>
   </figure>
 
@@ -384,8 +384,8 @@
   <p>車両は<strong>PhysX Vehicle（omni.physx.vehicle）</strong>で作ります。ウィザードAPI（<code>VehicleData</code>＋<code>create_vehicle</code>）で、スプリング/ダンパー付きサスペンションとアッカーマン操舵を備えた4輪車が数行で生成でき、<code>accelerator</code>（0〜1）と<code>steer</code>（-1〜1）の2値で運転できます。剛体ジョイントを直接回す方式と違い、路面の入力をサスペンションが吸収するため走りが滑らかです。罠は二つ：<code>VehicleData</code>には<code>rootVehiclePath</code>と<code>rootSharedPath</code>を明示すること、走行面のコライダーを生成された<code>GroundSurfaceCollisionGroup</code>に登録することです。</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster.jpg">
-      <source src="videos/shibuya_drive.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster_v3.jpg">
+      <source src="videos/shibuya_drive_v3.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <figcaption><b>完成した環境を走るPhysX Vehicleです。</b>スクランブル交差点の中央を、サスペンションで路面を吸収しながら20m直進します（横偏差±1cm・跳ねなし・すり抜けなし）。別テイクではフォークリフトが縁石を乗り越えてビルのガラス壁に接触して静止し、路上の実在物にも正しく衝突して停止しました。見えるものにも見えないものにも、正しくぶつかります。</figcaption>

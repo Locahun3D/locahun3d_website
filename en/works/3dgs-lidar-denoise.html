@@ -349,8 +349,8 @@
   </figure>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_pov_ab_poster.jpg">
-      <source src="/works/videos/shibuya_pov_ab.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_pov_ab_poster_v3.jpg">
+      <source src="/works/videos/shibuya_pov_ab_v3.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
     <figcaption><b>Crossing the intersection at robot camera height (1.7&thinsp;m), before and after.</b>Top is the raw 3DGS, bottom after processing (1.1% removed). The clump hovering over the street and the sky smudges disappear; buildings, road, poles, signage and distant vehicles all stay put.</figcaption>
@@ -361,8 +361,8 @@
   <p>Used directly, though, that shell has a melted-wax look that is <em>worse</em> geometry than the raw mesh. So use it <strong>only as a patch source</strong>: keep the shell triangles that sit <strong>more than 5&thinsp;cm from the raw surface &mdash; the parts spanning holes</strong> &mdash; and overlay them on the untouched raw mesh. Shibuya&#x27;s composite is 510k raw + 310k patch triangles: <strong>raw fidelity, holes backed</strong> (vertical ray test over the drivable area shows zero leaks; unobserved building interiors excluded).</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_triple_poster.jpg">
-      <source src="/works/videos/shibuya_triple.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_triple_poster_v3.jpg">
+      <source src="/works/videos/shibuya_triple_v3.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
     <figcaption><b>Three layers, same camera.</b>Top is the 3DGS the robot's camera sees; middle is the untouched raw scanner mesh (holed); bottom is the raw + ground-patch collider. Signal poles and the subway entrance stand as solids on the invisible side too.</figcaption>
@@ -373,7 +373,7 @@
   <p>The same pass removes pedestrians and stopped vehicles caught mid-scan &mdash; frozen obstacles. Cluster everything protruding from the road, classify person/cart-sized shapes (0.25&ndash;4.2&thinsp;m wide, under 2.7&thinsp;m tall) plus floating shards, then <strong>rasterise each cluster&#x27;s actual silhouette into a 10&thinsp;cm mask</strong> and, inside the mask only, flatten the collider and delete the matching gaussians (210 footprints in Shibuya). The silhouette matters: our first rectangle-based attempt <strong>took out a street lamp standing next to a pedestrian, leaving its head floating in mid-air</strong>. Poles and guard rails survive on thin/elongated shape rules; individuals fused with barriers get finished off with manual masks after a visual check.</p>
 
   <figure>
-    <img src="/works/images/shibuya_step4_ab.jpg" alt="Collider before and after road smoothing and de-ghosting">
+    <img src="/works/images/shibuya_step4_ab_v3.jpg" alt="Collider before and after road smoothing and de-ghosting">
     <figcaption><b>The collider, before and after.</b>Top: the healed watertight shell (voxel bumps, frozen pedestrians &mdash; the losing approach). Bottom: the final form (raw + ground patches, road snapped, de-ghosted). Full detail, drivable road.</figcaption>
   </figure>
 
@@ -382,8 +382,8 @@
   <p>Vehicles drive on angular-velocity targets applied to the wheel joints via <code>DriveAPI</code>. For straight runs, stiffen the rear steering joints and add a simple lane-keeping controller that turns lateral offset and velocity into a left/right wheel-speed differential.</p>
 
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_drive_poster.jpg">
-      <source src="/works/videos/shibuya_drive.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_drive_poster_v3.jpg">
+      <source src="/works/videos/shibuya_drive_v3.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
     <figcaption><b>A forklift driving the finished environment.</b>It runs 19&thinsp;m continuously on the smoothed road under lane-keeping control &mdash; no bouncing, no clipping, no falls. In other takes it climbed the ~10&thinsp;cm curb and stopped dead against a building's glass wall, and stopped correctly against a real object scanned into the street. It collides correctly with the visible and the invisible alike.</figcaption>
