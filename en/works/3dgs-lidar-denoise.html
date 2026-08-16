@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Turning Shibuya Crossing into an Environment Robots Can Drive｜LOCAHUN 3D Tech Blog</title>
-<meta name="description" content="We converted a 16.5-million-gaussian 3DGS scan of the Shibuya scramble crossing into a simulation environment where a forklift drives under physics. Two post-processing steps ruled by measured LiDAR - delete, then seal - carry from a meeting room to city-block scale by changing two parameters.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Setting Up a 3DGS Simulation Environment for Isaac Sim｜LOCAHUN 3D Tech Blog</title>
+<meta name="description" content="A five-step guide to turning a LiDAR-fusion 3DGS scan into a simulation environment robots can drive in NVIDIA Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight collider generation, road smoothing and de-ghosting, and the final two-layer drive - with measured numbers from a 16.5-million-gaussian scan of Shibuya crossing.">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-lidar-denoise.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
@@ -13,16 +13,16 @@
 <meta property="og:site_name" content="Locahun 3D">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
-<meta property="og:title" content="Turning Shibuya Crossing into an Environment Robots Can Drive">
-<meta property="og:description" content="We converted a 16.5-million-gaussian 3DGS scan of the Shibuya scramble crossing into a simulation environment where a forklift drives under physics. Two post-processing steps ruled by measured LiDAR - delete, then seal - carry from a meeting room to city-block scale by changing two parameters.">
+<meta property="og:title" content="Setting Up a 3DGS Simulation Environment for Isaac Sim">
+<meta property="og:description" content="A five-step guide to turning a LiDAR-fusion 3DGS scan into a simulation environment robots can drive in NVIDIA Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight collider generation, road smoothing and de-ghosting, and the final two-layer drive - with measured numbers from a 16.5-million-gaussian scan of Shibuya crossing.">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/3dgs-lidar-denoise.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta property="og:image:alt" content="Aerial render of the Shibuya scramble crossing 3DGS scan">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Turning Shibuya Crossing into an Environment Robots Can Drive">
-<meta name="twitter:description" content="We converted a 16.5-million-gaussian 3DGS scan of the Shibuya scramble crossing into a simulation environment where a forklift drives under physics. Two post-processing steps ruled by measured LiDAR - delete, then seal - carry from a meeting room to city-block scale by changing two parameters.">
+<meta name="twitter:title" content="Setting Up a 3DGS Simulation Environment for Isaac Sim">
+<meta name="twitter:description" content="A five-step guide to turning a LiDAR-fusion 3DGS scan into a simulation environment robots can drive in NVIDIA Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight collider generation, road smoothing and de-ghosting, and the final two-layer drive - with measured numbers from a 16.5-million-gaussian scan of Shibuya crossing.">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -279,11 +279,11 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Benchmark</span>
-    <span>2026-08-16</span><span>・</span><span>7 min read</span>
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">LiDAR</span><span class="badge">Guide</span>
+    <span>2026-08-16</span><span>・</span><span>8 min read</span>
   </div>
-  <h1>Turning Shibuya Crossing into<br class="pc">an Environment Robots Can Drive</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. We converted a 3DGS scan of Tokyo's Shibuya scramble crossing &mdash; 16.5 million gaussians &mdash; into <strong>a simulation environment where a forklift drives under a physics engine</strong>. The post-processing behind it is <strong>two steps: delete, then seal</strong>, both ruled by measured LiDAR. The recipe was selected by benchmarking six approaches (learned ones included) on a meeting-room scan, and it carries to city-block scale by changing exactly two parameters.</p>
+  <h1>Setting Up a 3DGS Simulation<br class="pc">Environment for Isaac Sim</h1>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. It takes five steps and no retraining. Throughout, a 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing serves as the running example, with measured numbers and the traps we actually hit.</p>
 
   <figure>
     <img src="/works/images/shibuya_hero.jpg" alt="Aerial render of the Shibuya scramble crossing 3DGS scan">
@@ -294,11 +294,14 @@
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
-    <li><a href="#problem">Two walls you hit in simulation</a></li>
-    <li><a href="#nvidia">NVIDIA's answer, and our assumption</a></li>
-    <li><a href="#solution">The answer: delete, then seal &mdash; live in Shibuya</a></li>
-    <li><a href="#lab">The numbers behind it &mdash; meeting-room benchmark</a></li>
-    <li><a href="#relight">Bonus benchmark: can 3DGS be relit?</a></li>
+    <li><a href="#overview">The big picture &mdash; why post-processing at all</a></li>
+    <li><a href="#step1">STEP 1: Load the 3DGS into Isaac Sim</a></li>
+    <li><a href="#step2">STEP 2: Delete the floaters</a></li>
+    <li><a href="#step3">STEP 3: Build a watertight collider</a></li>
+    <li><a href="#step4">STEP 4: Smooth the road, remove the ghosts</a></li>
+    <li><a href="#step5">STEP 5: Stack the two layers and drive</a></li>
+    <li><a href="#relight">Extra: changing time of day with baked shadows</a></li>
+    <li><a href="#lab">Benchmark data and limits</a></li>
     <li><a href="#summary">Summary</a></li>
   </ol>
 </nav>
@@ -306,83 +309,93 @@
 <article>
   <div class="stepflow">
     <b>3DGS scan</b><span class="a">&rarr;</span>
-    <b>delete specks far from LiDAR</b><span class="a">&rarr;</span>
-    <b>seal the scanner mesh's holes</b><span class="a">&rarr;</span>
-    <b>a floor the robot can drive on</b>
+    <b>load</b><span class="a">&rarr;</span>
+    <b>delete floaters</b><span class="a">&rarr;</span>
+    <b>watertight collider</b><span class="a">&rarr;</span>
+    <b>smooth + de-ghost</b><span class="a">&rarr;</span>
+    <b>drive on two layers</b>
   </div>
 
-  <div class="callout note"><b>What this article gives you</b>The inputs are the three standard outputs of a LiDAR-fusion scanner &mdash; <strong>the 3DGS, the scanner mesh, and the dense LiDAR point cloud</strong> (the procedure does not apply to camera-only 3DGS). Two post-processing steps later you hold <strong>a two-layer environment: the visible 3DGS stacked on an invisible watertight collider</strong>. The collider gives the robot its physics; the 3DGS gives it its camera feed.</div>
+  <div class="callout note"><b>What this article gives you</b>The inputs are the three standard outputs of a LiDAR-fusion scanner &mdash; <strong>the 3DGS, the scanner mesh, and the dense LiDAR point cloud</strong> (the procedure does not apply to camera-only 3DGS). Five post-processing steps later you hold <strong>a two-layer environment &mdash; the visible 3DGS stacked on an invisible watertight collider</strong> &mdash; ready for robot driving, collision, and sensor tests in Isaac Sim. Dependencies: Python, a point-cloud library, and Isaac Sim.</div>
 
-  <h2 id="problem"><span class="n">01</span> Two walls you hit in simulation</h2>
-  <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong> &mdash; and in robotics simulation the difference turns into concrete failures.</p>
-
-  <h3>Wall 1: airborne specks pollute the robot's view</h3>
-  <p>3DGS leaves gaussians where nothing exists. <strong>3DGS carries no collision, so nothing bumps into them</strong> &mdash; the damage is that they land in the robot's camera image as training noise.</p>
-  <p>How high this wall is depends on where you scan. Indoors, the meeting-room scan carried <strong>0.90% floaters</strong>; outdoors in Shibuya the count jumped to <strong>1.12 million of 16.5 million gaussians &mdash; 6.80%</strong>. Glass facades, open sky, and passing crowds all leave specks with nothing real behind them.</p>
-
-  <figure>
-    <img src="/works/images/shibuya_floaters.jpg" alt="Only the 1.12 million floaters removed from the Shibuya scan, shown in isolation">
-    <figcaption><b>The 1.12 million floaters removed from the Shibuya scan, shown alone.</b>Every wisp of fuzz over the streets is a gaussian more than 25&thinsp;cm from a measured surface &mdash; and at robot eye level, all of it lands straight in the camera.</figcaption>
-  </figure>
-
-  <h3>Wall 2: the robot falls through holes in the collision mesh</h3>
-  <p>3DGS has no surfaces, so collision comes from the mesh the scanner exports &mdash; and measured, the holes (edges that close onto no face) run to <strong>4.86% in the meeting room and 9.01% in Shibuya</strong>. They cluster where coverage thins: behind glass, in the shadow of crowds, on road the cameras never faced.</p>
-  <p>Put the robot down on holed floor and this happens.</p>
+  <h2 id="overview"><span class="n">01</span> The big picture &mdash; why post-processing at all</h2>
+  <p>3DGS is unbeatable at looking right. But that is the result of <strong>optimising to match photographs, not of getting the shape correct</strong> &mdash; and used raw in simulation, two failures follow.</p>
+  <p>First, <strong>floaters</strong>: gaussians left where nothing exists land in the robot's camera as training noise. The amount depends heavily on the scene &mdash; measured at 0.90% indoors versus <strong>6.80% (1.12 of 16.5 million) in outdoor Shibuya</strong>. Second, <strong>holes in collision</strong>: 3DGS has no surfaces, so collision comes from the scanner mesh, whose boundary-edge holes run to <strong>4.86% indoors and 9.01% in Shibuya</strong>. Put a robot on a hole and this happens.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/envgen_fall_poster.jpg">
       <source src="/works/videos/envgen_fall_fail.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole. The robot accelerated 38 metres below the floor without stopping.</figcaption>
+    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole &mdash; the robot accelerated 38 metres below the floor without stopping.</figcaption>
   </figure>
 
-  <h2 id="nvidia"><span class="n">02</span> NVIDIA's answer, and our assumption</h2>
-  <p>In August 2026 NVIDIA <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">published a fix for exactly this</a>: <a href="https://nianticspatial.com/" target="_blank" rel="noopener">Niantic Spatial</a>'s pipeline emits <strong>gaussians and a mesh in one coordinate frame from a single capture</strong> &mdash; appearance and collision respectively. The crux is <strong>constraining the geometry with a depth model</strong>; <a href="https://arxiv.org/abs/2403.17822" target="_blank" rel="noopener">DN-Splatter</a> is the public research lineage.</p>
-  <div class="callout note"><b>The assumption we noticed</b>Niantic captured with <strong>a 360&deg; camera</strong> &mdash; with only cameras, estimating depth is the only option. We hold <strong>measured depth</strong> from a LiDAR scanner. Then maybe neither the estimator nor the retraining is needed at all? That question drove everything below.</div>
+  <p>The architecture that fixes both is <strong>two layers</strong>: a floater-cleaned 3DGS for appearance, an invisible watertight collider for physics. NVIDIA&times;Niantic's <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">pipeline of the same shape</a> constrains geometry with AI-estimated depth &mdash; but that is what you do when a 360&deg; camera is all you have. <strong>Holding measured LiDAR depth, you need neither the estimator nor any retraining</strong>: the five steps below build the same thing (quantitative comparison against learned methods is in <a href="#lab">the benchmark section</a>).</p>
 
-  <h2 id="solution"><span class="n">03</span> The answer: delete, then seal &mdash; live in Shibuya</h2>
-  <p>What won is a two-step post-process with no training whatsoever. <strong>It depends on nothing but Python and a point-cloud library</strong>, and moving from a room to a city block means changing two numbers: the distance threshold and the voxel size.</p>
+  <h2 id="step1"><span class="n">02</span> STEP 1: Load the 3DGS into Isaac Sim</h2>
+  <p>Convert the 3DGS PLY to USD (ParticleField) and load it &mdash; the basic conversion workflow is covered in <a href="isaacsim-3dgs-import.html">a separate article</a>. For a working setup, defuse two traps first.</p>
+  <ul>
+    <li><strong>Align the coordinate frame.</strong> A Y-up 3DGS (e.g. from LCC2) converts to Z-up with positions mapped <code>(x, z, -y)</code> &mdash; a -90&deg; rotation about X &mdash; and orientations left-multiplied by the same rotation's quaternion. When touching USD quaternion arrays from numpy, the memory layout is <strong>(x, y, z, w) &mdash; imaginary first</strong>; assume (w, x, y, z) and every gaussian's orientation breaks, turning the scene to noise.</li>
+    <li><strong>Pin the renderer to RaytracedLighting before opening the stage.</strong> Path-tracing modes blow the self-emissive 3DGS out to white, and switching modes after a 10-million-gaussian scene is loaded is a reliable way to crash.</li>
+  </ul>
+  <div class="callout note"><b>The unit trap when placing robots</b>Reference assets authored in centimetres (Isaac's stock forklift among them) get an automatic 0.01 correction scale from Kit. Rebuild the xform with <code>ClearXformOpOrder()</code> and that correction disappears &mdash; <strong>enter a 370-metre forklift</strong>. After rebuilding, set scale 0.01 explicitly.</div>
 
-  <h3>Step 1: delete specks far from the LiDAR (floater removal)</h3>
-  <p>Measure each gaussian's distance to a measured surface (the LiDAR cloud, or the scanner mesh sampled densely) and delete anything beyond the threshold. The meeting room used 10&thinsp;cm; Shibuya used <strong>25&thinsp;cm</strong> for street scale, deleting 1.12 million gaussians (6.80%). Seen from robot eye level, the effect is unmistakable.</p>
+  <h2 id="step2"><span class="n">03</span> STEP 2: Delete the floaters</h2>
+  <p>Measure each gaussian's distance to a measured surface (the LiDAR cloud, or the scanner mesh sampled densely) and delete anything beyond the threshold: <strong>10&thinsp;cm indoors, 25&thinsp;cm at street scale</strong> are the measured working values. In Shibuya this removes 1.12 million gaussians (6.80%).</p>
+
+  <figure>
+    <img src="/works/images/shibuya_floaters.jpg" alt="Only the 1.12 million floaters removed from the Shibuya scan, shown in isolation">
+    <figcaption><b>The 1.12 million floaters to be deleted, shown alone.</b>Every wisp of fuzz over the streets is a gaussian more than 25&thinsp;cm from a measured surface.</figcaption>
+  </figure>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_pov_ab_poster.jpg">
       <source src="/works/videos/shibuya_pov_ab.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>Crossing the intersection at robot camera height (1.7&thinsp;m), before and after.</b>Left is the raw 3DGS, right after removal. The billboard-shaped clump hovering over the street and the smudges in the sky disappear; buildings and road stay put.</figcaption>
+    <figcaption><b>Crossing the intersection at robot camera height (1.7&thinsp;m), before and after.</b>Left is the raw 3DGS, right after processing. The clump hovering over the street and the sky smudges disappear; buildings and road stay put.</figcaption>
   </figure>
 
-  <h3>Step 2: seal only the holes in the scanner mesh (collision)</h3>
-  <p>Voxelise the scanner mesh, apply morphological closing (dilate&ndash;erode) to seal the small holes, and run marching cubes to get a surface back. For Shibuya we cropped 90&times;90&thinsp;m around the crossing and processed it at <strong>6&thinsp;cm voxels with two closing iterations</strong> &mdash; turning a mesh with 9.01% holes into <strong>a fully watertight collider (0% boundary edges, 1.2 million triangles)</strong>.</p>
+  <h2 id="step3"><span class="n">04</span> STEP 3: Build a watertight collider</h2>
+  <p>Voxelise the scanner mesh, seal the holes with morphological closing (dilate&ndash;erode), run marching cubes, and decimate. Voxel size: <strong>3&thinsp;cm for a room, 6&thinsp;cm for a city block</strong>. For Shibuya, cropping 90&times;90&thinsp;m around the crossing turns a mesh with 9.01% holes into <strong>a fully watertight collider (0% boundary edges, 1.2 million triangles)</strong>. It is all classic image processing &mdash; minutes, not hours.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_triple_poster.jpg">
       <source src="/works/videos/shibuya_triple.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>Three layers, same camera.</b>Left is the 3DGS the robot's camera sees; middle is the raw scanner mesh (holed, after de-ghosting); right is the healed collider. Signal poles and the subway entrance stand as solids on the invisible side too.</figcaption>
+    <figcaption><b>Three layers, same camera.</b>Left is the 3DGS the robot's camera sees; middle is the raw scanner mesh (holed); right is the watertight collider. Signal poles and the subway entrance stand as solids on the invisible side too.</figcaption>
   </figure>
 
-  <h3>Step 2.5: a road surface vehicles can drive (smoothing + de-ghosting)</h3>
-  <p>The healed collider as-is already serves collision, path-planning, and sensor-occlusion checks &mdash; but drive a vehicle on it and it bounces. Voxel reconstruction leaves a staircase texture on the road, measured at <strong>bump p95 = 6.0&thinsp;cm</strong> (exactly the voxel pitch), and a suspension-less vehicle transmits all of it. Snapping just the road region onto a smooth field fitted to the measured LiDAR surface brings bumps down to <strong>p95 = 1.0&ndash;1.6&thinsp;cm &mdash; real-asphalt territory</strong> (curbs and structures untouched, still watertight).</p>
-  <p>The same pass handles pedestrians and stopped vehicles caught mid-scan, which persist as frozen obstacles on the road. Clustering everything protruding from the road and classifying person/cart-sized shapes (0.25&ndash;4.2&thinsp;m wide, under 2.7&thinsp;m tall) plus floating shards, we <strong>flatten 210 footprints in the collider and delete the matching gaussians (1.35%) from the visual layer</strong>. Poles and guard rails survive on thin/elongated shape rules.</p>
+  <h2 id="step4"><span class="n">05</span> STEP 4: Smooth the road, remove the ghosts</h2>
+  <p>The STEP 3 collider already serves collision, path-planning, and sensor-occlusion checks &mdash; but vehicles need one more pass. Voxel reconstruction leaves a staircase texture on the road measured at <strong>bump p95 = 6.0&thinsp;cm</strong> (exactly the voxel pitch), and a suspension-less vehicle transmits all of it. <strong>Snapping just the road region onto a smooth field fitted to the measured LiDAR surface</strong> brings bumps down to <strong>p95 = 1.0&ndash;1.6&thinsp;cm &mdash; real-asphalt territory</strong> &mdash; and aligns the collider with the 3DGS ground (curbs and structures untouched, still watertight).</p>
+  <p>The same pass removes pedestrians and stopped vehicles caught mid-scan &mdash; frozen obstacles. Cluster everything protruding from the road, classify person/cart-sized shapes (0.25&ndash;4.2&thinsp;m wide, under 2.7&thinsp;m tall) plus floating shards, then <strong>flatten those footprints in the collider and delete the matching gaussians</strong> (210 footprints and 1.35% of gaussians in Shibuya). Poles and guard rails survive on thin/elongated shape rules. A few individuals fused with barriers dodge the automatic rules &mdash; finish with a visual check and manual boxes.</p>
 
-  <h3>Finale: drive a forklift through it</h3>
-  <p>Stack the two layers, open the result in NVIDIA Isaac Sim, and drive a forklift (3.7&thinsp;m long) under the physics engine.</p>
+  <h2 id="step5"><span class="n">06</span> STEP 5: Stack the two layers and drive</h2>
+  <p>Finally, assemble one USD: define a physicsScene on a Z-up stage, reference the 3DGS as-is, embed the collider as a Mesh with <code>CollisionAPI</code> (approximation=none), and call <code>MakeInvisible()</code> on it. That completes the two-layer environment &mdash; <strong>appearance from 3DGS, physics from the collider</strong>.</p>
+  <p>Vehicles drive on angular-velocity targets applied to the wheel joints via <code>DriveAPI</code>. For straight runs, stiffen the rear steering joints and add a simple lane-keeping controller that turns lateral offset and velocity into a left/right wheel-speed differential.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_drive_poster.jpg">
       <source src="/works/videos/shibuya_drive.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>A forklift driving the Shibuya scramble crossing.</b>It runs 19&thinsp;m continuously on the smoothed road under a simple lane-keeping controller &mdash; no bouncing, no clipping, no falls. In other takes it climbed the ~10&thinsp;cm curb and stopped dead against a building's glass wall, and stopped correctly against a real 1.2&thinsp;m object scanned into the street. It collides correctly with the visible and the invisible alike.</figcaption>
+    <figcaption><b>A forklift driving the finished environment.</b>It runs 19&thinsp;m continuously on the smoothed road under lane-keeping control &mdash; no bouncing, no clipping, no falls. In other takes it climbed the ~10&thinsp;cm curb and stopped dead against a building's glass wall, and stopped correctly against a real object scanned into the street. It collides correctly with the visible and the invisible alike.</figcaption>
   </figure>
 
-  <h2 id="lab"><span class="n">04</span> The numbers behind it &mdash; meeting-room benchmark</h2>
-  <p>The recipe itself was selected indoors, where ground truth is easy to measure. Healing takes the scanner mesh from 4.86% holes to <strong>0%</strong>, with a median deviation from LiDAR of <strong>1.1&thinsp;cm</strong>, desk-leg occupancy of 29.7% (3DGS truth 27.2%; raw scanner mesh 18.6%), and 56/56 cubes at rest in the drop test. Drive a robot at a desk and it touches the edge and stops within &plusmn;5&thinsp;mm &mdash; no clipping, no climbing.</p>
+  <div class="callout note"><b>What each use case needs</b>These five steps make <strong>collision avoidance, path planning, and LiDAR/depth sensor testing production-usable</strong>. Camera-based learning additionally wants a sky dome to fill the black void and an environment wrapper (reset / observation / reward APIs). To suppress the remaining ride vibration, swap the vehicle for a PhysX Vehicle (omni.physx.vehicle) with sprung suspension.</div>
+
+  <h2 id="relight"><span class="n">07</span> Extra: changing time of day with baked shadows</h2>
+  <p>A 3DGS bakes in the light of its capture day, and scene lights cannot change it &mdash; measured directly, swinging a DistantLight from 8000 to 300 intensity and white to sunset colour moved the pixels no more than render noise (mean 2.7/255). Properly separating material from light takes inverse-rendering retraining along the lines of <a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS&sup3;</a>.</p>
+  <p>The two-layer build offers a shortcut, though: ray-test each gaussian toward the sun against the watertight collider, then <strong>warm the lit ones and darken the shadowed ones toward blue for a passable dusk</strong> (a low 18&deg; western sun lights 20% of gaussians). Not physically correct &mdash; but usable for widening domain-randomisation inputs.</p>
+
+  <figure>
+    <img src="/works/images/shibuya_relight_eye.jpg" alt="Day scan versus collider-shadow-baked dusk comparison">
+    <figcaption><b>Left: the day-lit scan as captured. Right: dusk baked via collider shadow rays.</b>One extra time-of-day variant, no retraining &mdash; post-processing only.</figcaption>
+  </figure>
+
+  <h2 id="lab"><span class="n">08</span> Benchmark data and limits</h2>
+  <p>The recipe was selected indoors (a meeting room), where ground truth is easy to measure. Healing takes the scanner mesh from 4.86% holes to <strong>0%</strong>, with a median deviation from LiDAR of <strong>1.1&thinsp;cm</strong>, desk-leg occupancy of 29.7% (3DGS truth 27.2%; raw scanner mesh 18.6%), and 56/56 cubes at rest in the drop test. Drive a robot at a desk and it touches the edge and stops within &plusmn;5&thinsp;mm &mdash; no clipping, no climbing.</p>
 
   <h3>The methods that lost</h3>
   <p>Every alternative was measured on the same data and the same ruler (distance to the LiDAR cloud, leg-height occupancy, drop test).</p>
@@ -403,24 +416,16 @@
 
   <div class="callout note"><b>What this means</b><strong>A plain rule &mdash; do not delete or invent measured data &mdash; beat the learned priors.</strong> Niantic reached for a depth model because a 360&deg; camera was all they had. <strong>Anyone holding measured LiDAR has a shorter, more certain route.</strong> The best answer to the same problem changes with the hardware in your hands.</div>
 
-  <div class="callout warn"><b>Limits of this benchmark</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, de-ghosting (step 2.5) removes the solids but <strong>not the shadow stains baked into the road colour</strong>, and road never observed under parked cars stays as dark holes. Second, real objects the LiDAR cannot reach &mdash; billboards high on facades &mdash; can be deleted along with the floaters (raising the threshold keeps them, but keeps floaters too). Anything needing millimetre-accurate shape still deserves a CG model.</div>
+  <div class="callout warn"><b>Limits of this procedure</b>The numbers come from <strong>two scenes: the meeting room and Shibuya</strong>. <strong>No surface can be built where the LiDAR never looked</strong>, so keep spawns and routes inside the observed region when training. Outdoors adds two caveats. First, de-ghosting (STEP 4) removes the solids but <strong>not the shadow stains baked into the road colour</strong>, and road never observed under parked cars stays as dark holes. Second, real objects the LiDAR cannot reach &mdash; billboards high on facades &mdash; can be deleted along with the floaters (raising the threshold keeps them, but keeps floaters too). Anything needing millimetre-accurate shape still deserves a CG model.</div>
 
-  <h2 id="relight"><span class="n">05</span> Bonus benchmark: can 3DGS be relit?</h2>
-  <p>A 3DGS scan bakes in the light of the day it was captured. We tested whether time-of-day can be changed. Two findings.</p>
-  <p><strong>First, scene lights do nothing.</strong> In Isaac Sim (ParticleField rendering), swinging a DistantLight from 8000 to 300 intensity and white to sunset colour changed the rendered pixels by no more than render noise (mean 2.7/255). 3DGS emits its own baked radiance, so lights cannot illuminate it. Properly separating material from light takes inverse-rendering retraining along the lines of <a href="https://arxiv.org/abs/2410.11419" target="_blank" rel="noopener">GS&sup3;</a> &mdash; not something you bolt onto an existing scan.</p>
-  <p><strong>Second, the two-layer build enables a shadow-baking approximation.</strong> With a watertight collider available, each gaussian can be ray-tested toward the sun. Under a low western sun (18&deg; elevation) only 20% of gaussians are lit; warming the lit ones and darkening the shadowed ones toward blue yields a passable dusk. Not physically correct &mdash; but usable for widening domain-randomisation inputs.</p>
-
-  <figure>
-    <img src="/works/images/shibuya_relight_eye.jpg" alt="Day scan versus collider-shadow-baked dusk comparison">
-    <figcaption><b>Left: the day-lit scan as captured. Right: dusk baked via collider shadow rays.</b>One extra time-of-day variant, no retraining &mdash; post-processing only.</figcaption>
-  </figure>
-
-  <h2 id="summary"><span class="n">06</span> Summary</h2>
-  <p>Taking LiDAR-scanned data into robotics simulation fits in three lines.</p>
+  <h2 id="summary"><span class="n">09</span> Summary</h2>
+  <p>Turning a LiDAR-fusion 3DGS scan into an Isaac Sim environment fits in five lines.</p>
   <ul>
-    <li><strong>Remove floaters by distance from measured surfaces</strong> &mdash; threshold 10&thinsp;cm indoors, 25&thinsp;cm at street scale. The amount removed changes by an order of magnitude: 0.90% indoors versus 6.80% outdoors.</li>
-    <li><strong>Build collision by sealing only the holes in the scanner mesh</strong> &mdash; voxelise, morphological closing, marching cubes. Voxels: 3&thinsp;cm for a room, 6&thinsp;cm for a city block. Both come out watertight with 0% holes, desk legs and signal poles intact.</li>
-    <li><strong>No retraining needed</strong> &mdash; at least when accurate camera poses are unavailable, post-processing is both faster and better.</li>
+    <li><strong>STEP 1:</strong> align the frame to Z-up and pin the renderer to RaytracedLighting before loading.</li>
+    <li><strong>STEP 2:</strong> delete gaussians far from measured surfaces (10&thinsp;cm indoors, 25&thinsp;cm at street scale; 6.80% goes outdoors).</li>
+    <li><strong>STEP 3:</strong> voxelise &rarr; morphological closing &rarr; marching cubes for a watertight collider (3&thinsp;cm / 6&thinsp;cm, 0% holes).</li>
+    <li><strong>STEP 4:</strong> snap the road onto the measured surface (bumps 6&thinsp;cm &rarr; 1&ndash;2&thinsp;cm) and de-ghost all layers.</li>
+    <li><strong>STEP 5:</strong> stack the two layers in one USD, make the collider invisible, and drive. No retraining anywhere.</li>
   </ul>
   <p>The basics of loading 3DGS into Isaac Sim are covered in <a href="isaacsim-3dgs-import.html">a separate article</a>.</p>
 

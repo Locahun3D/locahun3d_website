@@ -250,6 +250,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
+    tag:"industry", tagLabel:"技術", date:"2026-08-16", read:"約7分",
+    title:"3DGSスキャンはVectorworksでは使えない",
+    excerpt:"スキャナが出力する3形式(3DGS・点群・メッシュ)すべてをVectorworks Spotlightへ実際に取り込んだ結果、どれも実務では使えませんでした。色が消える、図面に使えない、視点を変えるたびに待たされる——それぞれの理由と、代わりの進め方を実測値でまとめます。",
+    href:"vectorworks-3dgs-mesh.html", thumb:"images/vw_hero_block.jpg"
+  },
+  {
     tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約10分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
@@ -257,8 +263,8 @@ var POSTS = [
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-08-16", read:"約7分",
-    title:"渋谷スクランブル交差点を、ロボットが走れる環境にする",
-    excerpt:"渋谷スクランブル交差点の3DGSスキャン(1,650万ガウシアン)を、フォークリフトが物理エンジンで走れるシミュレーション環境に変換。LiDAR実測値で「削って、塞ぐ」2段階の後処理だけで、室内から街区スケールまで同じ手順が通ることを実測で示します。",
+    title:"Isaac Sim向けに3DGSシミュレーション環境をセットアップする",
+    excerpt:"LiDAR搭載スキャナの3DGSを、Isaac Simでロボットが走れる環境にする5ステップの手順。座標系とレンダラの罠、フローター除去、水密コライダー、路面平滑化と写り込み除去、2層構造での走行まで、渋谷スクランブル交差点(1,650万ガウシアン)の実測値つき。",
     href:"3dgs-lidar-denoise.html", thumb:"images/shibuya_hero.jpg"
   },
   {
