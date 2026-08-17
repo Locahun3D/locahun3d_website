@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<link rel="canonical" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
+<meta property="og:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<meta property="og:url" content="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="渋谷スクランブル交差点の3DGSをNova CarterがRTX LiDARを回しながら走る図">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
+<meta name="twitter:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
+      <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
+      <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+      <a href="/locahun3d_demo.html"><span class="code">0.4</span>デモ・お問合せ</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/en/works/isaacsim-3dgs-robot-demos.html">EN</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">自律走行</span>
+    <span>2026-08-18</span><span>・</span><span>読了 約7分</span>
+  </div>
+  <h1>Isaac Sim 6.0で<br class="pc">3DGSの街をロボット開発に使う<br class="pc">──RTX LiDAR・太陽の影・自律走行</h1>
+  <p class="lead">ロケハン3Dの中村です。<a href="3dgs-lidar-denoise.html">前回</a>作った「無加工の3DGS＋純正メッシュの2層環境」の上で、ロボット開発で実際に要る3つのこと——<strong>実センサ（RTX LiDAR）が街をなぞる／時刻で影が動く／地図を作ってゴールまで自律で走る</strong>——をNVIDIA Isaac Sim 6.0で通しました。使う機体はIsaac標準のNova Carter、舞台は渋谷スクランブル交差点のスキャン（1,650万ガウシアン）です。動く画とあわせて、そのまま真似すると必ず踏む罠を全部書きます。</p>
+
+  <figure>
+    <img src="images/shibuya_lidar_hero.jpg" alt="渋谷スクランブル交差点の3DGSをNova CarterがRTX LiDARを回しながら走る図">
+    <figcaption><b>Nova CarterのRTX LiDAR（HESAI XT32相当）が3DGSの渋谷をなぞっているところです。</b>点群はRTX LiDARの実測出力（リング一本が32チャンネルの一走査）ですが、後述の制約により<strong>センサ用メッシュを可視にした別パスで記録し、同一走行に重ねて描画</strong>しています。見た目は3DGS、当たり判定とセンサ反射は純正メッシュ側の担当です。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#overview">前提と全体像</a></li>
+    <li><a href="#lidar">デモ1：Nova Carter＋RTX LiDARで街をなぞる</a></li>
+    <li><a href="#sun">デモ2：純正メッシュの影を3DGSに落とす（太陽タイムラプス）</a></li>
+    <li><a href="#nav">デモ3：占有格子を作ってA*で自律走行</a></li>
+    <li><a href="#limits">実用シミュとして足りないもの</a></li>
+    <li><a href="#summary">まとめ・納品物</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>2層環境（前回）</b><span class="a">→</span>
+    <b>Nova Carter＋RTX LiDAR</b><span class="a">→</span>
+    <b>影の合成</b><span class="a">→</span>
+    <b>占有格子＋A*で自律走行</b>
+  </div>
+
+  <div class="callout note"><b>この記事で得られるもの</b>前回の2層USD（3DGS＋不可視コライダー）を入力に、<strong>①Isaac標準ロボの走行とRTX LiDARの点群取得 ②スキャナ純正メッシュを影キャスターにした時刻変化 ③コライダーからの占有格子生成と経路追従</strong>の3本が動く状態になります。シミュレーション側は全部Isaac Sim 6.0.1同梱の拡張だけで、追加インストールはありません（ROS 2は使っていません）。ただし影の3パス合成・色調整とomapの検証はIsaacの外（Python＋NumPy/SciPy/Pillow、ffmpeg）で行っています。</div>
+
+  <h2 id="overview"><span class="n">01</span> 前提と全体像</h2>
+  <p>環境は<a href="3dgs-lidar-denoise.html">前回</a>のまま——見た目は無加工の3DGS（ParticleField）、物理はスキャナ純正メッシュ＋地面パッチの不可視コライダーです。ここへIsaac Sim 6.0で入った物を足していきます。6.0では3DGSまわりが大きく動いており、3DGSの取り込みは<strong>USD ParticleField中心</strong>に整理されました（NuRec(usdz)経路については、NVIDIAフォーラムで3DGRUT公式ドキュメントを引いて「<a href="https://forums.developer.nvidia.com/t/question-on-two-3dgs-rendering-pipelines-nurec-vs-particlefield-and-expected-quality-tradeoff-in-isaac-sim-6-0/373260" target="_blank" rel="noopener">deprecation trackにありParticleField推奨</a>」と回答されています。本記事はその回答に従いParticleFieldを採用）。RTX LiDARは<code>isaacsim.sensors.experimental.rtx</code>に整理され、ROS 2は<a href="https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_ros_other_platforms.html" target="_blank" rel="noopener">6.0の公式手順</a>でWindows向けにJazzy＋Pixiのワークスペースが案内されるようになりました（本記事では未検証・Linuxとの機能差も未確認）。本記事の3本はどれも同梱拡張のPython APIだけで組んでいます。</p>
+  <div class="callout note"><b>検証環境（この記事の数値の前提）</b>Isaac Sim 6.0.1（Windows 11）／GeForce RTX 5090 32GB・ドライバ610.47、<strong>本環境ロード時のVRAM使用量は約14GB</strong>（1,650万ガウシアン＋コライダー＋Nova Carter）／物理はPhysX既定（dt=1/60、physics material未指定＝既定摩擦、コライダーは三角メッシュ近似なし・62.8万三角形）／RTXレンダモード RaytracedLighting・2560×1440／座標系はZ-up・metersPerUnit=1.0・原点はスキャナ出力（LCC2）のローカル原点で緯度経度への紐付けなし。<strong>Linux未検証</strong>。撮影中のフレームレートは点群描画込みで約1.6fps（実時間比≈0.05）と遅く、これは<code>debug_draw</code>へPythonでタプル配列を渡している描画側のコストで、物理・センサ側の律速ではありません。</div>
+  <p>先に、全部に共通する<strong>最重要の罠</strong>を一つ。<strong>RTXセンサ（LiDAR）は「不可視にしたプリム」を検知しません。</strong>コライダーを<code>MakeInvisible()</code>で消していると、LiDARはコライダーを素通りしてスプラットにしか当たらず、地面の返りがほとんど無くなります。かといってコライダーを可視にすれば灰色のメッシュがカメラに写ります。私たちが試した範囲では、RTXにメッシュを「カメラからは隠すが影とセンサには見せる」一発のスイッチは見つかりませんでした——Kitのプロパティ欄「Invisible to Primary Ray」の実体<code>primvars:hideForCamera</code>は真っ黒なメッシュとして描画され、<code>primvars:invisibleToPrimaryRays</code>を立ててもリアルタイムRTXでは可視のまま、4.5cm内側へオフセットしてスプラットの中に隠す案は路面スプラットが半透明で透けました。未検証の候補（<code>purpose=guide</code>、フレーム交互の可視トグル、レンダープロダクト別のレイヤ合成）は<a href="#limits">05節</a>にまとめています。デモ1・2の構成はこの制約を回避するためのものです。</p>
+
+  <h2 id="lidar"><span class="n">02</span> デモ1：Nova Carter＋RTX LiDARで街をなぞる</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_carter_lidar_poster_v1.jpg">
+      <source src="videos/shibuya_carter_lidar_v1.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>Nova Carterが横断歩道を渡り、車載LiDARの点群（直近8フレーム蓄積・世界座標）が街をなぞります。</b>右下は車載カメラ。走行は差動2輪＋前キャスターの実機構成で、路面は無加工の生スキャンです。</figcaption>
+  </figure>
+  <p>手順は4つです。<strong>①機体</strong>：<code>/Isaac/Robots/NVIDIA/NovaCarter/nova_carter.usd</code>を<code>WheeledRobot</code>（<code>isaacsim.robot.experimental.wheeled_robots</code>）で参照し、<code>DifferentialController(wheel_radius=0.14, wheel_base=0.4132)</code>の出力を<code>apply_wheel_actions</code>に渡します。<strong>②センサ</strong>：<code>Lidar.create(path=..., config='HESAI_XT32_SD10', translations=[[0,0,0.55]])</code>でシャシに子付けし、<code>LidarSensor(lidar, annotators=['generic-model-output'])</code>から毎フレーム<code>parse_generic_model_output_data</code>で読みます。GMOの<code>x/y/z</code>は既定で<strong>方位角[deg]・仰角[deg]・距離[m]</strong>（<code>elementsCoordsType</code>がSPHERICAL）なので直交座標へ変換します。<strong>③制御</strong>：3m先を見る純追跡（<code>w = 1.2·誤差角 − 0.25·ヨーレート</code>）。<strong>④描画</strong>：<code>isaacsim.util.debug_draw</code>の<code>draw_points</code>にワールド座標の点を渡します。</p>
+  <div class="callout warn"><b>踏んだ罠（全部実測）</b>
+    <ul>
+      <li><strong>不可視コライダーはLiDARに映らない</strong>（上述）。本デモは<strong>2パス</strong>で撮っています——パス1でコライダーと同形の「センサ用メッシュ」（描画専用・コライダー無し）を可視にして点群だけを世界座標で記録、パス2でメッシュを消して同じ走行を再現し記録点群を描画。センサ用メッシュは物理に関与しないため両パスの物理入力は同一で、実測でも<strong>停止フレーム（1171）と30フレームごとの車体座標（小数2桁）が両パスで一致</strong>しました。ただしPhysXの再現性は同一ステージ・同一dt・同一GPU/ドライバの範囲の話で、環境が変われば再確認が要ります。</li>
+      <li><strong>GMOの<code>x/y/z</code>の意味は<code>elementsCoordsType</code>で決まります。</strong>本デモのHESAI_XT32_SD10ではSPHERICALでしたが、CARTESIANで返る構成もあるので、値を仮定せず必ず読んで分岐してください。</li>
+      <li><strong>点群のモーション歪み（deskew）は未処理です。</strong>1フレーム分のセンサ姿勢で全リターンを一括変換しており、さらにIsaac側もログに「MotionBVH for lidar model not enabled ... incorrect point cloud without motion effects」と出る既定設定のため、<strong>1スキャン中の移動による歪みは実機と違い入っていません</strong>。SLAM／レジストレーションの検証に使うなら、Motion BVHを有効にした上でGMOのタイムスタンプでper-point補正を入れてください。</li>
+      <li><strong>GMOの点をセンサプリムのワールド変換で戻すと、地面がちょうどマウント高（0.55m）だけ低く出ました。</strong>Lidar.createの<code>translations</code>が変換に乗っていないためと見ています。取付オフセット分を足すと地面が実高さに一致します。</li>
+      <li><strong>ホイールのDriveAPIを自分で上書きしない。</strong>減衰1e5等で上書きすると加速時に暴れます。<code>WheeledRobot</code>に任せると資産既定値で安定します。</li>
+      <li><strong>キャスターのシミー。</strong>生スキャン路面では1.3m/s以上で前キャスターが振れ出して数百msでスピンします（2.0m/sで1.5秒、1.3m/sで2.5秒後）。<strong>1.0m/s以下</strong>で安定。これは<strong>生スキャン路面の法線ノイズと接触生成に起因するシミュ側の現象と考えており、実機Nova Carterの挙動を再現したものではありません</strong>（実機との突き合わせは未実施）。したがってこの環境で走行安定性やコントローラゲインを詰めても実機転移は保証されません。速度域を上げる検証には路面の平滑化かキャスターの減衰調整が要ります。</li>
+      <li><strong>同じパスへ再参照すると車体メッシュが消える。</strong>ステージを閉じずに<code>RemovePrim</code>→再<code>add_reference</code>すると、センサ類だけ残して車体が描かれなくなりました。テイクごとにステージを開き直すのが確実です。</li>
+      <li><strong>地面ヒットの点が見えない</strong>のは、点がスプラット表面と同じ深度でZバッファに負けているためです。描画時に8cm持ち上げると見えます（この持ち上げは<code>draw_points</code>の表示だけに適用し、記録・保存する点群は生の世界座標のままにします）。</li>
+    </ul>
+  </div>
+
+  <h2 id="sun"><span class="n">03</span> デモ2：純正メッシュの影を3DGSに落とす（太陽タイムラプス）</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_sun_poster_v1.jpg">
+      <source src="videos/shibuya_sun_v1.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>日の出から日没まで、街灯・標識・交番の影がスクランブル交差点を掃引します。</b>影の形はスキャナ純正メッシュから、色は3DGSからです。朝夕の色味と露出は合成時に足しています。</figcaption>
+  </figure>
+  <p>Omniverse公式のParticle Fields仕様に「<strong>Particle fields will receive shadows from other scene geometry</strong>」とある通り、6.0では<strong>メッシュの影が3DGSの上に落ちます</strong>（デモ1のロボの影がそれです）。ただしスプラットの色は焼き込みで、トーンマップも素通り（display-referred sRGBをas-is）なので<strong>ライトを足しても明るくならず、色温度も変わりません</strong>。つまり「影だけは付けられる、リライトはできない」が6.0時点の正確な状態です。</p>
+  <p>建物や街灯の影を落とすには純正メッシュをキャスターにすればよいのですが、前述の通り<strong>キャスターをカメラから隠せません</strong>。そこで<strong>3パス合成</strong>にしました。①beauty＝3DGSのみ（太陽なし）②A＝白マテリアルの純正メッシュ＋太陽（影あり）③B＝Aと同じで<code>primvars:doNotCastShadows=True</code>（影なし）。<code>final = beauty × (A/B)</code>で「メッシュ由来の影マスク」だけを取り出して掛けます。72方位×3パスで約6分。<strong><code>/rtx/shadows/enabled</code>を切ってもBパスの影は消えません</strong>（実測）——キャスター側の<code>doNotCastShadows</code>で切るのが確実です。</p>
+  <div class="callout note"><b>限界</b>この方式は<strong>固定カメラのオフライン合成</strong>で、物理ベースのライティングではありません——間接光・空色の変化・照り返しは再現されず、A/Bは影の濃い領域で数値が不安定になります（本記事では比を0.45〜0.97で正規化・ぼかし・床を入れて安定させています）。1方位あたり3パスで約5秒かかるため、<strong>走行中のカメラ出力にオンラインで適用することはできません</strong>。移動カメラでの整合は未検証です。受けた影は仕様上「blobby」に滲み、スキャン時に焼き込まれた影と二重になるため、曇天スキャンほど自然に見えます。夜景化・ネオン点灯などのリライトは6.0では不可で、それが必要ならリライタブル3DGS（学習側の話）になります。</div>
+
+  <h2 id="nav"><span class="n">04</span> デモ3：占有格子を作ってA*で自律走行</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_nav_poster_v1.jpg">
+      <source src="videos/shibuya_nav_v1.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>コライダーから生成した占有格子（右上）でA*経路（緑）を引き、Nova Carterが交番の角を回り込んでゴールへ到達します。</b>橙が実走行軌跡、赤三角が現在姿勢。地図はIsaac同梱の占有格子ジェネレータで、PhysXのコライダーからそのまま出しています。</figcaption>
+  </figure>
+  <p><strong>地図</strong>は<code>isaacsim.asset.gen.omap</code>（同梱・追加インストール不要）です。<code>_omap.Generator(physx, stage_id)</code>→<code>update_settings(0.10, 1, 0, 0.5)</code>→<code>set_transform(origin, min, max)</code>→<code>generate2d()</code>→<code>get_buffer()</code>で、渋谷68m×44mを10cmセルで数秒。スラブは地面＋15cm〜75cm（車体高）にして、路面の凹凸を障害物にしないようにします。<strong>経路</strong>は膨張半径0.42m（Nova Carterのフットプリント約0.71×0.48mの外接半径0.43m相当）で8近傍A*→見通し線で頂点を間引き→純追跡で追従。到達判定は0.5m。スラブ上端0.75mはLiDARマストを含む機体高（約0.8m）に対応します。</p>
+  <div class="callout warn"><b>踏んだ罠</b>
+    <ul>
+      <li><strong>占有格子バッファの列がx方向に反転していました。</strong>私たちの<code>set_transform(origin, min, max)</code>の与え方で<code>get_buffer()</code>を<code>(H, W)</code>にreshapeすると、行はYMIN側から、列は<strong>XMAX側から</strong>並びました（Isaac Sim 6.0.1で実測。omapの仕様なのか引数解釈の違いかは切り分けていません）。コライダー頂点から作った真値（同じスラブ内の面セル）と照合すると、そのままではIoU 0.08、左右反転で<strong>真値の面セルの再現率100%</strong>（IoUは0.62に留まりますが、これはomapが建物内部まで占有扱いにする仕様差で、地図の誤りではありません）。反転を入れないと「障害物の無い所を避け、ある所へ突っ込む」経路になります（実際に最初は交番の真上がゴールになりました）。<strong>資産・座標系が変われば必ず真値と向きを照合</strong>してください。</li>
+      <li><strong>ローカルで<code>import omni.physx</code>すると<code>omni</code>がローカル変数になり、それ以前の<code>omni.usd</code>参照が<code>UnboundLocalError</code></strong>になります。<code>from omni.physx import get_physx_interface</code>にします。</li>
+      <li>コライダーの縁石（15cm）は今回のスラブ設定では障害物になりません。Carterの前キャスターは縁石を越えられないので、歩道へ乗り上げる経路を許すなら<strong>スラブ下端を5cmまで下げる</strong>か、地面高さ差でコストを付けてください。</li>
+    </ul>
+  </div>
+  <p>Nav2について。Isaac Sim 6.0の公式手順ではWindows向けに<strong>ROS 2 Jazzy＋Pixi</strong>のワークスペースが案内されていますが、本記事ではROSを使わず自前A*にしています。占有格子は<code>get_colored_byte_buffer</code>でPNGに落とせますが、Nav2のmap YAMLには解像度のほかに<code>origin</code>（画像<strong>左下隅</strong>のワールド座標＋yaw）・<code>negate</code>・<code>occupied_thresh</code>／<code>free_thresh</code>が要り、PGMは白=free・黒=occupied、行はY降順という規約があります。上のx反転を踏まえると変換は自明ではなく、<strong>Nav2側での実走検証はまだしていません</strong>——次の記事で扱います。</p>
+
+  <h2 id="limits"><span class="n">05</span> 実用シミュとして足りないもの</h2>
+  <p>「動いた」と「使える」は違うので、ここに正直に書いておきます。</p>
+  <ul>
+    <li><strong>カメラが見る面とLiDAR／衝突が見る面が別物です（幾何ギャップ）。</strong>RGBはスプラット面、LiDAR・深度・衝突は純正メッシュ面を返します。実測では走行域の路面・歩道スプラット（不透明度0.7超・30万点抽出）とコライダー面の距離は<strong>中央値6.8cm・平均7.7cm・95%点15.4cm</strong>（鉛直方向ではスプラットがメッシュより中央値7.2cm下）、10m以下の屋外スプラット全体では90%が20cm以内・95%点1.3m（遠景・看板・樹木で乖離）。RGB-LiDARフュージョン学習・深度教師・キャリブレーション検証のように<strong>RGBと距離センサの位置合わせを前提とする用途には、この系統誤差がそのまま入ります</strong>。</li>
+    <li><strong>セマンティクス／セグメンテーションGTが作れません。</strong>カメラ画に写るのはスプラットで、クラスラベルを付けられるのはコライダー側メッシュです。両者が上記の通り一致しない以上、メッシュ側のマスクをそのままinstance/semantic segやbboxのGTとしては使えません（前記事で試したSDGでも3DGSのセグメンテーションは街全体が単一色でした）。RGB・深度は取れますが、セグメンテーションはメッシュ側マスク＋ズレの許容量評価という別手段が要り、未検証です。</li>
+    <li><strong>RGBとLiDARの同時収録に運用上の壁がある。</strong>2パス方式は動画向けで、実運用ではカメラ＝3DGS・LiDAR＝メッシュを同時に取りたい——現状は<strong>LiDAR取得中はカメラ画にセンサ用メッシュが写り込みます</strong>。未検証の候補は、フレーム交互にセンサ用メッシュの可視をトグルしてカメラとLiDARを別フレームで取る（同期はフレーム単位）、<code>purpose=guide</code>やレイヤ合成でカメラのレンダープロダクトだけメッシュを除外する、の2つです。</li>
+    <li><strong>点群にモーション歪みが無く、ノイズモデルも既定のまま。</strong>Motion BVH無効の既定設定＋1フレーム姿勢での一括変換のため実機のスキュー特性が入っておらず、反射強度もセンサ用メッシュの一様マテリアル依存です。IMU・オドメトリ・カメラ内部パラメータのノイズモデルは未設定で、同一地点の実機走行ログとの突き合わせ（validation）は一度も行っていません。</li>
+    <li><strong>ゴーストと歩行者。</strong>スキャンに写り込んだ通行人は静止障害物として残り、動的障害物はいません。動くエージェント（Omniverseの歩行者アニメ等）の追加は未着手です。</li>
+    <li><strong>ROS 2ブリッジ／Nav2実走／TF・URDF。</strong>Windows Pixi環境は未検証で、ROSを使っていないためTFツリー・robot description・<code>/scan</code>・<code>/odom</code>・sim timeの提供もありません。占有格子→Nav2 YAMLは原点隅・閾値・行順の規約を守れば作れますが実走検証は未実施です。</li>
+    <li><strong>Linux未検証・実時間比が低い。</strong>Windows 11＋Isaac Sim 6.0.1でのみ確認しており、Linuxでのomapのバッファ並びやRTX LiDARの挙動は再確認が要ります。撮影中の実時間比は約0.05（Python描画が律速）で、リアルタイム要件のあるHIL／人の操作には別途最適化が要ります。</li>
+    <li><strong>リライトは影のみ。</strong>時刻・天候の見た目変化は「影＋合成」の範囲。夜間・雨天は作れません。</li>
+    <li><strong>速度域。</strong>生スキャン路面でのCarterは1.0m/sまで。高速走行や車両スケールは前回のPhysX Vehicle（サスペンション付き）側が向いています。</li>
+  </ul>
+
+  <h2 id="summary"><span class="n">06</span> まとめ・納品物</h2>
+  <ul>
+    <li><strong>センサ：</strong>RTX LiDARは不可視プリムを検知しない。センサ用可視メッシュを用意し、GMOはマウント高を足して世界座標へ。</li>
+    <li><strong>影：</strong>ParticleFieldはメッシュの影を受ける（6.0公式）。キャスターは隠せないので3パス合成。リライトは不可。</li>
+    <li><strong>地図・経路：</strong>同梱omapで数秒。<strong>バッファのx反転</strong>を必ず真値と照合。A*＋純追跡で自律到達。</li>
+    <li><strong>機体：</strong>Nova CarterはWheeledRobot＋DifferentialControllerに任せる。1.0m/s以下、テイクごとにステージ再オープン。</li>
+  </ul>
+  <p>この環境をお渡しする場合の納品物は、<strong>2層USD（3DGS参照＋不可視コライダー）／センサ用メッシュ／占有格子（PNG＋原点・解像度）／スポーン地点と走行検証済みレーン／本記事の再現スクリプト</strong>の5点に加えて、<strong>動作確認バージョン（Isaac Sim 6.0.1・GPUドライバ）と座標系・単位・物理マテリアルの仕様書／受入テスト用スクリプトと期待出力（走行トレース）／スキャンデータの利用許諾範囲</strong>です。最後の点は重要で、<strong>渋谷の生スキャンには通行人の顔や車両ナンバーが写り込んでいます</strong>。AI学習を含む商用納品では、写り込みのマスク処理か利用範囲の限定（社内検証限定など）を契約に含めます。</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>ロケハン3Dでは、実在の空間を<br class="pc">ロボット開発に使える形でスキャンします</h3>
+    <p>LiDARと写真を同時に取得するため、見た目の3DGSと実測メッシュ・点群が同一座標で揃います。屋外・屋内を問わず、Isaac Sim向けの2層環境と占有格子まで含めてお渡しできます。</p>
+    <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">関連する記事</h2>
+  <div class="rgrid">
+      <a class="rcard" href="3dgs-lidar-denoise.html">
+        <div class="rthumb" style="background-image:url('images/shibuya_hero.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-08-16</span><span>約5分</span></div>
+          <h3>Isaac Sim向けに3DGSシミュレーション環境をセットアップする</h3>
+        </div>
+      </a>
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約7分</span></div>
+          <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
+        </div>
+      </a>
+      <a class="rcard" href="houdini-comfyui-gsplat-workflow.html">
+        <div class="rthumb" style="background-image:url('images/hectorvfx_shibuya_ai_render.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>技術</span><span>2026-07-23</span><span>約7分</span></div>
+          <h3>Houdini 22 × ComfyUI ── Gaussian SplatsによるVFX × AIハイブリッドワークフロー</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → 2-LAYER USD → NOVA CARTER + RTX LIDAR → OCCUPANCY MAP → A* → RTX CAPTURE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>

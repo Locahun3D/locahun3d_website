@@ -236,6 +236,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 
 var POSTS = [
     {
+    tag:"industry", tagLabel:"Technical", date:"2026-08-18", read:"~7 min",
+    title:"Robot Development in a 3DGS City with Isaac Sim 6.0: RTX LiDAR, Sun Shadows, Autonomous Navigation",
+    excerpt:"Nova Carter with an RTX LiDAR driving the 3DGS Shibuya crossing, raw-mesh shadows composited onto the splats, and occupancy-grid + A* navigation in Isaac Sim 6.0 - with every trap: invisible prims are unseen by RTX sensors, the missing lidar mount height, the x-mirrored occupancy buffer.",
+    href:"isaacsim-3dgs-robot-demos.html", thumb:"/works/images/shibuya_lidar_hero.jpg"
+  },
+  {
     tag:"industry", tagLabel:"Technical", date:"2026-08-16", read:"~7 min",
     title:"Setting Up a 3DGS Simulation Environment for Isaac Sim",
     excerpt:"A five-step guide to turning a LiDAR-fusion 3DGS scan into an environment robots can drive in Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight colliders, road smoothing and de-ghosting, and the two-layer drive - with measured numbers from Shibuya crossing.",

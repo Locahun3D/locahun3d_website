@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Robot Development in a 3DGS City with Isaac Sim 6.0: RTX LiDAR, Sun Shadows, Autonomous Navigation | LOCAHUN 3D Tech Blog</title>
+<meta name="description" content="Nova Carter with an RTX LiDAR driving a LiDAR-scanned 3DGS of Shibuya crossing in NVIDIA Isaac Sim 6.0, raw-mesh shadows composited onto the splats, and occupancy-grid + A* autonomous navigation - with every trap we hit: invisible prims are not seen by RTX sensors, the missing lidar mount height in the GMO frame, the x-flipped occupancy buffer, caster shimmy.">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun 3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Robot Development in a 3DGS City with Isaac Sim 6.0: RTX LiDAR, Sun Shadows, Autonomous Navigation">
+<meta property="og:description" content="Nova Carter with an RTX LiDAR driving a LiDAR-scanned 3DGS of Shibuya crossing in NVIDIA Isaac Sim 6.0, raw-mesh shadows composited onto the splats, and occupancy-grid + A* autonomous navigation - with every trap we hit: invisible prims are not seen by RTX sensors, the missing lidar mount height in the GMO frame, the x-flipped occupancy buffer, caster shimmy.">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Nova Carter driving the 3DGS Shibuya crossing with a live RTX LiDAR point cloud">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Robot Development in a 3DGS City with Isaac Sim 6.0: RTX LiDAR, Sun Shadows, Autonomous Navigation">
+<meta name="twitter:description" content="Nova Carter with an RTX LiDAR driving a LiDAR-scanned 3DGS of Shibuya crossing in NVIDIA Isaac Sim 6.0, raw-mesh shadows composited onto the splats, and occupancy-grid + A* autonomous navigation - with every trap we hit: invisible prims are not seen by RTX sensors, the missing lidar mount height in the GMO frame, the x-flipped occupancy buffer, caster shimmy.">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
+      <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/en/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/works/isaacsim-3dgs-robot-demos.html">JA</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">Navigation</span>
+    <span>2026-08-18</span><span>&middot;</span><span>7 min read</span>
+  </div>
+  <h1>Robot Development in a 3DGS City<br class="pc">with Isaac Sim 6.0:<br class="pc">RTX LiDAR, Sun Shadows, Autonomous Navigation</h1>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. On top of the <a href="3dgs-lidar-denoise.html">two-layer environment from last time</a> (untouched 3DGS + raw scanner mesh), this article runs the three things robot development actually needs in NVIDIA Isaac Sim 6.0: <strong>a real sensor (RTX LiDAR) sweeping the city, shadows that move with the time of day, and a map-based autonomous drive to a goal</strong>. The robot is Isaac's stock Nova Carter; the stage is a 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing. Videos first, then every trap you will hit if you copy this.</p>
+
+  <figure>
+    <img src="/works/images/shibuya_lidar_hero.jpg" alt="Nova Carter driving the 3DGS Shibuya crossing with a live RTX LiDAR point cloud">
+    <figcaption><b>Nova Carter's RTX LiDAR (HESAI XT32 config) sweeping the 3DGS Shibuya.</b>The points are real RTX LiDAR output (each ring is one sweep of the 32 channels), but because of the constraint described below they were <strong>recorded in a separate pass with the sensor mesh visible and drawn over the identical drive</strong>. Appearance is the 3DGS; collision and sensor returns come from the raw scanner mesh.</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Setup and the one trap that shapes everything</a></li>
+    <li><a href="#lidar">Demo 1: Nova Carter + RTX LiDAR sweeping the city</a></li>
+    <li><a href="#sun">Demo 2: raw-mesh shadows on the splats (sun time-lapse)</a></li>
+    <li><a href="#nav">Demo 3: occupancy grid + A* autonomous navigation</a></li>
+    <li><a href="#limits">What is still missing for a production simulator</a></li>
+    <li><a href="#summary">Summary and deliverables</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>Two-layer env (last article)</b><span class="a">&rarr;</span>
+    <b>Nova Carter + RTX LiDAR</b><span class="a">&rarr;</span>
+    <b>Shadow composite</b><span class="a">&rarr;</span>
+    <b>Occupancy grid + A*</b>
+  </div>
+
+  <div class="callout note"><b>What you get</b>Starting from last article's two-layer USD (3DGS + invisible collider), you end with three working pieces: <strong>(1) a stock Isaac robot driving with RTX LiDAR point-cloud capture, (2) time-of-day shadows using the raw scanner mesh as caster, (3) an occupancy grid generated from the collider and a robot following an A* path to a goal</strong>. On the simulation side everything uses extensions bundled with Isaac Sim 6.0.1 &mdash; no extra installs, no ROS 2. The three-pass shadow composite, colour grading and the omap validation are done outside Isaac (Python + NumPy/SciPy/Pillow, ffmpeg).</div>
+
+  <h2 id="overview"><span class="n">01</span> Setup and the one trap that shapes everything</h2>
+  <p>The environment is unchanged from <a href="3dgs-lidar-denoise.html">last time</a>: appearance = untouched 3DGS (ParticleField), physics = invisible collider made of the raw scanner mesh + ground patches. Isaac Sim 6.0 moved a lot around 3DGS: import is now organised around <strong>USD ParticleField</strong> (on the NuRec (usdz) route, an NVIDIA forum answer citing the 3DGRUT docs says it is <a href="https://forums.developer.nvidia.com/t/question-on-two-3dgs-rendering-pipelines-nurec-vs-particlefield-and-expected-quality-tradeoff-in-isaac-sim-6-0/373260" target="_blank" rel="noopener">on the deprecation track with ParticleField recommended</a>; we followed that), RTX LiDAR now lives in <code>isaacsim.sensors.experimental.rtx</code>, and the <a href="https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_ros_other_platforms.html" target="_blank" rel="noopener">6.0 docs</a> describe a Jazzy + Pixi ROS 2 workspace for Windows (not tested in this article; feature parity with Linux unverified). All three demos here are plain Python against bundled extensions.</p>
+  <div class="callout note"><b>Test environment (what the numbers assume)</b>Isaac Sim 6.0.1 on Windows 11 / GeForce RTX 5090 32 GB, driver 610.47; <strong>about 14 GB of VRAM with this environment loaded</strong> (16.5 M gaussians + collider + Nova Carter) / PhysX defaults (dt = 1/60, no physics material assigned = default friction, collider = triangle mesh with no approximation, 628 k triangles) / RTX render mode RaytracedLighting at 2560 &times; 1440 / Z-up, metersPerUnit = 1.0, world origin = the scanner's (LCC2) local origin, no geo-reference. <strong>Not tested on Linux.</strong> Capture ran at about 1.6 fps with the point cloud drawn (real-time factor &asymp; 0.05); that cost is the Python tuple arrays handed to <code>debug_draw</code>, not physics or sensors.</div>
+  <p>One trap governs the whole design: <strong>RTX sensors (LiDAR) do not see prims you made invisible.</strong> With the collider hidden by <code>MakeInvisible()</code>, the lidar passes straight through it and only hits splats, so ground returns almost vanish. Make the collider visible and a grey mesh shows up in the camera. In what we tried, RTX offered no single "hide from camera but keep for shadows and sensors" switch &mdash; Kit's "Invisible to Primary Ray" property (<code>primvars:hideForCamera</code>) renders the mesh solid black, setting <code>primvars:invisibleToPrimaryRays</code> left it fully visible in real-time RTX, and pushing the mesh 4.5 cm inside the splats showed through the semi-transparent road. Untested candidates (<code>purpose=guide</code>, alternate-frame visibility toggling, per-render-product layer composition) are listed in <a href="#limits">section 05</a>. Demos 1 and 2 are structured to work around this.</p>
+
+  <h2 id="lidar"><span class="n">02</span> Demo 1: Nova Carter + RTX LiDAR sweeping the city</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_carter_lidar_poster_v1.jpg">
+      <source src="/works/videos/shibuya_carter_lidar_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>Nova Carter crossing the crosswalk while its onboard LiDAR cloud (last 8 frames, world frame) sweeps the street.</b>Bottom right: the onboard camera. Differential drive with front casters, on the untouched raw scan road.</figcaption>
+  </figure>
+  <p>Four steps. <strong>(1) Robot</strong>: reference <code>/Isaac/Robots/NVIDIA/NovaCarter/nova_carter.usd</code> through <code>WheeledRobot</code> (<code>isaacsim.robot.experimental.wheeled_robots</code>) and feed <code>DifferentialController(wheel_radius=0.14, wheel_base=0.4132)</code> into <code>apply_wheel_actions</code>. <strong>(2) Sensor</strong>: <code>Lidar.create(path=..., config='HESAI_XT32_SD10', translations=[[0,0,0.55]])</code> under the chassis, then read <code>LidarSensor(lidar, annotators=['generic-model-output'])</code> every frame via <code>parse_generic_model_output_data</code>. By default the GMO <code>x/y/z</code> are <strong>azimuth [deg], elevation [deg], range [m]</strong> (<code>elementsCoordsType</code> = SPHERICAL), so convert to Cartesian. <strong>(3) Control</strong>: pure pursuit with a 3 m look-ahead (<code>w = 1.2&middot;heading error &minus; 0.25&middot;yaw rate</code>). <strong>(4) Drawing</strong>: <code>draw_points</code> from <code>isaacsim.util.debug_draw</code> with world-frame points.</p>
+  <div class="callout warn"><b>Traps (all measured)</b>
+    <ul>
+      <li><strong>The invisible collider is not seen by the lidar</strong> (above). This demo is shot in <strong>two passes</strong>: pass 1 makes a "sensor mesh" (same shape as the collider, render-only, no collision) visible and only records the world-frame cloud; pass 2 hides it, replays the identical drive and draws the recorded points. The sensor mesh has no physics, so both passes get identical physics input, and in practice <strong>the stop frame (1171) and the chassis coordinates sampled every 30 frames (2 decimals) matched between passes</strong>. PhysX reproducibility only holds for the same stage, dt and GPU/driver, though &mdash; re-check when anything changes.</li>
+      <li><strong>What GMO <code>x/y/z</code> mean is decided by <code>elementsCoordsType</code>.</strong> It was SPHERICAL for our HESAI_XT32_SD10, but CARTESIAN configurations exist; read it and branch instead of assuming.</li>
+      <li><strong>No motion deskew.</strong> All returns are transformed with one per-frame sensor pose, and Isaac's default also logs "MotionBVH for lidar model not enabled ... incorrect point cloud without motion effects", so <strong>the within-scan distortion a real unit shows is absent</strong>. For SLAM/registration tests, enable Motion BVH and deskew per point with the GMO timestamps.</li>
+      <li><strong>Transforming GMO points with the sensor prim's world matrix put the ground exactly one mount height (0.55 m) too low.</strong> The <code>translations</code> given to Lidar.create do not seem to be part of that transform. Adding the mount offset puts the ground at its true height.</li>
+      <li><strong>Do not overwrite the wheel DriveAPI yourself.</strong> Damping 1e5 etc. made the robot thrash on acceleration. Leaving it to <code>WheeledRobot</code> with the asset defaults is stable.</li>
+      <li><strong>Caster shimmy.</strong> On the raw scan road the front casters start oscillating above ~1.3 m/s and the robot spins within a few hundred ms (1.5 s at 2.0 m/s, 2.5 s at 1.3 m/s). <strong>Stable at 1.0 m/s and below.</strong> We consider this <strong>a simulator-side effect of normal noise and contact generation on the raw scan road, not a reproduction of the real Nova Carter</strong> (no comparison with the real robot was made), so controller gains or stability tuned in this environment do not transfer with any guarantee. Faster tests need a smoothed road or caster damping.</li>
+      <li><strong>Re-referencing the robot at the same path drops its body meshes.</strong> <code>RemovePrim</code> then <code>add_reference</code> without closing the stage left only the sensors rendering. Re-open the stage per take.</li>
+      <li><strong>Ground hits look missing</strong> because the points sit at the same depth as the splat surface and lose the z-test. Lifting them 8 cm at draw time fixes it (apply the lift only in <code>draw_points</code>; keep recorded/saved clouds in raw world coordinates).</li>
+    </ul>
+  </div>
+
+  <h2 id="sun"><span class="n">03</span> Demo 2: raw-mesh shadows on the splats (sun time-lapse)</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_sun_poster_v1.jpg">
+      <source src="/works/videos/shibuya_sun_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>Sunrise to sunset: shadows of lamp posts, signs and the police box sweep across the crossing.</b>Shadow shapes come from the raw scanner mesh, colours from the 3DGS. Dawn/dusk tint and exposure are added in the composite.</figcaption>
+  </figure>
+  <p>As the official Omniverse Particle Fields docs put it, "<strong>Particle fields will receive shadows from other scene geometry</strong>" &mdash; in 6.0 <strong>mesh shadows do land on the splats</strong> (the robot's shadow in Demo 1 is exactly that). But splat colour is baked and bypasses tonemapping (display-referred sRGB rendered as-is), so <strong>adding lights does not brighten anything and colour temperature does not change</strong>. The accurate 6.0 statement is: shadows yes, relighting no.</p>
+  <p>To cast building and lamp shadows you use the raw mesh as caster, but as noted <strong>the caster cannot be hidden from the camera</strong>. So this is a <strong>three-pass composite</strong>: (1) beauty = splats only, no sun; (2) A = raw mesh in a white material + sun, shadows on; (3) B = same as A with <code>primvars:doNotCastShadows=True</code>. <code>final = beauty &times; (A/B)</code> extracts the mesh-derived shadow mask alone. 72 sun angles &times; 3 passes took about 6 minutes. <strong>Turning off <code>/rtx/shadows/enabled</code> did not remove shadows from the B pass</strong> (measured) &mdash; use <code>doNotCastShadows</code> on the caster.</p>
+  <div class="callout note"><b>Limits</b>This is a <strong>fixed-camera offline composite</strong>, not physically based lighting: no indirect light, sky colour change or bounce, and A/B is numerically unstable in deep shadow (we normalise the ratio over 0.45&ndash;0.97, blur and floor it). Three passes per sun angle take about 5 s, so <strong>it cannot be applied online to a moving robot camera</strong>; a moving camera is untested. Received shadows are "blobby" by design and stack on the shadows baked into the scan, so overcast scans look most natural. Night scenes or lit neon are not possible in 6.0; that needs a relightable 3DGS on the training side.</div>
+
+  <h2 id="nav"><span class="n">04</span> Demo 3: occupancy grid + A* autonomous navigation</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_nav_poster_v1.jpg">
+      <source src="/works/videos/shibuya_nav_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>An occupancy grid generated from the collider (top right), an A* path (green), and Nova Carter rounding the police-box corner to the goal.</b>Orange is the driven trajectory, the red triangle the live pose. The map comes straight from Isaac's bundled occupancy-map generator over the PhysX collider.</figcaption>
+  </figure>
+  <p><strong>Map</strong>: <code>isaacsim.asset.gen.omap</code> (bundled). <code>_omap.Generator(physx, stage_id)</code> &rarr; <code>update_settings(0.10, 1, 0, 0.5)</code> &rarr; <code>set_transform(origin, min, max)</code> &rarr; <code>generate2d()</code> &rarr; <code>get_buffer()</code>; the 68 &times; 44 m Shibuya region at 10 cm cells takes seconds. Use a slab from ground + 15 cm to 75 cm (robot height) so road texture is not an obstacle. <strong>Path</strong>: inflate by 0.42 m (the circumscribed radius, ~0.43 m, of Nova Carter's ~0.71 &times; 0.48 m footprint), 8-connected A*, line-of-sight pruning, pure pursuit; goal tolerance 0.5 m. The 0.75 m slab top matches the ~0.8 m robot height including the lidar mast.</p>
+  <div class="callout warn"><b>Traps</b>
+    <ul>
+      <li><strong>The occupancy buffer columns came out mirrored in x.</strong> With our <code>set_transform(origin, min, max)</code>, reshaping <code>get_buffer()</code> to <code>(H, W)</code> gave rows from YMIN but columns <strong>from XMAX</strong> (measured on Isaac Sim 6.0.1; whether this is omap's convention or our argument interpretation is not isolated). Against a ground-truth grid of collider surface cells in the same slab, IoU was 0.08 as-is and, after a left-right flip, <strong>100% of the ground-truth surface cells were occupied</strong> (IoU stays at 0.62 only because omap also fills building interiors &mdash; a convention difference, not a map error). Without the flip the planner "avoids empty road and drives into obstacles" (our first goal landed on top of the police box). <strong>Always validate orientation against ground truth when the asset or frame changes.</strong></li>
+      <li><strong>A local <code>import omni.physx</code> makes <code>omni</code> a local variable</strong> and earlier <code>omni.usd</code> references raise <code>UnboundLocalError</code>. Use <code>from omni.physx import get_physx_interface</code>.</li>
+      <li>Kerbs (15 cm) in the collider are not obstacles with this slab. Carter's front casters cannot climb them, so if a route may mount the pavement, <strong>lower the slab bottom to 5 cm</strong> or add a height-difference cost.</li>
+    </ul>
+  </div>
+  <p>On Nav2: the Isaac Sim 6.0 docs describe a <strong>ROS 2 Jazzy + Pixi</strong> workspace for Windows, but this article uses its own A* and no ROS. The grid exports to PNG via <code>get_colored_byte_buffer</code>, but a Nav2 map YAML also needs <code>origin</code> (world coordinates of the image's <strong>bottom-left</strong> corner + yaw), <code>negate</code>, <code>occupied_thresh</code>/<code>free_thresh</code>, and the PGM convention white = free, black = occupied, rows in descending Y. Given the x-flip above the conversion is not trivial, and <strong>we have not yet driven it under Nav2</strong> &mdash; that is the next article.</p>
+
+  <h2 id="limits"><span class="n">05</span> What is still missing for a production simulator</h2>
+  <p>"It ran" and "it is usable" are different things, so here is the honest list.</p>
+  <ul>
+    <li><strong>The camera and the LiDAR/collision see different surfaces (geometric gap).</strong> RGB comes from the splats, LiDAR/depth/collision from the raw mesh. Measured on 300 k road/pavement splats (opacity &gt; 0.7) in the driven area, distance to the collider surface is <strong>median 6.8 cm, mean 7.7 cm, 95th percentile 15.4 cm</strong> (vertically the splats sit a median 7.2 cm below the mesh); over all outdoor splats below 10 m, 90% are within 20 cm and the 95th percentile is 1.3 m (far facades, signs, trees diverge). Any use that assumes RGB and range sensors are co-registered &mdash; RGB-LiDAR fusion training, depth supervision, calibration validation &mdash; <strong>inherits this systematic error</strong>.</li>
+    <li><strong>No semantic / segmentation ground truth.</strong> The camera sees splats; class labels can only go on the collider mesh, and the two do not coincide, so a mesh-side mask cannot be used directly as instance/semantic seg or bbox GT (in the SDG test of the previous article, segmentation of the 3DGS came out as one colour for the whole street). RGB and depth are available; segmentation needs a mesh-side mask plus a tolerance analysis of the gap, which we have not done.</li>
+    <li><strong>Simultaneous RGB + LiDAR capture has an operational wall.</strong> The two-pass trick is for video; real use wants camera = 3DGS and lidar = mesh at once, and today <strong>the sensor mesh shows in the camera while the lidar captures</strong>. Untested candidates: toggle the sensor mesh's visibility on alternate frames and take camera and lidar on different frames (frame-level sync), or exclude the mesh from the camera's render product via <code>purpose=guide</code> or layer composition.</li>
+    <li><strong>No motion distortion, default noise models.</strong> Motion BVH is off by default and points are transformed with one per-frame pose, so real skew is absent; intensity depends on the sensor mesh's uniform material. IMU, odometry and camera intrinsics noise models are unset, and no validation against a real-robot log at the same place has been done.</li>
+    <li><strong>Ghosts and pedestrians.</strong> People caught in the scan remain as static obstacles; there are no dynamic agents. Adding animated pedestrians is not started.</li>
+    <li><strong>ROS 2 bridge / Nav2 / TF / URDF.</strong> The Windows Pixi workspace is untested, and since no ROS is used there is no TF tree, robot description, <code>/scan</code>, <code>/odom</code> or sim time. Grid-to-Nav2-YAML works if you respect the corner origin, thresholds and row order, but it has not been driven.</li>
+    <li><strong>Untested on Linux, low real-time factor.</strong> Verified only on Windows 11 + Isaac Sim 6.0.1; omap buffer layout and RTX LiDAR behaviour need re-checking on Linux. Capture ran at a real-time factor of ~0.05 (Python drawing bound); HIL or human-in-the-loop use needs separate optimisation.</li>
+    <li><strong>Relighting is shadows only.</strong> Time-of-day and weather are limited to shadows + compositing. No night, no rain.</li>
+    <li><strong>Speed range.</strong> Carter on the raw road tops out at 1.0 m/s. High-speed or vehicle-scale tests belong to last article's PhysX Vehicle with suspension.</li>
+  </ul>
+
+  <h2 id="summary"><span class="n">06</span> Summary and deliverables</h2>
+  <ul>
+    <li><strong>Sensors:</strong> RTX LiDAR does not see invisible prims. Provide a visible sensor mesh; add the mount height when moving GMO points to world.</li>
+    <li><strong>Shadows:</strong> ParticleField receives mesh shadows (official in 6.0). The caster cannot be hidden, so composite three passes. No relighting.</li>
+    <li><strong>Map and path:</strong> bundled omap in seconds. <strong>Validate the x-mirrored buffer</strong> against ground truth. A* + pure pursuit reaches the goal.</li>
+    <li><strong>Robot:</strong> let WheeledRobot + DifferentialController drive Nova Carter. Stay &le; 1.0 m/s, reopen the stage per take.</li>
+  </ul>
+  <p>When we hand over such an environment the deliverable is five items &mdash; <strong>the two-layer USD (3DGS reference + invisible collider) / the sensor mesh / the occupancy grid (PNG + origin &amp; resolution) / spawn points and a driven-verified lane / the reproduction scripts from this article</strong> &mdash; plus <strong>the verified versions (Isaac Sim 6.0.1, GPU driver) with a spec sheet for frame, units and physics materials / an acceptance-test script with expected output (drive trace) / the licence scope of the scan data</strong>. The last item matters: <strong>the raw Shibuya scan contains pedestrians' faces and vehicle plates</strong>. Commercial delivery for AI training includes either masking or a contractual limit on use (e.g. internal validation only).</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>LOCAHUN 3D scans real places<br class="pc">in a form robot development can use</h3>
+    <p>LiDAR and photos are captured together, so the 3DGS appearance and the measured mesh and point cloud share one frame. Indoors or out, we deliver the Isaac Sim two-layer environment and occupancy grid with the scan.</p>
+    <a class="dc-btn" href="/locahun3d_demo.html#contact">Talk to us about a scan &rarr;</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Related articles</h2>
+  <div class="rgrid">
+      <a class="rcard" href="3dgs-lidar-denoise.html">
+        <div class="rthumb" style="background-image:url('/works/images/shibuya_hero.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Technical</span><span>2026-08-16</span><span>5 min</span></div>
+          <h3>Setting Up a 3DGS Simulation Environment for Isaac Sim</h3>
+        </div>
+      </a>
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('/works/images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-07-26</span><span>7 min</span></div>
+          <h3>Bringing 3DGS into NVIDIA Isaac Sim</h3>
+        </div>
+      </a>
+      <a class="rcard" href="3dgs-software-comparison.html">
+        <div class="rthumb" style="background-image:url('/works/images/logos/dcc-logos-thumb.svg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-08-04</span><span>8 min</span></div>
+          <h3>Software and Tools That Handle 3DGS</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits</div>
+  <h2>Production credit</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writing</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and validates capture workflows that combine 3DGS scans with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → 2-LAYER USD → NOVA CARTER + RTX LIDAR → OCCUPANCY MAP → A* → RTX CAPTURE</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>

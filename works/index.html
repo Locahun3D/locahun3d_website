@@ -250,6 +250,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
     {
+    tag:"industry", tagLabel:"技術", date:"2026-08-18", read:"約7分",
+    title:"Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行",
+    excerpt:"渋谷スクランブル交差点の3DGS環境で、Nova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまで。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転など実機で踏んだ罠を全部。",
+    href:"isaacsim-3dgs-robot-demos.html", thumb:"images/shibuya_lidar_hero.jpg"
+  },
+  {
     tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約10分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
