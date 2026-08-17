@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<meta name="description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
 <link rel="canonical" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
@@ -14,7 +14,7 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
-<meta property="og:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<meta property="og:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
 <meta property="og:url" content="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
 <meta property="og:image:width" content="1280">
@@ -22,7 +22,7 @@
 <meta property="og:image:alt" content="渋谷スクランブル交差点の3DGSをNova CarterがRTX LiDARを回しながら走る図">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
-<meta name="twitter:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実機で踏んだ落とし穴を全部書きます。">
+<meta name="twitter:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -295,7 +295,7 @@
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#overview">前提と全体像</a></li>
+    <li><a href="#overview">前提と、全体を規定する一つの罠</a></li>
     <li><a href="#lidar">デモ1：Nova Carter＋RTX LiDARで街をなぞる</a></li>
     <li><a href="#sun">デモ2：純正メッシュの影を3DGSに落とす（太陽タイムラプス）</a></li>
     <li><a href="#nav">デモ3：占有格子を作ってA*で自律走行</a></li>
@@ -314,10 +314,10 @@
 
   <div class="callout note"><b>この記事で得られるもの</b>前回の2層USD（3DGS＋不可視コライダー）を入力に、<strong>①Isaac標準ロボの走行とRTX LiDARの点群取得 ②スキャナ純正メッシュを影キャスターにした時刻変化 ③コライダーからの占有格子生成と経路追従</strong>の3本が動く状態になります。シミュレーション側は全部Isaac Sim 6.0.1同梱の拡張だけで、追加インストールはありません（ROS 2は使っていません）。ただし影の3パス合成・色調整とomapの検証はIsaacの外（Python＋NumPy/SciPy/Pillow、ffmpeg）で行っています。</div>
 
-  <h2 id="overview"><span class="n">01</span> 前提と全体像</h2>
+  <h2 id="overview"><span class="n">01</span> 前提と、全体を規定する一つの罠</h2>
   <p>環境は<a href="3dgs-lidar-denoise.html">前回</a>のまま——見た目は無加工の3DGS（ParticleField）、物理はスキャナ純正メッシュ＋地面パッチの不可視コライダーです。ここへIsaac Sim 6.0で入った物を足していきます。6.0では3DGSまわりが大きく動いており、3DGSの取り込みは<strong>USD ParticleField中心</strong>に整理されました（NuRec(usdz)経路については、NVIDIAフォーラムで3DGRUT公式ドキュメントを引いて「<a href="https://forums.developer.nvidia.com/t/question-on-two-3dgs-rendering-pipelines-nurec-vs-particlefield-and-expected-quality-tradeoff-in-isaac-sim-6-0/373260" target="_blank" rel="noopener">deprecation trackにありParticleField推奨</a>」と回答されています。本記事はその回答に従いParticleFieldを採用）。RTX LiDARは<code>isaacsim.sensors.experimental.rtx</code>に整理され、ROS 2は<a href="https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_ros_other_platforms.html" target="_blank" rel="noopener">6.0の公式手順</a>でWindows向けにJazzy＋Pixiのワークスペースが案内されるようになりました（本記事では未検証・Linuxとの機能差も未確認）。本記事の3本はどれも同梱拡張のPython APIだけで組んでいます。</p>
-  <div class="callout note"><b>検証環境（この記事の数値の前提）</b>Isaac Sim 6.0.1（Windows 11）／GeForce RTX 5090 32GB・ドライバ610.47、<strong>本環境ロード時のVRAM使用量は約14GB</strong>（1,650万ガウシアン＋コライダー＋Nova Carter）／物理はPhysX既定（dt=1/60、physics material未指定＝既定摩擦、コライダーは三角メッシュ近似なし・62.8万三角形）／RTXレンダモード RaytracedLighting・2560×1440／座標系はZ-up・metersPerUnit=1.0・原点はスキャナ出力（LCC2）のローカル原点で緯度経度への紐付けなし。<strong>Linux未検証</strong>。撮影中のフレームレートは点群描画込みで約1.6fps（実時間比≈0.05）と遅く、これは<code>debug_draw</code>へPythonでタプル配列を渡している描画側のコストで、物理・センサ側の律速ではありません。</div>
-  <p>先に、全部に共通する<strong>最重要の罠</strong>を一つ。<strong>RTXセンサ（LiDAR）は「不可視にしたプリム」を検知しません。</strong>コライダーを<code>MakeInvisible()</code>で消していると、LiDARはコライダーを素通りしてスプラットにしか当たらず、地面の返りがほとんど無くなります。かといってコライダーを可視にすれば灰色のメッシュがカメラに写ります。私たちが試した範囲では、RTXにメッシュを「カメラからは隠すが影とセンサには見せる」一発のスイッチは見つかりませんでした——Kitのプロパティ欄「Invisible to Primary Ray」の実体<code>primvars:hideForCamera</code>は真っ黒なメッシュとして描画され、<code>primvars:invisibleToPrimaryRays</code>を立ててもリアルタイムRTXでは可視のまま、4.5cm内側へオフセットしてスプラットの中に隠す案は路面スプラットが半透明で透けました。未検証の候補（<code>purpose=guide</code>、フレーム交互の可視トグル、レンダープロダクト別のレイヤ合成）は<a href="#limits">05節</a>にまとめています。デモ1・2の構成はこの制約を回避するためのものです。</p>
+  <div class="callout note"><b>検証環境（この記事の数値の前提）</b>Isaac Sim 6.0.1（Windows 11）／GeForce RTX 5090 32GB・ドライバ610.47、<strong>本環境ロード時のVRAM使用量は約14GB</strong>（1,650万ガウシアン＋コライダー＋Nova Carter）／物理はPhysX既定（dt=1/60、physics material未指定＝既定摩擦、コライダーは三角メッシュ近似なし・62.8万三角形）／RTXレンダモード RaytracedLighting・2560×1440／座標系はZ-up・metersPerUnit=1.0・原点はスキャナ出力（LCC2）のローカル原点で緯度経度への紐付けなし。<strong>Linux未検証</strong>。撮影中のフレームレートは点群描画込みで約1.6fpsと遅く、これは<code>debug_draw</code>へPythonでタプル配列を渡している描画側のコストで、物理・センサ側の律速ではありません。1描画フレームでシミュ時間は約1/30秒進む（物理60Hzを2ステップ。トレースの車体変位から実測）ので実時間比は約0.05です。<strong>本記事の動画は2フレームに1枚を30fpsで再生しており、シミュ時間の約2倍速</strong>で流れています（本文の速度・時間はすべてシミュ時間基準）。なお本記事が使う<code>isaacsim.sensors.experimental.rtx</code>と<code>isaacsim.robot.experimental.wheeled_robots</code>はexperimental名前空間で、6.0.x内でもモジュールパスや引数が変わりうる前提です——バージョンを固定して運用してください。</div>
+  <p>先に、全部に共通する<strong>最重要の罠</strong>を一つ。<strong>RTXセンサ（LiDAR）は「不可視にしたプリム」を検知しません。</strong>コライダーを<code>MakeInvisible()</code>で消していると、LiDARはコライダーを素通りしてスプラットにしか当たらず、地面の返りがほとんど無くなります。かといってコライダーを可視にすれば灰色のメッシュがカメラに写ります。私たちが試した範囲では、RTXにメッシュを「カメラからは隠すが影とセンサには見せる」一発のスイッチは見つかりませんでした——Kitのプロパティ欄「Invisible to Primary Ray」の実体<code>primvars:hideForCamera</code>は真っ黒なメッシュとして描画され、<code>primvars:invisibleToPrimaryRays</code>を立ててもリアルタイムRTXでは可視のまま、4.5cm内側へオフセットしてスプラットの中に隠す案は路面スプラットが半透明で透けました。未検証の候補は<a href="#limits">05節</a>にまとめています。デモ1・2の構成はこの制約を回避するためのものです。</p>
 
   <h2 id="lidar"><span class="n">02</span> デモ1：Nova Carter＋RTX LiDARで街をなぞる</h2>
   <figure>
@@ -325,9 +325,9 @@
       <source src="videos/shibuya_carter_lidar_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>Nova Carterが横断歩道を渡り、車載LiDARの点群（直近8フレーム蓄積・世界座標）が街をなぞります。</b>右下は車載カメラ。走行は差動2輪＋前キャスターの実機構成で、路面は無加工の生スキャンです。</figcaption>
+    <figcaption><b>Nova Carterが横断歩道を渡り、車載LiDARの点群（直近8フレーム蓄積・世界座標）が街をなぞります。</b>右下は車載カメラ。走行は実機Nova Carterと同じ差動2輪＋前キャスター構成で、路面は無加工の生スキャンです（動画はシミュ時間の約2倍速）。</figcaption>
   </figure>
-  <p>手順は4つです。<strong>①機体</strong>：<code>/Isaac/Robots/NVIDIA/NovaCarter/nova_carter.usd</code>を<code>WheeledRobot</code>（<code>isaacsim.robot.experimental.wheeled_robots</code>）で参照し、<code>DifferentialController(wheel_radius=0.14, wheel_base=0.4132)</code>の出力を<code>apply_wheel_actions</code>に渡します。<strong>②センサ</strong>：<code>Lidar.create(path=..., config='HESAI_XT32_SD10', translations=[[0,0,0.55]])</code>でシャシに子付けし、<code>LidarSensor(lidar, annotators=['generic-model-output'])</code>から毎フレーム<code>parse_generic_model_output_data</code>で読みます。GMOの<code>x/y/z</code>は既定で<strong>方位角[deg]・仰角[deg]・距離[m]</strong>（<code>elementsCoordsType</code>がSPHERICAL）なので直交座標へ変換します。<strong>③制御</strong>：3m先を見る純追跡（<code>w = 1.2·誤差角 − 0.25·ヨーレート</code>）。<strong>④描画</strong>：<code>isaacsim.util.debug_draw</code>の<code>draw_points</code>にワールド座標の点を渡します。</p>
+  <p>手順は4つです。<strong>①機体</strong>：<code>/Isaac/Robots/NVIDIA/NovaCarter/nova_carter.usd</code>を<code>WheeledRobot</code>（<code>isaacsim.robot.experimental.wheeled_robots</code>）で参照し、<code>DifferentialController(wheel_radius=0.14, wheel_base=0.4132)</code>の出力を<code>apply_wheel_actions</code>に渡します。<strong>②センサ</strong>：<code>Lidar.create(path=..., config='HESAI_XT32_SD10', translations=[[0,0,0.55]])</code>でシャシに子付けし、<code>LidarSensor(lidar, annotators=['generic-model-output'])</code>から毎フレーム<code>parse_generic_model_output_data</code>で読みます。GMOの<code>x/y/z</code>は既定で<strong>方位角[deg]・仰角[deg]・距離[m]</strong>（<code>elementsCoordsType</code>がSPHERICAL）なので直交座標へ変換します。<strong>③制御</strong>：3m先の先行点への方位誤差に対する比例制御＋ヨーレート減衰（<code>w[rad/s] = 1.2[1/s]·方位誤差[rad] − 0.25·ヨーレート[rad/s]</code>、曲率ベースの純追跡ではありません）。指令並進速度は1.0m/s（シミュ時間）で、車体トレースからの実測も0.97〜1.0m/sでした。以降の速度はすべてこの実測基準です。<strong>④描画</strong>：<code>isaacsim.util.debug_draw</code>の<code>draw_points</code>にワールド座標の点を渡します。</p>
   <div class="callout warn"><b>踏んだ罠（全部実測）</b>
     <ul>
       <li><strong>不可視コライダーはLiDARに映らない</strong>（上述）。本デモは<strong>2パス</strong>で撮っています——パス1でコライダーと同形の「センサ用メッシュ」（描画専用・コライダー無し）を可視にして点群だけを世界座標で記録、パス2でメッシュを消して同じ走行を再現し記録点群を描画。センサ用メッシュは物理に関与しないため両パスの物理入力は同一で、実測でも<strong>停止フレーム（1171）と30フレームごとの車体座標（小数2桁）が両パスで一致</strong>しました。ただしPhysXの再現性は同一ステージ・同一dt・同一GPU/ドライバの範囲の話で、環境が変われば再確認が要ります。</li>
@@ -349,9 +349,9 @@
     </video>
     <figcaption><b>日の出から日没まで、街灯・標識・交番の影がスクランブル交差点を掃引します。</b>影の形はスキャナ純正メッシュから、色は3DGSからです。朝夕の色味と露出は合成時に足しています。</figcaption>
   </figure>
-  <p>Omniverse公式のParticle Fields仕様に「<strong>Particle fields will receive shadows from other scene geometry</strong>」とある通り、6.0では<strong>メッシュの影が3DGSの上に落ちます</strong>（デモ1のロボの影がそれです）。ただしスプラットの色は焼き込みで、トーンマップも素通り（display-referred sRGBをas-is）なので<strong>ライトを足しても明るくならず、色温度も変わりません</strong>。つまり「影だけは付けられる、リライトはできない」が6.0時点の正確な状態です。</p>
+  <p>Omniverseの<a href="https://docs.omniverse.nvidia.com/materials-and-rendering/latest/particle-fields.html" target="_blank" rel="noopener">Particle Fields仕様</a>に「<strong>Particle fields will receive shadows from other scene geometry</strong>」とある通り、6.0では<strong>メッシュの影が3DGSの上に落ちます</strong>（デモ1のロボの影がそれです）。ただしスプラットの色は焼き込みで、トーンマップも素通り（display-referred sRGBをas-is）なので<strong>ライトを足しても明るくならず、色温度も変わりません</strong>。つまり「影だけは付けられる、リライトはできない」が6.0時点の正確な状態です。</p>
   <p>建物や街灯の影を落とすには純正メッシュをキャスターにすればよいのですが、前述の通り<strong>キャスターをカメラから隠せません</strong>。そこで<strong>3パス合成</strong>にしました。①beauty＝3DGSのみ（太陽なし）②A＝白マテリアルの純正メッシュ＋太陽（影あり）③B＝Aと同じで<code>primvars:doNotCastShadows=True</code>（影なし）。<code>final = beauty × (A/B)</code>で「メッシュ由来の影マスク」だけを取り出して掛けます。72方位×3パスで約6分。<strong><code>/rtx/shadows/enabled</code>を切ってもBパスの影は消えません</strong>（実測）——キャスター側の<code>doNotCastShadows</code>で切るのが確実です。</p>
-  <div class="callout note"><b>限界</b>この方式は<strong>固定カメラのオフライン合成</strong>で、物理ベースのライティングではありません——間接光・空色の変化・照り返しは再現されず、A/Bは影の濃い領域で数値が不安定になります（本記事では比を0.45〜0.97で正規化・ぼかし・床を入れて安定させています）。1方位あたり3パスで約5秒かかるため、<strong>走行中のカメラ出力にオンラインで適用することはできません</strong>。移動カメラでの整合は未検証です。受けた影は仕様上「blobby」に滲み、スキャン時に焼き込まれた影と二重になるため、曇天スキャンほど自然に見えます。夜景化・ネオン点灯などのリライトは6.0では不可で、それが必要ならリライタブル3DGS（学習側の話）になります。</div>
+  <div class="callout note"><b>限界</b>影マスクは純正メッシュをレンダした画から作り、貼る先はスプラットです。両者の面は05節で測った通り走行域路面で中央値6.8cm、遠景では95%点1.3mずれるため、<strong>合成後の影も同じ量だけ位置がずれます</strong>——近景の路面影は実用範囲ですが、遠景の建物影はスプラット上の実際の輪郭とは合いません。加えてこの方式は<strong>固定カメラのオフライン合成</strong>で、物理ベースのライティングではありません——間接光・空色の変化・照り返しは再現されず、A/Bは影の濃い領域で数値が不安定になります（本記事では比を0.45〜0.97で正規化・ぼかし・床を入れて安定させています）。1方位あたり3パスで約5秒かかるため、<strong>走行中のカメラ出力にオンラインで適用することはできません</strong>。移動カメラでの整合は未検証です。受けた影は仕様上「blobby」に滲み、スキャン時に焼き込まれた影と二重になるため、曇天スキャンほど自然に見えます。夜景化・ネオン点灯などのリライトは6.0では不可で、それが必要ならリライタブル3DGS（学習側の話）になります。</div>
 
   <h2 id="nav"><span class="n">04</span> デモ3：占有格子を作ってA*で自律走行</h2>
   <figure>
@@ -361,10 +361,10 @@
     </video>
     <figcaption><b>コライダーから生成した占有格子（右上）でA*経路（緑）を引き、Nova Carterが交番の角を回り込んでゴールへ到達します。</b>橙が実走行軌跡、赤三角が現在姿勢。地図はIsaac同梱の占有格子ジェネレータで、PhysXのコライダーからそのまま出しています。</figcaption>
   </figure>
-  <p><strong>地図</strong>は<code>isaacsim.asset.gen.omap</code>（同梱・追加インストール不要）です。<code>_omap.Generator(physx, stage_id)</code>→<code>update_settings(0.10, 1, 0, 0.5)</code>→<code>set_transform(origin, min, max)</code>→<code>generate2d()</code>→<code>get_buffer()</code>で、渋谷68m×44mを10cmセルで数秒。スラブは地面＋15cm〜75cm（車体高）にして、路面の凹凸を障害物にしないようにします。<strong>経路</strong>は膨張半径0.42m（Nova Carterのフットプリント約0.71×0.48mの外接半径0.43m相当）で8近傍A*→見通し線で頂点を間引き→純追跡で追従。到達判定は0.5m。スラブ上端0.75mはLiDARマストを含む機体高（約0.8m）に対応します。</p>
+  <p><strong>地図</strong>は<code>isaacsim.asset.gen.omap</code>（同梱・追加インストール不要）です。<code>_omap.Generator(physx, stage_id)</code>→<code>update_settings(0.10, 1, 0, 0.5)</code>→<code>set_transform(origin, min, max)</code>→<code>generate2d()</code>→<code>get_buffer()</code>で、渋谷68m×44mを10cmセルで数秒。スラブは地面＋15cm〜75cmにして、路面の小さな凹凸を障害物にしないようにします。<strong>経路</strong>は膨張半径0.42mで8近傍A*→見通し線で頂点を間引き→方位誤差フィードバック（デモ1と同じ制御則）で追従。到達判定は0.5m。Nova CarterのフットプリントはUSDバウンディングボックス実測で約0.71×0.48m・外接半径0.428mなので、<strong>膨張0.42mは外接半径をわずかに下回り追加の安全余裕はありません</strong>（10cmセルの量子化も乗ります）。狭所を通す用途では0.5m程度へ上げてください。スラブ上端の0.75mは<strong>LiDARマストを含む機体高（約0.8m）より5cm低い</strong>ので、0.75〜0.80mの高さにだけ張り出す物（庇・標識の腕など）は地図に載りません。今回のシーンではコライダー頂点で0.75〜0.85m帯だけに存在するセルが走行域にゼロであることを確認した上で0.75mにしています。汎用には上端を0.85m程度へ上げてください。</p>
   <div class="callout warn"><b>踏んだ罠</b>
     <ul>
-      <li><strong>占有格子バッファの列がx方向に反転していました。</strong>私たちの<code>set_transform(origin, min, max)</code>の与え方で<code>get_buffer()</code>を<code>(H, W)</code>にreshapeすると、行はYMIN側から、列は<strong>XMAX側から</strong>並びました（Isaac Sim 6.0.1で実測。omapの仕様なのか引数解釈の違いかは切り分けていません）。コライダー頂点から作った真値（同じスラブ内の面セル）と照合すると、そのままではIoU 0.08、左右反転で<strong>真値の面セルの再現率100%</strong>（IoUは0.62に留まりますが、これはomapが建物内部まで占有扱いにする仕様差で、地図の誤りではありません）。反転を入れないと「障害物の無い所を避け、ある所へ突っ込む」経路になります（実際に最初は交番の真上がゴールになりました）。<strong>資産・座標系が変われば必ず真値と向きを照合</strong>してください。</li>
+      <li><strong>占有格子バッファの列がx方向に反転していました。</strong>私たちの<code>set_transform(origin, min, max)</code>の与え方で<code>get_buffer()</code>を<code>(H, W)</code>にreshapeすると、行はYMIN側から、列は<strong>XMAX側から</strong>並びました（Isaac Sim 6.0.1で実測。omapの仕様なのか引数解釈の違いかは切り分けていません）。コライダー頂点から作った真値（同じスラブ内の面セル）と照合すると、そのままではIoU 0.08・真値面セルの再現率16.8%、左右反転でIoU 0.62・<strong>再現率100%</strong>でした。地図の占有セル率は15.2%なので、再現率100%は過占有で自動的に出た値ではありません（IoUが1にならないのは、omapが建物内部を塗り潰す一方、真値を面セルだけにしているためです）。反転を入れないと「障害物の無い所を避け、ある所へ突っ込む」経路になります（実際に最初は交番の真上がゴールになりました）。<strong>資産・座標系が変われば必ず真値と向きを照合</strong>してください。</li>
       <li><strong>ローカルで<code>import omni.physx</code>すると<code>omni</code>がローカル変数になり、それ以前の<code>omni.usd</code>参照が<code>UnboundLocalError</code></strong>になります。<code>from omni.physx import get_physx_interface</code>にします。</li>
       <li>コライダーの縁石（15cm）は今回のスラブ設定では障害物になりません。Carterの前キャスターは縁石を越えられないので、歩道へ乗り上げる経路を許すなら<strong>スラブ下端を5cmまで下げる</strong>か、地面高さ差でコストを付けてください。</li>
     </ul>
@@ -374,13 +374,13 @@
   <h2 id="limits"><span class="n">05</span> 実用シミュとして足りないもの</h2>
   <p>「動いた」と「使える」は違うので、ここに正直に書いておきます。</p>
   <ul>
-    <li><strong>カメラが見る面とLiDAR／衝突が見る面が別物です（幾何ギャップ）。</strong>RGBはスプラット面、LiDAR・深度・衝突は純正メッシュ面を返します。実測では走行域の路面・歩道スプラット（不透明度0.7超・30万点抽出）とコライダー面の距離は<strong>中央値6.8cm・平均7.7cm・95%点15.4cm</strong>（鉛直方向ではスプラットがメッシュより中央値7.2cm下）、10m以下の屋外スプラット全体では90%が20cm以内・95%点1.3m（遠景・看板・樹木で乖離）。RGB-LiDARフュージョン学習・深度教師・キャリブレーション検証のように<strong>RGBと距離センサの位置合わせを前提とする用途には、この系統誤差がそのまま入ります</strong>。</li>
-    <li><strong>セマンティクス／セグメンテーションGTが作れません。</strong>カメラ画に写るのはスプラットで、クラスラベルを付けられるのはコライダー側メッシュです。両者が上記の通り一致しない以上、メッシュ側のマスクをそのままinstance/semantic segやbboxのGTとしては使えません（前記事で試したSDGでも3DGSのセグメンテーションは街全体が単一色でした）。RGB・深度は取れますが、セグメンテーションはメッシュ側マスク＋ズレの許容量評価という別手段が要り、未検証です。</li>
-    <li><strong>RGBとLiDARの同時収録に運用上の壁がある。</strong>2パス方式は動画向けで、実運用ではカメラ＝3DGS・LiDAR＝メッシュを同時に取りたい——現状は<strong>LiDAR取得中はカメラ画にセンサ用メッシュが写り込みます</strong>。未検証の候補は、フレーム交互にセンサ用メッシュの可視をトグルしてカメラとLiDARを別フレームで取る（同期はフレーム単位）、<code>purpose=guide</code>やレイヤ合成でカメラのレンダープロダクトだけメッシュを除外する、の2つです。</li>
+    <li><strong>カメラが見る面とLiDAR／衝突が見る面が別物です（幾何ギャップ）。</strong>RGBはスプラット面、衝突は純正メッシュ面です。LiDARと深度は「どちらのメッシュが可視か」で返る面が変わり、センサ用メッシュを可視にしたパスでのみメッシュ面を返します（そのときRGBには灰色のメッシュが写ります）——<strong>RGBとレンジ系を同時に、それぞれ別の面から取ることは現状できません</strong>。ParticleFieldが深度AOVへどう寄与するかは未検証です。実測では走行域の路面・歩道スプラット（不透明度0.7超・ランダム30万点、スプラット中心からメッシュ面への最近傍距離）とコライダー面の距離は<strong>中央値6.8cm・平均7.7cm・95%点15.4cm</strong>（鉛直方向ではスプラットがメッシュより中央値7.2cm下）、スキャン範囲±40m・高さ10m以下の屋外スプラット全体（不透明度0.7超からランダム30万点、各スプラット中心からコライダー三角メッシュ面への最近傍距離）では90%が20cm以内・95%点1.3m（遠景・看板・樹木で乖離）。RGB-LiDARフュージョン学習・深度教師・キャリブレーション検証のように<strong>RGBと距離センサの位置合わせを前提とする用途には、この系統誤差がそのまま入ります</strong>。</li>
+    <li><strong>セマンティクス／セグメンテーションGTが作れません。</strong>カメラ画に写るのはスプラットで、クラスラベルを付けられるのはコライダー側メッシュです。両者が上記の通り一致しない以上、メッシュ側のマスクをそのままinstance/semantic segやbboxのGTとしては使えません（前記事で試したSDGでも3DGSのセグメンテーションは街全体が単一色でした）。RGBは取れ、深度・LiDARは上記の条件付きです。セグメンテーションはメッシュ側マスク＋ズレの許容量評価という別手段が要り、未検証です。</li>
+    <li><strong>RGBとLiDARの同時収録に運用上の壁がある。</strong>2パス方式は動画向けで、実運用ではカメラ＝3DGS・LiDAR＝メッシュを同時に取りたい——現状は<strong>LiDAR取得中はカメラ画にセンサ用メッシュが写り込みます</strong>。未検証の候補は次の通りです——①センサ用メッシュを完全透過マテリアルにして、カメラには写さずジオメトリのヒットだけ残せるか ②カメラ用とセンサ用でレンダープロダクトを分け、片方からプリムを除外できるか ③フレーム交互の可視トグル（同期はフレーム単位）。<code>purpose=guide</code>も試す価値はありますが、guideは既定でレンダされないためLiDARからも消える可能性が高く、期待は薄いと見ています。</li>
     <li><strong>点群にモーション歪みが無く、ノイズモデルも既定のまま。</strong>Motion BVH無効の既定設定＋1フレーム姿勢での一括変換のため実機のスキュー特性が入っておらず、反射強度もセンサ用メッシュの一様マテリアル依存です。IMU・オドメトリ・カメラ内部パラメータのノイズモデルは未設定で、同一地点の実機走行ログとの突き合わせ（validation）は一度も行っていません。</li>
     <li><strong>ゴーストと歩行者。</strong>スキャンに写り込んだ通行人は静止障害物として残り、動的障害物はいません。動くエージェント（Omniverseの歩行者アニメ等）の追加は未着手です。</li>
     <li><strong>ROS 2ブリッジ／Nav2実走／TF・URDF。</strong>Windows Pixi環境は未検証で、ROSを使っていないためTFツリー・robot description・<code>/scan</code>・<code>/odom</code>・sim timeの提供もありません。占有格子→Nav2 YAMLは原点隅・閾値・行順の規約を守れば作れますが実走検証は未実施です。</li>
-    <li><strong>Linux未検証・実時間比が低い。</strong>Windows 11＋Isaac Sim 6.0.1でのみ確認しており、Linuxでのomapのバッファ並びやRTX LiDARの挙動は再確認が要ります。撮影中の実時間比は約0.05（Python描画が律速）で、リアルタイム要件のあるHIL／人の操作には別途最適化が要ります。</li>
+    <li><strong>Linux未検証・実時間比が低い。</strong>Windows 11＋Isaac Sim 6.0.1でのみ確認しており、Linuxでのomapのバッファ並びやRTX LiDARの挙動は再確認が要ります。撮影中の実時間比は約0.05（1.6fps×シミュ1/30秒／フレーム、Python描画が律速）で、リアルタイム要件のあるHIL／人の操作には別途最適化が要ります。</li>
     <li><strong>リライトは影のみ。</strong>時刻・天候の見た目変化は「影＋合成」の範囲。夜間・雨天は作れません。</li>
     <li><strong>速度域。</strong>生スキャン路面でのCarterは1.0m/sまで。高速走行や車両スケールは前回のPhysX Vehicle（サスペンション付き）側が向いています。</li>
   </ul>
@@ -391,13 +391,14 @@
     <li><strong>影：</strong>ParticleFieldはメッシュの影を受ける（6.0公式）。キャスターは隠せないので3パス合成。リライトは不可。</li>
     <li><strong>地図・経路：</strong>同梱omapで数秒。<strong>バッファのx反転</strong>を必ず真値と照合。A*＋純追跡で自律到達。</li>
     <li><strong>機体：</strong>Nova CarterはWheeledRobot＋DifferentialControllerに任せる。1.0m/s以下、テイクごとにステージ再オープン。</li>
+    <li><strong>使う前提：</strong>カメラ（スプラット）とLiDAR・衝突（メッシュ）は別の面で、走行域路面で中央値6.8cmずれます。セグメンテーションGTは作れず、実機ログとの突き合わせ・Nav2実走・Linuxはいずれも未検証です。走行・センサ取得のワークフロー検証には使えますが、知覚モデルの精度評価や実機転移の根拠には<strong>そのままでは</strong>使えません。</li>
   </ul>
-  <p>この環境をお渡しする場合の納品物は、<strong>2層USD（3DGS参照＋不可視コライダー）／センサ用メッシュ／占有格子（PNG＋原点・解像度）／スポーン地点と走行検証済みレーン／本記事の再現スクリプト</strong>の5点に加えて、<strong>動作確認バージョン（Isaac Sim 6.0.1・GPUドライバ）と座標系・単位・物理マテリアルの仕様書／受入テスト用スクリプトと期待出力（走行トレース）／スキャンデータの利用許諾範囲</strong>です。最後の点は重要で、<strong>渋谷の生スキャンには通行人の顔や車両ナンバーが写り込んでいます</strong>。AI学習を含む商用納品では、写り込みのマスク処理か利用範囲の限定（社内検証限定など）を契約に含めます。</p>
+  <p>この環境をお渡しする場合の納品物は、<strong>2層USD（3DGS参照＋不可視コライダー）／センサ用メッシュ／占有格子（PNG＋原点・解像度）／スポーン地点と走行検証済みレーン／本記事の再現スクリプト</strong>の5点に加えて、<strong>動作確認バージョン（Isaac Sim 6.0.1・GPUドライバ）と座標系・単位・物理マテリアルの仕様書／受入テスト用スクリプトと期待出力（走行トレース）／スキャンデータの利用許諾範囲</strong>です。最後の点は重要で、<strong>渋谷の生スキャンには通行人の顔や車両ナンバーが写り込んでいます</strong>。AI学習を含む商用納品では、写り込みのマスク処理か利用範囲の限定（社内検証限定など）を契約に含めます。なお本記事に掲載した動画は原データのままで、人物は数m以上離れた低解像度でしか写らないカットを選んでいますが個別のマスク処理はしていません——問題のあるカットはご指摘があれば差し替えます。</p>
 
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>
     <h3>ロケハン3Dでは、実在の空間を<br class="pc">ロボット開発に使える形でスキャンします</h3>
-    <p>LiDARと写真を同時に取得するため、見た目の3DGSと実測メッシュ・点群が同一座標で揃います。屋外・屋内を問わず、Isaac Sim向けの2層環境と占有格子まで含めてお渡しできます。</p>
+    <p>LiDARと写真を同時に取得するため、見た目の3DGSと実測メッシュ・点群は<strong>同一の座標系・同一原点</strong>で揃います。ただし表面位置は完全一致ではなく、本記事の実測では走行域の路面で中央値6.8cm（95%点15.4cm）の差が残ります。この誤差量を前提にできる用途かを含めて、屋外・屋内を問わずIsaac Sim向けの2層環境と占有格子までご相談ください。</p>
     <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
   </div>
 </article>
