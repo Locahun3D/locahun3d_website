@@ -287,14 +287,14 @@
 
   <figure>
     <img src="/works/images/shibuya_lidar_hero.jpg" alt="Nova Carter driving the 3DGS Shibuya crossing with a live RTX LiDAR point cloud">
-    <figcaption><b>Nova Carter's LiDAR sweeping the 3DGS Shibuya.</b>The points are real measurements from the simulated LiDAR (for reasons explained below they were recorded in a separate take and drawn over the identical drive). Appearance is the 3DGS; collision and sensor returns come from the raw scanner mesh.</figcaption>
+    <figcaption><b>Nova Carter's LiDAR sweeping the 3DGS Shibuya.</b>The points are real measurements from the simulated LiDAR (in this video they are returns from the raw mesh, recorded in a separate take and drawn over the identical drive; as explained below the LiDAR also hits the 3DGS itself). Appearance is the 3DGS; collision comes from the raw scanner mesh.</figcaption>
   </figure>
 </header>
 
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
-    <li><a href="#overview">Setup and the one trap that shapes everything</a></li>
+    <li><a href="#overview">Setup, and which surface each sensor sees</a></li>
     <li><a href="#lidar">Demo 1: Nova Carter + RTX LiDAR sweeping the city</a></li>
     <li><a href="#sun">Demo 2: raw-mesh shadows on the splats (sun time-lapse)</a></li>
     <li><a href="#nav">Demo 3: build a map and drive to a goal</a></li>
@@ -314,9 +314,10 @@
 
   <div class="callout note"><b>What you get</b>Starting from last article's two-layer USD (3DGS + invisible collider), you end with three working pieces: <strong>(1) a stock Isaac robot driving with LiDAR point-cloud capture, (2) time-of-day shadows using the raw scanner mesh as caster, (3) a map generated from the collider and a robot following a path to a goal</strong>. On the simulation side everything is bundled with Isaac Sim 6.0.1 &mdash; no extra installs, no ROS 2.</div>
 
-  <h2 id="overview"><span class="n">01</span> Setup and the one trap that shapes everything</h2>
+  <h2 id="overview"><span class="n">01</span> Setup, and which surface each sensor sees</h2>
   <p>The environment is unchanged from <a href="3dgs-lidar-denoise.html">last time</a>: appearance = untouched 3DGS, physics = invisible collider made of the raw scanner mesh + ground patches. Isaac Sim 6.0 organises 3DGS import around USD ParticleField, has a new RTX LiDAR API, and now documents a ROS 2 setup for Windows (not tested here).</p>
-  <p>One trap governs the whole design: <strong>RTX sensors (LiDAR) do not see prims you made invisible.</strong> With the collider hidden, the lidar passes straight through it and only hits splats, so ground returns almost vanish. Make the collider visible and a grey mesh shows up in the camera. In what we tried, there was no single "hide from camera but keep for shadows and sensors" switch (what we tried and what remains untested is in <a href="#limits">section 06</a>). Demos 1 and 2 are structured to work around this.</p>
+  <p>First, <strong>which surface each sensor sees</strong> &mdash; three things we measured. <strong>(1) RTX LiDAR does hit the 3DGS itself</strong>: ground and buildings return from the same surface the camera sees. <strong>(2) It does not hit invisible prims</strong>, so the invisible collider is not seen and the LiDAR returns sit a few centimetres off the collision surface (small for a robot, and actually convenient because camera and LiDAR see the same surface). <strong>(3) If you want returns from the mesh instead, give a mesh a cut-out transparent material: the camera does not see it but the LiDAR still hits it.</strong> Shadows are the exception: a shadow caster is always visible to the camera, so Demo 2 is a composite.</p>
+  <div class="callout warn"><b>Correction from the first published version</b>The first version said the LiDAR did not hit the splats and ground returns vanished. That was a misreading caused by forgetting the sensor mount height when moving points to world, which buried them under the ground. Re-measured, the splats alone give plenty of ground and building returns. The Demo 1 video still uses the first version's method (mesh returns).</div>
   <div class="callout note"><b>Test environment</b>Isaac Sim 6.0.1 on Windows 11 with a GeForce RTX 5090; the loaded environment uses well over ten gigabytes of VRAM. Z-up, metres, world origin at the scanner's local origin (no geo-reference). Not tested on Linux. <strong>The videos play at about 2&times; simulation time</strong>; all speeds and times in the text are sim time. Some of the extensions used are marked experimental &mdash; pin your version.</div>
 
   <h2 id="lidar"><span class="n">02</span> Demo 1: Nova Carter + RTX LiDAR sweeping the city</h2>
@@ -330,7 +331,7 @@
   <p>Four steps. <strong>(1) Robot</strong>: load the stock Nova Carter and drive it with the bundled differential controller. <strong>(2) Sensor</strong>: parent a bundled RTX LiDAR (a real-model configuration) to the chassis and read the point cloud every frame. <strong>(3) Control</strong>: a simple heading controller toward a point a few metres ahead. <strong>(4) Drawing</strong>: transform the points to world coordinates and draw them in the viewport.</p>
   <div class="callout warn"><b>Traps</b>
     <ul>
-      <li><strong>The invisible collider is not seen by the lidar</strong> (above). This demo is shot in <strong>two passes</strong>: pass 1 makes a render-only "sensor mesh" (same shape as the collider, no physics) visible and only records the cloud; pass 2 hides it, replays the identical drive and draws the recorded points. Physics input is the same, so the two drives matched.</li>
+      <li><strong>This video shows mesh returns shot in two passes</strong> (mesh visible to record the cloud, then hidden while replaying the identical drive; the drives matched). Today one pass is enough: aim the LiDAR at the splats as they are, or, for mesh returns, add a mesh with a cut-out transparent material and capture both at once without it showing in the camera.</li>
       <li><strong>Transforming the lidar points to world put the ground one sensor-mount height too low.</strong> Adding the mount offset fixes it.</li>
       <li><strong>Do not overwrite the wheel drive settings yourself.</strong> The asset defaults are more stable.</li>
       <li><strong>Above walking pace the casters start oscillating and the robot spins</strong> on the raw scan road. This is a simulator-side effect, not the real robot, so gains or stability tuned here do not transfer.</li>
@@ -389,10 +390,9 @@
   <h2 id="limits"><span class="n">06</span> What is still missing for a production simulator</h2>
   <p>"It ran" and "it is usable" are different things, so here is the honest list.</p>
   <ul>
-    <li><strong>The camera and the LiDAR/collision see different surfaces.</strong> RGB comes from the splats, collision from the raw mesh, a few centimetres apart on the road and over a metre in the far field. Any use that assumes RGB and range sensors are co-registered (fusion training, depth supervision, calibration validation) inherits that error. LiDAR and depth return whichever mesh is visible and cannot be taken simultaneously with RGB from their own surfaces.</li>
+    <li><strong>The camera and the LiDAR/collision see different surfaces.</strong> RGB and LiDAR come from the splats, collision from the raw mesh, a few centimetres apart on the road and over a metre in the far field. Camera and LiDAR seeing the same surface is convenient for fusion; just remember that the surface the LiDAR returns is not the surface the robot collides with.</li>
     <li><strong>Semantics stop at pseudo-labels</strong> (section 05): no human-GT check, no confidence-selection design, no instance IDs.</li>
-    <li><strong>Simultaneous RGB + LiDAR capture has an operational wall.</strong> The two-pass trick is for video. Untested candidates: a fully transparent sensor mesh, separate render products for camera and sensors, alternate-frame visibility toggling.</li>
-    <li><strong>Ghosts and pedestrians.</strong> People caught in the scan remain as static obstacles; nothing moves.</li>
+        <li><strong>Ghosts and pedestrians.</strong> People caught in the scan remain as static obstacles; nothing moves.</li>
     <li><strong>Sensor realism.</strong> No motion distortion, default noise for intensity, IMU and camera; no validation against a real-robot log at the same place.</li>
     <li><strong>ROS 2 / Nav2 / Linux.</strong> All untested; no TF or robot description since ROS is not used. Capture ran well below real time; human-in-the-loop use needs optimisation.</li>
     <li><strong>Relighting is shadows only.</strong> No night, no rain. Speed tops out at walking pace (faster or vehicle-scale belongs to last article's PhysX Vehicle).</li>
@@ -400,7 +400,7 @@
 
   <h2 id="summary"><span class="n">07</span> Summary and deliverables</h2>
   <ul>
-    <li><strong>Sensors:</strong> RTX LiDAR does not see invisible prims. Provide a visible sensor mesh; add the mount height when moving points to world.</li>
+    <li><strong>Sensors:</strong> RTX LiDAR hits the 3DGS (not invisible colliders). For mesh returns, use a cut-out transparent mesh. Add the mount height when moving points to world.</li>
     <li><strong>Shadows:</strong> in 6.0 mesh shadows land on the 3DGS. The caster cannot be hidden, so composite three renders. No relighting.</li>
     <li><strong>Map and path:</strong> the bundled occupancy generator works in seconds. <strong>Check the left-right flip</strong> against a ground-truth map.</li>
     <li><strong>Robot:</strong> let the bundled controller drive Nova Carter, stay at walking pace, reopen the stage per take.</li>
