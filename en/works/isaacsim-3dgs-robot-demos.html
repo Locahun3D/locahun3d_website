@@ -280,10 +280,10 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">Navigation</span>
-    <span>2026-08-18</span><span>&middot;</span><span>12 min read</span>
+    <span>2026-08-18</span><span>&middot;</span><span>14 min read</span>
   </div>
   <h1>Robot Development in a 3DGS City<br class="pc">with Isaac Sim 6.0:<br class="pc">RTX LiDAR, Sun Shadows, Autonomous Navigation</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. On top of the <a href="3dgs-lidar-denoise.html">two-layer environment from last time</a> (untouched 3DGS + raw scanner mesh), this article runs the three things robot development actually needs in NVIDIA Isaac Sim 6.0: <strong>a real sensor (RTX LiDAR) sweeping the city, shadows that move with the time of day (a fixed-view offline composite), and a map-based autonomous drive to a goal</strong>. The robot is Isaac's stock Nova Carter; the stage is our scan of Tokyo's Shibuya scramble crossing. Videos first, then the traps you will hit and an honest list of what does not work yet.</p>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. On top of the <a href="3dgs-lidar-denoise.html">two-layer environment from last time</a> (untouched 3DGS + raw scanner mesh), this article runs what robot development actually needs in NVIDIA Isaac Sim 6.0. The first half is the foundation &mdash; <strong>a real sensor (RTX LiDAR), shadows that move with the time of day, a map and an autonomous drive, semantic labels</strong>; the second half is simulation by <strong>situation</strong>: teaching the robot the structure of Shibuya (pavements, crosswalks, the pedestrian signal) and letting a delivery robot cross by pedestrian rules. The robot is Isaac's stock Nova Carter; the stage is our scan of Tokyo's Shibuya scramble crossing. Videos first, then the traps you will hit and an honest list of what does not work yet.</p>
 
   <figure>
     <img src="/works/images/shibuya_lidar_hero.jpg" alt="Nova Carter driving the 3DGS Shibuya crossing with a live RTX LiDAR point cloud">
@@ -299,7 +299,11 @@
     <li><a href="#sun">Demo 2: raw-mesh shadows on the splats (sun time-lapse)</a></li>
     <li><a href="#nav">Demo 3: build a map and drive to a goal</a></li>
     <li><a href="#semantic">Follow-up: giving the 3DGS semantic labels</a></li>
-    <li><a href="#ten">Ten simulations worth running in the crossing</a></li>
+    <li><a href="#structure">Reading the structure of Shibuya: a pavement / crosswalk map</a></li>
+    <li><a href="#pedrule">Situation 1: a delivery robot crossing by pedestrian rules (waiting for the light)</a></li>
+    <li><a href="#peds">Situation 2: stopping and restarting among pedestrians from every direction</a></li>
+    <li><a href="#landmarks">Situation 3: reaching landmarks named in words</a></li>
+    <li><a href="#planning">Situation 4: deciding before going on site (patrol blind spots, event set-up)</a></li>
     <li><a href="#limits">What is still missing for a production simulator</a></li>
     <li><a href="#summary">Summary and deliverables</a></li>
   </ol>
@@ -310,15 +314,21 @@
     <b>Two-layer env (last article)</b><span class="a">&rarr;</span>
     <b>Nova Carter + RTX LiDAR</b><span class="a">&rarr;</span>
     <b>Shadow composite</b><span class="a">&rarr;</span>
-    <b>Map + autonomous drive</b>
+    <b>Map + autonomous drive</b><span class="a">&rarr;</span>
+    <b>Street structure (pavement / crosswalk)</b><span class="a">&rarr;</span>
+    <b>Simulation by situation</b>
   </div>
 
-  <div class="callout note"><b>What you get</b>Starting from last article's two-layer USD (3DGS + invisible collider), you end with three working pieces: <strong>(1) a stock Isaac robot driving with LiDAR point-cloud capture, (2) time-of-day shadows using the raw scanner mesh as caster, (3) a map generated from the collider and a robot following a path to a goal</strong>. On the simulation side everything is bundled with Isaac Sim 6.0.1 &mdash; no extra installs, no ROS 2.</div>
+  <div class="callout note"><b>What you get</b>Starting from last article's two-layer USD (3DGS + invisible collider), you end with three working pieces: <strong>(1) a stock Isaac robot driving with LiDAR point-cloud capture, (2) time-of-day shadows using the raw scanner mesh as caster, (3) a map generated from the collider and a robot following a path to a goal</strong>, and on top of them <strong>(4) a pavement / crosswalk / road ground map and a delivery robot crossing by pedestrian rules inside the measured signal cycle</strong>. On the simulation side everything is bundled with Isaac Sim 6.0.1 &mdash; no extra installs, no ROS 2.</div>
 
   <h2 id="overview"><span class="n">01</span> Setup, and which surface each sensor sees</h2>
   <p>The environment is unchanged from <a href="3dgs-lidar-denoise.html">last time</a>: appearance = untouched 3DGS, physics = invisible collider made of the raw scanner mesh + ground patches. Isaac Sim 6.0 organises 3DGS import around USD ParticleField, has a new RTX LiDAR API, and now documents a ROS 2 setup for Windows (not tested here).</p>
   <p>First, <strong>which surface each sensor sees</strong> &mdash; three things we measured. <strong>(1) RTX LiDAR does hit the 3DGS itself</strong>: with only the 3DGS shown, ground and buildings return, and with everything hidden the returns drop to zero. This is our measurement on Isaac Sim 6.0.1; NVIDIA's forum answer for 6.0.0 said splats were invisible to the LiDAR, so it is not guaranteed behaviour &mdash; re-check on any version change, and ship mesh returns (3) as well. <strong>(2) It does not hit invisible prims</strong>, so the invisible collider is not seen and the LiDAR returns sit a few centimetres off the collision surface (small for a robot, and actually convenient because camera and LiDAR see the same surface). <strong>(3) If you want returns from the mesh instead, give a mesh a cut-out transparent material: on our 6.0.1 the camera did not see it but the LiDAR still hit it</strong> (other transparency settings also hide it from the LiDAR, so acceptance-test the settings you use). Shadows are the exception: a shadow caster is always visible to the camera, so Demo 2 is a composite.</p>
   
+  <figure>
+    <img src="/works/images/shibuya_sharpness_v1.jpg" alt="Six panels of the same camera and the same 3DGS with only the render setting changed">
+    <figcaption><b>Why the 3DGS looks softer inside Isaac than in the original viewer.</b>Same camera, same 3DGS, only the render setting differs. Turning off the default upscaler (DLSS) and rendering at 4K before downsizing gives the crispest image, yet distant signs and thin edges still smear as much as the source data does. Most of the softness is the 3DGS itself; the simulator setting recovers only part of it. The remaining videos in this article use that "no upscaler, render high and downsize" setting.</figcaption>
+  </figure>
   <div class="callout note"><b>Test environment</b>Isaac Sim 6.0.1 on Windows 11 with a GeForce RTX 5090; the loaded environment uses well over ten gigabytes of VRAM. Z-up, metres, world origin at the scanner's local origin (no geo-reference). Not tested on Linux. <strong>The videos play at about 2&times; simulation time</strong>; all speeds and times in the text are sim time. Some of the extensions used are marked experimental &mdash; pin your version.</div>
 
   <h2 id="lidar"><span class="n">02</span> Demo 1: Nova Carter + RTX LiDAR sweeping the city</h2>
@@ -327,7 +337,7 @@
       <source src="/works/videos/shibuya_carter_lidar_live_v1.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>Nova Carter crossing the crosswalk while its onboard LiDAR cloud sweeps the street.</b>The LiDAR is aimed at the 3DGS itself, so camera and point cloud are captured together in one drive. Same differential-drive-plus-front-caster layout as the real robot, on the untouched raw scan road.</figcaption>
+    <figcaption><b>Nova Carter crossing the crosswalk while its onboard LiDAR cloud sweeps the street.</b>The LiDAR is aimed at the 3DGS itself, so camera and point cloud are captured together in one drive. Same differential-drive-plus-front-caster layout as the real robot; the look is the untouched raw scan, ground contact and collision come from the invisible collider.</figcaption>
   </figure>
   <figure>
     <img src="/works/images/shibuya_lidar_splat_vs_mesh_v1.jpg" alt="Top-down comparison of LiDAR returns from the 3DGS versus from the raw mesh at the same position">
@@ -412,18 +422,40 @@
     </ul>
   </div>
 
-  <h2 id="ten"><span class="n">06</span> Ten simulations worth running in the crossing</h2>
-  <p>With the environment able to carry a driving robot, the next question was <strong>what</strong> is worth simulating in the Shibuya scramble. We ran ten candidates. The environment's strength is that <strong>appearance and shape of a dense real city are both measured</strong>, so we chose topics where visual complexity, the real placement of objects, and people flow decide the answer. For each, what it shows and what it does not (no human ground truth, no comparison with a real robot).</p>
-
-
-  <h3 id="s01"><span class="n">06-01</span> Can it cross before the light changes?</h3>
+  <h2 id="structure"><span class="n">06</span> Reading the structure of Shibuya: a pavement / crosswalk map</h2>
+  <p>So far the robot simply drove through "free" cells of the map. To simulate anything meaningful in the Shibuya scramble, the robot has to know <strong>which ground is pavement, which is a crosswalk and which is road</strong>. A pavement delivery robot drives on the pavement, crosses on the zebra while the light is green and stays off the road &mdash; without that premise, neither "can it make it across" nor "how long does it wait" can be evaluated.</p>
   <figure>
-    <img src="/works/images/shibuya_sim01_crossing_v1.jpg" alt="Diagonal crossing trajectory with elapsed time markers">
-    <figcaption><b>Diagonal crossing from the south-west kerb to the police-box corner, with elapsed time.</b>About 40 m. At walking pace (1 m/s) that is some 40 s, but our simple heading controller kept slowing at turns and took over two minutes.</figcaption>
+    <img src="/works/images/shibuya_ortho_semmap_v1.jpg" alt="Top-down image of the scan (top) and the same view with the road / pavement / crosswalk map and the robot routes overlaid (bottom)">
+    <figcaption><b>The scan drawn from straight above (top) and the ground map made from it (bottom).</b>Purple is road, pink pavement, yellow crosswalk. Where the top image shows white stripes, the bottom shows yellow. Hatched areas are plazas corrected by hand (see below). Circles are the start (S) and goal (G) of each scenario; red dots are where the robot waits for the light before a crosswalk. Blue: from the west plaza across the central zebra to the south; green: to the police box; orange: from the south plaza to the police box.</figcaption>
   </figure>
-  <p>The first question any delivery robot gets. The answer here: the path was right, but the controller was too slow &mdash; against a green phase of a few tens of seconds (not yet measured on site), <strong>speed lost at turns and corrections</strong> mattered more than straight-line speed. Since controllers can be swapped in the same environment, the speed plan needed to make the crossing can be settled before deployment. <strong>Not shown</strong>: the real signal cycle, and slowdowns caused by other pedestrians (see 02).</p>
+  <p><strong>How it is made</strong>, in three steps. First, the per-splat semantic labels from section 05 near ground level are tallied from above into a road / pavement base. Second, crosswalks are picked out by <strong>stripe periodicity</strong>, not by white paint: Shibuya's ground has plenty of white lane lines and bright paving, and a whiteness test turned the plaza in front of the police box into a crosswalk. Japanese zebras alternate white and ground at a fixed spacing, so a filter that responds only to that spacing found the four crosswalks in this scan without merging them into the plazas (finally checked by hand against the top-down image and eye-level renders). Third, the 2D recognition model still called the large tiled pedestrian areas (the police-box island and the west plaza) "road". Those two, plus the short zebra across the side road by the police box, were checked in eye-level renders of the scene and <strong>corrected by hand</strong> (hatched in the figure). This is not fully automatic, and we say so.</p>
+  <p>Planning on this map with <strong>pavement cheapest, crosswalks next, road heavily penalised</strong> yields the three routes in the figure: pavement &rarr; zebra &rarr; pavement, a route that prefers pavements and crosswalks (people flow, crowding and which side people walk on are not modelled), keeping to the middle of the stripes rather than skimming the edge. The problem setting we referred to is NVIDIA's <a href="https://docs.isaacsim.omniverse.nvidia.com/latest/synthetic_data_generation/tutorial_replicator_mobility_gen.html" target="_blank" rel="noopener">MobilityGen</a> for Isaac Sim (occupancy map + recorded trajectories) and <a href="https://arxiv.org/abs/2601.03200" target="_blank" rel="noopener">recent work</a> fusing visibility-aware semantic labels into a 3DGS digital twin; what we built is a simplified proof-of-concept, not a re-implementation of those methods.</p>
 
-  <h3 id="s02"><span class="n">06-02</span> Coexisting with moving pedestrians (can it stop?)</h3>
+  <h2 id="pedrule"><span class="n">07</span> Situation 1: a delivery robot crossing by pedestrian rules (waiting for the light)</h2>
+  <p>The first thing worth testing here is whether a pavement delivery robot can reach its destination inside Shibuya's signal cycle. With the street structure and the real signal in place, this stops being a driving demo and becomes <strong>material for a deployment decision</strong>. A published timing survey of the scramble (<a href="https://www.shingou-saikuru.com/2019/01/shibuya-sta.html" target="_blank" rel="noopener">weekday around 18:00</a>) gives <strong>a 140-second cycle with 47 seconds of pedestrian green (37 steady + 10 flashing) and 93 seconds of red</strong>; we used those values as the simulated signal. The robot follows rules modelled on a pedestrian's: <strong>do not start on flashing green, do not start unless there is time to finish before the green ends, and once started, never stop on the road</strong> (the 10 flashing seconds may be used to finish). This is an operating rule for a slow delivery robot obeying the pedestrian signal, not a reading of traffic law.</p>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_pedrule_poster_v1.jpg">
+      <source src="/works/videos/shibuya_pedrule_west_to_south_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>A delivery robot from the west plaza past the police box and south across the central zebra.</b>Top left: the pedestrian signal and seconds remaining; bottom right: its position on the ground map. It stops at the kerb on red, and even on green it waits for the next green when it judges it cannot finish. Waiting stretches are time-lapsed (labelled).</figcaption>
+  </figure>
+  <p><strong>Result</strong>: the first zebra (about 13 m) was crossed on the start of a green. The problem is the roughly 30 m of zebra crossed in one go &mdash; the side-road zebra by the police box straight into the central zebra (zebra only; the pavement in between is not counted). By the time the robot had crossed the first zebra and walked the pavement, the green had twenty-odd seconds left, not enough for 30 m, so it waited for the next green: the twenty-odd seconds of remaining green plus 93 s of red, <strong>about two minutes</strong>. Shibuya's green is short and its red long, so missing one green stretches a delivery a lot. Under these conditions &mdash; no other pedestrians or vehicles &mdash; what decided the time to destination was not driving speed but <strong>when the crossing starts</strong>. Run again at 0.6 m/s on the same route, the robot crossed the first zebra but then stayed put at the 30 m crossing &mdash; every green was judged too short to finish &mdash; and never reached the goal.</p>
+  <figure>
+    <img src="/works/images/shibuya_signal_window_v1.jpg" alt="Graph of robot speed against the number of seconds of green in which the robot may start crossing, per crosswalk">
+    <figcaption><b>For each crosswalk on the route, how many seconds of green a robot may start in, against its speed.</b>Short zebras leave plenty of margin at any speed, but the roughly 30 m from the side road down the central zebra is usable only in the first ten-odd seconds of green even at walking pace (1 m/s), and <strong>since even the full 47 s of green needs at least 0.64 m/s, a typical delivery-robot cruise (0.5&ndash;0.6 m/s) cannot cross it within one green at all</strong>. In that case the side-road zebra and the central zebra must be crossed on separate greens (waiting once on the island) &mdash; which the same map can plan.</figcaption>
+  </figure>
+  <p><strong>Relation to prior work.</strong> Crossing is a central topic for pavement robots: navigation that handles the pedestrian flow at a crosswalk together with the "finish while green" constraint (<a href="https://ieeexplore.ieee.org/document/9538660/" target="_blank" rel="noopener">Chugo et al., 2021</a>), a street-crossing decision module for a delivery robot validated in simulation and then on a real robot (<a href="https://www.sciencedirect.com/science/article/pii/S0967066124002545" target="_blank" rel="noopener">Control Engineering Practice, 2024</a>), and learning when to cross from real sensor data (<a href="https://www.researchgate.net/publication/318361253_Why_did_the_Robot_Cross_the_Road_-_Learning_from_Multi-Modal_Sensor_Data_for_Autonomous_Road_Crossing" target="_blank" rel="noopener">Radwan et al., 2017</a>). As a benchmark, <a href="https://arxiv.org/abs/2606.16953" target="_blank" rel="noopener">SidewalkBench (2026)</a> is close in that it also uses 3DGS scans of real streets as a robot evaluation environment in Isaac Sim, and it goes further, evaluating pedestrian-reactive and long-horizon navigation. This article stops at <strong>counting "can it cross, how long does it wait" on the real crossing geometry with the measured signal cycle</strong>; other pedestrians and vehicles are not included, and evaluation with people flow is where frameworks like SidewalkBench come first.</p>
+  <div class="callout warn"><b>Before you use this result</b>
+    <ul>
+      <li>The signal assumes the scramble mode (all crosswalks green together) fixed at the measured values above; timing changes with the time of day, so measure the period you care about.</li>
+      <li>The ground map is semi-automatic (two plazas and one short zebra checked by hand); moving it to another place needs the same check.</li>
+      <li>No other pedestrians or vehicles: no slowing or yielding in a crowd, so the waiting times here are a <strong>best case</strong>.</li>
+      <li>Outside the scan (the south plaza, the east pavement) the robot sees nothing, so route starts and goals sit on scanned pavement.</li>
+    </ul>
+  </div>
+
+  <h2 id="peds"><span class="n">08</span> Situation 2: stopping and restarting among pedestrians from every direction</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_sim02_peds_poster_v1.jpg">
       <source src="/works/videos/shibuya_sim02_peds_v1.mp4" type="video/mp4">
@@ -431,57 +463,31 @@
     </video>
     <figcaption><b>Stand-in pedestrians (coloured pillars) cross the scramble while the robot watches ahead with its LiDAR.</b>It stops when anything enters its safety zone and moves on when it clears. The walkers follow fixed lines &mdash; a simple model.</figcaption>
   </figure>
-  <p>The scramble's "people from every direction" situation: can the robot <strong>stop and restart</strong>? The LiDAR picked up both the 3DGS city and the walkers, and the robot stopped and restarted for crossings. <strong>Not shown</strong>: real human behaviour (mutual avoidance, hesitation). Adding people-flow data and pedestrian agents is where this environment gains the most.</p>
+  <p>The scramble's "people from every direction" situation: can the robot <strong>stop and restart</strong>? The LiDAR picked up both the 3DGS city and the walkers, and the robot stopped and restarted for crossings. <strong>Not shown</strong>: real human behaviour (mutual avoidance, hesitation). Adding people-flow data and pedestrian agents would also bring the waiting times of Situation 1 closer to reality.</p>
 
-  <h3 id="s03"><span class="n">06-03</span> Where perception gets confused among the signs</h3>
+  <h2 id="landmarks"><span class="n">09</span> Situation 3: reaching landmarks named in words</h2>
   <figure>
-    <img src="/works/images/shibuya_sim03_perception_v1.jpg" alt="Four panels: RGB, 2D model prediction, 3D-aggregated label, and where the 2D model disagrees">
-    <figcaption><b>Where a 2D recognition model flips between viewpoints, in red.</b>The paved plaza reads as "sidewalk" or "road" depending on the view, and thin poles and fences waver. The label aggregated in 3D (second from right) stays consistent as the view changes.</figcaption>
-  </figure>
-  <p>Giant signage, reflective glass and painted road surfaces are visual noise you only get from a scan of the real place. Shown the same spot from many directions, the 2D model changed its mind on <strong>the paved plaza, thin posts and fences</strong>. <strong>What it shows</strong>: where your model is weak in this street, as a collection of failure cases. <strong>Not shown</strong>: accuracy &mdash; no human labels, so this is about instability, not correctness.</p>
-
-  <h3 id="s04"><span class="n">06-04</span> Reaching landmarks named in words</h3>
-  <figure>
-    <img src="/works/images/shibuya_sim04_landmarks_v1.jpg" alt="Driven trajectories to four instructed destinations: police-box corner, south pavement, street-tree pavement, MAGNET sign">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_sim04_landmarks_poster_v1.jpg">
+      <source src="/works/videos/shibuya_sim04_landmarks_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
     <figcaption><b>Four instructions &mdash; "to the police-box corner", "to the south pavement", "to the pavement under the street trees", "under the roasted-chestnut sign" &mdash; reached from the same start.</b>Instructions can be written with real landmarks, which makes tasks easy to author by hand.</figcaption>
   </figure>
-  <p>As a test bed for language-guided navigation, writing tasks with real landmarks is a big advantage. Here the mapping from words to map coordinates was done by hand, and the robot drove there autonomously; all four reached. <strong>Not shown</strong>: the language-understanding half (no language model connected), and only four tasks so far.</p>
-
-  <h3 id="s05"><span class="n">06-05</span> Evacuation flow and which exits matter</h3>
   <figure>
-    <img src="/works/images/shibuya_sim05_evacuation_v1.jpg" alt="Crowd trajectories evacuating from the crossing to four exits; top with all exits open, bottom with the east exit blocked">
-    <figcaption><b>People in the crossing heading for their nearest exit, over the real obstacle layout.</b>Top: all exits open; bottom: the east exit blocked. The flow concentrates at the north exit.</figcaption>
+    <img src="/works/images/shibuya_sim04_landmarks_v1.jpg" alt="Driven trajectories to four instructed destinations: police-box corner, south pavement, street-tree pavement, MAGNET sign">
+    <figcaption><b>The four driven trajectories.</b>As a test bed for language-guided navigation, writing tasks with real landmarks is a big advantage.</figcaption>
   </figure>
-  <p>Baseline material for thinking about evacuation and robot-guided crowds. Because it runs over the real fences, police box and subway entrances, the pinch points come from the terrain. <strong>Not shown</strong>: people are a simple model (constant speed to the nearest exit, simplified pushing) with no calibration to real evacuation behaviour or counts &mdash; trends, not numbers.</p>
+  <p>Here the mapping from words to map coordinates was done by hand, and the robot drove there autonomously; all four reached. Combined with the ground map of section 06 the same tasks can be solved "by the pavement". <strong>Not shown</strong>: the language-understanding half (no language model connected), and only four tasks so far.</p>
 
-  <h3 id="s06"><span class="n">06-06</span> Blind spots of a patrol route</h3>
-  <p>The figure at the top. One patrol pass sees 85% of the surrounding ground; the remaining blind spots are behind the police box, in the shadow of poles and bollards, and in building recesses. Because it comes from the real layout, patrol routes and extra camera positions can be argued before going on site. <strong>Not shown</strong>: only one sensor height; no temporary occlusion by moving people and vehicles.</p>
-
-  <h3 id="s07"><span class="n">06-07</span> How sensor models differ in the same street</h3>
-  <figure>
-    <img src="/works/images/shibuya_lidar_models_v1.jpg" alt="Top-down comparison of two LiDAR model presets at the same position">
-    <figcaption><b>The same LiDAR position with a different model preset.</b>Point density and reach can be compared in the same street.</figcaption>
-  </figure>
-  <p>Swapping real-model presets gives material for the robot's sensor design. <strong>Not shown</strong>: reflectivity, rain and fog, intensity matching to real units &mdash; density and reach only. In our setup one LiDAR ran per environment, so each model needed the environment reopened.</p>
-
-  <h3 id="s08"><span class="n">06-08</span> Robustness to time of day (shadows)</h3>
-  <figure>
-    <img src="/works/images/shibuya_sun_stills_v1.jpg" alt="Morning, noon and evening stills of the crossing">
-    <figcaption><b>The same place in the morning, at noon and in the evening.</b>Shadow direction and length are composited from the raw mesh.</figcaption>
-  </figure>
-  <p>For daytime time-of-day robustness this composite produces test images. <strong>Not possible</strong>: night, rain and lit neon (colours are baked). Use it for "shadows only".</p>
-
-  <h3 id="s09"><span class="n">06-09</span> Kerbs and steps</h3>
-  <p>What we learned by trying: <strong>this crossing has almost no kerbs around its crosswalks</strong> (it is barrier-free). Nova Carter passed the road's small bumps at walking pace and stopped at the corner building's wall. Kerb-climbing needs a location that has kerbs &mdash; last article's vehicle did climb a pavement step, so per-robot comparison is possible if the spot is chosen.</p>
-
-  <h3 id="s10"><span class="n">06-10</span> Event set-up check</h3>
+  <h2 id="planning"><span class="n">10</span> Situation 4: deciding before going on site (patrol blind spots, event set-up)</h2>
+  <p>Beyond robot learning, some answers exist only because the layout is real. In the patrol shown in the photo at the top of the article (LiDAR sweeping while driving), one pass sees 85% of the surrounding ground; the remaining blind spots are behind the police box, in the shadow of poles and bollards, and in building recesses. Patrol routes and extra camera positions can be argued before going on site (one sensor height; no temporary occlusion by moving people and vehicles).</p>
   <figure>
     <img src="/works/images/shibuya_sim10_event_v1.jpg" alt="Overview of a temporary stage and truss placed in the crossing, and the views from two camera platforms">
     <figcaption><b>A temporary stage with a roof placed in the middle of the crossing.</b>Top: overview; bottom: the views from two camera platforms. The bottom-right platform was placed inside the police box and its view is blocked &mdash; the kind of clash you catch before going on site. The stage's shadow lands on the 3DGS road.</figcaption>
   </figure>
-  <p>A non-robot use. Clashes between temporary structures and real ones, camera sightlines and free circulation can be checked in the full-scale street. It has the strongest synergy with our core location-scouting work; with the equipment dimensions, anything can be placed the same way.</p>
+  <p>Clashes between temporary structures and real ones, camera sightlines and free circulation can be checked in the full-scale street. It has the strongest synergy with our core location-scouting work; with the equipment dimensions, anything can be placed the same way.</p>
 
-    <h2 id="limits"><span class="n">07</span> What is still missing for a production simulator</h2>
+  <h2 id="limits"><span class="n">11</span> What is still missing for a production simulator</h2>
   <figure>
     <img src="/works/images/shibuya_depth_splat_vs_mesh_v1.jpg" alt="Four-panel comparison from the same camera: RGB, depth from the 3DGS, depth from the raw mesh, and their difference">
     <figcaption><b>Depth comes straight from the camera too.</b>Top left RGB, top right depth from the 3DGS, bottom left depth from the raw mesh, bottom right their difference. 3DGS depth covers the whole frame and matches the mesh to within a few centimetres on road and walls, with noise at thin edges and floaters (red/blue specks). RGB, depth and labels come from the same camera, and LiDAR from a separate sensor, all in the same environment.</figcaption>
@@ -489,21 +495,25 @@
   <p>"It ran" and "it is usable" are different things, so here is the honest list.</p>
   <ul>
     <li><strong>The camera and the LiDAR/collision see different surfaces.</strong> RGB and LiDAR come from the splats, collision from the raw mesh, a few centimetres apart on the road and over a metre in the far field. Camera and LiDAR seeing the same surface is convenient for fusion; just remember that the surface the LiDAR returns is not the surface the robot collides with.</li>
-    <li><strong>Semantics stop at pseudo-labels</strong> (section 05): no human-GT check and no instance IDs (confidence-based selection is available).</li>
+    <li><strong>Semantics stop at pseudo-labels</strong> (section 05): no human-GT check and no instance IDs (confidence-based selection is available). <strong>The ground map is semi-automatic</strong> too (section 06): plazas and a short zebra were corrected by hand.</li>
+    <li><strong>Signal and pedestrians.</strong> The signal is an assumption fixed at measured values; there are no other pedestrians or vehicles, so Situation 1's waits are a best case. This crossing has almost no kerbs around its crosswalks (barrier-free), so kerb-climbing needs another location.</li>
         <li><strong>Ghosts and pedestrians.</strong> People caught in the scan remain as static obstacles; nothing moves.</li>
     <li><strong>Sensor realism.</strong> No motion distortion, default noise for intensity, IMU and camera; no validation against a real-robot log at the same place.</li>
     <li><strong>ROS 2 / Nav2 / Linux.</strong> All untested; no TF or robot description since ROS is not used. Capture ran well below real time; human-in-the-loop use needs optimisation.</li>
     <li><strong>Relighting is shadows only.</strong> No night, no rain. Speed tops out at walking pace (faster or vehicle-scale belongs to last article's PhysX Vehicle).</li>
   </ul>
 
-  <h2 id="summary"><span class="n">08</span> Summary and deliverables</h2>
+  <h2 id="summary"><span class="n">12</span> Summary and deliverables</h2>
+  <p><strong>What it is good for</strong>: USD conversion, sensor capture (RGB, depth, LiDAR, pseudo-labels), comparing route candidates, rough travel-time estimates including signal waits, pre-checking set-ups and patrols. <strong>Not, as is</strong>: guaranteeing control performance, evaluating perception accuracy, or sim-to-real claims.</p>
   <ul>
     <li><strong>Sensors:</strong> RTX LiDAR hits the 3DGS (not invisible colliders). For mesh returns, use a cut-out transparent mesh. Add the mount height when moving points to world.</li>
     <li><strong>Shadows:</strong> in 6.0 mesh shadows land on the 3DGS. The caster cannot be hidden, so composite three renders. No relighting.</li>
-    <li><strong>Map and path:</strong> the bundled occupancy generator works in seconds. <strong>Check the left-right flip</strong> against a ground-truth map.</li>
+    <li><strong>Map and path:</strong> the bundled occupancy generator works in seconds. <strong>In our conversion the data came out mirrored left-right</strong>, so always check against a ground-truth map.</li>
     <li><strong>Robot:</strong> let the bundled controller drive Nova Carter, stay at walking pace, reopen the stage per take.</li>
     <li><strong>Semantics:</strong> labels on the 3DGS itself render pixel-aligned with the RGB, but they are pseudo-labels, not ground truth.</li>
-    <li><strong>The ten simulations:</strong> crossing time, stop/restart, landmark tasks, blind spots, sensor comparison and set-up checks are usable for decisions today; perception instability, evacuation flow and time of day give trends; kerbs do not exist at this crossing.</li>
+    <li><strong>Street structure:</strong> semantic labels + stripe periodicity give a road / pavement / crosswalk ground map on which human-like routes can be planned (plazas and one short zebra checked by hand).</li>
+    <li><strong>Situation 1 (delivery &times; signal):</strong> with the measured cycle (47 s green / 140 s), the roughly 30 m crossing is usable only in the first ten-odd seconds of green even at walking pace, and missing it costs about two minutes. The bottleneck is crossing timing, not speed.</li>
+    <li><strong>Situations 2&ndash;4:</strong> stop/restart among pedestrians, landmark tasks, patrol blind spots and set-up checks are usable as a starting point for decisions.</li>
     <li><strong>Before you rely on it:</strong> the camera and LiDAR/collision see different surfaces; no real-robot validation, no Nav2 drive, no Linux run. Its scope is <strong>proof-of-concept work &mdash; USD conversion, sensor capture, path demos</strong>; it is <strong>not, as is,</strong> a basis for control or perception performance evaluation or sim-to-real claims.</li>
   </ul>
   <p>When we hand over such an environment the deliverable is <strong>the two-layer USD (3DGS reference + invisible collider) / the sensor mesh / the occupancy grid (image + origin &amp; resolution) / spawn points and a driven-verified lane / the reproduction scripts</strong>, plus <strong>the verified versions with a spec sheet for frame and units / an acceptance-test script with expected output / the licence scope of the scan data</strong>. The last item matters: <strong>the raw Shibuya scan contains pedestrians' faces and vehicle plates</strong>. Commercial delivery for AI training includes either masking or a contractual limit on use. The videos in this article use the raw data with no individual masking; the cuts were chosen so people appear only far away at low resolution &mdash; we will replace any cut on request.</p>
