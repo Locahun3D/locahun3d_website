@@ -27,7 +27,6 @@ EYECATCH = {
     "isaacsim-3dgs-import":           ("/works/images/isaacsim_shibuya_walk.jpg", 1920, 1080),
     "3dgs-lidar-denoise":             ("/works/images/shibuya_hero.jpg", 1280, 720),
     "isaacsim-3dgs-robot-demos":      ("/works/images/shibuya_lidar_hero.jpg", 1280, 720),
-    "shibuya-ten-simulations":        ("/works/images/shibuya_sim06_visibility_v1.jpg", 1040, 680),
     "3dgs-file-formats":              ("/works/images/format-og-cover.jpg", 1200, 630),
     "3dgs-software-comparison":       ("/works/images/dcc-og-cover.jpg", 1200, 630),
     "portalcam-xbin-raw-extraction":  ("/works/images/xbin_cam_pinholeA.jpg", 1100, 825),
