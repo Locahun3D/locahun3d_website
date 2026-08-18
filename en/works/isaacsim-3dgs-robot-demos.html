@@ -280,14 +280,14 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">Navigation</span>
-    <span>2026-08-18</span><span>&middot;</span><span>6 min read</span>
+    <span>2026-08-18</span><span>&middot;</span><span>7 min read</span>
   </div>
   <h1>Robot Development in a 3DGS City<br class="pc">with Isaac Sim 6.0:<br class="pc">RTX LiDAR, Sun Shadows, Autonomous Navigation</h1>
   <p class="lead">This is Nakamura from LOCAHUN 3D. On top of the <a href="3dgs-lidar-denoise.html">two-layer environment from last time</a> (untouched 3DGS + raw scanner mesh), this article runs the three things robot development actually needs in NVIDIA Isaac Sim 6.0: <strong>a real sensor (RTX LiDAR) sweeping the city, shadows that move with the time of day, and a map-based autonomous drive to a goal</strong>. The robot is Isaac's stock Nova Carter; the stage is our scan of Tokyo's Shibuya scramble crossing. Videos first, then the traps you will hit and an honest list of what does not work yet.</p>
 
   <figure>
     <img src="/works/images/shibuya_lidar_hero.jpg" alt="Nova Carter driving the 3DGS Shibuya crossing with a live RTX LiDAR point cloud">
-    <figcaption><b>Nova Carter's LiDAR sweeping the 3DGS Shibuya.</b>The points are real measurements from the simulated LiDAR (in this video they are returns from the raw mesh, recorded in a separate take and drawn over the identical drive; as explained below the LiDAR also hits the 3DGS itself). Appearance is the 3DGS; collision comes from the raw scanner mesh.</figcaption>
+    <figcaption><b>Nova Carter's LiDAR sweeping the 3DGS Shibuya.</b>The points are real measurements from the simulated LiDAR; appearance is the 3DGS, collision comes from the raw scanner mesh.</figcaption>
   </figure>
 </header>
 
@@ -317,21 +317,25 @@
   <h2 id="overview"><span class="n">01</span> Setup, and which surface each sensor sees</h2>
   <p>The environment is unchanged from <a href="3dgs-lidar-denoise.html">last time</a>: appearance = untouched 3DGS, physics = invisible collider made of the raw scanner mesh + ground patches. Isaac Sim 6.0 organises 3DGS import around USD ParticleField, has a new RTX LiDAR API, and now documents a ROS 2 setup for Windows (not tested here).</p>
   <p>First, <strong>which surface each sensor sees</strong> &mdash; three things we measured. <strong>(1) RTX LiDAR does hit the 3DGS itself</strong>: ground and buildings return from the same surface the camera sees. <strong>(2) It does not hit invisible prims</strong>, so the invisible collider is not seen and the LiDAR returns sit a few centimetres off the collision surface (small for a robot, and actually convenient because camera and LiDAR see the same surface). <strong>(3) If you want returns from the mesh instead, give a mesh a cut-out transparent material: the camera does not see it but the LiDAR still hits it.</strong> Shadows are the exception: a shadow caster is always visible to the camera, so Demo 2 is a composite.</p>
-  <div class="callout warn"><b>Correction from the first published version</b>The first version said the LiDAR did not hit the splats and ground returns vanished. That was a misreading caused by forgetting the sensor mount height when moving points to world, which buried them under the ground. Re-measured, the splats alone give plenty of ground and building returns. The Demo 1 video still uses the first version's method (mesh returns).</div>
+  
   <div class="callout note"><b>Test environment</b>Isaac Sim 6.0.1 on Windows 11 with a GeForce RTX 5090; the loaded environment uses well over ten gigabytes of VRAM. Z-up, metres, world origin at the scanner's local origin (no geo-reference). Not tested on Linux. <strong>The videos play at about 2&times; simulation time</strong>; all speeds and times in the text are sim time. Some of the extensions used are marked experimental &mdash; pin your version.</div>
 
   <h2 id="lidar"><span class="n">02</span> Demo 1: Nova Carter + RTX LiDAR sweeping the city</h2>
   <figure>
-    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_carter_lidar_poster_v1.jpg">
-      <source src="/works/videos/shibuya_carter_lidar_v1.mp4" type="video/mp4">
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_carter_lidar_live_poster_v1.jpg">
+      <source src="/works/videos/shibuya_carter_lidar_live_v1.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>Nova Carter crossing the crosswalk while its onboard LiDAR cloud sweeps the street.</b>Bottom right: the onboard camera. The same differential-drive-plus-front-caster layout as the real robot, on the untouched raw scan road.</figcaption>
+    <figcaption><b>Nova Carter crossing the crosswalk while its onboard LiDAR cloud sweeps the street.</b>The LiDAR is aimed at the 3DGS itself, so camera and point cloud are captured together in one drive. Same differential-drive-plus-front-caster layout as the real robot, on the untouched raw scan road.</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/shibuya_lidar_splat_vs_mesh_v1.jpg" alt="Top-down comparison of LiDAR returns from the 3DGS versus from the raw mesh at the same position">
+    <figcaption><b>The same LiDAR position, hitting the 3DGS (left) versus the raw mesh (right).</b>Returns from the 3DGS show haze between the rings and radial streaks (reflections off semi-transparent splats and floaters); nearby, just under a tenth of the points sit off the surface. Mesh returns are geometrically exact and essentially noise-free, but a few centimetres from the surface the camera sees. You can aim at either, depending on the use.</figcaption>
   </figure>
   <p>Four steps. <strong>(1) Robot</strong>: load the stock Nova Carter and drive it with the bundled differential controller. <strong>(2) Sensor</strong>: parent a bundled RTX LiDAR (a real-model configuration) to the chassis and read the point cloud every frame. <strong>(3) Control</strong>: a simple heading controller toward a point a few metres ahead. <strong>(4) Drawing</strong>: transform the points to world coordinates and draw them in the viewport.</p>
   <div class="callout warn"><b>Traps</b>
     <ul>
-      <li><strong>This video shows mesh returns shot in two passes</strong> (mesh visible to record the cloud, then hidden while replaying the identical drive; the drives matched). Today one pass is enough: aim the LiDAR at the splats as they are, or, for mesh returns, add a mesh with a cut-out transparent material and capture both at once without it showing in the camera.</li>
+      <li><strong>For mesh returns</strong>, place a mesh of the collider's shape with a cut-out transparent material: the camera does not see it, the LiDAR does, and both are still captured in one drive.</li>
       <li><strong>Transforming the lidar points to world put the ground one sensor-mount height too low.</strong> Adding the mount offset fixes it.</li>
       <li><strong>Do not overwrite the wheel drive settings yourself.</strong> The asset defaults are more stable.</li>
       <li><strong>Above walking pace the casters start oscillating and the robot spins</strong> on the raw scan road. This is a simulator-side effect, not the real robot, so gains or stability tuned here do not transfer.</li>
@@ -348,6 +352,10 @@
     </video>
     <figcaption><b>Sunrise to sunset: shadows of lamp posts, signs and the police box sweep across the crossing.</b>Shadow shapes come from the raw scanner mesh, colours from the 3DGS. Dawn/dusk tint is added in the composite.</figcaption>
   </figure>
+  <figure>
+    <img src="/works/images/shibuya_sun_stills_v1.jpg" alt="Morning, noon and evening stills of the crossing with changing shadow direction and length">
+    <figcaption><b>Morning, noon and evening cut from the same sequence.</b>Shadow direction and length change, so the same place can be shown as a different time of day. Colour tint is added in the composite.</figcaption>
+  </figure>
   <p>As the <a href="https://docs.omniverse.nvidia.com/materials-and-rendering/latest/particle-fields.html" target="_blank" rel="noopener">Omniverse docs</a> state, in 6.0 <strong>mesh shadows do land on the splats</strong> (the robot's shadow in Demo 1 is exactly that). But splat colour is baked, so <strong>adding lights does not brighten anything and colour temperature does not change</strong>. Shadows yes, relighting no &mdash; that is the accurate 6.0 statement.</p>
   <p>To cast building and lamp shadows you use the raw mesh as caster, but it cannot be hidden from the camera. So we <strong>composite three renders</strong>: the splats alone, a white-painted mesh under the sun with shadows, and the same without shadows. The ratio of the last two isolates the shadows, which are then multiplied onto the splat image.</p>
   <div class="callout note"><b>Limits</b>The shadow mask comes from the mesh and lands on the splats, so shadows are displaced by the offset between the two surfaces (centimetres nearby, over a metre in the far field): fine for near road shadows, wrong against distant building outlines. It is a fixed-camera offline composite and cannot be applied to a moving robot camera as is. Received shadows are blurry by design and stack on the shadows baked into the scan, so overcast scans look most natural. Night scenes or lit neon are not possible in 6.0.</div>
@@ -359,6 +367,10 @@
       Your browser does not support video playback.
     </video>
     <figcaption><b>An occupancy grid generated from the collider (top right), a path (green), and Nova Carter rounding the police-box corner to the goal.</b>Orange is the driven trajectory, the red triangle the live pose. The map comes straight from Isaac's bundled occupancy-map generator over the collider.</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/shibuya_nav_routes_v1.jpg" alt="Occupancy grid with planned paths and driven trajectories to three goals">
+    <figcaption><b>Three goals from the same start.</b>A rounds the police box, B exits to the south side, C heads for the north pavement. Thick lines are the planned paths, thin lines the driven trajectories &mdash; all three arrive close to plan. B bends mid-way to avoid a scanned-in obstacle.</figcaption>
   </figure>
   <p>The <strong>map</strong> comes from Isaac's bundled occupancy-map generator in seconds. To keep small road bumps from becoming obstacles it only looks at a band from just above the ground up to the robot's height. The <strong>path</strong> is a shortest path on the map inflated by the robot's size, thinned to a few waypoints the robot follows.</p>
   <div class="callout warn"><b>Traps</b>
@@ -378,7 +390,15 @@
     <figcaption><b>RGB (top) and the label image (bottom) from the same camera.</b>A new viewpoint not used for labelling. Purple = road, pink = sidewalk, grey = building, olive = vegetation, light grey = pole, yellow = traffic light. Black = unlabelled (the sky has no points / unobserved).</figcaption>
   </figure>
   <p><strong>How</strong>: render the street from many robot-height viewpoints, let a public 2D segmentation model predict classes, aggregate those predictions per 3DGS point by voting while checking with the collider whether the point was actually visible from each view, fill points that were never seen from their neighbours, and write out a duplicate with class colours (the source data stays untouched; only an override layer is added).</p>
-  <p><strong>Result</strong>: on new viewpoints not used for labelling, road, buildings and vegetation come out right; thin things like poles are weak and sidewalk vs road is unstable. Two 2D models disagree with each other about as much, so aggregating in 3D loses little. Because each point also carries "how split the vote was", a confidence map can be rendered alongside; <strong>keeping only confident pixels raises agreement with a second model to the high nineties</strong> (at the cost of keeping under a third of the pixels).</p>
+  <figure>
+    <img src="/works/images/shibuya_semlabel_gallery_v1.jpg" alt="RGB and label images at four new viewpoints not used for labelling">
+    <figcaption><b>Four new viewpoints not used for labelling.</b>RGB left, the label image from the same camera right. Crossing centre, along the pavement, in front of the police box, under the street trees &mdash; the labelling holds up as the place changes.</figcaption>
+  </figure>
+  <p><strong>Result</strong>: on new viewpoints, road, buildings and vegetation come out right; thin things like poles are weak and sidewalk vs road is unstable. Two 2D models disagree with each other about as much, so aggregating in 3D loses little.</p>
+  <figure>
+    <img src="/works/images/shibuya_semlabel_conf_v1.jpg" alt="Four-panel comparison: RGB, label, confidence map, and label with only confident pixels kept">
+    <figcaption><b>A confidence map can be rendered alongside the labels.</b>Bottom left: how split the vote was per point, as brightness (blue = filled in from neighbours); bottom right: only the confident pixels kept. <strong>About four pixels in five are confident, and on those the agreement with a second AI model is around ninety percent.</strong> For training, select on this confidence or treat the rest as ignore.</figcaption>
+  </figure>
   <div class="callout warn"><b>These are pseudo-labels, not ground truth (limits)</b>
     <ul>
       <li><strong>The label source is an AI prediction</strong>, not human annotation. The agreement above measures how well we match models of the same kind, not accuracy. 2D mistakes &mdash; a street lamp read as a traffic light &mdash; propagate into 3D.</li>
@@ -388,10 +408,14 @@
   </div>
 
   <h2 id="limits"><span class="n">06</span> What is still missing for a production simulator</h2>
+  <figure>
+    <img src="/works/images/shibuya_depth_splat_vs_mesh_v1.jpg" alt="Four-panel comparison from the same camera: RGB, depth from the 3DGS, depth from the raw mesh, and their difference">
+    <figcaption><b>Depth comes straight from the camera too.</b>Top left RGB, top right depth from the 3DGS, bottom left depth from the raw mesh, bottom right their difference. 3DGS depth covers the whole frame and matches the mesh to within a few centimetres on road and walls, with noise at thin edges and floaters (red/blue specks). RGB, depth, LiDAR and labels now all come from the same camera.</figcaption>
+  </figure>
   <p>"It ran" and "it is usable" are different things, so here is the honest list.</p>
   <ul>
     <li><strong>The camera and the LiDAR/collision see different surfaces.</strong> RGB and LiDAR come from the splats, collision from the raw mesh, a few centimetres apart on the road and over a metre in the far field. Camera and LiDAR seeing the same surface is convenient for fusion; just remember that the surface the LiDAR returns is not the surface the robot collides with.</li>
-    <li><strong>Semantics stop at pseudo-labels</strong> (section 05): no human-GT check, no confidence-selection design, no instance IDs.</li>
+    <li><strong>Semantics stop at pseudo-labels</strong> (section 05): no human-GT check and no instance IDs (confidence-based selection is available).</li>
         <li><strong>Ghosts and pedestrians.</strong> People caught in the scan remain as static obstacles; nothing moves.</li>
     <li><strong>Sensor realism.</strong> No motion distortion, default noise for intensity, IMU and camera; no validation against a real-robot log at the same place.</li>
     <li><strong>ROS 2 / Nav2 / Linux.</strong> All untested; no TF or robot description since ROS is not used. Capture ran well below real time; human-in-the-loop use needs optimisation.</li>
