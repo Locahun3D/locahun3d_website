@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>渋谷スクランブル交差点でやる意義のある10のシミュレーション｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="実在の3DGS環境（渋谷スクランブル交差点）でロボット・AI開発に意味のあるシミュレーションを10本試しました。横断渡り切り、動く歩行者との共存、知覚の弱点、言語ランドマーク、避難流動、巡回死角、センサ比較、時間帯、段差、イベント設営——それぞれ何が分かり、何が分からないかを平易に。">
+<link rel="canonical" href="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="渋谷スクランブル交差点でやる意義のある10のシミュレーション">
+<meta property="og:description" content="実在の3DGS環境（渋谷スクランブル交差点）でロボット・AI開発に意味のあるシミュレーションを10本試しました。横断渡り切り、動く歩行者との共存、知覚の弱点、言語ランドマーク、避難流動、巡回死角、センサ比較、時間帯、段差、イベント設営——それぞれ何が分かり、何が分からないかを平易に。">
+<meta property="og:url" content="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_sim06_visibility_v1.jpg">
+<meta property="og:image:width" content="1040">
+<meta property="og:image:height" content="680">
+<meta property="og:image:alt" content="渋谷スクランブル交差点の占有格子の上に、巡回ロボットの視認範囲と死角を色分けした図">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="渋谷スクランブル交差点でやる意義のある10のシミュレーション">
+<meta name="twitter:description" content="実在の3DGS環境（渋谷スクランブル交差点）でロボット・AI開発に意味のあるシミュレーションを10本試しました。横断渡り切り、動く歩行者との共存、知覚の弱点、言語ランドマーク、避難流動、巡回死角、センサ比較、時間帯、段差、イベント設営——それぞれ何が分かり、何が分からないかを平易に。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_sim06_visibility_v1.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/locahun3d_manifesto.html"><span class="code">0.1</span>マニフェスト</a>
+      <a href="/locahun3d_data.html"><span class="code">0.2</span>データ活用</a>
+      <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+      <a href="/locahun3d_demo.html"><span class="code">0.4</span>デモ・お問合せ</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">スキャン</span>
+      <a href="https://locahun3d.com/">オンライン</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/en/works/shibuya-ten-simulations.html">EN</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">渋谷</span><span class="badge">ロボット</span>
+    <span>2026-08-19</span><span>・</span><span>読了 約8分</span>
+  </div>
+  <h1>渋谷スクランブル交差点で<br class="pc">やる意義のある<br class="pc">10のシミュレーション</h1>
+  <p class="lead">ロケハン3Dの中村です。実在の街をスキャンした3DGS環境がロボット走行に使えるところまで来たので（<a href="isaacsim-3dgs-robot-demos.html">前回</a>）、今回は「では渋谷スクランブル交差点で<strong>何を</strong>シミュレーションすると意味があるのか」を10本、実際にやって確かめました。この環境の強みは、実在の超高密度な都市空間の<strong>見た目と形が実測で揃っている</strong>ことです。強みが効くのは、視覚の複雑さ・実在物の配置・人流が結果を左右するテーマ——それを選んでいます。各項目、何が分かって何が分からないかを正直に書きます。</p>
+  <figure>
+    <img src="images/shibuya_sim06_visibility_v1.jpg" alt="渋谷スクランブル交差点の占有格子の上に、巡回ロボットの視認範囲と死角を色分けした図">
+    <figcaption><b>巡回ロボットが1往復で見渡せる範囲（緑）と、どこからも見えない死角（赤）です。</b>交番の裏、ポールや車止めの陰、建物の凹みが残ります。実在の配置だからこそ出る答えです（詳細は06）。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#s01">01 横断歩道を青のうちに渡り切れるか</a></li>
+    <li><a href="#s02">02 動く歩行者との共存（止まれるか）</a></li>
+    <li><a href="#s03">03 看板だらけの視覚環境で知覚はどこで迷うか</a></li>
+    <li><a href="#s04">04 言葉で指定したランドマークへ行けるか</a></li>
+    <li><a href="#s05">05 避難時の人の流れと出口の効き方</a></li>
+    <li><a href="#s06">06 巡回経路の死角はどこか</a></li>
+    <li><a href="#s07">07 センサ機種の違いは同じ街でどう出るか</a></li>
+    <li><a href="#s08">08 時間帯（影）の違いに耐えられるか</a></li>
+    <li><a href="#s09">09 段差・縁石は越えられるか</a></li>
+    <li><a href="#s10">10 イベント設営の事前検証</a></li>
+    <li><a href="#summary">まとめ：使えるもの・使えないもの</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="callout note"><b>共通の前提</b>環境は<a href="isaacsim-3dgs-robot-demos.html">前回</a>と同じ2層構造（見た目は無加工の3DGS、物理はスキャナ純正メッシュ）、機体はIsaac標準のNova Carter、Isaac Sim 6.0.1で実施。動画はシミュレーション時間の約2倍速で再生しています。人手で付けた正解データはまだ無く、実機との突き合わせも未実施です——各項目の「分かること」はその範囲での話です。</div>
+
+  <h2 id="s01"><span class="n">01</span> 横断歩道を青のうちに渡り切れるか</h2>
+  <figure>
+    <img src="images/shibuya_sim01_crossing_v1.jpg" alt="斜め横断の走行軌跡に経過時間を重ねた図">
+    <figcaption><b>南西の縁石から北東の交番角まで斜めに渡ったときの軌跡と経過時間です。</b>距離は約40m。歩く速さ（毎秒1m）なら40秒ほどですが、今回の単純な向き制御では途中で減速を繰り返し2分以上かかりました。</figcaption>
+  </figure>
+  <p>配送ロボットが最初に問われるのがこれです。結果は「経路は正しくても、制御が遅ければ渡り切れない」——青の時間（現地の実測はまだで、数十秒と仮定）に対して、直進の速さより<strong>曲がり角や進路修正での失速</strong>が支配的でした。同じ環境で制御を変えて時間を比べられるので、渡り切りに必要な速度計画をロボット導入前に詰められます。<strong>分からないこと</strong>：信号の実サイクル、他の歩行者による減速（02へ）。</p>
+
+  <h2 id="s02"><span class="n">02</span> 動く歩行者との共存（止まれるか）</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="images/shibuya_sim02_peds_poster_v1.jpg">
+      <source src="videos/shibuya_sim02_peds_v1.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <figcaption><b>横断する歩行者役（色付きの柱）が交差点を行き交う中を、ロボットがLiDARで前方を見張りながら進みます。</b>前方の安全域に何か入ると止まり、抜けると再発進します。歩行者役は決まった線を歩くだけの簡易モデルです。</figcaption>
+  </figure>
+  <p>スクランブル交差点特有の「全方向から人が来る」状況で、ロボットが<strong>止まれるか・再発進できるか</strong>を確かめました。LiDARは3DGSの街と歩行者役の両方をきちんと捉え、横切りに対して停止・再発進しました。<strong>分からないこと</strong>：本物の人の動き（避け合い・立ち止まり）は入っていません。人流データと歩行者エージェントを入れると、この環境の価値が一段上がります。</p>
+
+  <h2 id="s03"><span class="n">03</span> 看板だらけの視覚環境で知覚はどこで迷うか</h2>
+  <figure>
+    <img src="images/shibuya_sim03_perception_v1.jpg" alt="RGB、2Dモデルの推定、3Dで集約したラベル、2Dモデルが迷った場所の4面比較">
+    <figcaption><b>2Dの認識モデルが視点ごとに揺れる場所を赤で示したものです。</b>石畳の広場を「歩道」と見るか「車道」と見るかで答えが変わり、細いポールや柵も揺れます。3D側で集約したラベル（右から2番目）は視点が変わっても一貫します。</figcaption>
+  </figure>
+  <p>巨大サイネージ・反射ガラス・路面のペイントは、実物のスキャンでこそ再現できる「視覚ノイズ」です。同じ場所を多方向から見せると、2Dモデルは<strong>石畳の広場・細い柱・柵</strong>で判定を変えました。<strong>分かること</strong>：自分のモデルがこの街のどこで弱いか、失敗事例を集められる。<strong>分からないこと</strong>：正解は人手で付けていないので「精度」ではなく「揺れ」の把握まで。</p>
+
+  <h2 id="s04"><span class="n">04</span> 言葉で指定したランドマークへ行けるか</h2>
+  <figure>
+    <img src="images/shibuya_sim04_landmarks_v1.jpg" alt="交番の角・南側歩道・街路樹の歩道・MAGNET前の看板下という4つの指示先への走行軌跡">
+    <figcaption><b>「交番の角まで」「南側の歩道へ」「街路樹の下の歩道へ」「天津甘栗の看板の下まで」の4つの指示先へ、同じ出発点から到達したところです。</b>指示は実在のランドマークで書けるので、人手で課題を作りやすいのが利点です。</figcaption>
+  </figure>
+  <p>言語で目的地を指定するナビゲーション（VLN）の評価場として、実在のランドマークで課題を書けるのは大きな利点です。今回は「言葉→地図上の座標」を人手で対応付け、そこへ自律で走らせました。4課題すべて到達。<strong>分からないこと</strong>：言葉から目的地を理解する部分（言語モデル側）は未接続で、課題集も4本だけです。</p>
+
+  <h2 id="s05"><span class="n">05</span> 避難時の人の流れと出口の効き方</h2>
+  <figure>
+    <img src="images/shibuya_sim05_evacuation_v1.jpg" alt="交差点から4つの出口へ避難する群衆の軌跡。上は全出口が開いた場合、下は東側の出口を塞いだ場合">
+    <figcaption><b>交差点にいる人が最寄りの出口へ向かう流れを、実在の障害物配置の上で流したものです。</b>上は出口が全部使える場合、下は東の出口を塞いだ場合。北の出口に流れが集中する様子が見えます。</figcaption>
+  </figure>
+  <p>災害時の避難や、ロボットによる誘導を考えるための基礎データです。実在の柵・交番・地下入口の配置の上で流したので、「どこが詰まるか」が地形から出ます。<strong>分からないこと</strong>：人の動きは簡易モデル（最寄り出口へ一定速度、押し合いは簡略）で、実際の避難行動や人数の実測とは合わせていません。定量ではなく傾向を見るためのものです。</p>
+
+  <h2 id="s06"><span class="n">06</span> 巡回経路の死角はどこか</h2>
+  <p>冒頭の図です。巡回1往復で周囲の路面の85%は視認でき、残る死角は交番の裏・ポールと車止めの陰・建物の凹みでした。実在の配置だからこそ出る答えで、警備ロボの巡回経路やカメラの増設位置を、現地に行く前に議論できます。<strong>分からないこと</strong>：センサの高さは1種類、動く物（人・車）による一時的な遮蔽は入れていません。</p>
+
+  <h2 id="s07"><span class="n">07</span> センサ機種の違いは同じ街でどう出るか</h2>
+  <figure>
+    <img src="images/shibuya_lidar_models_v1.jpg" alt="同じ位置で2機種のLiDAR設定を比べた俯瞰図">
+    <figcaption><b>同じ位置で機種設定だけ変えたLiDARの返りです。</b>点の密度と届く範囲の違いが同じ街で見比べられます。</figcaption>
+  </figure>
+  <p>実在機種のプリセットを差し替えるだけで、機体設計の材料になります。<strong>分からないこと</strong>：反射率や雨・霧、実機との強度合わせは未実施なので、比較できるのは密度と範囲まで。今回の構成では1環境に同時に置けるLiDARが1台で、機種ごとに環境を開き直しました。</p>
+
+  <h2 id="s08"><span class="n">08</span> 時間帯（影）の違いに耐えられるか</h2>
+  <figure>
+    <img src="images/shibuya_sun_stills_v1.jpg" alt="朝・昼・夕の3時刻の交差点">
+    <figcaption><b>同じ場所の朝・昼・夕です。</b>影の向きと長さは純正メッシュから合成しています。</figcaption>
+  </figure>
+  <p>昼間の時間帯変化に対する見た目の頑健性なら、この合成でテスト画像を作れます。<strong>できないこと</strong>：夜景・雨天・ネオン点灯はこの方式では作れません（色は焼き込みのため）。「影だけ」と割り切って使う項目です。</p>
+
+  <h2 id="s09"><span class="n">09</span> 段差・縁石は越えられるか</h2>
+  <p>やってみて分かったのは、<strong>この交差点の横断歩道まわりには段差がほとんど無い</strong>（バリアフリー化されている）ことでした。Nova Carterは車線上の路面の凹凸を歩く速さで問題なく通過し、そのまま角の建物の壁で止まりました。縁石走破の評価には段差のある別の地点が要ります——前回の車両型は歩道の段差を越えているので、機体ごとの比較は場所を選べば可能です。</p>
+
+  <h2 id="s10"><span class="n">10</span> イベント設営の事前検証</h2>
+  <figure>
+    <img src="images/shibuya_sim10_event_v1.jpg" alt="交差点中央に仮設ステージとトラスを置いた俯瞰と、2か所のカメラ台からの見え方">
+    <figcaption><b>交差点中央に仮設ステージと屋根を置いてみたところです。</b>上は俯瞰、下は2か所のカメラ台からの見え方。右下のカメラ台は交番の中に置いてしまい視界が塞がっています——こういう干渉を現地に行く前に見つけられます。ステージの影も3DGSの路面に落ちます。</figcaption>
+  </figure>
+  <p>ロボット以外の用途です。仮設物の位置と実在の構造物の干渉、カメラからの見え方、動線の空きを、実寸の街で確認できます。ロケハン3D本業との相乗効果が最も大きい項目で、機材リストの寸法さえあれば同じ手順で置けます。</p>
+
+  <h2 id="summary"><span class="n">11</span> まとめ：使えるもの・使えないもの</h2>
+  <ul>
+    <li><strong>今日から使える：</strong>01横断時間、02停止・再発進、04ランドマーク到達、06死角、07センサ比較、10設営検証。いずれも「実在の配置」が答えを左右する項目で、現地に行く前の判断材料になります。</li>
+    <li><strong>傾向まで：</strong>03知覚の揺れ（正解無し）、05避難流動（簡易モデル）、08時間帯（影のみ）。</li>
+    <li><strong>場所を選ぶ：</strong>09段差（この交差点には段差が無い）。</li>
+    <li><strong>共通の限界：</strong>人手の正解データと実機ログとの突き合わせが無いこと、動く人が簡易モデルであること。次に足すべきはこの2つです。</li>
+  </ul>
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>ロケハン3Dでは、実在の空間を<br class="pc">シミュレーションに使える形でスキャンします</h3>
+    <p>屋外・屋内を問わず、Isaac Sim向けの2層環境・占有格子・センサ出力まで揃えてお渡しできます。「うちの現場でこの10本のどれをやるか」からご相談ください。</p>
+    <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">関連する記事</h2>
+  <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-robot-demos.html">
+        <div class="rthumb" style="background-image:url('images/shibuya_lidar_hero.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>技術</span><span>2026-08-18</span><span>約7分</span></div><h3>Isaac Sim 6.0で3DGSの街をロボット開発に使う</h3></div>
+      </a>
+      <a class="rcard" href="3dgs-lidar-denoise.html">
+        <div class="rthumb" style="background-image:url('images/shibuya_hero.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>技術</span><span>2026-08-16</span><span>約5分</span></div><h3>Isaac Sim向けに3DGSシミュレーション環境をセットアップする</h3></div>
+      </a>
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div><h3>NVIDIA Isaac Simに3DGSを持ち込む</h3></div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → 2-LAYER USD → TEN SCENARIOS → MAPS, CLOUDS, LABELS, VIDEO</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>

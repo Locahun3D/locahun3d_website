@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Ten Simulations Worth Running in a 3DGS Shibuya Crossing | LOCAHUN 3D Tech Blog</title>
+<meta name="description" content="Ten simulations that mean something for robot and AI development, run in a real-world 3DGS environment (Shibuya scramble crossing): crossing on time, moving pedestrians, perception weak spots, language landmarks, evacuation flow, patrol blind spots, sensor choice, time of day, kerbs and event set-up - what each one shows and what it does not.">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/shibuya-ten-simulations.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/shibuya-ten-simulations.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun 3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Ten Simulations Worth Running in a 3DGS Shibuya Crossing">
+<meta property="og:description" content="Ten simulations that mean something for robot and AI development, run in a real-world 3DGS environment (Shibuya scramble crossing): crossing on time, moving pedestrians, perception weak spots, language landmarks, evacuation flow, patrol blind spots, sensor choice, time of day, kerbs and event set-up - what each one shows and what it does not.">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/shibuya-ten-simulations.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_sim06_visibility_v1.jpg">
+<meta property="og:image:width" content="1040">
+<meta property="og:image:height" content="680">
+<meta property="og:image:alt" content="Occupancy grid of the Shibuya crossing with a patrol route and colour-coded seen / blind areas">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ten Simulations Worth Running in a 3DGS Shibuya Crossing">
+<meta name="twitter:description" content="Ten simulations that mean something for robot and AI development, run in a real-world 3DGS environment (Shibuya scramble crossing): crossing on time, moving pedestrians, perception weak spots, language landmarks, evacuation flow, patrol blind spots, sensor choice, time of day, kerbs and event set-up - what each one shows and what it does not.">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_sim06_visibility_v1.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site-header.css?v=8a724669">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#ffb454; --brand-ink:#ffb454; --brand-bg:rgba(255,180,84,.08);
+    --accent2:#ff8a4c; --accent2-bg:rgba(255,138,76,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(255,180,84,.06); --note-line:rgba(255,180,84,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(255,180,84,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#ff9f1c);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+      <a href="/en/locahun3d_manifesto.html"><span class="code">0.1</span>Manifesto</a>
+      <a href="/en/locahun3d_data.html"><span class="code">0.2</span>Data &amp; Uses</a>
+      <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
+      <a href="/en/locahun3d_demo.html"><span class="code">0.4</span>Demo &amp; Contact</a>
+    </nav>
+    <div class="sh-toggle sh-drawer-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+  </div>
+  <div class="sh-center">
+    <a href="/en/" class="sh-brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#ffb454" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#ffb454"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+    <div class="sh-toggle">
+      <span class="sh-active">Scan</span>
+      <a href="https://locahun3d.com/en">Online</a>
+    </div>
+    <div class="sh-toggle sh-lang">
+      <a href="/works/shibuya-ten-simulations.html">JA</a>
+    </div>
+  </div>
+  <div class="sh-right"></div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">Shibuya</span><span class="badge">Robotics</span>
+    <span>2026-08-19</span><span>&middot;</span><span>8 min read</span>
+  </div>
+  <h1>Ten Simulations Worth Running<br class="pc">in a 3DGS Shibuya Crossing</h1>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. Now that a scanned 3DGS city can carry a driving robot (<a href="isaacsim-3dgs-robot-demos.html">last article</a>), the question is <strong>what</strong> is worth simulating in the Shibuya scramble crossing. We ran ten candidates. The environment's strength is that <strong>appearance and shape of a dense real city are both measured</strong>, so we chose topics where visual complexity, the real placement of objects, and people flow decide the answer. For each, what it shows and what it does not.</p>
+  <figure>
+    <img src="/works/images/shibuya_sim06_visibility_v1.jpg" alt="Occupancy grid of the Shibuya crossing with a patrol route and colour-coded seen / blind areas">
+    <figcaption><b>What one patrol pass can see (green) and what it never sees (red).</b>Behind the police box, in the shadow of poles and bollards, in building recesses. Answers like this only come from the real layout (details in 06).</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s01">01 Can it cross before the light changes?</a></li>
+    <li><a href="#s02">02 Coexisting with moving pedestrians (can it stop?)</a></li>
+    <li><a href="#s03">03 Where perception gets confused among the signs</a></li>
+    <li><a href="#s04">04 Reaching landmarks named in words</a></li>
+    <li><a href="#s05">05 Evacuation flow and which exits matter</a></li>
+    <li><a href="#s06">06 Blind spots of a patrol route</a></li>
+    <li><a href="#s07">07 How sensor models differ in the same street</a></li>
+    <li><a href="#s08">08 Robustness to time of day (shadows)</a></li>
+    <li><a href="#s09">09 Kerbs and steps</a></li>
+    <li><a href="#s10">10 Event set-up check</a></li>
+    <li><a href="#summary">Summary: usable now, and not yet</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="callout note"><b>Common setup</b>Same two-layer environment as <a href="isaacsim-3dgs-robot-demos.html">last time</a> (untouched 3DGS for looks, raw scanner mesh for physics), Isaac's stock Nova Carter, Isaac Sim 6.0.1. Videos play at about twice simulation time. There is no human-labelled ground truth yet and no comparison with a real robot &mdash; every "what it shows" below is within that limit.</div>
+
+  <h2 id="s01"><span class="n">01</span> Can it cross before the light changes?</h2>
+  <figure>
+    <img src="/works/images/shibuya_sim01_crossing_v1.jpg" alt="Diagonal crossing trajectory with elapsed time markers">
+    <figcaption><b>Diagonal crossing from the south-west kerb to the police-box corner, with elapsed time.</b>About 40 m. At walking pace (1 m/s) that is some 40 s, but our simple heading controller kept slowing at turns and took over two minutes.</figcaption>
+  </figure>
+  <p>The first question any delivery robot gets. The answer here: the path was right, but the controller was too slow &mdash; against a green phase of a few tens of seconds (not yet measured on site), <strong>speed lost at turns and corrections</strong> mattered more than straight-line speed. Since controllers can be swapped in the same environment, the speed plan needed to make the crossing can be settled before deployment. <strong>Not shown</strong>: the real signal cycle, and slowdowns caused by other pedestrians (see 02).</p>
+
+  <h2 id="s02"><span class="n">02</span> Coexisting with moving pedestrians (can it stop?)</h2>
+  <figure>
+    <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_sim02_peds_poster_v1.jpg">
+      <source src="/works/videos/shibuya_sim02_peds_v1.mp4" type="video/mp4">
+      Your browser does not support video playback.
+    </video>
+    <figcaption><b>Stand-in pedestrians (coloured pillars) cross the scramble while the robot watches ahead with its LiDAR.</b>It stops when anything enters its safety zone and moves on when it clears. The walkers follow fixed lines &mdash; a simple model.</figcaption>
+  </figure>
+  <p>The scramble's "people from every direction" situation: can the robot <strong>stop and restart</strong>? The LiDAR picked up both the 3DGS city and the walkers, and the robot stopped and restarted for crossings. <strong>Not shown</strong>: real human behaviour (mutual avoidance, hesitation). Adding people-flow data and pedestrian agents is where this environment gains the most.</p>
+
+  <h2 id="s03"><span class="n">03</span> Where perception gets confused among the signs</h2>
+  <figure>
+    <img src="/works/images/shibuya_sim03_perception_v1.jpg" alt="Four panels: RGB, 2D model prediction, 3D-aggregated label, and where the 2D model disagrees">
+    <figcaption><b>Where a 2D recognition model flips between viewpoints, in red.</b>The paved plaza reads as "sidewalk" or "road" depending on the view, and thin poles and fences waver. The label aggregated in 3D (second from right) stays consistent as the view changes.</figcaption>
+  </figure>
+  <p>Giant signage, reflective glass and painted road surfaces are visual noise you only get from a scan of the real place. Shown the same spot from many directions, the 2D model changed its mind on <strong>the paved plaza, thin posts and fences</strong>. <strong>What it shows</strong>: where your model is weak in this street, as a collection of failure cases. <strong>Not shown</strong>: accuracy &mdash; no human labels, so this is about instability, not correctness.</p>
+
+  <h2 id="s04"><span class="n">04</span> Reaching landmarks named in words</h2>
+  <figure>
+    <img src="/works/images/shibuya_sim04_landmarks_v1.jpg" alt="Driven trajectories to four instructed destinations: police-box corner, south pavement, street-tree pavement, MAGNET sign">
+    <figcaption><b>Four instructions &mdash; "to the police-box corner", "to the south pavement", "to the pavement under the street trees", "under the roasted-chestnut sign" &mdash; reached from the same start.</b>Instructions can be written with real landmarks, which makes tasks easy to author by hand.</figcaption>
+  </figure>
+  <p>As a test bed for language-guided navigation, writing tasks with real landmarks is a big advantage. Here the mapping from words to map coordinates was done by hand, and the robot drove there autonomously; all four reached. <strong>Not shown</strong>: the language-understanding half (no language model connected), and only four tasks so far.</p>
+
+  <h2 id="s05"><span class="n">05</span> Evacuation flow and which exits matter</h2>
+  <figure>
+    <img src="/works/images/shibuya_sim05_evacuation_v1.jpg" alt="Crowd trajectories evacuating from the crossing to four exits; top with all exits open, bottom with the east exit blocked">
+    <figcaption><b>People in the crossing heading for their nearest exit, over the real obstacle layout.</b>Top: all exits open; bottom: the east exit blocked. The flow concentrates at the north exit.</figcaption>
+  </figure>
+  <p>Baseline material for thinking about evacuation and robot-guided crowds. Because it runs over the real fences, police box and subway entrances, the pinch points come from the terrain. <strong>Not shown</strong>: people are a simple model (constant speed to the nearest exit, simplified pushing) with no calibration to real evacuation behaviour or counts &mdash; trends, not numbers.</p>
+
+  <h2 id="s06"><span class="n">06</span> Blind spots of a patrol route</h2>
+  <p>The figure at the top. One patrol pass sees 85% of the surrounding ground; the remaining blind spots are behind the police box, in the shadow of poles and bollards, and in building recesses. Because it comes from the real layout, patrol routes and extra camera positions can be argued before going on site. <strong>Not shown</strong>: only one sensor height; no temporary occlusion by moving people and vehicles.</p>
+
+  <h2 id="s07"><span class="n">07</span> How sensor models differ in the same street</h2>
+  <figure>
+    <img src="/works/images/shibuya_lidar_models_v1.jpg" alt="Top-down comparison of two LiDAR model presets at the same position">
+    <figcaption><b>The same LiDAR position with a different model preset.</b>Point density and reach can be compared in the same street.</figcaption>
+  </figure>
+  <p>Swapping real-model presets gives material for the robot's sensor design. <strong>Not shown</strong>: reflectivity, rain and fog, intensity matching to real units &mdash; density and reach only. In our setup one LiDAR ran per environment, so each model needed the environment reopened.</p>
+
+  <h2 id="s08"><span class="n">08</span> Robustness to time of day (shadows)</h2>
+  <figure>
+    <img src="/works/images/shibuya_sun_stills_v1.jpg" alt="Morning, noon and evening stills of the crossing">
+    <figcaption><b>The same place in the morning, at noon and in the evening.</b>Shadow direction and length are composited from the raw mesh.</figcaption>
+  </figure>
+  <p>For daytime time-of-day robustness this composite produces test images. <strong>Not possible</strong>: night, rain and lit neon (colours are baked). Use it for "shadows only".</p>
+
+  <h2 id="s09"><span class="n">09</span> Kerbs and steps</h2>
+  <p>What we learned by trying: <strong>this crossing has almost no kerbs around its crosswalks</strong> (it is barrier-free). Nova Carter passed the road's small bumps at walking pace and stopped at the corner building's wall. Kerb-climbing needs a location that has kerbs &mdash; last article's vehicle did climb a pavement step, so per-robot comparison is possible if the spot is chosen.</p>
+
+  <h2 id="s10"><span class="n">10</span> Event set-up check</h2>
+  <figure>
+    <img src="/works/images/shibuya_sim10_event_v1.jpg" alt="Overview of a temporary stage and truss placed in the crossing, and the views from two camera platforms">
+    <figcaption><b>A temporary stage with a roof placed in the middle of the crossing.</b>Top: overview; bottom: the views from two camera platforms. The bottom-right platform was placed inside the police box and its view is blocked &mdash; the kind of clash you catch before going on site. The stage's shadow lands on the 3DGS road.</figcaption>
+  </figure>
+  <p>A non-robot use. Clashes between temporary structures and real ones, camera sightlines and free circulation can be checked in the full-scale street. It has the strongest synergy with our core location-scouting work; with the equipment dimensions, anything can be placed the same way.</p>
+
+  <h2 id="summary"><span class="n">11</span> Summary: usable now, and not yet</h2>
+  <ul>
+    <li><strong>Usable today:</strong> 01 crossing time, 02 stop/restart, 04 landmark tasks, 06 blind spots, 07 sensor comparison, 10 set-up checks &mdash; all cases where the real layout decides the answer, giving material for decisions before going on site.</li>
+    <li><strong>Trends only:</strong> 03 perception instability (no ground truth), 05 evacuation flow (simple model), 08 time of day (shadows only).</li>
+    <li><strong>Pick the place:</strong> 09 kerbs (this crossing has none).</li>
+    <li><strong>Common limits:</strong> no human ground truth, no comparison with real-robot logs, and pedestrians are a simple model. Those two are what to add next.</li>
+  </ul>
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>LOCAHUN 3D scans real places<br class="pc">in a form simulation can use</h3>
+    <p>Indoors or out, we deliver the Isaac Sim two-layer environment, occupancy grid and sensor outputs with the scan. Start with "which of these ten would matter at our site".</p>
+    <a class="dc-btn" href="/en/locahun3d_demo.html#contact">Talk to us about a scan &rarr;</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Related articles</h2>
+  <div class="rgrid">
+      <a class="rcard" href="isaacsim-3dgs-robot-demos.html">
+        <div class="rthumb" style="background-image:url('/works/images/shibuya_lidar_hero.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>Technical</span><span>2026-08-18</span><span>7 min</span></div><h3>Robot Development in a 3DGS City with Isaac Sim 6.0</h3></div>
+      </a>
+      <a class="rcard" href="3dgs-lidar-denoise.html">
+        <div class="rthumb" style="background-image:url('/works/images/shibuya_hero.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>Technical</span><span>2026-08-16</span><span>5 min</span></div><h3>Setting Up a 3DGS Simulation Environment for Isaac Sim</h3></div>
+      </a>
+      <a class="rcard" href="isaacsim-3dgs-import.html">
+        <div class="rthumb" style="background-image:url('/works/images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rbody"><div class="rmeta"><span>Technical</span><span>2026-07-26</span><span>6 min</span></div><h3>Bringing 3DGS into NVIDIA Isaac Sim</h3></div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Work &amp; Blog</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits</div>
+  <h2>Production credit</h2>
+  <div class="credit-card">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura</div>
+      <div class="crole">Founder, Locahun 3D ／ Testing &amp; writing</div>
+      <p>Founder of Locahun 3D (LOCAHUN 3D). Researches and validates capture workflows that combine 3DGS scans with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → 2-LAYER USD → TEN SCENARIOS → MAPS, CLOUDS, LABELS, VIDEO</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>
