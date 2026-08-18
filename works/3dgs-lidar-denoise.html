@@ -284,11 +284,11 @@
     <span>2026-08-16</span><span>・</span><span>読了 約5分</span>
   </div>
   <h1>Isaac Sim向けに<br class="pc">3DGSシミュレーション環境を<br class="pc">セットアップする</h1>
-  <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。削除系の後処理は行いません。渋谷スクランブル交差点のスキャン（1,650万ガウシアン）を通し例に、実測値と実際に踏んだ罠を記録します。</p>
+  <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。削除系の後処理は行いません。渋谷スクランブル交差点のスキャンを通し例に、実際に踏んだ罠を記録します。</p>
 
   <figure>
     <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
-    <figcaption><b>後処理を終えた渋谷スクランブル交差点の3DGSです。</b>この見た目の下に、不可視のコライダー（純正メッシュ＋地面パッチ、三角形62.8万枚）を重ねることで、ロボットが物理で走行できるようになります。</figcaption>
+    <figcaption><b>後処理を終えた渋谷スクランブル交差点の3DGSです。</b>この見た目の下に、不可視のコライダー（純正メッシュ＋地面パッチ）を重ねることで、ロボットが物理で走行できるようになります。</figcaption>
   </figure>
 </header>
 
@@ -316,29 +316,29 @@
 
   <h2 id="overview"><span class="n">01</span> 全体像と前提──なぜコライダーが要るのか</h2>
   <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。そのままシミュレーションに使うと、二つの事故が起きます。</p>
-  <p>一つ目は<strong>フローター</strong>。実体のない場所に残ったガウシアンがロボットのカメラに映り込み、視界ノイズになります。本記事の方針ではこれは<strong>消さずに受け入れます</strong>——削除処理は実在物を巻き添えにしやすいためです（<a href="#cleanup">オプション節</a>参照）。二つ目が本命の<strong>当たり判定の穴</strong>。3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は<strong>会議室で4.86%、渋谷で9.01%</strong>あり、穴の上にロボットを置くとこうなります。</p>
+  <p>一つ目は<strong>フローター</strong>。実体のない場所に残ったガウシアンがロボットのカメラに映り込み、視界ノイズになります。本記事の方針ではこれは<strong>消さずに受け入れます</strong>——削除処理は実在物を巻き添えにしやすいためです（<a href="#cleanup">オプション節</a>参照）。二つ目が本命の<strong>当たり判定の穴</strong>。3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は屋内外どちらのスキャンにも一定量あり、穴の上にロボットを置くとこうなります。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
       <source src="videos/envgen_fall_fail.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>穴の開いた床にロボットを置いた失敗例です。</b>見た目には床があるのに当たり判定に穴があるため、ロボットは加速しながら床下38mまで落ち続けました。</figcaption>
+    <figcaption><b>穴の開いた床にロボットを置いた失敗例です。</b>見た目には床があるのに当たり判定に穴があるため、ロボットは加速しながら床下へ落ち続けました。</figcaption>
   </figure>
 
-  <p>解決の設計は<strong>2層構造</strong>です。見た目はフローターを除去した3DGSが担当し、物理は不可視のコライダーが担当します。NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降の5ステップだけで同じものが作れます（学習ベース手法との定量比較は<a href="#lab">検証データ</a>にまとめています）。</p>
+  <p>解決の設計は<strong>2層構造</strong>です。見た目はフローターを除去した3DGSが担当し、物理は不可視のコライダーが担当します。NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降のステップだけで同じものが作れます。</p>
 
   <h2 id="step1"><span class="n">02</span> STEP 1：3DGSをIsaac Simに読み込む</h2>
   <p>3DGSのPLYをUSD（ParticleField形式）へ変換して読み込みます。基本の変換・読み込み手順は<a href="isaacsim-3dgs-import.html">別記事</a>の通りです。セットアップとしてはここで二つの罠を先に潰しておきます。</p>
   <ul>
     <li><strong>座標系を揃える。</strong>Y-upで出力された3DGS（LCC2由来など）は、参照した上で<strong>X軸まわり-90°回転</strong>させて立てるだけです。データの変換書き出しは不要です。</li>
-    <li><strong>レンダラをRaytracedLightingに固定してからステージを開く。</strong>Path Tracing系のモードでは自己発光の3DGSが白飛びします。1,000万ガウシアン級のシーンを読み込んだ後のモード切替はクラッシュの原因になるため、必ず読み込み前に設定します。</li>
+    <li><strong>レンダラをRaytracedLightingに固定してからステージを開く。</strong>Path Tracing系のモードでは自己発光の3DGSが白飛びします。大きなシーンを読み込んだ後のモード切替はクラッシュの原因になるため、必ず読み込み前に設定します。</li>
   </ul>
-  <div class="callout note"><b>ロボットを置くときの単位の罠</b>cm単位で作られた参照アセット（Isaac標準のフォークリフト等）は、Kitが自動で0.01倍の補正スケールを付けます。ところがxformを<code>ClearXformOpOrder()</code>で組み直すとこの補正も消え、<strong>全長370mのフォークリフトが出現</strong>します。組み直した場合はscale 0.01を明示します。</div>
+  <div class="callout note"><b>ロボットを置くときの単位の罠</b>cm単位で作られた参照アセット（Isaac標準のフォークリフト等）は、Kitが自動で補正スケールを付けます。ところが変換を組み直すとこの補正も消え、<strong>巨大なフォークリフトが出現</strong>します。組み直した場合は縮尺を明示します。</div>
 
   <h2 id="step3"><span class="n">03</span> STEP 2：メッシュの「地面の穴」だけを塞ぐ</h2>
   <p>コライダーは<strong>スキャナ純正メッシュを無加工のまま</strong>使います。ボクセル穴埋めの水密シェルは「溶けたロウ」状に形が崩れ、シェルから切り出したパッチはトゲ状の断片を生みます——どちらも試して負けました。細いポールや車止めまで含めて、<strong>形の情報は純正メッシュが一番正確</strong>です。</p>
-  <p>足すのは<strong>地面のパッチだけ</strong>です。LiDAR実測面から滑らかな地面場（25cmグリッド）を作り、<strong>純正メッシュに地面が存在しないセルだけ</strong>をその高さで面化して敷きます。壁や建物の穴は走行に影響しないため放置します。渋谷では純正51.4万＋地面パッチ11.4万＝62.8万三角形で、<strong>走行域の鉛直レイテストはリーク0</strong>。ロボットが落ちる穴だけが塞がり、それ以外は1三角形も変わりません。</p>
+  <p>足すのは<strong>地面のパッチだけ</strong>です。LiDAR実測面から滑らかな地面の高さ場を作り、<strong>純正メッシュに地面が存在しないセルだけ</strong>をその高さで面化して敷きます。壁や建物の穴は走行に影響しないため放置します。渋谷では<strong>走行域のどこから落としても抜けない</strong>ことを確認しています。ロボットが落ちる穴だけが塞がり、それ以外は1三角形も変わりません。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_triple_poster_v4.jpg">
@@ -357,7 +357,7 @@
       <source src="videos/shibuya_drive_v5.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>完成した環境を走るPhysX Vehicleです。</b>スクランブル交差点の南側を横偏差±1cmで53m直進し、歩道の段差をサスペンションで越え、最後は交差点角の構造物に<strong>衝突してそのまま停止</strong>します——貫通もすり抜けもありません。無加工方針のため写り込んだ通行人も実在障害物として機能します（動画はシミュ時間の約2倍速）。</figcaption>
+    <figcaption><b>完成した環境を走るPhysX Vehicleです。</b>スクランブル交差点の南側をまっすぐ走り抜け、歩道の段差をサスペンションで越え、最後は交差点角の構造物に<strong>衝突してそのまま停止</strong>します——貫通もすり抜けもありません。無加工方針のため写り込んだ通行人も実在障害物として機能します（動画はシミュ時間の約2倍速）。</figcaption>
   </figure>
 
   <figure>
@@ -375,7 +375,7 @@
   <p>LiDAR搭載スキャナの3DGSをIsaac Simのシミュレーション環境にする手順は、この3行に収まります。</p>
   <ul>
     <li><strong>STEP 1：</strong>3DGSは無加工のまま参照し、X軸-90°回転でZ-upに立てます。レンダラはRaytracedLightingに固定してから読み込みます。</li>
-    <li><strong>STEP 2：</strong>コライダーは純正メッシュ無加工＋「地面の穴」パッチのみ（渋谷では62.8万三角形・走行域リーク0）。壁の穴は放置します。</li>
+    <li><strong>STEP 2：</strong>コライダーは純正メッシュ無加工＋「地面の穴」パッチのみ。壁の穴は放置します。</li>
     <li><strong>STEP 3：</strong>2層を1つのUSDに重ね、コライダーを不可視化し、PhysX Vehicle（サスペンション付き）で走らせます。削除処理も再学習も使いません。</li>
   </ul>
   <p>限界は二つだけ覚えておけば十分です：<strong>LiDARが観測していない領域には面が無い</strong>ため走行経路は観測済み範囲に限ること、無加工方針のため<strong>写り込んだ通行人や停車車両は実在障害物として残る</strong>ことです。</p>

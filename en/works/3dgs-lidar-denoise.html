@@ -283,11 +283,11 @@
     <span>2026-08-16</span><span>・</span><span>5 min read</span>
   </div>
   <h1>Setting Up a 3DGS Simulation<br class="pc">Environment for Isaac Sim</h1>
-  <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. The policy is radical simplicity: <strong>use the scanner's 3DGS and mesh untouched, and patch only the ground holes in the mesh</strong>. No deletion passes. A 16.5-million-gaussian scan of Tokyo's Shibuya scramble crossing serves as the running example.</p>
+  <p class="lead">This is Nakamura from LOCAHUN 3D. This is a working guide to turning a LiDAR-fusion 3DGS scan into <strong>a simulation environment robots can drive under physics in NVIDIA Isaac Sim</strong>. The policy is radical simplicity: <strong>use the scanner's 3DGS and mesh untouched, and patch only the ground holes in the mesh</strong>. No deletion passes. Our scan of Tokyo's Shibuya scramble crossing serves as the running example.</p>
 
   <figure>
     <img src="/works/images/shibuya_hero.jpg" alt="Aerial render of the Shibuya scramble crossing 3DGS scan">
-    <figcaption><b>The Shibuya crossing 3DGS after post-processing.</b>Underneath this appearance layer sits an invisible collider (raw mesh + ground patches, 628k triangles) &mdash; stacking the two is what lets a robot drive here under physics.</figcaption>
+    <figcaption><b>The Shibuya crossing 3DGS after post-processing.</b>Underneath this appearance layer sits an invisible collider (raw mesh + ground patches) &mdash; stacking the two is what lets a robot drive here under physics.</figcaption>
   </figure>
 </header>
 
@@ -322,7 +322,7 @@
       <source src="/works/videos/envgen_fall_fail.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole &mdash; the robot accelerated 38 metres below the floor without stopping.</figcaption>
+    <figcaption><b>The failure case.</b>There is visibly a floor here, but the collision mesh has a hole &mdash; the robot kept accelerating down below the floor without stopping.</figcaption>
   </figure>
 
   <p>The architecture that fixes both is <strong>two layers</strong>: a floater-cleaned 3DGS for appearance, an invisible watertight collider for physics. NVIDIA&times;Niantic's <a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">pipeline of the same shape</a> constrains geometry with AI-estimated depth &mdash; but that is what you do when a 360&deg; camera is all you have. <strong>Holding measured LiDAR depth, you need neither the estimator nor any retraining</strong>: the five steps below build the same thing (quantitative comparison against learned methods is in <a href="#lab">the benchmark section</a>).</p>
@@ -333,11 +333,11 @@
     <li><strong>Align the coordinate frame.</strong> A Y-up 3DGS (e.g. from LCC2) just needs a <strong>-90&deg; rotation about X</strong> after referencing &mdash; no data re-export required.</li>
     <li><strong>Pin the renderer to RaytracedLighting before opening the stage.</strong> Path-tracing modes blow the self-emissive 3DGS out to white, and switching modes after a 10-million-gaussian scene is loaded is a reliable way to crash.</li>
   </ul>
-  <div class="callout note"><b>The unit trap when placing robots</b>Reference assets authored in centimetres (Isaac's stock forklift among them) get an automatic 0.01 correction scale from Kit. Rebuild the xform with <code>ClearXformOpOrder()</code> and that correction disappears &mdash; <strong>enter a 370-metre forklift</strong>. After rebuilding, set scale 0.01 explicitly.</div>
+  <div class="callout note"><b>The unit trap when placing robots</b>Reference assets authored in centimetres (Isaac's stock forklift among them) get an automatic correction scale from Kit. Rebuild the transform and that correction disappears &mdash; <strong>a giant forklift appears</strong>. Set the scale explicitly if you rebuild.</div>
 
   <h2 id="step3"><span class="n">03</span> STEP 2: Patch only the ground holes in the mesh</h2>
   <p>Use the <strong>raw scanner mesh untouched</strong> as the collider. A voxel-healed watertight shell melts the geometry into wax, and patches cut from such a shell leave spiky fragments &mdash; both approaches lost. For thin poles and bollards alike, <strong>the raw mesh is the most accurate shape you have</strong>.</p>
-  <p>The only addition is <strong>ground patches</strong>: build a smooth ground field from the measured LiDAR surface (25&thinsp;cm grid) and lay grid faces at field height <strong>only in cells where the raw mesh has no ground at all</strong>. Wall and facade holes never affect driving, so they stay. Shibuya: 514k raw + 114k patch = 628k triangles, <strong>zero leaks in the vertical ray test over the drivable area</strong>. The holes a robot could fall through are sealed; not a single other triangle changes.</p>
+  <p>The only addition is <strong>ground patches</strong>: build a smooth ground field from the measured LiDAR surface  and lay grid faces at field height <strong>only in cells where the raw mesh has no ground at all</strong>. Wall and facade holes never affect driving, so they stay. In Shibuya, <strong>nothing falls through anywhere in the drivable area</strong>. The holes a robot could fall through are sealed; not a single other triangle changes.</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya_triple_poster_v4.jpg">
@@ -356,7 +356,7 @@
       <source src="/works/videos/shibuya_drive_v5.mp4" type="video/mp4">
       Your browser does not support video playback.
     </video>
-    <figcaption><b>A PhysX Vehicle driving the finished environment</b> (video runs at ~2&times; sim time). It runs 53&thinsp;m straight through the south side of the scramble at &plusmn;1&thinsp;cm lateral deviation, takes a sidewalk step on the suspension, and finally <strong>collides with the corner structure and stops dead</strong> &mdash; no clipping, no penetration. Under the untouched policy, scanned-in pedestrians act as real obstacles too.</figcaption>
+    <figcaption><b>A PhysX Vehicle driving the finished environment</b> (video runs at ~2&times; sim time). It runs straight through the south side of the scramble, takes a sidewalk step on the suspension, and finally <strong>collides with the corner structure and stops dead</strong> &mdash; no clipping, no penetration. Under the untouched policy, scanned-in pedestrians act as real obstacles too.</figcaption>
   </figure>
 
   <figure>
@@ -374,7 +374,7 @@
   <p>Turning a LiDAR-fusion 3DGS scan into an Isaac Sim environment fits in three lines.</p>
   <ul>
     <li><strong>STEP 1:</strong> reference the 3DGS untouched, stand it up with a -90&deg; X rotation, and pin the renderer to RaytracedLighting before loading.</li>
-    <li><strong>STEP 2:</strong> collider = untouched raw mesh + ground-hole patches only (628k triangles, zero drivable leaks in Shibuya). Wall holes stay.</li>
+    <li><strong>STEP 2:</strong> collider = untouched raw mesh + ground-hole patches only. Wall holes stay.</li>
     <li><strong>STEP 3:</strong> stack the two layers in one USD, make the collider invisible, and drive a PhysX Vehicle with real suspension. No deletion, no retraining.</li>
   </ul>
   <p>Only two limits worth remembering: <strong>no surface exists where the LiDAR never looked</strong>, so keep routes inside the observed region; and under the untouched policy, <strong>scanned-in pedestrians and parked vehicles remain as real obstacles</strong>.</p>
