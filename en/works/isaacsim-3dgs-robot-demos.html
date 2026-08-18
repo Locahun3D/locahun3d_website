@@ -332,6 +332,10 @@
     <img src="/works/images/shibuya_lidar_splat_vs_mesh_v1.jpg" alt="Top-down comparison of LiDAR returns from the 3DGS versus from the raw mesh at the same position">
     <figcaption><b>The same LiDAR position, hitting the 3DGS (left) versus the raw mesh (right).</b>Returns from the 3DGS show haze between the rings and radial streaks (reflections off semi-transparent splats and floaters); nearby, just under a tenth of the points sit off the surface. Mesh returns are geometrically exact and essentially noise-free, but a few centimetres from the surface the camera sees. You can aim at either, depending on the use.</figcaption>
   </figure>
+  <figure>
+    <img src="/works/images/shibuya_lidar_models_v1.jpg" alt="Top-down comparison of two LiDAR model presets at the same position">
+    <figcaption><b>Same position, different sensor model.</b>Swapping Isaac's bundled real-model presets (32-channel on the left, Ouster OS1 on the right) shows the difference in point density and reach in the same street &mdash; useful when choosing sensors for a robot. Only one LiDAR could run per environment, though; each model needed the environment reopened.</figcaption>
+  </figure>
   <p>Four steps. <strong>(1) Robot</strong>: load the stock Nova Carter and drive it with the bundled differential controller. <strong>(2) Sensor</strong>: parent a bundled RTX LiDAR (a real-model configuration) to the chassis and read the point cloud every frame. <strong>(3) Control</strong>: a simple heading controller toward a point a few metres ahead. <strong>(4) Drawing</strong>: transform the points to world coordinates and draw them in the viewport.</p>
   <div class="callout warn"><b>Traps</b>
     <ul>
@@ -384,7 +388,7 @@
   <p>On ROS 2 / Nav2: the Isaac Sim 6.0 docs describe a Windows setup, but this article uses its own planner and no ROS. The grid exports to an image, but the Nav2 map format has its own conventions for origin and colours, and given the x-flip above the conversion is not trivial. We have not driven it under Nav2 yet.</p>
 
   <h2 id="semantic"><span class="n">05</span> Follow-up: giving the 3DGS semantic labels</h2>
-  <p>The biggest hole flagged in review right after publication was "no segmentation ground truth". So we tried <strong>putting the labels on the 3DGS itself (per point) and rendering a class-coloured duplicate of the same points</strong>. 3DGS renders its baked colours as-is, so if the duplicate's colours are class colours you get <strong>a label image from the same camera and the same points as the RGB &mdash; no mesh-derived misalignment by construction</strong>.</p>
+  <p>The biggest hole in this environment was "no segmentation ground truth". So we tried <strong>putting the labels on the 3DGS itself (per point) and rendering a class-coloured duplicate of the same points</strong>. 3DGS renders its baked colours as-is, so if the duplicate's colours are class colours you get <strong>a label image from the same camera and the same points as the RGB &mdash; no mesh-derived misalignment by construction</strong>.</p>
   <figure>
     <img src="/works/images/shibuya_semlabel_pair_v1.jpg" alt="3DGS RGB render and the class-coloured duplicate render (semantic labels) from the same camera">
     <figcaption><b>RGB (top) and the label image (bottom) from the same camera.</b>A new viewpoint not used for labelling. Purple = road, pink = sidewalk, grey = building, olive = vegetation, light grey = pole, yellow = traffic light. Black = unlabelled (the sky has no points / unobserved).</figcaption>
