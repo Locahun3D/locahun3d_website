@@ -292,13 +292,13 @@
   <p>The downstream step — finishing the exported frames into aerial plates — will get its own article, so this one stays focused on <strong>the UE5 integration and asset export</strong>. The plugin I use is XGRIDs' LCC Plugin for UE (free).</p>
 
   <h2 id="sdk"><span class="n">02</span> What is XGRIDs' "LCC Plugin for UE" (and where to get it)</h2>
-  <p><strong>LCC Plugin for UE</strong> is the official UE5 3DGS plugin distributed by XGRIDs. It handles loading, rendering, editing, and relighting of 3DGS scenes in a single plugin. I use it for two main reasons: <strong>it scales to city-sized scans</strong> (streaming LoD up to billions of points) and it supports <strong>LCC2, a heavily compressed format</strong>. For a large scene like Shibuya, the files are dramatically lighter than passing PLY around, and loading stays stable.</p>
+  <p><strong>LCC Plugin for UE</strong> is the official UE5 3DGS plugin distributed by XGRIDs. It handles loading, rendering, editing, and relighting of 3DGS scenes in a single plugin. I use it for two main reasons: <strong>it scales to city-sized scans</strong> and it supports <strong>LCC2, a heavily compressed format</strong>. For a large scene like Shibuya, the files are dramatically lighter than passing PLY around, and loading stays stable.</p>
   <dl class="spec">
-    <dt>Engine support</dt><dd>Unreal Engine 5.1–5.8 (Windows / Linux, DirectX 11 &amp; 12 / Vulkan)</dd>
-    <dt>Formats</dt><dd>LCC2 / LCC / PLY / SOG / SPZ. Standard 3DGS PLY files from Postshot, Luma, Polycam, and similar tools load directly</dd>
-    <dt>Scale</dt><dd>No point-count limit. Streaming LoD keeps frame rates stable even in huge scenes</dd>
-    <dt>Pricing</dt><dd>Free + Pro tiers. Pro is currently free for a limited time (adds proxy-mesh relighting, self-shadowing, ACES/OCIO color pipeline, and more)</dd>
-    <dt>Usage</dt><dd>Blueprint-based, no code required. A C++ API is available for runtime control</dd>
+    <dt>Engine support</dt><dd>Unreal Engine 5.1–5.8 (Windows / Linux)</dd>
+    <dt>Formats</dt><dd>XGRIDs' own LCC2, plus standard 3DGS files from Postshot, Luma, Polycam, and similar tools, which load directly</dd>
+    <dt>Scale</dt><dd>No point-count limit. Playback stays smooth even in huge scenes</dd>
+    <dt>Pricing</dt><dd>Free and Pro tiers. Pro is currently free for a limited time (adds relighting, self-shadowing, and more)</dd>
+    <dt>Usage</dt><dd>Blueprint-based, no code required</dd>
   </dl>
   <div class="data-cta">
     <span class="dc-tag">Download / Official XGRIDs</span>
@@ -309,7 +309,7 @@
   </div>
 
   <h2 id="install"><span class="n">03</span> Installation</h2>
-  <p>Installation follows the standard UE5 plugin flow. I run <code>LCC4Unreal-v3.0.0-win-UE5_5</code> in a UE5.5 project.</p>
+  <p>Installation follows the standard UE5 plugin flow. I run the UE5.5 build of the plugin in a UE5.5 project.</p>
   <ol>
     <li>From the download page above, grab the <strong>zip that matches your exact UE version</strong>. A version mismatch is the classic cause of load errors, so this is the one step to get exactly right.</li>
     <li>Extract the zip and place it in the <strong><code>Plugins</code> folder at your project root</strong> (create the folder if it doesn't exist). If you want it available to every project, you can put it in the engine-side <code>Engine/Plugins</code> instead.</li>
@@ -385,7 +385,7 @@
   <div class="tblwrap"><table>
     <thead><tr><th>Software</th><th>3DGS support</th><th>Strengths</th><th>Weaknesses</th></tr></thead>
     <tbody>
-      <tr><td>Houdini 22</td><td>Native</td><td>Treats splats like regular geometry (point clouds) — deform and animate them with standard nodes like Bone Deform. Renders directly in Karma, relights in Copernicus. Unmatched freedom for procedural splat work</td><td>License cost and learning curve are steep. Overkill if you just want to view a scan</td></tr>
+      <tr><td>Houdini 22</td><td>Native</td><td>Treats splats like regular geometry — deform and animate them with standard nodes, and render and relight them directly. Unmatched freedom for procedural splat work</td><td>License cost and learning curve are steep. Overkill if you just want to view a scan</td></tr>
       <tr><td>Blender</td><td>Via add-ons</td><td>Free add-ons like KIRI Engine's "3DGS Render" cover import, editing, and rendering at zero cost</td><td>Add-on dependent, so features and quality vary; heavy with large splat counts</td></tr>
       <tr><td>3ds Max</td><td>Via V-Ray 7</td><td>V-Ray 7 renders Gaussian Splats directly — slots naturally into existing V-Ray pipelines (archviz and beyond)</td><td>Requires a V-Ray license; splat editing is limited</td></tr>
       <tr><td>Cinema 4D</td><td>Via renderers</td><td>Renders 3DGS through third-party renderers such as Octane. Pairs well with camera work and motion graphics</td><td>Not a native C4D feature — depends on your renderer and its version</td></tr>
@@ -394,16 +394,16 @@
   <p>My own split: <strong>UE5 for walking through city-scale scenes and hunting angles, the DCC side for per-shot look development and rendering.</strong> For aerial-plate work I use a C4D → Octane flow, walked through in detail in <a href="portalcam-drone-ai-workflow.html">Generating an "aerial shot" from 3DGS</a>. For procedural splat work in Houdini, see <a href="houdini-comfyui-gsplat-workflow.html">the Houdini 22 × ComfyUI hybrid workflow article</a>, where hectorVFX demonstrates it on the same Shibuya data.</p>
 
   <h2 id="plugins"><span class="n">08</span> UE5 3DGS plugins that can relight</h2>
-  <p>There are plenty of UE5 plugins that can merely <em>display</em> 3DGS, including free and open-source options (XScene-UEPlugin, MLSLabs GS Renderer, NanoGS). But once you're exporting assets like in this article, the practical dividing line is <strong>whether you can change the lighting of an imported splat scene</strong>. So here I'm covering only the plugins that support relighting.</p>
+  <p>There are plenty of UE5 plugins that can merely <em>display</em> 3DGS, including free and open-source options. But once you're exporting assets like in this article, the practical dividing line is <strong>whether you can change the lighting of an imported splat scene</strong>. So here I'm covering only the plugins that support relighting.</p>
   <div class="tblwrap"><table>
     <thead><tr><th>Plugin</th><th>Price</th><th>Relighting</th><th>Strengths</th><th>Caveats</th></tr></thead>
     <tbody>
-      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">(XGRIDs — used in this article)</span></td><td>Free + Pro</td><td>Basic relighting in the free tier; proxy-mesh relighting + self-shadowing in Pro</td><td>Strongest for whole-city scenes, with billion-point streaming LoD and LCC2 compression. Also reads PLY/SOG/SPZ</td><td>Pro is free for a limited time; check future pricing</td></tr>
-      <tr><td>Volinga Plugin</td><td>Free + Pro</td><td>Free tier: additive lighting that interacts with scene lights. Pro: proxy-mesh relighting reproducing geometry, shadows, and materials</td><td>Built for professional virtual production — multi-GPU with nDisplay, ACES/HDR, disguise integration. Reads PLY and its own NVOL format</td><td>Pro features are paid; the design is optimized for LED-wall VP work</td></tr>
-      <tr><td>Luma AI UE Plugin</td><td>Free</td><td>Relighting via analytical and sun lights</td><td>Takes Luma captures straight into UE, with free crop, cull, and merge tools</td><td>Relighting covers direct light only (no emissive); supports UE 5.1–5.3</td></tr>
+      <tr><td>LCC Plugin for UE<br><span style="color:var(--sub);font-size:.85em">(XGRIDs — used in this article)</span></td><td>Free + Pro</td><td>Basic relighting in the free tier; relighting with shadows in Pro</td><td>Strongest for whole-city scenes, thanks to LCC2 compression. Also reads standard 3DGS files</td><td>Pro is free for a limited time; check future pricing</td></tr>
+      <tr><td>Volinga Plugin</td><td>Free + Pro</td><td>Free tier: simple additive lighting only. Pro: relighting that reproduces shadows and materials</td><td>Built for professional virtual production, with deep integration into LED-wall stage equipment</td><td>Pro features are paid; the design is optimized for LED-wall VP work</td></tr>
+      <tr><td>Luma AI UE Plugin</td><td>Free</td><td>Relighting with direct lights such as a sun</td><td>Takes Luma captures straight into UE, with free trimming and merging tools</td><td>Relighting covers direct light only; engine support is a little dated</td></tr>
     </tbody>
   </table></div>
-  <p>One caveat shared by all three: splats are rendered by a custom pipeline that sits beside Unreal's core renderer, so <strong>they don't participate in Lumen global illumination</strong>. Relighting in every case works through proxy meshes — simplified geometry fitted to the splats — to reproduce shadows and light response. Within that field, I've settled on the XGRIDs SDK because it combines relighting support with <strong>the LCC2 format design that lets an entire city block live in a single scene</strong>.</p>
+  <p>One caveat shared by all three: splats are drawn separately from Unreal's standard rendering, so <strong>they don't participate in Lumen global illumination</strong>. Relighting in every case works through simplified geometry fitted to the splats, which is what reproduces shadows and light response. Within that field, I've settled on the XGRIDs SDK because it combines relighting support with <strong>the LCC2 format design that lets an entire city block live in a single scene</strong>.</p>
 
   <h2 id="summary"><span class="n">09</span> Summary</h2>
   <p>The whole flow in one line: <strong>import the 3DGS scan into UE5 with LCC Plugin for UE, lock the framing with a virtual camera, export stills and video, and let AI swap only the light and season.</strong> The essential rule is to never let AI generate everything — <strong>always route through the real scan CG</strong>. Composition and accuracy are guaranteed by the scan data and the virtual camera; AI only does the finishing. That division of labor is what makes "impossible shots" usable at production quality with minimal artifacts.</p>

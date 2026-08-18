@@ -280,14 +280,14 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">Omniverse</span><span class="badge">Workflow</span>
-    <span>2026-07-26</span><span>・</span><span>~7 min read</span>
+    <span>2026-07-26</span><span>・</span><span>~6 min read</span>
   </div>
   <h1>Bringing 3DGS into<br class="pc"> NVIDIA Isaac Sim</h1>
   <p class="lead">Kou Nakamura here, from Locahun 3D. If you want to put a 3DGS scan to work in robotics or autonomous-mobility simulation, the destination isn't a game engine — it's <strong>NVIDIA Isaac Sim</strong>. This article lays out the steps to load a scan and render it at photoreal quality, written to hold up for any dataset. The second half covers the <strong>fundamental weaknesses of 3DGS in industrial simulation, and how to work around them</strong>.</p>
 
   <figure>
     <img src="images/isaacsim_shibuya_walk.jpg" alt="A 3DGS scan rendered in NVIDIA Isaac Sim (pedestrian eye level)">
-    <figcaption><b>A 3DGS scan rendered in Isaac Sim.</b> 16.5 million Gaussians drawn through RTX. Signage text stays legible, and the real street reproduces as-is.</figcaption>
+    <figcaption><b>A 3DGS scan rendered in Isaac Sim.</b> Signage text stays legible, and the real street reproduces as-is.</figcaption>
   </figure>
 </header>
 
@@ -325,7 +325,7 @@
 
   <h2 id="prepare"><span class="n">02</span> What you'll need</h2>
   <dl class="spec">
-    <dt>Isaac Sim</dt><dd>6.0 or later. Unpacked, it runs to roughly 40GB, so budget 50GB of free space</dd>
+    <dt>Isaac Sim</dt><dd>6.0 or later. It unpacks to a large install, so leave plenty of free disk space</dd>
     <dt>Scan data</dt><dd>3DGS <code>.ply</code></dd>
     <dt>Conversion tool</dt><dd>PlayCanvas <strong>splat-transform</strong> (npm, free)</dd>
     <dt>USD conversion</dt><dd>Bundled with Isaac Sim by default — no extra install needed</dd>
@@ -335,10 +335,10 @@
 
   <h2 id="limit"><span class="n">03</span> First hurdle: exceed the draw-count limit and nothing renders</h2>
   <p>If you're working with a sizeable scan, get this straight first.</p>
-  <div class="callout warn"><b>Isaac Sim's RTX renderer can draw at most 2<sup>24</sup> (16,777,216) points per prim.</b> Go over that, and building the ray-tracing acceleration structure fails — <strong>the prim renders zero points, silently</strong>. Neither the conversion tool nor the Python API throws an error. You end up with "the conversion succeeded, the point count is correct, and the screen is still black."</p>
-  <p>What makes this nasty is that every step upstream reports success. The USD file gets the position, scale, opacity, and color of every point written correctly, and once placed on the stage the prim's type is recognized correctly too. Only the rendering silently fails.</p>
-  <p>This limit isn't documented anywhere official. The only clue is a single line buried in the log: <code>Failed to create TLAS</code>. The textbook fix is <strong>"reduce the point count, or split into multiple prims"</strong> — this article covers the former.</p>
-  <div class="callout note"><b>Check the log before you look at the viewport</b>After placing the data on the stage, search the Isaac Sim log for <code>Gaussian prim loaded</code>. If it shows up with a point count, the prim is registered for rendering. If <code>Failed to create TLAS</code> shows up instead, it won't render. Checking this first is the reliable way to avoid misdiagnosing a black screen as a camera problem.</div>
+  <div class="callout warn"><b>Isaac Sim's RTX renderer has a ceiling on how many points a single prim can draw (2<sup>24</sup>, roughly 16.8 million).</b> Go over it and <strong>the prim renders zero points, silently</strong>. Nothing throws an error. You end up with "the conversion succeeded, and the screen is still black."</div>
+  <p>What makes this nasty is that every step upstream reports success. The file is written correctly and lands on the stage correctly. Only the rendering fails.</p>
+  <p>This limit isn't documented anywhere official. The only clue is a single line buried in the log: <code>Failed to create TLAS</code>. The fix is either <strong>reduce the point count or split into multiple prims</strong> — this article covers the former.</p>
+  <div class="callout note"><b>Check the log before you look at the viewport</b>Once the data is on the stage, check the Isaac Sim log for <code>Failed to create TLAS</code> before anything else. Checking this first is the reliable way to avoid misdiagnosing a black screen as a camera problem.</div>
 
   <h2 id="import"><span class="n">04</span> Import steps</h2>
 
@@ -349,10 +349,10 @@ splat-transform input.ply -d 16500000 output.ply
 
 # A percentage also works
 splat-transform input.ply -d 95% output.ply</code></pre></div>
-  <p>This isn't naive thinning — it's <strong>staged pairwise merging of nearby Gaussians</strong>. It loses less information than random deletion, and at reduction rates of a few percent the visual degradation is barely noticeable.</p>
+  <p>This isn't random deletion — it <strong>merges nearby Gaussians together</strong>. Trim only a little and the visual degradation is barely noticeable.</p>
 
   <h3>Convert to USD and place it on the stage</h3>
-  <p>From Python inside Isaac Sim, use the bundled converter to turn the PLY into USD. <strong>Give the output the <code>.usdc</code> extension.</strong> Using <code>.usdz</code> stores the contents as text and can more than double the file size.</p>
+  <p>From Python inside Isaac Sim, use the bundled converter to turn the PLY into USD. <strong>Give the output the <code>.usdc</code> extension.</strong> Using <code>.usdz</code> stores the contents as text and bloats the file size.</p>
   <p>Before referencing the new data, <strong>clean up any existing Gaussian splats</strong> on the stage. Leftover old data makes it look like "only part of the new scene is showing," which makes tracking down the actual cause needlessly hard.</p>
   <div class="code"><pre><code>from omni.kit.converter.gsplat import convertPlyUSD
 convertPlyUSD(r"output.ply", r"scene.usdc")
@@ -382,16 +382,6 @@ x.AddRotateXOp().Set(-90.0)</code></pre></div>
   <h2 id="camera"><span class="n">05</span> Placing the camera</h2>
   <p>The practical trick is <strong>not to compute the camera position yourself</strong>. Auto-computing a distance from the bounding box doesn't work — <strong>it gets dragged around by sparse outliers</strong>. Scan data scatters stray points well outside the actual captured area, so the overall extent comes out far larger than the region you actually want to look at.</p>
   <p>Instead, <strong>use coordinates from the trajectory actually walked during the scan</strong>. Most scanners output the movement path as pose data — pick a point on it, place the camera at eye height (around 1.7m), and point it horizontally.</p>
-  <p>For orientation, use <code>SetLookAt().GetInverse()</code> and feed the result into <code>AddTransformOp()</code>. This form avoids matrix-transpose mistakes.</p>
-  <div class="code"><pre><code>from pxr import Gf, UsdGeom
-
-eye    = Gf.Vec3d(...)   # A point on the trajectory, at eye height
-target = Gf.Vec3d(...)   # The direction to look
-
-xf = Gf.Matrix4d().SetLookAt(eye, target, Gf.Vec3d(0,0,1)).GetInverse()
-cx = UsdGeom.Xformable(cam_prim)
-cx.ClearXformOpOrder()
-cx.AddTransformOp().Set(xf)</code></pre></div>
   <p>The reason to use the trajectory is simple: <strong>wherever the person doing the scan actually walked is where the data is recorded at the highest density</strong>. Put the camera outside the captured area, and you're looking at surfaces that were never scanned in the first place. If you don't have pose data on hand, the reliable approach is to start close in, do test renders, and pull back while watching what's actually captured.</p>
   <div class="aiflow">
     <div class="aiflow-h"><span class="k">Camera placement makes the difference</span>Same data, but the result changes completely depending on where you put the camera.</div>
@@ -412,13 +402,13 @@ cx.AddTransformOp().Set(xf)</code></pre></div>
     <img src="images/isaacsim_shibuya_overview.jpg" alt="An overhead view of the intersection rendered in Isaac Sim">
     <figcaption><b>The same principle applies to overhead shots.</b> Rather than jumping straight up several hundred meters, pulling back gradually from the trajectory is the reliable approach.</figcaption>
   </figure>
-  <div class="callout note"><b>Render latency</b>Past around 10 million points, RTX convergence takes noticeable time. Before capturing, run <code>await app.next_update_async()</code> for at least 150 frames. Not waiting long enough saves a black image.</div>
+  <div class="callout note"><b>Render latency</b>The heavier the scene, the longer RTX takes to settle. If you're saving images from a script, wait until the render has stabilized before capturing. Not waiting long enough saves a black image.</div>
 
   <h2 id="industrial"><span class="n">06</span> Weaknesses for industrial simulation</h2>
   <p>This is where it gets interesting. 3DGS is unbeatable on "how it looks," but <strong>it carries almost none of the information industrial simulation actually needs</strong>. Here's what turns up when you actually pull outputs from Isaac Sim and check them.</p>
 
   <h3>Weakness 1: the whole scene is a single lump — no per-object separation</h3>
-  <p>This is the biggest constraint. A 3DGS scene is <strong>one prim</strong> holding tens of millions of Gaussians, with no concept of "this building," "that traffic light," or "that car." You can't select object A separately from object B the way you would with 3D models, and you can't move, hide, or swap out a specific object on its own.</p>
+  <p>This is the biggest constraint. A 3DGS scene is <strong>one prim</strong> holding an enormous number of Gaussians, with no concept of "this building," "that traffic light," or "that car." You can't select object A separately from object B the way you would with 3D models, and you can't move, hide, or swap out a specific object on its own.</p>
   <p>Simulation typically assumes operations like "move just the target object" or "swap out an obstacle" — and <strong>a 3DGS scan, as scanned, can't do that</strong>.</p>
 
   <h3>Weakness 2: only one semantic label per scene</h3>

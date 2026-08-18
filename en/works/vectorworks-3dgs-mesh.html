@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGS Scans Do Not Work in Vectorworks｜LOCAHUN 3D Tech Blog</title>
-<meta name="description" content="We imported all three scan deliverables — 3DGS, coloured point cloud and textured mesh — into Vectorworks Spotlight 2026. None of them are usable in practice. 3DGS has its colour discarded, point clouds have no surfaces to design against, and a textured mesh stalls for tens of seconds per operation on just one third of the scan. Here are the measurements and what to do instead.">
+<meta name="description" content="We imported all three scan deliverables — 3DGS, coloured point cloud and textured mesh — into Vectorworks Spotlight 2026. None of them are usable in practice. 3DGS has its colour discarded, point clouds have no surfaces to design against, and a textured mesh stalls for several seconds per operation on just one third of the scan. Here are the measurements and what to do instead.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/vectorworks-3dgs-mesh.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
@@ -15,16 +15,16 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
 <meta property="og:title" content="3DGS Scans Do Not Work in Vectorworks">
-<meta property="og:description" content="We imported all three scan deliverables — 3DGS, coloured point cloud and textured mesh — into Vectorworks Spotlight 2026. None of them are usable in practice. 3DGS has its colour discarded, point clouds have no surfaces to design against, and a textured mesh stalls for tens of seconds per operation on just one third of the scan. Here are the measurements and what to do instead.">
+<meta property="og:description" content="We imported all three scan deliverables — 3DGS, coloured point cloud and textured mesh — into Vectorworks Spotlight 2026. None of them are usable in practice. 3DGS has its colour discarded, point clouds have no surfaces to design against, and a textured mesh stalls for several seconds per operation on just one third of the scan. Here are the measurements and what to do instead.">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/vectorworks-3dgs-mesh.html">
-<meta property="og:image" content="https://web.locahun3d.com/works/images/vw_hero_block.jpg">
-<meta property="og:image:width" content="1600">
-<meta property="og:image:height" content="972">
-<meta property="og:image:alt" content="A city-block scan converted to a textured mesh">
+<meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A city block captured as a 3D scan">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGS Scans Do Not Work in Vectorworks">
-<meta name="twitter:description" content="Can you put a 3DGS scan into CAD? We tried all three formats in Vectorworks Spotlight and none of them hold up in practice. The measurements, and the workflow that actually works.">
-<meta name="twitter:image" content="https://web.locahun3d.com/works/images/vw_hero_block.jpg">
+<meta name="twitter:description" content="We imported all three scan deliverables — 3DGS, coloured point cloud and textured mesh — into Vectorworks Spotlight 2026. None of them are usable in practice. 3DGS has its colour discarded, point clouds have no surfaces to design against, and a textured mesh stalls for several seconds per operation on just one third of the scan. Here are the measurements and what to do instead.">
+<meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -281,7 +281,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Vectorworks</span><span class="badge">Benchmark</span>
-    <span>2026-08-16</span><span>・</span><span>7 min read</span>
+    <span>2026-08-16</span><span>・</span><span>6 min read</span>
   </div>
   <h1>3DGS Scans Do Not Work<br class="pc">in Vectorworks</h1>
   <p class="lead">This is Kou Nakamura from Locahun 3D. Stage lighting and interior studios run on Vectorworks, so I wanted to know whether a 3D scan of a real location can join that workflow. I <strong>imported all three formats a scanner produces into Vectorworks Spotlight 2026</strong> and tested each one. The short version: <strong>none of them are usable in practice</strong>. Here is what breaks in each case, measured, and what to do instead.</p>
@@ -326,7 +326,7 @@
 
   <p>Going in, the mesh was the one I expected to work. Here is what each of them actually did.</p>
 
-  <div class="callout note"><b>Test setup</b>A city block captured with a handheld scanner (XGRIDS Lixel K2), imported into Vectorworks Spotlight 2026. The point cloud holds 126 million points; the mesh is split into three parts at 3.37 million polygons each. The same data was opened in Blender 4.5 — a widely used 3D application — for comparison.</div>
+  <div class="callout note"><b>Test setup</b>A city block captured with a handheld scanner (XGRIDS Lixel K2), imported into Vectorworks Spotlight 2026. The scan is far too large to handle in one piece, so the mesh was split into three parts and loaded one at a time. The same data was opened in Blender — a widely used 3D application — for comparison.</div>
 
   <h2 id="gs"><span class="n">01</span> 1. 3DGS — Vectorworks does not support it</h2>
   <p><strong>Vectorworks does not support 3DGS.</strong> A 3DGS file stores more than positions — each particle also carries what colour it is, how transparent it is and what shape it takes — but Vectorworks has no way to read any of that. On import it <strong>takes only the positions and discards everything else, colour included</strong>. What lands on screen is a sparse scatter of near-black dots.</p>
@@ -336,7 +336,7 @@
   <h2 id="pc"><span class="n">02</span> 2. Point cloud — you can measure it, but it has no surfaces</h2>
   <p>Vectorworks supports point clouds natively, so they <strong>import without any conversion</strong>. On colour fidelity alone, this is the best of the three.</p>
 
-  <div class="callout warn"><b>But 16-bit colour comes out wrong</b>The file this scanner produced stores colour in 0–65535 steps (16-bit). Open that directly in Vectorworks and <strong>building walls come out painted in fluorescent green and bright red</strong> — nothing like the real thing. The colour data in the file is fine: genuinely green or red points account for only about 2% of the cloud. <strong>Convert the colour to 0–255 steps (8-bit) before importing and it displays correctly.</strong> The image below is after that conversion.</div>
+  <div class="callout warn"><b>But 16-bit colour comes out wrong</b>The file this scanner produced stores colour at a finer precision than usual (16-bit). Open that directly in Vectorworks and <strong>building walls come out painted in fluorescent green and bright red</strong> — nothing like the real thing. The data itself is not broken; Vectorworks simply cannot read colour at that precision. <strong>Convert the colour to the ordinary precision (8-bit) before importing and it displays correctly.</strong> The image below is after that conversion.</div>
   <figure>
     <img src="/works/images/vw_pointcloud_e57.jpg" alt="An 8-bit-converted coloured point cloud displayed in Vectorworks">
     <figcaption><b>The point cloud after converting its colour to 8-bit.</b> Brickwork, red paving, street trees and the crosswalk now match reality. Look closely, though, and it is clear this is <strong>an image made of dots, not surfaces</strong>.</figcaption>
@@ -359,10 +359,10 @@
     </tbody>
   </table></div>
 
-  <p>Waiting 1.5 seconds on every view change is genuinely tiresome when drafting means changing the view constantly. But it is <strong>not so heavy that it cannot be opened</strong>. And these figures cover <strong>one of the three parts</strong> the block was split into — loading the whole scan roughly triples the load.</p>
+  <p>Waiting 1.5 seconds on every view change is genuinely tiresome when drafting means changing the view constantly. But it is <strong>not so heavy that it cannot be opened</strong>. And this is with only <strong>one of the three parts</strong> the block was split into — loading the whole scan gets heavier still.</p>
   <figure>
     <img src="/works/images/vw_in_vectorworks.jpg" alt="The scan data open inside Vectorworks">
-    <figcaption><b>The data open inside Vectorworks.</b> The detail displays properly. But displaying this single part means waiting tens of seconds every time you change the view.</figcaption>
+    <figcaption><b>The data open inside Vectorworks.</b> The detail displays properly. But displaying this single part already means waiting every time you change the view.</figcaption>
   </figure>
 
   <figure>

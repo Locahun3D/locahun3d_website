@@ -295,17 +295,8 @@
   <h3>④ カメラ・ライティング・最終レンダリング</h3>
   <p>合成が済んだシーンにカメラを立て、モーションブラーと被写界深度を設定してレンダリングします。仕上げに夜間のネオン反射や濡れた路面のライティングでグレーディングすることで、記事冒頭の最終カットになります。</p>
 
-  <h3>詳細スペック（再現したい方向け）</h3>
-  <p>本文では省いた設定値です。録画から読み取れた範囲でまとめています。</p>
-  <dl class="spec">
-    <dt>環境データ（背景）</dt><dd>渋谷スクランブル交差点の3DGS（ロケハン3D提供）／ Houdini 22 Indie（build 22.0.368）のネイティブGaussian Splattingノード（bakegsplat / transform / normal / merge）で読み込み</dd>
-    <dt>被写体（車両）の生成</dt><dd>ComfyUI ワークフロー "ER_TripoSplat_Live" ／ KSampler(steps 20, cfg 3.0, dpmpp_2m, simple, denoise 1.0) → TripoSplat Decode(num_gaussians 300,000) → Create 3D File (from Splat)</dd>
-    <dt>合成</dt><dd>Houdini上でmergeノードにより2つの3DGSを1シーン化。Transform SOPで手動配置</dd>
-    <dt>カメラ・レンダー</dt><dd>Houdiniカメラ(cam1)／Shutter Time 0.5・Focus Distance 5・F-stop 5.6でモーションブラー・被写界深度を作り込み</dd>
-  </dl>
-
   <h2 id="video"><span class="n">03</span> 制作画面の録画で見る、全体の流れ</h2>
-  <p>hectorVFX氏からは、この一連の手順をキャプチャした33秒の画面録画も提供いただきました。Houdiniのシーングラフとビューポート、ComfyUIのノードグラフが実際にどう切り替わりながら進むのか、文章で読むより一目で伝わります。</p>
+  <p>hectorVFX氏からは、この一連の手順をキャプチャした短い画面録画も提供いただきました。Houdiniのシーングラフとビューポート、ComfyUIのノードグラフが実際にどう切り替わりながら進むのか、文章で読むより一目で伝わります。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/hector_workflow_poster.jpg">
       <source src="images/hector_houdini_comfyui_workflow.mp4" type="video/mp4">
@@ -350,7 +341,7 @@
       <a class="rcard" href="isaacsim-3dgs-import.html">
         <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約13分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div>
           <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
         </div>
       </a>

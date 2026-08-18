@@ -248,7 +248,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">PortalCam</span><span class="badge">XGRIDS</span><span class="badge">3DGS</span><span class="badge">ワークフロー</span>
-    <span>2026-07-26</span><span>・</span><span>読了 約8分</span>
+    <span>2026-07-26</span><span>・</span><span>読了 約6分</span>
   </div>
   <h1>PortalCamの生データ(.xbin)<br class="pc">から4K元画像を取り出す</h1>
   <p class="lead">ロケハン3Dの中村です。PortalCamでスキャンすると、LCC StudioやLixel Studioが3DGSや点群を書き出してくれますが、その裏には<strong>撮影した元の4K画像</strong>がそのまま生データの中に眠っています。この記事では、CLIツールだけを使って生データ(.xbin)から4K元画像を取り出す方法と、実際にその画像でフォトグラメトリ再構成を試して分かった限界をまとめます。</p>
@@ -293,20 +293,16 @@
   <p>抽出の前に、PortalCamが1回のスキャンで作るフォルダの中身を把握しておきます。<code>ShotData/&lt;スキャン名&gt;/</code> 配下は、だいたい次のような構成になっています。</p>
   <div class="code"><pre><code>ShotData/&lt;スキャン名&gt;/
 ├─ 2026-XX-XX-XXXXXX.xbin        # 生センサー記録（画像＋LiDAR＋IMU＋GNSS）
-├─ ply/ply-result/
-│  ├─ point_cloud/iteration_100/point_cloud.ply   # 3DGS本体
-│  └─ cameras.json                # ダミー（startup.jpgの1件のみ・使えない）
-├─ Lcc2/lcc2-result/              # LCC2書き出し（3dgs/*.sog＋mesh/*.ply＋info/poses.json）
-├─ mesh-files/&lt;スキャン名&gt;.obj    # LiDARメッシュ（粗い。数万頂点・三角形サイズ20cm前後）
-└─ project_data/
-   ├─ poses.csv                  # 移動軌跡（ts,x,y,z,qx,qy,qz,qw）
-   └─ log/project.json           # DeviceInfo.CameraList でカメラ構成が分かる</code></pre></div>
+├─ ply/ply-result/                # 3DGS本体
+├─ Lcc2/lcc2-result/              # LCC2書き出し（3DGS＋メッシュ）
+├─ mesh-files/&lt;スキャン名&gt;.obj    # LiDARメッシュ（粗い）
+└─ project_data/                  # 移動軌跡・カメラ構成などのログ</code></pre></div>
   <p>この中で今回使うのは、いちばん重いファイルである<strong><code>.xbin</code></strong>だけです。ファイルサイズは撮影時間に比例し、数分のスキャンで1GB前後になります。</p>
 
   <h2 id="xbin"><span class="n">03</span> xBinの正体：JPEGではなくH.264動画</h2>
-  <p><code>.xbin</code>を実際にバイナリ解析すると、正体は<strong>XBAG形式</strong>（マジックナンバー「XBAG」）の、ROSバッグに似た「センサーデータ多重化コンテナ」でした。カメラ映像・LiDAR点群・IMU・GNSSが時系列で1本のファイルに混在しています。</p>
-  <div class="callout warn"><b>JPEGの単純カービングは不可</b>ファイル全域をJFIF/PNGシグネチャで走査しても、静止画は1枚も埋まっていません。<strong>カメラ映像はH.264の動画ストリームとして記録されている</strong>ため、デコードしないと1枚の画像も取り出せません。</div>
-  <p>自前でH.264ストリームをデマックスしてffmpegに渡す方法もありますが、XBAGのレコード境界を正しく辿る実装が要るため手間がかかります。次の章で使うXGRIDS純正のCLIツールなら、この工程を意識せずに済みます。</p>
+  <p><code>.xbin</code>を実際に解析すると、正体は<strong>XBAG形式</strong>という「センサーデータをまとめて詰め込んだ入れ物」でした。カメラ映像・LiDAR点群・IMU・GNSSが時系列で1本のファイルに混在しています。</p>
+  <div class="callout warn"><b>ファイルから画像を拾い出すことはできない</b>ファイル全域を探しても、静止画は1枚も埋まっていません。<strong>カメラ映像はH.264の動画として記録されている</strong>ため、デコードしないと1枚の画像も取り出せません。</div>
+  <p>自前で動画部分を取り出してffmpegに渡す方法もありますが、ファイル構造を正しく辿る実装が要るため手間がかかります。次の章で使うXGRIDS純正のCLIツールなら、この工程を意識せずに済みます。</p>
 
   <h2 id="extract"><span class="n">04</span> 4K元画像を抽出するコマンド</h2>
   <p>使うツールは、LixelStudioに同梱されている<code>extract_images_h264.exe</code>です。LCC StudioやLixel Studioを起動する必要はなく、コマンド1行で完結します。</p>
@@ -324,34 +320,34 @@
       <tr><td>5 / 6</td><td>（他機材）</td><td>0枚</td></tr>
     </tbody>
   </table></div>
-  <p>この2つのフラグさえ合わせれば、あとは指定した<code>--out_dir</code>の下に<code>images/camera_0/</code>と<code>images/camera_1/</code>ができ、<strong>4000×3000（1200万画素）の魚眼JPEG</strong>がタイムスタンプ付きファイル名で並びます。なお<code>--out_fps</code>は指定しても実質効かず、元データの全フレームがそのまま出力されます。</p>
+  <p>この2つのフラグさえ合わせれば、あとは指定した出力先にカメラごとのフォルダができ、<strong>4Kクラスの魚眼JPEG</strong>がタイムスタンプ付きファイル名で並びます。なお出力フレームレートの指定は実質効かず、元データの全フレームがそのまま出力されます。</p>
   <div class="callout note"><b>魚眼のまま扱いにくい場合</b>抽出される画像は魚眼レンズそのままの円形の写り込みです。一般的な画像処理・フォトグラメトリソフトで使うには、同梱の<code>fisheye2perspective.exe</code>で透視投影に変換します。この記事の冒頭とこのあとの図版も、変換後のものです。</div>
 
   <h2 id="stereo"><span class="n">05</span> 4カメラのうち2台しか出せない制約</h2>
-  <p>PortalCamのカメラ構成は<code>project_data/log/project.json</code>の<code>DeviceInfo.CameraList</code>で確認でき、<strong>left_main / left_seco / right_main / right_seco の4眼</strong>です。<code>.xbin</code>のヘッダにも、この4チャンネル分の定義がバイナリ内に存在します。</p>
-  <p>ところが<code>extract_images_h264.exe</code>が実際にデコードするのは<strong>left_mainとright_mainの2本だけ</strong>です。seco側を出力する方法は今のところ見つかっていません。</p>
-  <p>幸い、<code>camera_0</code>と<code>camera_1</code>は<strong>タイムスタンプの差が0msの同期ステレオペア</strong>になっているので、視差情報そのものは確保できています。</p>
+  <p>PortalCamは<strong>左右にメインとサブ、合わせて4眼</strong>を積んでいます。<code>.xbin</code>の中にも、この4本分の定義が入っています。</p>
+  <p>ところが<code>extract_images_h264.exe</code>が実際にデコードするのは<strong>左右のメイン2本だけ</strong>です。サブ側を出力する方法は今のところ見つかっていません。</p>
+  <p>幸い、出てくる2本は<strong>同時刻に記録された同期ステレオペア</strong>になっているので、視差情報そのものは確保できています。</p>
   <div class="duo">
     <figure>
       <img src="images/xbin_cam_pinholeA.jpg" alt="camera_0側から抽出した4K元画像（透視投影変換後）">
-      <figcaption><b>camera_0（left_main）側の1フレーム。</b></figcaption>
+      <figcaption><b>左メインカメラの1フレーム。</b></figcaption>
     </figure>
     <figure>
       <img src="images/xbin_cam_pinholeB.jpg" alt="camera_1側から抽出した4K元画像（透視投影変換後）">
-      <figcaption><b>camera_1（right_main）側の1フレーム。</b>同時刻に記録された、もう一方の目線です。</figcaption>
+      <figcaption><b>右メインカメラの1フレーム。</b>同時刻に記録された、もう一方の目線です。</figcaption>
     </figure>
   </div>
 
   <h2 id="photogrammetry"><span class="n">06</span> 検証：抽出画像からのフォトグラメトリは全滅</h2>
-  <p>ここからは条件付きの結論です。「4K元画像が取れるなら、フォトグラメトリでメッシュも作れるのでは」と考え、会議室スキャン（82地点×2眼＝163枚）で実際に試しましたが、<strong>現時点ではこの道は塞がっています</strong>。</p>
-  <div class="callout warn"><b>RealityScanは完全にハングする</b>魚眼のままだと起動直後にMini Dumpでクラッシュします。<code>fisheye2perspective.exe</code>で透視投影（2000×2000・水平画角100°）に変換してから読み込んでも、<strong>Aligning Imagesの工程でCPU使用量がゼロのまま止まります</strong>。実測でCPU時間593秒消費後、38分間まったく進捗が動かず、メモリ使用量が1GBから0.29GBまで解放され、メインウィンドウが操作不能になったため強制終了しました。出力は0件です。</div>
-  <div class="callout warn"><b>COLMAPは起動すらできない</b>実行すると<code>0xC0000142</code>で即座に落ちます。原因はWindowsのSmart App Controlが未署名DLL（<code>cholmod-*.dll</code>）をブロックしていることです。<strong>Smart App Controlの無効化はWindowsの再インストールでしか元に戻せない不可逆操作</strong>のため、この検証では実施していません。</div>
-  <p>本質的な原因は枚数や間隔の問題です。<strong>82地点×2眼という疎な撮影では、特徴点マッチングが成立しません。</strong>PortalCamは歩きながら連続的に3DGS用のデータを集める設計であり、フォトグラメトリが前提とする「1点にとどまって高いオーバーラップ率で撮る」撮り方とは根本的に噛み合いません。加えて、検証した会議室は無地の壁が多く、手がかりになる特徴点自体が少ない現場でした。魚眼から透視投影への変換自体は問題なく機能しており（163枚を8.2秒で処理）、詰まっているのはあくまで再構成側です。</p>
-  <div class="callout note"><b>再挑戦するなら</b>同じ現場ならオーバーラップ率を大きく上げた別撮りが必要になります。seco側の2眼まで抽出できれば単純に情報量が倍になりますが、現状はmain側2眼のみです。今のところ、抽出画像は次章のAI参照素材としての使い道に絞るのが現実的です。</div>
+  <p>ここからは条件付きの結論です。「4K元画像が取れるなら、フォトグラメトリでメッシュも作れるのでは」と考え、会議室のスキャンで実際に試しましたが、<strong>現時点ではこの道は塞がっています</strong>。</p>
+  <div class="callout warn"><b>RealityScanは完全にハングする</b>魚眼のままだと起動直後にクラッシュします。透視投影に変換してから読み込んでも、<strong>画像を並べる工程で処理が止まったまま進みません</strong>。長時間待っても進捗はまったく動かず、最終的にウィンドウが操作不能になって強制終了しました。出力は0件です。</div>
+  <div class="callout warn"><b>COLMAPは起動すらできない</b>実行すると即座に落ちます。原因はWindowsのセキュリティ機能が、同梱の署名なしファイルをブロックしていることです。<strong>この機能の無効化はWindowsの再インストールでしか元に戻せない不可逆操作</strong>のため、この検証では実施していません。</div>
+  <p>本質的な原因は撮り方の違いです。<strong>歩きながら点在して撮った程度の枚数では、特徴点マッチングが成立しません。</strong>PortalCamは歩きながら連続的に3DGS用のデータを集める設計であり、フォトグラメトリが前提とする「1点にとどまって、写真どうしの重なりを大きく取りながら撮る」撮り方とは根本的に噛み合いません。加えて、検証した会議室は無地の壁が多く、手がかりになる特徴点自体が少ない現場でした。魚眼から透視投影への変換自体は問題なく機能しており、詰まっているのはあくまで再構成側です。</p>
+  <div class="callout note"><b>再挑戦するなら</b>同じ現場なら、写真どうしの重なりを大きく取った別撮りが必要になります。サブ側の2眼まで抽出できれば情報量は増えますが、現状はメイン側の2眼のみです。今のところ、抽出画像は次章のAI参照素材としての使い道に絞るのが現実的です。</div>
 
   <h2 id="summary"><span class="n">07</span> 使いどころとまとめ</h2>
   <p>この記事の流れをまとめると、<strong>PortalCamの生データ(.xbin)はXBAG形式のH.264動画で、<code>extract_images_h264.exe</code>に<code>--prj_version 1</code>と<code>--device_type 4</code>を指定すれば4K元画像を抽出できる</strong>、という一本道です。ただし4眼のうち出せるのは2眼のみで、抽出画像そのものからのフォトグラメトリ再構成は現状うまくいっていません。</p>
-  <p>いちばん実用的な使いどころは、<strong>AIの参照素材</strong>です。抽出した連番フレームは現場の実写そのものなので、Nano Banana ProやGeminiで背景の破綻を修正するときの参照、Higgsfield（SeeDance）の<code>@location</code>要素として強力に効きます。実際のAI活用ワークフローは<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しているので、あわせて参照してください。</p>
+  <p>いちばん実用的な使いどころは、<strong>AIの参照素材</strong>です。抽出した連番フレームは現場の実写そのものなので、Nano Banana ProやGeminiで背景の破綻を修正するときの参照や、動画生成AIにロケーションを指定するときの参照として強力に効きます。実際のAI活用ワークフローは<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しているので、あわせて参照してください。</p>
   <p>生データの取り扱いや3DGS制作についてご相談があれば、お気軽にお問い合わせください。</p>
 
   <div class="data-cta">
@@ -381,7 +377,7 @@
       <a class="rcard" href="isaacsim-3dgs-import.html">
         <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約13分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div>
           <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
         </div>
       </a>

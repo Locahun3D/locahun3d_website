@@ -262,17 +262,8 @@
   <h3>④ Camera, lighting and the final render</h3>
   <p>A camera is set up in the composited scene with motion blur and depth of field, and the shot is rendered. A finishing grade — night-time neon reflections and wet asphalt — produces the final cut shown at the top of this article.</p>
 
-  <h3>Full specs (for anyone reproducing this)</h3>
-  <p>The settings left out of the text above, as far as they can be read from the recording.</p>
-  <dl class="spec">
-    <dt>Environment data (background)</dt><dd>Shibuya scramble crossing 3DGS (provided by Locahun 3D) ／ loaded via Houdini 22 Indie's (build 22.0.368) native Gaussian Splatting nodes (bakegsplat / transform / normal / merge)</dd>
-    <dt>Subject (car) generation</dt><dd>ComfyUI workflow "ER_TripoSplat_Live" ／ KSampler(steps 20, cfg 3.0, dpmpp_2m, simple, denoise 1.0) → TripoSplat Decode(num_gaussians 300,000) → Create 3D File (from Splat)</dd>
-    <dt>Compositing</dt><dd>Two 3DGS assets merged into one Houdini scene via a merge node; manual placement with the Transform SOP</dd>
-    <dt>Camera / render</dt><dd>Houdini camera (cam1) ／ motion blur and depth of field built with Shutter Time 0.5 · Focus Distance 5 · F-stop 5.6</dd>
-  </dl>
-
   <h2 id="video"><span class="n">03</span> Watch the process: a screen recording</h2>
-  <p>hectorVFX also sent over a 33-second screen recording capturing this whole sequence. Watching the Houdini scene graph and viewport switch back and forth with ComfyUI's node graph tells the story faster than any write-up.</p>
+  <p>hectorVFX also sent over a short screen recording capturing this whole sequence. Watching the Houdini scene graph and viewport switch back and forth with ComfyUI's node graph tells the story faster than any write-up.</p>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="/works/images/hector_workflow_poster.jpg">
       <source src="/works/images/hector_houdini_comfyui_workflow.mp4" type="video/mp4">

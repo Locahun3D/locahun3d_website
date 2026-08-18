@@ -281,14 +281,14 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">Omniverse</span><span class="badge">ワークフロー</span>
-    <span>2026-07-26</span><span>・</span><span>読了 約7分</span>
+    <span>2026-07-26</span><span>・</span><span>読了 約6分</span>
   </div>
   <h1>NVIDIA Isaac Simに<br class="pc">3DGSを持ち込む</h1>
   <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットや自律移動のシミュレーションに使うなら、行き先はゲームエンジンではなく<strong>NVIDIA Isaac Sim</strong>になります。この記事では、読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。あわせて後半では、<strong>3DGSを産業用シミュレーションで使う際の本質的な弱点と、その回避策</strong>を扱います。</p>
 
   <figure>
     <img src="images/isaacsim_shibuya_walk.jpg" alt="NVIDIA Isaac Simでレンダリングした3DGSスキャン（歩行者目線）">
-    <figcaption><b>Isaac Simでレンダリングした3DGSスキャン。</b>1,650万ガウシアンをRTXで描画しています。看板の文字が読める解像度で、実在の街並みがそのまま再現されます。</figcaption>
+    <figcaption><b>Isaac Simでレンダリングした3DGSスキャン。</b>看板の文字が読める品質で、実在の街並みがそのまま再現されます。</figcaption>
   </figure>
 </header>
 
@@ -326,7 +326,7 @@
 
   <h2 id="prepare"><span class="n">02</span> 用意するもの</h2>
   <dl class="spec">
-    <dt>Isaac Sim</dt><dd>6.0以降。展開後に約40GBになるので、空き50GBを見ておきます</dd>
+    <dt>Isaac Sim</dt><dd>6.0以降。展開後のサイズが大きいので、ディスクの空き容量に余裕を持たせておきます</dd>
     <dt>スキャンデータ</dt><dd>3DGSの <code>.ply</code></dd>
     <dt>変換ツール</dt><dd>PlayCanvas <strong>splat-transform</strong>（npm・無料）</dd>
     <dt>USD変換</dt><dd>Isaac Simに標準同梱されているので、追加インストールは不要です</dd>
@@ -336,10 +336,10 @@
 
   <h2 id="limit"><span class="n">03</span> 最初の関門：描画上限を超えると何も映らない</h2>
   <p>大きめのスキャンを扱うなら、まずここを押さえてください。</p>
-  <div class="callout warn"><b>Isaac SimのRTXレンダラーは、1つのプリムあたり2<sup>24</sup>（16,777,216）点までしか描画できません。</b>これを超えるとレイトレーシング用の構造の構築に失敗し、<strong>そのプリムは1点も表示されなくなります</strong>。変換ツールにもPython APIにもエラーは出ません。「変換は成功、点数も正しい、なのに画面は真っ暗」という状態になります。</div>
-  <p>厄介なのは、失敗しても各工程が正常終了することです。USDファイルには全点の座標・スケール・不透明度・色が正しく書き込まれ、ステージに配置すればプリムの型も正しく認識されます。表示だけが行われません。</p>
-  <p>この上限は公式ドキュメントに記載がありません。手がかりは、ログに残る <code>Failed to create TLAS</code> の1行だけです。仕様上の正解は<strong>「点数を減らすか、複数プリムに分割する」</strong>で、この記事では前者を扱います。</p>
-  <div class="callout note"><b>ビューポートを見る前にログを確認する</b>ステージに配置したあと、Isaac Simのログを <code>Gaussian prim loaded</code> で検索します。点数付きで出ていれば描画対象として登録されています。代わりに <code>Failed to create TLAS</code> が出ていれば表示されません。真っ黒な画面をカメラの問題と誤診しないために、先にここを見るのが確実です。</div>
+  <div class="callout warn"><b>Isaac SimのRTXレンダラーには、1つのプリムに描画できる点数の上限（2<sup>24</sup>＝約1,677万点）があります。</b>これを超えると<strong>そのプリムは1点も表示されなくなります</strong>。しかもエラーは一切出ません。「変換は成功、なのに画面は真っ暗」という状態になります。</div>
+  <p>厄介なのは、失敗しても手前の工程がすべて正常終了することです。ファイルは正しく書き出され、ステージにも正しく載ります。表示だけが行われません。</p>
+  <p>この上限は公式ドキュメントに記載がありません。手がかりは、ログに残る <code>Failed to create TLAS</code> の1行だけです。対処は<strong>「点数を減らすか、複数のプリムに分割する」</strong>の2択で、この記事では前者を扱います。</p>
+  <div class="callout note"><b>ビューポートを見る前にログを確認する</b>ステージに配置したら、まずIsaac Simのログに <code>Failed to create TLAS</code> が出ていないかを確認します。真っ黒な画面をカメラの問題と誤診しないために、先にここを見るのが確実です。</div>
 
   <h2 id="import"><span class="n">04</span> 読み込みの手順</h2>
 
@@ -350,10 +350,10 @@ splat-transform input.ply -d 16500000 output.ply
 
 # 割合でも指定できる
 splat-transform input.ply -d 95% output.ply</code></pre></div>
-  <p>この処理は単純な間引きではなく、<strong>近接するガウシアンを段階的にペアマージ</strong>していく方式です。ランダムに削除するより情報の欠落が少なく、削減率が数％程度なら見た目の劣化はほとんど分かりません。</p>
+  <p>この処理はランダムな削除ではなく、<strong>近くにあるガウシアンどうしをまとめていく</strong>方式です。少し減らす程度なら、見た目の劣化はほとんど分かりません。</p>
 
   <h3>USDに変換してステージに配置する</h3>
-  <p>Isaac Sim内のPythonから、同梱のコンバータでPLYをUSDへ変換します。<strong>出力の拡張子は <code>.usdc</code> にしてください。</strong><code>.usdz</code> にすると内部がテキスト形式になり、ファイルサイズが2倍以上に膨れます。</p>
+  <p>Isaac Sim内のPythonから、同梱のコンバータでPLYをUSDへ変換します。<strong>出力の拡張子は <code>.usdc</code> にしてください。</strong><code>.usdz</code> にすると内部がテキスト形式になり、ファイルが大きく膨らみます。</p>
   <p>配置するときは、参照する前に<strong>既存のガウシアンスプラットを掃除します</strong>。古いデータが残っていると「新しいシーンの一部だけが表示されている」ように見えて、原因の切り分けが極端に難しくなります。</p>
   <div class="code"><pre><code>from omni.kit.converter.gsplat import convertPlyUSD
 convertPlyUSD(r"output.ply", r"scene.usdc")
@@ -383,16 +383,6 @@ x.AddRotateXOp().Set(-90.0)</code></pre></div>
   <h2 id="camera"><span class="n">05</span> カメラを置く</h2>
   <p>実用上のコツは、<strong>カメラ位置を自分で計算しないこと</strong>です。バウンディングボックスから距離を自動計算する方法は、<strong>疎な外れ値に引きずられて機能しません</strong>。スキャンデータは撮影範囲の外にもまばらな点が散らばるため、全体の範囲は実際に見たい領域よりはるかに大きく算出されます。</p>
   <p>代わりに、<strong>スキャン時に実際に通った軌跡の座標を使います</strong>。多くのスキャナは移動の軌跡を姿勢データとして出力しているので、そこから1点を選び、目線の高さ（1.7m前後）にカメラを置いて水平方向を向けます。</p>
-  <p>向きの計算には <code>SetLookAt().GetInverse()</code> を使い、<code>AddTransformOp()</code> に設定します。この形なら行列の転置ミスが起きません。</p>
-  <div class="code"><pre><code>from pxr import Gf, UsdGeom
-
-eye    = Gf.Vec3d(...)   # 軌跡上の1点＋目線の高さ
-target = Gf.Vec3d(...)   # 見たい方向
-
-xf = Gf.Matrix4d().SetLookAt(eye, target, Gf.Vec3d(0,0,1)).GetInverse()
-cx = UsdGeom.Xformable(cam_prim)
-cx.ClearXformOpOrder()
-cx.AddTransformOp().Set(xf)</code></pre></div>
   <p>軌跡を使う理由は単純で、<strong>スキャンした人が通った場所こそ、そのデータがいちばん高密度に記録されている場所だから</strong>です。撮影範囲の外にカメラを置くと、そもそも撮影されていない面を見ることになります。姿勢データが手元にない場合も、まず近距離から試写して、写った範囲を見ながら引いていくほうが確実です。</p>
   <div class="aiflow">
     <div class="aiflow-h"><span class="k">カメラ位置の違い</span>同じデータでも、カメラを置く場所で結果がまったく変わります。</div>
@@ -413,13 +403,13 @@ cx.AddTransformOp().Set(xf)</code></pre></div>
     <img src="images/isaacsim_shibuya_overview.jpg" alt="Isaac Simでレンダリングした交差点の俯瞰">
     <figcaption><b>俯瞰も同じ要領で。</b>いきなり数百メートル上空に飛ばすのではなく、軌跡上から少しずつ引いていくのが確実です。</figcaption>
   </figure>
-  <div class="callout note"><b>描画の待ち時間</b>1,000万点を超えるとRTXの収束に時間がかかります。キャプチャ前に <code>await app.next_update_async()</code> を150フレーム以上回してください。待ちが足りないと真っ黒な画像が保存されます。</div>
+  <div class="callout note"><b>描画の待ち時間</b>点数の多いシーンほど、RTXの絵が落ち着くまでに時間がかかります。スクリプトから画像を保存する場合は、描画が安定するまで十分に待ってからキャプチャしてください。待ちが足りないと真っ黒な画像が保存されます。</div>
 
   <h2 id="industrial"><span class="n">06</span> 産業用シミュレーションで使う場合の弱点</h2>
   <p>ここからが本題です。3DGSは「見た目」に関しては圧倒的ですが、<strong>産業用シミュレーションで求められる情報をほとんど持っていません</strong>。Isaac Sim上で実際に出力を取って確認した結果を整理します。</p>
 
   <h3>弱点1：シーン全体が「1つの塊」で、オブジェクト単位に分離できない</h3>
-  <p>これが最大の制約です。3DGSは数千万個のガウシアンが並んだ<strong>1つのプリム</strong>であり、「この建物」「この信号機」「この車」といった単位が存在しません。3DモデルのようにオブジェクトA・Bを選び分けることはできず、特定の物体だけを移動・非表示・差し替えすることもできません。</p>
+  <p>これが最大の制約です。3DGSは膨大な数のガウシアンが並んだ<strong>1つのプリム</strong>であり、「この建物」「この信号機」「この車」といった単位が存在しません。3DモデルのようにオブジェクトA・Bを選び分けることはできず、特定の物体だけを移動・非表示・差し替えすることもできません。</p>
   <p>シミュレーションでは「対象物だけを動かす」「障害物を入れ替える」といった操作が前提になりますが、<strong>スキャンしたままの3DGSではそれができません</strong>。</p>
 
   <h3>弱点2：セマンティックラベルが「シーンに1つ」しか付かない</h3>

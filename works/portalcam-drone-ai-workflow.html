@@ -313,7 +313,7 @@
 
   <h2 id="scan"><span class="n">STEP 1</span> PortalCamで徒歩スキャン → 3DGS化</h2>
   <p>まず現場を XGRIDS PortalCam で徒歩スキャンし、Lixel CyberColor（LCC Studio）で 3DGS 化します。ドローンや特殊機材は不要で、許可・天候のハードルも低いのが利点。この3DGS空間が、空撮カットの"舞台"になります。</p>
-  <div class="callout note"><b>ポイント</b>後で使う<strong>ロケーションの実写参照</strong>は、PortalCam内部の連番フレームから取り出せます（応用編②）。スキャン時に路面標示・建物角など特徴のある場所を動線に入れておくと、後段の精度が上がります。</div>
+  <div class="callout note"><b>ポイント</b>後で使う<strong>ロケーションの実写参照</strong>は、PortalCamの撮影データから取り出せます（応用編②）。スキャン時に路面標示・建物角など特徴のある場所を動線に入れておくことで、後段の精度が上がります。</div>
 
   <h2 id="camera"><span class="n">STEP 2</span> 元素材 → C4Dでカメラトラッキング</h2>
   <p>空撮カットの「カメラの動き」の土台になる素材を用意し（今回は素材サイトのフッテージ）、Cinema4Dでトラッキング（解析）。解析した動きを3Dカメラに移植して、<strong>3DGS空間の中を上空アングルで動くカメラ</strong>を作ります。ここで空撮のカメラワークが決まります。</p>
@@ -355,12 +355,12 @@
   <p>STEP 3 で配置したダミーモデルは、<strong>部位ごとに色分け</strong>しています。こうすると、生成AIが「どこが頭・腕・胴か」を認識しやすくなり、<strong>ポーズや手の動きを正確になぞらせる</strong>ことができます。STEP 3 のレンダ動画が、そのまま<strong>カメラワーク＋人物モーションのガイド</strong>になります。</p>
   <figure>
     <img src="images/work03_poster.jpg" alt="部位ごとに色分けしたダミーモデルを配置した3DGSレンダ（黄・緑・マゼンタ）">
-    <figcaption><b>色分けダミー。</b>頭・腕・胴などを部位ごとに色分け（黄・緑・マゼンタ）して配置。これが生成AIに渡す「動きのガイド」になる。</figcaption>
+    <figcaption><b>色分けダミー。</b>頭・腕・胴などを部位ごとに色分けして配置。これが生成AIに渡す「動きのガイド」になる。</figcaption>
   </figure>
   <div class="callout note"><b>色分けダミーの狙い</b>動画生成は「人体の構造・動き」を取り違えると破綻する。部位ごとに色を分けたガイドを与えることで、ポーズ・手の動き・カメラとの位置関係を安定して引き継げる。</div>
 
   <h3 id="refs">② PortalCamデータから参照素材を抽出</h3>
-  <p>element作成（次の③）のために、<strong>ロケーションのリファレンス画像</strong>を用意します。これは PortalCam の撮影データ（内部の連番フレーム）から取り出した実写です。現場の<strong>路面標示・縁石・建物・空の質感</strong>を、そのまま渡す素材になります。</p>
+  <p>element作成（次の③）のために、<strong>ロケーションのリファレンス画像</strong>を用意します。これは PortalCam の撮影データから取り出した実写です。現場の<strong>路面標示・縁石・建物・空の質感</strong>を、そのまま渡す素材になります。</p>
   <figure>
     <div class="refgrid">
       <img src="images/work05_ref_001.jpg" alt="PortalCam撮影データから抽出した参照素材 1">
@@ -380,17 +380,17 @@
   </figure>
 
   <h3 id="element">③ Higgsfieldでelementを作成</h3>
-  <p>Higgsfield の <strong>element</strong> 機能で、再利用できる「ロケーション」や「キャラクター」を登録します。②の参照素材をアップロードし、<strong>テキストで特徴も補足</strong>します（例：「日本の道路・白線・"止まれ"・赤い標識・街路樹・ガードレール・曇り空」）。一度 element 化すれば、<strong>同じ現場を何カットでも呼び出せます</strong>。</p>
+  <p>Higgsfield の <strong>element</strong> 機能で、再利用できる「ロケーション」や「キャラクター」を登録します。②の参照素材をアップロードし、<strong>テキストで現場の特徴も補足</strong>します。一度 element 化することで、<strong>同じ現場を何カットでも呼び出せます</strong>。</p>
   <figure>
     <img src="images/work06_element.jpg" alt="HiggsfieldのEdit Element画面。location elementに参照画像とテキスト説明を登録">
-    <figcaption><b>element作成画面。</b>参照画像＋テキスト説明で <code>location</code> を登録。キャラクターも同様に element 化して組み合わせる。</figcaption>
+    <figcaption><b>element作成画面。</b>参照画像＋テキスト説明でロケーションを登録。キャラクターも同様に element 化して組み合わせる。</figcaption>
   </figure>
 
   <h3 id="generate">④ Seedance 2 でショット生成</h3>
   <p>Seedance 2（Higgsfield 上）で、<strong>STEP 3 のガイド動画をなぞるように</strong>ショットを生成します。渡すのは次の3つ：</p>
   <ul>
     <li><strong>ガイド動画</strong>（色分けダミー入りのOctaneレンダ）＝カメラワークと人物の動き</li>
-    <li><strong>空撮プレート / 補間画像</strong>（STEP 4）＝破綻のない背景の見た目</li>
+    <li><strong>空撮プレート</strong>（STEP 4）＝破綻のない背景の見た目</li>
     <li><strong>element</strong>（③）＝ロケーションとキャラクターの質感</li>
   </ul>
   <p>プロンプトでは「<strong>ガイドの見た目はコピーせず、ポーズと手の動きだけを厳密に踏襲して、フォトリアルな人物を新規生成する</strong>」よう指示します。ダミーの質感に引っ張られず、動きの正確さだけを受け継げます。</p>
@@ -419,7 +419,7 @@
       <a class="rcard" href="isaacsim-3dgs-import.html">
         <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約13分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div>
           <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
         </div>
       </a>

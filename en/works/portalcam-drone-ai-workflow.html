@@ -272,7 +272,7 @@
 
   <h2 id="scan"><span class="n">STEP 1</span> Walking scan with PortalCam → 3DGS reconstruction</h2>
   <p>First, walk the location with an XGRIDS PortalCam and reconstruct it as 3DGS with Lixel CyberColor (LCC Studio). No drone or special equipment needed, and the bar for permissions and weather is much lower. This 3DGS space becomes the “stage” for the aerial shot.</p>
-  <div class="callout note"><b>Tip</b>The <strong>real-world location reference</strong> you'll need later can be pulled from PortalCam's internal frame sequence (advanced step ②). Routing your scan path past distinctive features — road markings, building corners — pays off in accuracy later.</div>
+  <div class="callout note"><b>Tip</b>The <strong>real-world location reference</strong> you'll need later can be pulled from PortalCam's own capture data (advanced step ②). Routing your scan path past distinctive features — road markings, building corners — pays off in accuracy later.</div>
 
   <h2 id="camera"><span class="n">STEP 2</span> Source footage → camera tracking in C4D</h2>
   <p>Prepare footage to serve as the foundation for the aerial shot's camera move (stock footage, in this case), then track it in Cinema 4D. Transplant the tracked motion onto a 3D camera to create <strong>a camera that moves through the 3DGS space at an aerial angle</strong>. This is where the aerial camera work gets locked in.</p>
@@ -314,12 +314,12 @@
   <p>The dummy model placed in STEP 3 is <strong>color-coded by body part</strong>. This makes it easier for the generative AI to recognize “which part is the head, arm, torso,” letting it <strong>accurately trace pose and hand movement</strong>. The STEP 3 render video becomes, as-is, the <strong>guide for both camera work and human motion</strong>.</p>
   <figure>
     <img src="/works/images/work03_poster.jpg" alt="3DGS render with a dummy model color-coded by body part (yellow, green, magenta)">
-    <figcaption><b>Color-coded dummy.</b> Head, arms, torso and other parts are color-coded (yellow, green, magenta). This becomes the “motion guide” handed to the generative AI.</figcaption>
+    <figcaption><b>Color-coded dummy.</b> Head, arms, torso and other parts are color-coded. This becomes the “motion guide” handed to the generative AI.</figcaption>
   </figure>
   <div class="callout note"><b>Why color-code the dummy</b>Video generation breaks down if it misreads human anatomy or motion. A guide color-coded by body part lets pose, hand movement and camera relationship carry through reliably.</div>
 
   <h3 id="refs">② Extracting reference material from the PortalCam data</h3>
-  <p>To create the element (next, in step ③), prepare <strong>reference images of the location</strong>. These are real photos pulled from PortalCam's own capture data (its internal frame sequence) — material that hands over the location's <strong>road markings, curbs, buildings and sky as they actually look</strong>.</p>
+  <p>To create the element (next, in step ③), prepare <strong>reference images of the location</strong>. These are real photos pulled from PortalCam's own capture data — material that hands over the location's <strong>road markings, curbs, buildings and sky as they actually look</strong>.</p>
   <figure>
     <div class="refgrid">
       <img src="/works/images/work05_ref_001.jpg" alt="Reference material extracted from PortalCam capture data 1">
@@ -339,17 +339,17 @@
   </figure>
 
   <h3 id="element">③ Creating an element in Higgsfield</h3>
-  <p>Register a reusable “location” or “character” using Higgsfield's <strong>element</strong> feature. Upload the reference material from step ②, and <strong>supplement it with a text description</strong> of the features (e.g. “Japanese road, white lane markings, ‘stop’ sign, red signage, street trees, guardrail, overcast sky”). Once it's an element, <strong>you can call up the same location for any number of shots</strong>.</p>
+  <p>Register a reusable “location” or “character” using Higgsfield's <strong>element</strong> feature. Upload the reference material from step ②, and <strong>supplement it with a text description</strong> of the location's features. Once it's an element, <strong>you can call up the same location for any number of shots</strong>.</p>
   <figure>
     <img src="/works/images/work06_element.jpg" alt="Higgsfield's Edit Element screen, registering reference images and a text description to a location element">
-    <figcaption><b>The element creation screen.</b> Reference images plus a text description register a <code>location</code>. Characters are element-ized and combined the same way.</figcaption>
+    <figcaption><b>The element creation screen.</b> Reference images plus a text description register a location. Characters are element-ized and combined the same way.</figcaption>
   </figure>
 
   <h3 id="generate">④ Generating the shot with Seedance 2</h3>
   <p>In Seedance 2 (on Higgsfield), generate the shot so it <strong>traces the STEP 3 guide video</strong>. Three things go in:</p>
   <ul>
     <li>The <strong>guide video</strong> (the Octane render with the color-coded dummy) = camera work and human motion</li>
-    <li>The <strong>aerial plate / interpolated image</strong> (STEP 4) = the clean background look</li>
+    <li>The <strong>aerial plate</strong> (STEP 4) = the clean background look</li>
     <li>The <strong>element</strong> (③) = the look and feel of the location and character</li>
   </ul>
   <p>In the prompt, instruct it to <strong>“not copy the dummy's appearance — strictly follow only its pose and hand movement, and generate a new photorealistic person.”</strong> That way you inherit only the accuracy of the motion, not the dummy's look.</p>

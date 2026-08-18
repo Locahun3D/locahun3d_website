@@ -15,16 +15,16 @@
 <meta property="og:site_name" content="Locahun 3D">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
-<meta property="og:title" content="Extracting 4K Source Images from PortalCam's Raw Data (.xbin)">
-<meta property="og:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what's inside xBin (XBAG format), the required flags for the extraction command, the constraint that only 2 of the 4 lenses can be output, and the limits we found trying photogrammetry reconstruction from the extracted images.">
+<meta property="og:title" content="Extracting 4K Source Images from PortalCam&#x27;s Raw Data (.xbin)">
+<meta property="og:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/portalcam-xbin-raw-extraction.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/xbin_cam_pinholeA.jpg">
 <meta property="og:image:width" content="1100">
 <meta property="og:image:height" content="825">
-<meta property="og:image:alt" content="An example 4K source image extracted from PortalCam's raw data and converted from fisheye to perspective projection (a road and high-rise buildings)">
+<meta property="og:image:alt" content="An example 4K source image extracted from PortalCam">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Extracting 4K Source Images from PortalCam's Raw Data (.xbin)">
-<meta name="twitter:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what's inside xBin (XBAG format), the required flags for the extraction command, the constraint that only 2 of the 4 lenses can be output, and the limits we found trying photogrammetry reconstruction from the extracted images.">
+<meta name="twitter:title" content="Extracting 4K Source Images from PortalCam&#x27;s Raw Data (.xbin)">
+<meta name="twitter:description" content="How to extract 4K source images, using CLI tools alone, from the raw data (.xbin) buried inside an XGRIDS PortalCam scan. A field-tested write-up covering what">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/xbin_cam_pinholeA.jpg">
 <!-- OGP:END -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -248,7 +248,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">PortalCam</span><span class="badge">XGRIDS</span><span class="badge">3DGS</span><span class="badge">Workflow</span>
-    <span>2026-07-26</span><span>・</span><span>~8 min read</span>
+    <span>2026-07-26</span><span>・</span><span>~6 min read</span>
   </div>
   <h1>Extracting 4K Source Images<br class="pc"> from PortalCam's Raw Data (.xbin)</h1>
   <p class="lead">This is Kou Nakamura from Locahun 3D. When you scan with PortalCam, LCC Studio and Lixel Studio export 3DGS and point clouds for you — but behind that, the <strong>original 4K images taken by the camera itself</strong> are still sitting inside the raw data, untouched. This article covers how to extract 4K source images from the raw data (.xbin) using CLI tools alone, and lays out honestly what we learned trying photogrammetry reconstruction from those extracted images.</p>
@@ -293,20 +293,16 @@
   <p>Before extraction, it helps to know what's inside the folder PortalCam creates for a single scan. Under <code>ShotData/&lt;scan name&gt;/</code>, the layout roughly looks like this.</p>
   <div class="code"><pre><code>ShotData/&lt;scan name&gt;/
 ├─ 2026-XX-XX-XXXXXX.xbin        # Raw sensor recording (images + LiDAR + IMU + GNSS)
-├─ ply/ply-result/
-│  ├─ point_cloud/iteration_100/point_cloud.ply   # The 3DGS itself
-│  └─ cameras.json                # Dummy (only the startup.jpg entry — unusable)
-├─ Lcc2/lcc2-result/              # LCC2 export (3dgs/*.sog + mesh/*.ply + info/poses.json)
-├─ mesh-files/&lt;scan name&gt;.obj    # LiDAR mesh (coarse — tens of thousands of vertices, triangles ~20cm)
-└─ project_data/
-   ├─ poses.csv                  # Trajectory (ts,x,y,z,qx,qy,qz,qw)
-   └─ log/project.json           # DeviceInfo.CameraList shows the camera configuration</code></pre></div>
+├─ ply/ply-result/                # The 3DGS itself
+├─ Lcc2/lcc2-result/              # LCC2 export (3DGS + mesh)
+├─ mesh-files/&lt;scan name&gt;.obj    # LiDAR mesh (coarse)
+└─ project_data/                  # Trajectory, camera configuration, and logs</code></pre></div>
   <p>The only thing we use here is <strong><code>.xbin</code></strong> — the heaviest file in the set. Its size scales with recording time; a scan of a few minutes lands around 1GB.</p>
 
   <h2 id="xbin"><span class="n">03</span> What xBin actually is: H.264 video, not JPEG</h2>
-  <p>Running a binary analysis on <code>.xbin</code> reveals its real identity: an <strong>XBAG-format</strong> container (magic number "XBAG"), a "multiplexed sensor data" container similar in spirit to a ROS bag. Camera footage, LiDAR point clouds, IMU, and GNSS are all interleaved in a single file in time order.</p>
-  <div class="callout warn"><b>Simple JPEG carving doesn't work</b>Scanning the entire file for JFIF/PNG signatures turns up zero embedded still images. <strong>The camera footage is recorded as an H.264 video stream</strong>, so no image can be extracted without decoding it first.</div>
-  <p>You could demux the H.264 stream yourself and hand it to ffmpeg, but that requires correctly walking the XBAG record boundaries, which is a fair amount of work. The XGRIDS-native CLI tool covered in the next section lets you skip worrying about that step entirely.</p>
+  <p>Analyzing <code>.xbin</code> reveals its real identity: an <strong>XBAG-format</strong> container — essentially one box holding all the sensor data at once. Camera footage, LiDAR point clouds, IMU, and GNSS are all interleaved in a single file in time order.</p>
+  <div class="callout warn"><b>You can't just pull the images out of the file</b>Scanning the entire file turns up zero embedded still images. <strong>The camera footage is recorded as H.264 video</strong>, so no image can be extracted without decoding it first.</div>
+  <p>You could pull the video portion out yourself and hand it to ffmpeg, but that requires correctly walking the file's internal structure, which is a fair amount of work. The XGRIDS-native CLI tool covered in the next section lets you skip worrying about that step entirely.</p>
 
   <h2 id="extract"><span class="n">04</span> The command to extract 4K source images</h2>
   <p>The tool used here is <code>extract_images_h264.exe</code>, bundled with LixelStudio. There's no need to launch LCC Studio or Lixel Studio — it's a single command line.</p>
@@ -324,34 +320,34 @@
       <tr><td>5 / 6</td><td>(other devices)</td><td>0 images</td></tr>
     </tbody>
   </table></div>
-  <p>Get just these two flags right, and <code>images/camera_0/</code> and <code>images/camera_1/</code> appear under your <code>--out_dir</code>, filled with <strong>4000×3000 (12-megapixel) fisheye JPEGs</strong> named by timestamp. Note that <code>--out_fps</code> effectively has no effect — every frame from the source data is output regardless.</p>
+  <p>Get just these two flags right, and a folder per camera appears under your output directory, filled with <strong>4K-class fisheye JPEGs</strong> named by timestamp. Note that the output frame-rate setting effectively has no effect — every frame from the source data is output regardless.</p>
   <div class="callout note"><b>If the fisheye distortion is a problem</b>The extracted images are the raw circular fisheye capture. To use them in ordinary image-processing or photogrammetry software, convert them to perspective projection with the bundled <code>fisheye2perspective.exe</code>. The image at the top of this article, and the figures below, are all post-conversion.</div>
 
   <h2 id="stereo"><span class="n">05</span> The constraint: only 2 of the 4 cameras come out</h2>
-  <p>PortalCam's camera configuration can be checked in <code>project_data/log/project.json</code> under <code>DeviceInfo.CameraList</code>, and it's a <strong>4-lens setup: left_main / left_seco / right_main / right_seco</strong>. Definitions for all four channels exist inside the <code>.xbin</code> header's binary structure as well.</p>
-  <p>In practice, though, <code>extract_images_h264.exe</code> only decodes <strong>left_main and right_main</strong> — two streams. We haven't yet found a way to output the seco side.</p>
-  <p>Fortunately, <code>camera_0</code> and <code>camera_1</code> form a <strong>synchronized stereo pair with 0ms timestamp difference</strong>, so parallax information itself is preserved.</p>
+  <p>PortalCam carries <strong>four lenses — a main and a secondary on each side</strong>. Definitions for all four exist inside the <code>.xbin</code> file as well.</p>
+  <p>In practice, though, <code>extract_images_h264.exe</code> only decodes <strong>the two main lenses</strong>. We haven't yet found a way to output the secondary side.</p>
+  <p>Fortunately, the two streams you do get form a <strong>stereo pair recorded at the same instant</strong>, so parallax information itself is preserved.</p>
   <div class="duo">
     <figure>
       <img src="images/xbin_cam_pinholeA.jpg" alt="A 4K source image extracted from the camera_0 side (after perspective conversion)">
-      <figcaption><b>One frame from camera_0 (left_main).</b></figcaption>
+      <figcaption><b>One frame from the left main camera.</b></figcaption>
     </figure>
     <figure>
       <img src="images/xbin_cam_pinholeB.jpg" alt="A 4K source image extracted from the camera_1 side (after perspective conversion)">
-      <figcaption><b>One frame from camera_1 (right_main).</b>The other eye's view, recorded at the same instant.</figcaption>
+      <figcaption><b>One frame from the right main camera.</b>The other eye's view, recorded at the same instant.</figcaption>
     </figure>
   </div>
 
   <h2 id="photogrammetry"><span class="n">06</span> Testing it: photogrammetry from the extracted images fails across the board</h2>
-  <p>From here on, the conclusion comes with caveats. We wondered whether, if 4K source images could be pulled out, photogrammetry could also build a mesh from them — and tested it on a conference-room scan (82 capture points × 2 lenses = 163 images). <strong>At this point, this route is a dead end.</strong></p>
-  <div class="callout warn"><b>RealityScan hangs completely</b>Loaded as-is (fisheye), it crashes with a Mini Dump right at launch. Even after converting to perspective projection (2000×2000, 100° horizontal FOV) with <code>fisheye2perspective.exe</code>, <strong>it stalls at the Aligning Images step with 0% CPU usage</strong>. In practice: 593 seconds of CPU time consumed, then 38 minutes with zero progress, memory usage draining from 1GB down to 0.29GB, and the main window becoming unresponsive — we force-quit it. Output: zero results.</div>
-  <div class="callout warn"><b>COLMAP won't even launch</b>It crashes immediately with <code>0xC0000142</code>. The cause is Windows Smart App Control blocking an unsigned DLL (<code>cholmod-*.dll</code>). Since <strong>disabling Smart App Control is an irreversible operation that can only be undone by reinstalling Windows</strong>, we didn't go down that path for this test.</p>
-  <p>The underlying cause is a matter of image count and spacing. <strong>82 capture points × 2 lenses is too sparse for feature matching to succeed.</strong> PortalCam is designed to collect 3DGS data continuously while walking, which is fundamentally at odds with the shooting style photogrammetry assumes: staying at one point and capturing with a high overlap ratio. On top of that, the conference room we tested had a lot of blank walls, meaning few distinguishable feature points to begin with. The fisheye-to-perspective conversion itself worked without issue (163 images processed in 8.2 seconds) — the bottleneck is entirely on the reconstruction side.</p>
-  <div class="callout note"><b>If we try again</b>Reproducing this on the same site would need a re-shoot with a much higher overlap ratio. Extracting the seco-side pair as well would simply double the amount of information, but for now only the main-side pair is available. For the time being, the most realistic use for the extracted images is as AI reference material, covered in the next section.</div>
+  <p>From here on, the conclusion comes with caveats. We wondered whether, if 4K source images could be pulled out, photogrammetry could also build a mesh from them — and tested it on a conference-room scan. <strong>At this point, this route is a dead end.</strong></p>
+  <div class="callout warn"><b>RealityScan hangs completely</b>Loaded as-is (fisheye), it crashes right at launch. Even after converting to perspective projection, <strong>it stalls at the image-alignment step and never moves on</strong>. However long we waited, progress stayed at zero, the main window became unresponsive, and we force-quit it. Output: zero results.</div>
+  <div class="callout warn"><b>COLMAP won't even launch</b>It crashes immediately. The cause is a Windows security feature blocking one of its unsigned bundled files. Since <strong>turning that feature off is an irreversible change that can only be undone by reinstalling Windows</strong>, we didn't go down that path for this test.</div>
+  <p>The underlying cause is how the images were shot. <strong>A scattering of frames captured while walking is too sparse for feature matching to succeed.</strong> PortalCam is designed to collect 3DGS data continuously while walking, which is fundamentally at odds with the shooting style photogrammetry assumes: staying at one point and capturing with a lot of overlap between frames. On top of that, the conference room we tested had a lot of blank walls, meaning few distinguishable feature points to begin with. The fisheye-to-perspective conversion itself worked without issue — the bottleneck is entirely on the reconstruction side.</p>
+  <div class="callout note"><b>If we try again</b>Reproducing this on the same site would need a re-shoot with far more overlap between frames. Extracting the secondary pair as well would add information, but for now only the main pair is available. For the time being, the most realistic use for the extracted images is as AI reference material, covered in the next section.</div>
 
   <h2 id="summary"><span class="n">07</span> Where this is useful, and a summary</h2>
   <p>To sum up this article: <strong>PortalCam's raw data (.xbin) is an XBAG-format H.264 video, and passing it through <code>extract_images_h264.exe</code> with <code>--prj_version 1</code> and <code>--device_type 4</code> extracts 4K source images</strong> — that's the whole path. That said, only 2 of the 4 lenses can be output, and photogrammetry reconstruction from the extracted images alone hasn't panned out so far.</p>
-  <p>The most practical use we've found is as <strong>AI reference material</strong>. The extracted sequential frames are real photographic capture of the actual site, which makes them a strong reference for correcting background artifacts with Nano Banana Pro or Gemini, and a strong input for Higgsfield's (SeeDance) <code>@location</code> feature. For a fuller walkthrough of that AI production workflow, see <a href="portalcam-drone-ai-workflow.html">How to generate an "aerial cut" from 3DGS</a>.</p>
+  <p>The most practical use we've found is as <strong>AI reference material</strong>. The extracted sequential frames are real photographic capture of the actual site, which makes them a strong reference for correcting background artifacts with Nano Banana Pro or Gemini, and a strong location reference for video-generation AI. For a fuller walkthrough of that AI production workflow, see <a href="portalcam-drone-ai-workflow.html">How to generate an "aerial cut" from 3DGS</a>.</p>
   <p>If you have questions about handling raw data or 3DGS production, feel free to reach out.</p>
 
   <div class="data-cta">

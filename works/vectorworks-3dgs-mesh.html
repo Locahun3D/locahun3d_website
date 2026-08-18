@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSスキャンはVectorworksでは使えない｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGS・色付き点群・テクスチャ付きメッシュの3形式をVectorworks Spotlightへ実際に取り込んで検証した結果、3形式すべてが実務では使えないと分かりました。3DGSは色が破棄され、点群は面がなく設計に使えず、テクスチャ付きメッシュは全体の3分の1でも操作のたびに数十秒止まります。実測値と、代わりの進め方をまとめます。">
+<meta name="description" content="3DGS・色付き点群・テクスチャ付きメッシュの3形式をVectorworks Spotlightへ実際に取り込んで検証した結果、3形式すべてが実務では使えないと分かりました。3DGSは色が破棄され、点群は面がなく設計に使えず、テクスチャ付きメッシュは全体の3分の1でも操作のたびに数秒止まります。実測値と、代わりの進め方をまとめます。">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
@@ -15,16 +15,16 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="3DGSスキャンはVectorworksでは使えない">
-<meta property="og:description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlightへ取り込んで検証。3形式すべて実務では使えないという結論に至った実測値と、代わりの進め方をまとめます。">
+<meta property="og:description" content="3DGS・色付き点群・テクスチャ付きメッシュの3形式をVectorworks Spotlightへ実際に取り込んで検証した結果、3形式すべてが実務では使えないと分かりました。3DGSは色が破棄され、点群は面がなく設計に使えず、テクスチャ付きメッシュは全体の3分の1でも操作のたびに数秒止まります。実測値と、代わりの進め方をまとめます。">
 <meta property="og:url" content="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
-<meta property="og:image" content="https://web.locahun3d.com/works/images/vw_hero_block.jpg">
-<meta property="og:image:width" content="1600">
-<meta property="og:image:height" content="972">
-<meta property="og:image:alt" content="テクスチャ付きメッシュに変換した街区スキャン">
+<meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3Dスキャンした街区のデータ">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="3DGSスキャンはVectorworksでは使えない">
-<meta name="twitter:description" content="3DGSスキャンをCADに載せられるのか。Vectorworks Spotlightで3形式すべてを試した結果、いずれも実務では使えませんでした。理由と代わりの進め方を実測でまとめています。">
-<meta name="twitter:image" content="https://web.locahun3d.com/works/images/vw_hero_block.jpg">
+<meta name="twitter:description" content="3DGS・色付き点群・テクスチャ付きメッシュの3形式をVectorworks Spotlightへ実際に取り込んで検証した結果、3形式すべてが実務では使えないと分かりました。3DGSは色が破棄され、点群は面がなく設計に使えず、テクスチャ付きメッシュは全体の3分の1でも操作のたびに数秒止まります。実測値と、代わりの進め方をまとめます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -282,7 +282,7 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Vectorworks</span><span class="badge">検証</span>
-    <span>2026-08-16</span><span>・</span><span>読了 約7分</span>
+    <span>2026-08-16</span><span>・</span><span>読了 約6分</span>
   </div>
   <h1>3DGSスキャンは<br class="pc">Vectorworksでは使えない</h1>
   <p class="lead">ロケハン3Dの中村です。舞台照明や内装の現場ではVectorworksが標準的に使われています。そこに現地を3Dスキャンしたデータを持ち込めるのかを確かめるため、<strong>スキャナが出力する3つの形式すべてを、実際にVectorworks Spotlight 2026へ取り込みました</strong>。結論から言うと、<strong>どれも実務では使えません</strong>。それぞれ何が原因で使えないのかを実測値で示し、代わりにどう進めるべきかをまとめます。</p>
@@ -327,7 +327,7 @@
 
   <p>期待としては、③のメッシュならCADで普通に扱えるはずでした。実際に試した結果を順に見ていきます。</p>
 
-  <div class="callout note"><b>検証環境</b>ハンディスキャナ（XGRIDS Lixel K2）で撮影した街区スキャンを、Vectorworks Spotlight 2026へ取り込みました。データ量は点群が1.26億点、メッシュが3分割で1つあたり337万ポリゴン。比較のため、3D制作でよく使われるBlender 4.5でも同じデータを開いています。</div>
+  <div class="callout note"><b>検証環境</b>ハンディスキャナ（XGRIDS Lixel K2）で撮影した街区スキャンを、Vectorworks Spotlight 2026へ取り込みました。街区全体を一度に扱うには大きすぎるため、メッシュは3分割して1つずつ読み込んでいます。比較のため、3D制作でよく使われるBlenderでも同じデータを開いています。</div>
 
   <h2 id="gs"><span class="n">01</span> ① 3DGS ── Vectorworksが非対応</h2>
   <p><strong>Vectorworksは3DGSに対応していません。</strong>3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」といった情報が一緒に入っていますが、Vectorworksにはこれらを読む機能がありません。読み込むと<strong>位置の情報だけを取り出して、色を含む残りをすべて捨ててしまいます</strong>。画面に出るのは黒くまばらな点の集まりです。</p>
@@ -337,7 +337,7 @@
   <h2 id="pc"><span class="n">02</span> ② 点群 ── 測れるが、面がない</h2>
   <p>点群はVectorworksが元から対応している形式なので、<strong>変換なしでそのまま読み込めます</strong>。色の再現という一点だけを見れば、3つのなかでこれが最良です。</p>
 
-  <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を0〜65535の細かい段階（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。ファイル側の色情報は正常で、緑や赤の点は全体の2%程度しかありません。<strong>色を0〜255の段階（8ビット）に変換してから読み込ませると、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
+  <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を通常より細かい精度（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。データが壊れているのではなく、Vectorworks側がこの細かい色を読めていないだけです。<strong>色を一般的な精度（8ビット）に変換してから読み込ませることで、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
   <figure>
     <img src="images/vw_pointcloud_e57.jpg" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
     <figcaption><b>色を8ビットに変換してから読み込んだ点群です。</b>建物のレンガ・赤い舗装・街路樹・横断歩道まで実物どおりの色になりました。ただし近くで見れば分かる通り、面ではなく<strong>点が集まってできた見た目</strong>です。</figcaption>
@@ -353,17 +353,17 @@
   <div class="tblwrap"><table>
     <thead><tr><th>作業</th><th>Vectorworks Spotlight 2026</th><th>Blender 4.5</th></tr></thead>
     <tbody>
-      <tr><td>読み込み</td><td>約20〜30秒</td><td>数十秒</td></tr>
+      <tr><td>読み込み</td><td>約20〜30秒</td><td>数秒</td></tr>
       <tr><td>視点の切り替え</td><td>約1.5秒待つ</td><td>待ちなしで動く</td></tr>
       <tr><td>その他の操作</td><td>0.3〜2秒</td><td>そのまま普通に操作できる</td></tr>
       <tr><td>質感の表示</td><td>正しく出る</td><td>問題なく表示</td></tr>
     </tbody>
   </table></div>
 
-  <p>視点を変えるたびに1.5秒待つのは、作図しながら何度も視点を変える作業ではかなり煩わしい速度です。ただし<strong>「開けないほど重い」わけではありません</strong>。そしてこの数字は、街区全体を3分割したうちの<strong>1つ分だけ</strong>のものです。全体を読み込めば単純計算で3倍の負荷がかかります。</p>
+  <p>視点を変えるたびに1.5秒待つのは、作図しながら何度も視点を変える作業ではかなり煩わしい速度です。ただし<strong>「開けないほど重い」わけではありません</strong>。そしてこれは、街区全体を3分割したうちの<strong>1つ分だけ</strong>を開いた状態での話です。全体を読み込めば、さらに重くなります。</p>
   <figure>
     <img src="images/vw_in_vectorworks.jpg" alt="Vectorworksでスキャンデータを開いた画面">
-    <figcaption><b>Vectorworksで実際に開いたところです。</b>質感はきちんと表示されます。ただしこの1つ分を表示するだけで、視点を変えるたびに数十秒待つことになります。</figcaption>
+    <figcaption><b>Vectorworksで実際に開いたところです。</b>質感はきちんと表示されます。ただしこの1つ分を表示するだけで、視点を変えるたびに待たされます。</figcaption>
   </figure>
 
   <figure>
@@ -399,21 +399,21 @@
       <a class="rcard" href="3dgs-file-formats.html">
         <div class="rthumb" style="background-image:url('images/format-og-cover.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約8分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約9分</span></div>
           <h3>3DGSのファイル形式を整理する</h3>
         </div>
       </a>
       <a class="rcard" href="3dgs-software-comparison.html">
         <div class="rthumb" style="background-image:url('images/dcc-og-cover.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約9分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約7分</span></div>
           <h3>3DGSを扱えるソフトを比較する</h3>
         </div>
       </a>
       <a class="rcard" href="isaacsim-3dgs-import.html">
         <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約7分</span></div>
+          <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div>
           <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
         </div>
       </a>
