@@ -18,7 +18,9 @@ import re, sys, glob, os, hashlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHARED_CSS = "assets/site-header.css"
-# works 系だけ白基調ヘッダー（2026-08-16 サイト統合）。
+# works 系だけ別系統のヘッダー（2026-08-16 サイト統合）。
+# 当初は白基調で作ったが、本人指示で works 全体をダーク配色へ戻したので
+# works-header.css も黒地・白文字・アクセント #1ea0c4 に揃えてある。
 # manifesto/data/demo 等は後日301で消えるまで従来の黒ヘッダーのまま据え置くため、
 # CSSもマークアップも系統ごと分ける（1ファイルに同居させない）。
 WORKS_CSS = "assets/works-header.css"
@@ -230,26 +232,28 @@ def header_markup(relpath, lang):
          BRAND_HOME[lang], BRAND_SVG, BRAND_TEXT[lang], SCAN_LABEL[lang],
          ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
-# ---------- 白基調ヘッダー（works 専用マークアップ） ----------
-# ブランドマークは黒ヘッダーと同じ形。色だけ白地用（枠=ink / 中心=accent）へ。
+# ---------- works 専用ヘッダーのマークアップ ----------
+# ブランドマークは黒ヘッダーと同じ形。works 本文がダークへ戻ったので枠線も明色へ。
+# レティクル円はテーマカラー #1ea0c4（旧アンバー #ffb454 の置き換え）。
 WORKS_BRAND_SVG = ('<svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true">'
-                   '<g fill="none" stroke="#14181c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">'
+                   '<g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">'
                    '<path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g>'
                    '<circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/>'
                    '<circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>')
 
 # ⚠ works のヘッダーは「オンライン版 locahun3d.com のナビ」を絶対URLで指す。
 #    スキャン/オンラインのトグルは置かない（分岐そのものを廃止するため）。
+# ⚠ 4項目に固定（2026-08-16）。オンライン側で「サービスについて」タブを廃し
+#    「料金・デモ」を1項目へ統合する方針に合わせる。3番目は works 自身なので
+#    自サイト内の相対URL（オンライン版に /works は無い）。
 WORKS_NAV = {
     "ja": [("https://locahun3d.com/properties", "物件を探す"),
-           ("https://locahun3d.com/pricing", "料金"),
-           ("https://locahun3d.com/about", "サービスについて"),
-           ("https://locahun3d.com/demo", "デモ"),
+           ("https://locahun3d.com/pricing", "料金・デモ"),
+           ("/works/index.html", "実績＆ブログ"),
            ("https://locahun3d.com/contact", "お問い合わせ")],
     "en": [("https://locahun3d.com/en/properties", "Locations"),
-           ("https://locahun3d.com/en/pricing", "Pricing"),
-           ("https://locahun3d.com/en/about", "About"),
-           ("https://locahun3d.com/en/demo", "Demo"),
+           ("https://locahun3d.com/en/pricing", "Pricing &amp; Demo"),
+           ("/en/works/index.html", "Work &amp; Blog"),
            ("https://locahun3d.com/en/contact", "Contact")],
 }
 # ブランドの飛び先はオンライン版のトップ（works は locahun3d.com の一部として振る舞う）。

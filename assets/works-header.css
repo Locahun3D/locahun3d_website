@@ -10,8 +10,11 @@
      （site-header.css）のまま据え置くため、両者を1ファイルに同居させない。
      works ページは site-header.css を読み込まない（sync_header.py がリンクを差し替える）。
 
-   配色は locahun3d.com の theme-online トークンと同値:
-     accent #1ea0c4 / ink #14181c / line #e2e7ec / muted #7b8794
+   配色（2026-08-16 ダーク復帰）:
+     works 本文が黒地・白文字へ戻ったのでヘッダーも黒地に合わせる。
+     accent #1ea0c4（旧アンバー #ffb454 の置き換え） / ink #fafaf6
+     / line rgba(255,255,255,.16) / muted rgba(255,255,255,.62)
+     — line/muted は site-header.css（黒ヘッダー）と同値。
    ============================================ */
 
 /* 継承の遮断: ページ本文の letter-spacing / line-height / font-family が
@@ -19,14 +22,14 @@
    ヘッダーは常にここで定義した値だけで描画されること（site-header.css と同じ規則）。 */
 .site-header.sh-works{
   --wh-accent:#1ea0c4;
-  --wh-ink:#14181c;
-  --wh-line:#e2e7ec;
-  --wh-muted:#7b8794;
+  --wh-ink:#fafaf6;
+  --wh-line:rgba(255,255,255,.16);
+  --wh-muted:rgba(255,255,255,.62);
   font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;
   letter-spacing:normal;line-height:1.5;
   position:fixed;top:0;left:0;right:0;z-index:1050;
-  height:56px;background:rgba(255,255,255,.96);
-  -webkit-backdrop-filter:saturate(1.4) blur(8px);backdrop-filter:saturate(1.4) blur(8px);
+  height:56px;background:rgba(0,0,0,.95);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--wh-line);
   display:flex;align-items:center;gap:16px;
   padding:0 max(24px, calc((100vw - 1440px) / 2));
@@ -75,8 +78,8 @@
      （回転で見た目が変わらないようにする — docs/header-rules.md R2 と同じ規則）。 */
   .site-header.sh-works .sh-nav{position:absolute;top:100%;left:0;right:0;
     display:none;margin-left:0;gap:0;padding:6px 24px 14px;
-    background:#fff;border-bottom:1px solid var(--wh-line);
-    box-shadow:0 18px 40px rgba(15,23,42,.10)}
+    background:rgba(0,0,0,.97);border-bottom:1px solid var(--wh-line);
+    box-shadow:0 18px 40px rgba(0,0,0,.6)}
   .site-header.sh-works.sh-open .sh-nav{display:block}
   .site-header.sh-works .sh-nav nav{flex-direction:column;align-items:stretch;gap:0}
   .site-header.sh-works .sh-nav nav a{font-size:14px;padding:11px 0;

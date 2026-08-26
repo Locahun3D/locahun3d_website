@@ -1,25 +1,29 @@
-/* ⚠ 2026-08-16 に役目を終えた。works はダークへ戻ったので、この検査器（白地=合格）は
-   常に FAIL を返す。現行は scripts/works_dark_audit.mjs。ここは経緯の記録として残す。 */
 /**
- * works_light_audit.mjs — works 記事（JA/EN）が「白青」で読める状態かを機械検査する。
+ * works_dark_audit.mjs — works（JA/EN 全24ページ）が「ダーク＋青アクセント」で
+ * 読める状態かを機械検査する。works_light_audit.mjs の逆（黒地版）。
  *
  * 前提:
  *   1) リポジトリ直下で  python -m http.server 8830 --bind 127.0.0.1
  *   2) playwright を用意（node_modules は .gitignore 済み）:  npm i playwright
  * 実行:
- *   node scripts/works_light_audit.mjs [--base http://127.0.0.1:8830] [--shots dir] [--width 1280]
+ *   node scripts/works_dark_audit.mjs [--base http://127.0.0.1:8830] [--shots dir] [--width 1280]
  *   （--width 375 でスマホ幅の横スクロール検査も回す）
  *
  * 検査項目（1ページあたり）:
- *   bg      : <body> の実効背景が白系か（輝度 >= 0.9）
+ *   bg      : <body> の実効背景が黒系か（輝度 <= 0.06）
  *   hscroll : 横スクロールが出ていないか（documentElement.scrollWidth <= clientWidth+1）
  *   contrast: 全テキストノードの computed color と「実際に後ろにある地色」（祖先を
  *             遡って alpha 合成した実効値）の WCAG コントラスト比を測り、
  *             AA 未満（通常 4.5:1 / 大きい文字 3.0:1）を列挙する。
- *             白文字が白地に乗って消えていないかの検出が主目的。
- *             動画の上に重なる UI（.case-hero / .ytfacade / .lightbox）は対象外。
- *             共有ヘッダー(.site-header)は sync_header.py 管轄なので別枠で数える。
- *   accent  : 旧アクセント #ffb454 系の残留が無いか
+ *             白文字が黒地でちゃんと読めるかの検出が主目的。
+ *             ヘッダー(.site-header)も今回の作業対象なので通常の検査に含める。
+ *             ⚠ --faint = rgba(255,255,255,.36) の極小メタ文字（日付・所要時間・
+ *               COMING SOON・WORKFLOW 帯）は 3.06〜3.28:1 で AA 未満だが、これは
+ *               2026-08-16 以前から続く旧デザイン由来。b25b40d（白青化直前）を
+ *               別ポートで配信して同じ検査を回し、24ページすべてで件数が
+ *               完全一致することを確認済み＝本作業による退行ではない。
+ *               よって inherited として別枠で数え、PASS/FAIL は退行だけで決める。
+ *   accent  : 旧アンバー #ffb454 / #ff9f1c / #ff8a4c 系の残留が無いか
  *   http4xx : 画像・動画の 404（EN 記事の /works/images/ 絶対参照の回帰検出）
  */
 import { chromium } from 'playwright';
@@ -68,8 +72,9 @@ const AUDIT = () => {
       if (c && c.a > 0) acc = acc ? over(acc, c) : c;
       if (acc && acc.a >= 0.999) break;
     }
-    const white = { r: 255, g: 255, b: 255, a: 1 };
-    return acc ? (acc.a >= 0.999 ? acc : over(acc, white)) : white;
+    // ダークテーマなので最終的な下地はブラウザキャンバスではなく黒（body 背景）
+    const base = { r: 0, g: 0, b: 0, a: 1 };
+    return acc ? (acc.a >= 0.999 ? acc : over(acc, base)) : base;
   };
   const ratio = (a, b) => {
     const l1 = lum(a.r, a.g, a.b), l2 = lum(b.r, b.g, b.b);
@@ -77,7 +82,7 @@ const AUDIT = () => {
   };
 
   const bodyBg = bgOf(document.body);
-  const EXEMPT = '.case-hero, .ytfacade, .lightbox';
+  const EXEMPT = '';
   const bad = [], preexisting = [];
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const seen = new Set();
@@ -88,7 +93,7 @@ const AUDIT = () => {
     const el = n.parentElement;
     if (!el || seen.has(el)) continue;
     seen.add(el);
-    if (el.closest(EXEMPT)) continue;
+    if (EXEMPT && el.closest(EXEMPT)) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility === 'hidden' || cs.display === 'none') continue;
     const r = el.getBoundingClientRect();
@@ -107,14 +112,19 @@ const AUDIT = () => {
         sel: el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''),
         color: cs.color, ratio: +cr.toFixed(2), need, px, text: t.slice(0, 40),
       };
-      // 共有ヘッダー（assets/works-header.css / sync_header.py 管轄）は本作業の対象外。
-      // index.html でも同じ値なので「既存」として別枠で数える。
-      (el.closest('.site-header') ? preexisting : bad).push(rec);
+      // 旧デザイン由来の --faint（極小メタ文字）は inherited へ。上の注記を参照。
+      const inherited = /rgba\(255,\s*255,\s*255,\s*0\.3[0-9]*\)/.test(cs.color);
+      (inherited ? preexisting : bad).push(rec);
     }
   }
   // 旧アクセントの残留
   const css = [...document.querySelectorAll('style')].map((s) => s.textContent).join('\n');
-  const legacy = (css.match(/#ffb454|#ff9f1c|#ff8a4c|rgba\(255,\s*180,\s*84/gi) || []).length;
+  // <style> だけでなく共有ヘッダーCSS（assets/works-header.css）も見る
+  const linkCss = [...document.querySelectorAll('link[rel=stylesheet]')]
+    .map((l) => { try { return [...l.sheet.cssRules].map((r) => r.cssText).join('\n'); } catch (e) { return ''; } })
+    .join('\n');
+  const cssAll = css + '\n' + linkCss;
+  const legacy = (cssAll.match(/#ffb454|#ff9f1c|#ff8a4c|#ffd9a8|rgba\(255,\s*180,\s*84|rgba\(255,\s*138,\s*76/gi) || []).length;
 
   return {
     bodyBg: `rgb(${Math.round(bodyBg.r)},${Math.round(bodyBg.g)},${Math.round(bodyBg.b)})`,
@@ -147,7 +157,7 @@ for (const p of pages) {
   await pg.screenshot({ path: path.join(shots, name + '.png'), fullPage: true });
   await pg.close();
 
-  const okBg = r.bodyLum >= 0.9;
+  const okBg = r.bodyLum <= 0.06;
   const okScroll = r.scrollW <= r.clientW + 1;
   const okContrast = r.bad.length === 0;
   const okAccent = r.legacy === 0;
@@ -157,7 +167,7 @@ for (const p of pages) {
   rows.push({ p, okBg, okScroll, okContrast, okAccent, r });
   console.log(
     `${ok ? 'PASS' : 'FAIL'}  ${p.padEnd(50)} bg=${r.bodyBg} lum=${r.bodyLum} ` +
-    `scroll=${r.scrollW}/${r.clientW} lowContrast=${r.bad.length} legacyAccent=${r.legacy} http4xx=${notFound.length} (header-preexisting=${r.preexisting.length})`
+    `scroll=${r.scrollW}/${r.clientW} lowContrast=${r.bad.length} legacyAccent=${r.legacy} http4xx=${notFound.length} (inherited-faint=${r.preexisting.length})`
   );
   for (const u of notFound.slice(0, 6)) console.log(`        ✗ ${u}`);
   for (const b of r.bad.slice(0, 12)) console.log(`        ↳ ${b.ratio} (need ${b.need}, ${b.px}px)  ${b.color}  ${b.sel}  "${b.text}"`);

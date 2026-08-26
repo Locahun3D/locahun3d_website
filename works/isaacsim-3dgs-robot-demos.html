@@ -26,27 +26,30 @@
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/works-header.css?v=a1faabf1">
+<link rel="stylesheet" href="/assets/works-header.css?v=927a0cc2">
 <style>
-  :root{--bg:#fff; --surface:#f7fafc; --ink:#101828; --body:#3c4a5a; --sub:#5c6b7a; --faint:#5f6f80;
-    --line:#d8e3ef; --line-2:#e8eef5; --btnline:#c9d7e5;
-    --brand:#1ea0c4; --brand-ink:#10586c; --brand-bg:rgba(30,160,196,.08);
-    --accent2:#0d6d8a; --accent2-bg:rgba(15,127,160,.08);
-    --code:#f4f7fa; --code-ink:#1f2937;
-    --note-bg:rgba(30,160,196,.07); --note-line:rgba(30,160,196,.35);
-    --warn-bg:rgba(180,83,9,.07); --warn-line:rgba(180,83,9,.38);
-    --max:760px; --radius:6px; --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;}
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.36);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#1ea0c4; --brand-ink:#1ea0c4; --brand-bg:rgba(30,160,196,.08);
+    --accent2:#5ec8e8; --accent2-bg:rgba(94,200,232,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(30,160,196,.06); --note-line:rgba(30,160,196,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
   body{background:var(--bg);color:var(--body);
     font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
     word-break:normal;overflow-wrap:anywhere;line-break:strict}
-  ::selection{background:rgba(30,160,196,.22)}
+  ::selection{background:rgba(30,160,196,.3)}
   a{color:var(--brand-ink);text-decoration:none}
   a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
@@ -54,29 +57,33 @@
   h1,h2,h3{font-feature-settings:"palt"}
   [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
 
-  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#10586c);transition:width .1s linear}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
 
-  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.9);
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#5ec8e8);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
     -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
   .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
   .topbar .mark{width:24px;height:24px;flex:none}
-  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:var(--ink)}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
   .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
   .topbar .nav{margin-left:auto;display:flex;gap:4px}
   .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
-  .topbar .nav a:hover{color:var(--ink)}
-  .topbar .nav a.ext{border:1px solid var(--line);color:var(--ink)}
-  .topbar .nav a.ext:hover{background:var(--brand-ink);color:#fff}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
 
   header.post{padding:50px 0 6px}
   .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
   .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
-  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:var(--ink)}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
   header.post h1 em{font-style:normal;color:var(--brand)}
   header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
 
   figure{margin:38px 0}
-  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#eef3f8}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
   figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
   figcaption b{color:var(--brand-ink);font-weight:500}
 
@@ -111,13 +118,13 @@
   .toc a:hover{color:var(--brand-ink)}
   .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
 
-  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:var(--ink);
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
     margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
   article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
     border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
-  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--ink);margin:34px 0 12px;letter-spacing:.01em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
   article p{margin:18px 0;color:var(--body)}
-  article strong{color:var(--ink);font-weight:600}
+  article strong{color:#fff;font-weight:600}
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
@@ -133,60 +140,60 @@
   article .code pre{margin:0}
 
   .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
-  .callout b{display:block;margin-bottom:5px;color:var(--ink);font-weight:700}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
   .callout.note{background:var(--note-bg);border-color:var(--note-line)}
   .callout.note b::before{content:"\1F4A1  "}
   .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
   .callout.warn b::before{content:"\26A0\FE0F  "}
 
   .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
-  .spec dt{font-weight:700;color:var(--ink);margin-top:14px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
   .spec dt:first-child{margin-top:0}
   .spec dd{color:var(--sub);margin:3px 0 0}
 
   .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
-  .stepflow b{font-family:var(--mono);color:var(--ink);background:#eef3f8;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
   .stepflow .a{color:var(--brand-ink);font-weight:700}
 
   .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
   .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
   .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
-    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(15,23,42,.03)}
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
   .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
   .tblwrap tr:last-child td{border-bottom:none}
-  .tblwrap td b{color:var(--ink);font-weight:700}
-  .tblwrap td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
   .tblwrap td:nth-child(2){white-space:nowrap}
 
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
-  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--ink);margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
   .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
   .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
-    background:#eef3f8;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
   .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-    border:1px solid var(--btnline);color:var(--ink);padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
-  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#fff;text-decoration:none}
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
 
   .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
   .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
-  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:var(--ink);margin:10px 0 24px}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
   .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
-  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#eef3f8}
-  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--ink);letter-spacing:.02em}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
   .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
   .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
   .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
   .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
-    border:1px solid var(--btnline);color:var(--ink);padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
-  .credit-card .xbtn:hover{background:var(--brand-ink);color:#fff;text-decoration:none}
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
   .xbtn svg{width:14px;height:14px;flex:none}
   .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
 
   footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
-  footer b{color:var(--ink);font-weight:600}
-  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid var(--btnline);color:var(--ink);font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
-  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#fff;letter-spacing:.28em}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
 
   article img{cursor:zoom-in}
   .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
@@ -194,7 +201,7 @@
   .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
   .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
 
-  .filmstrip{height:28px;background-image:linear-gradient(90deg,#eef3f8 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(15,23,42,.04)}@media(max-width:640px){
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
     body{font-size:16px}
     header.post{padding:34px 0 4px}
     header.post h1{font-size:clamp(23px,6.8vw,32px)}
@@ -213,7 +220,7 @@
   .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
     font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
     color:var(--sub);transition:color .2s;text-decoration:none}
-  .backlink:hover{color:var(--ink)}
+  .backlink:hover{color:#fff}
   .backlink svg{width:15px;height:15px;flex:none}
 
   .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
@@ -224,74 +231,13 @@
   .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
     border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
   .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
-  .rthumb{aspect-ratio:16/9;background:#eef3f8 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
   .rbody{padding:14px 16px 18px}
   .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
     letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
   .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
   .related .backwrap{margin-top:32px;text-align:center}
   .related .backwrap .backlink{margin:0}
-
-
-/* ==== 白青リデザイン: 記事共通オーバーライド (works_light_theme.py 生成) ==== */
-/* 読み物としての体裁を works/index.html（白青）と揃える。
-   ここは「最後に効く」層なので、テンプレ側の値を上書きする用途だけに使うこと。 */
-.filmstrip{display:none}                       /* 映画モチーフ（フィルムストリップ）は廃止 */
-body{font-size:16px;line-height:1.9;font-weight:400;letter-spacing:0}
-header.post .lead,.credit-card p,.data-cta p,.case-body .lead{font-weight:400}
-article p,article li,.toc a,figcaption{letter-spacing:0}
-article strong,.tblwrap td b,footer b,.spec dt,.callout b{color:var(--ink);font-weight:700}
-h1,h2,h3{font-feature-settings:"palt"}
-header.post h1{font-weight:800}
-article h2{border-top:1px solid var(--line)}
-::selection{background:rgba(30,160,196,.22);color:var(--ink)}
-
-/* 画像・動画は index のカードと同じ言語（角丸6px＋薄い枠線） */
-figure img,figure video,article img,.rthumb,.logo-chip,.refgrid img{border-radius:6px}
-figure img,figure video{border:1px solid var(--line);background:#eef3f8}
-figcaption{border-left:2px solid var(--line);color:var(--sub)}
-
-/* コードブロックは薄グレー地の箱に。inline code は小さめの薄地チップ */
-article .code{background:var(--code);border:1px solid var(--line);border-radius:6px;
-  padding:16px 18px;margin:24px 0}
-article .code pre{margin:0}
-article .code code{background:none;border:0;padding:0;color:var(--code-ink);
-  font-size:13.5px;line-height:1.8}
-article code{background:#eef3f8;color:#1f2937;border:1px solid #e3ebf3;border-radius:4px}
-
-/* 表：薄い罫線＋ヘッダは薄地 */
-.tblwrap{border:1px solid #d8e3ec;border-radius:6px;background:#fff;overflow:hidden;overflow-x:auto}
-.tblwrap th{background:#f2f7fb;color:var(--brand-ink);border-bottom:1px solid #d8e3ec}
-.tblwrap td{border-bottom:1px solid #e8eef5}
-.tblwrap td:first-child{color:var(--ink)}
-
-/* コールアウト：note は accent 薄地、warn は琥珀寄りで役割を残す */
-.callout{border-radius:6px;border-width:1px;border-style:solid}
-.callout.note{background:rgba(30,160,196,.07);border-color:rgba(30,160,196,.35)}
-.callout.warn{background:rgba(180,83,9,.07);border-color:rgba(180,83,9,.38)}
-
-/* 箱もの一式の角丸を 6px に統一 */
-.toc,.data-cta,.credit-card,.rcard,.spec,details.spec,.stepflow,.aiflow-tag,
-.blogband,.tweetcard,.cat-card{border-radius:6px}
-.toc,.data-cta,.stepflow,.spec{background:var(--surface);border:1px solid var(--line)}
-.rcard{background:#fff;border:1px solid var(--line);box-shadow:0 10px 30px rgba(15,23,42,.05)}
-.rcard:hover{border-color:rgba(30,160,196,.45);box-shadow:0 16px 40px rgba(15,23,42,.10)}
-.rthumb{background:#eef3f8 center/cover no-repeat;border-bottom:1px solid var(--line)}
-
-/* ボタン：白地では塗りの方が読みやすい（白文字 on #10586c ＝ 8:1） */
-footer .cta,.data-cta .dc-btn,.watchmv,.credit-card .xbtn,.credit-team .xbtn{
-  background:var(--brand-ink);border:1px solid var(--brand-ink);color:#fff}
-footer .cta:hover,.data-cta .dc-btn:hover,.watchmv:hover,
-.credit-card .xbtn:hover,.credit-team .xbtn:hover{
-  background:#0c4557;border-color:#0c4557;color:#fff;text-decoration:none}
-footer{background:var(--surface);border-top:1px solid var(--line)}
-
-/* 映像の上に重なる UI は暗いまま残すので、アクセントは彩度の高い方を使う */
-.case-hero .tag .dot,.ytfacade:hover .play{background:#1ea0c4}
-.ytfacade:hover .play{border-color:#1ea0c4}
-
-/* ライトボックスは画像を見る場所なので暗いまま。中の注記だけ白に戻す */
-.lightbox .hint{color:rgba(255,255,255,.72)}
 </style>
 </head>
 <body>
@@ -299,7 +245,7 @@ footer{background:var(--surface);border-top:1px solid var(--line)}
 <div class="progress" id="progress"></div>
 <header class="site-header sh-works">
   <a href="https://locahun3d.com/" class="sh-brand">
-    <svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true"><g fill="none" stroke="#14181c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+    <svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
     <span class="sh-brand-text">ロケハン3D</span>
     <span class="sh-brand-sub">実績＆ブログ</span>
   </a>
@@ -307,9 +253,8 @@ footer{background:var(--surface);border-top:1px solid var(--line)}
   <div class="sh-nav" id="sh-nav">
     <nav>
         <a href="https://locahun3d.com/properties">物件を探す</a>
-        <a href="https://locahun3d.com/pricing">料金</a>
-        <a href="https://locahun3d.com/about">サービスについて</a>
-        <a href="https://locahun3d.com/demo">デモ</a>
+        <a href="https://locahun3d.com/pricing">料金・デモ</a>
+        <a href="/works/index.html">実績＆ブログ</a>
         <a href="https://locahun3d.com/contact">お問い合わせ</a>
     </nav>
     <a class="sh-lang" href="/en/works/isaacsim-3dgs-robot-demos.html">EN</a>
