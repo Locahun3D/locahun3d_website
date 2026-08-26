@@ -1,0 +1,90 @@
+/* ============================================
+   WORKS HEADER — works/ と en/works/ 専用の白基調ヘッダー（唯一のソース）
+   ⚠このファイルだけを編集すること。各HTMLへのコピーは禁止。
+     マークアップは scripts/sync_header.py の works_header_markup() が生成する。
+     検証: python scripts/sync_header.py --check
+
+   なぜ site-header.css と分けたか（2026-08-16）:
+     サイト統合（設計_サイト統合_スキャン分岐廃止_2026-08-16.md）で works だけを
+     先に白青へ寄せる。manifesto/data/demo 等は後日301で消えるまで従来の黒ヘッダー
+     （site-header.css）のまま据え置くため、両者を1ファイルに同居させない。
+     works ページは site-header.css を読み込まない（sync_header.py がリンクを差し替える）。
+
+   配色は locahun3d.com の theme-online トークンと同値:
+     accent #1ea0c4 / ink #14181c / line #e2e7ec / muted #7b8794
+   ============================================ */
+
+/* 継承の遮断: ページ本文の letter-spacing / line-height / font-family が
+   ヘッダーへ漏れると同じCSSでもページ毎に文字幅・ヘッダー高が変わる。
+   ヘッダーは常にここで定義した値だけで描画されること（site-header.css と同じ規則）。 */
+.site-header.sh-works{
+  --wh-accent:#1ea0c4;
+  --wh-ink:#14181c;
+  --wh-line:#e2e7ec;
+  --wh-muted:#7b8794;
+  font-family:'Noto Sans JP',ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:normal;line-height:1.5;
+  position:fixed;top:0;left:0;right:0;z-index:1050;
+  height:56px;background:rgba(255,255,255,.96);
+  -webkit-backdrop-filter:saturate(1.4) blur(8px);backdrop-filter:saturate(1.4) blur(8px);
+  border-bottom:1px solid var(--wh-line);
+  display:flex;align-items:center;gap:16px;
+  padding:0 max(24px, calc((100vw - 1440px) / 2));
+  color:var(--wh-ink);
+}
+.site-header.sh-works *{box-sizing:border-box}
+
+/* ── ブランド（左）。飛び先はオンライン版のトップ ── */
+.site-header.sh-works .sh-brand{display:flex;align-items:center;gap:9px;flex:none;
+  text-decoration:none;color:inherit}
+.site-header.sh-works .sh-brand svg{flex:none;width:20px;height:20px}
+.site-header.sh-works .sh-brand-text{font-weight:900;font-size:17px;letter-spacing:.01em;
+  white-space:nowrap;color:var(--wh-ink)}
+.site-header.sh-works .sh-brand-sub{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--wh-muted);
+  white-space:nowrap;padding-left:10px;margin-left:2px;border-left:1px solid var(--wh-line)}
+@media(hover:hover){.site-header.sh-works .sh-brand:hover .sh-brand-text{color:var(--wh-accent)}}
+
+/* ── ナビ（右） ── */
+.site-header.sh-works .sh-nav{margin-left:auto;display:flex;align-items:center;gap:22px;min-width:0}
+.site-header.sh-works .sh-nav nav{display:flex;align-items:center;gap:22px}
+.site-header.sh-works .sh-nav nav a{font-size:13px;font-weight:400;color:var(--wh-muted);
+  text-decoration:none;white-space:nowrap;transition:color .2s}
+@media(hover:hover){.site-header.sh-works .sh-nav nav a:hover{color:var(--wh-accent)}}
+.site-header.sh-works .sh-nav nav a:focus-visible{color:var(--wh-accent)}
+
+/* 言語チップ（オンライン版 LangToggle と同じ様式） */
+.site-header.sh-works .sh-lang{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  font-size:11px;font-weight:400;letter-spacing:.12em;padding:4px 9px;
+  border:1px solid var(--wh-line);color:var(--wh-muted);text-decoration:none;
+  transition:border-color .2s,color .2s}
+@media(hover:hover){.site-header.sh-works .sh-lang:hover{border-color:var(--wh-accent);color:var(--wh-accent)}}
+
+/* ── ハンバーガー（<1024px） ── */
+.site-header.sh-works .sh-hb{display:none;flex:none;width:40px;height:40px;margin-left:auto;
+  align-items:center;justify-content:center;flex-direction:column;gap:4px;
+  background:none;border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none}
+.site-header.sh-works .sh-hb i{display:block;width:20px;height:1.5px;background:var(--wh-muted);
+  transition:background .2s}
+@media(hover:hover){.site-header.sh-works .sh-hb:hover i{background:var(--wh-accent)}}
+.site-header.sh-works.sh-open .sh-hb i{background:var(--wh-accent)}
+
+@media(max-width:1023px){
+  .site-header.sh-works .sh-hb{display:flex}
+  /* ナビはヘッダー直下に全幅ドロワーで開く。バーの寸法・文字サイズは幅で変えない
+     （回転で見た目が変わらないようにする — docs/header-rules.md R2 と同じ規則）。 */
+  .site-header.sh-works .sh-nav{position:absolute;top:100%;left:0;right:0;
+    display:none;margin-left:0;gap:0;padding:6px 24px 14px;
+    background:#fff;border-bottom:1px solid var(--wh-line);
+    box-shadow:0 18px 40px rgba(15,23,42,.10)}
+  .site-header.sh-works.sh-open .sh-nav{display:block}
+  .site-header.sh-works .sh-nav nav{flex-direction:column;align-items:stretch;gap:0}
+  .site-header.sh-works .sh-nav nav a{font-size:14px;padding:11px 0;
+    border-bottom:1px solid var(--wh-line)}
+  .site-header.sh-works .sh-nav .sh-lang{display:inline-block;margin-top:12px}
+}
+@media(max-width:479px){
+  .site-header.sh-works{padding:0 16px}
+  .site-header.sh-works .sh-nav{padding:6px 16px 14px}
+  .site-header.sh-works .sh-brand-sub{display:none}
+}
