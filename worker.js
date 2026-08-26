@@ -401,23 +401,33 @@ function withSecurityHeaders(response) {
 async function route(request, env) {
   const url = new URL(request.url);
 
-  // 301 redirect: root / and /index.html → /locahun3d_manifesto.html
-  if (url.pathname === "/" || url.pathname === "/index.html") {
-    return Response.redirect(`${url.origin}/locahun3d_manifesto.html`, 301);
-  }
-
-  // EN mirror: /en, /en/ → English home (manifesto)
-  if (url.pathname === "/en" || url.pathname === "/en/" || url.pathname === "/en/index.html") {
-    return Response.redirect(`${url.origin}/en/locahun3d_manifesto.html`, 301);
-  }
-  // EN contact merged into EN demo page
-  if (url.pathname === "/en/locahun3d_contact.html") {
-    return Response.redirect(`${url.origin}/en/locahun3d_demo.html#contact`, 301);
-  }
-
-  // 301 redirect: former contact page merged into demo page
-  if (url.pathname === "/locahun3d_contact.html") {
-    return Response.redirect(`${url.origin}/locahun3d_demo.html#contact`, 301);
+  // ══════════════════════════════════════════════════════════════
+  // サイト統合（2026-08-16 本人指示「スキャンの方けして統合する感じで」）:
+  // スキャンサイトのページ群は locahun3d.com（オンライン版）へ301で退役する。
+  // ⚠ works/**（実績＆ブログ）だけは「URLを変えない」指示により**このまま配信し続ける**。
+  //   X で共有された記事リンクを生かすため、works への 301 は絶対に足さないこと。
+  //   /api/contact・/api/works・assets 等の配信も従来どおり。
+  // 対応表は F:\Claude\docs\設計_サイト統合_スキャン分岐廃止_2026-08-16.md
+  // ══════════════════════════════════════════════════════════════
+  const ONLINE = "https://locahun3d.com";
+  const RETIRE = {
+    "/": "/",                          "/index.html": "/",
+    "/locahun3d_manifesto.html": "/",
+    "/locahun3d_demo.html": "/pricing",          // 料金・デモ統合先（#estimate にシミュレーター）
+    "/locahun3d_contact.html": "/contact",
+    "/locahun3d_data.html": "/#service",         // データ活用 → トップのサービス紹介
+    "/locahun3d_pitch_hub.html": "/",
+    "/locahun3d_privacy.html": "/privacy",
+    "/en": "/en",  "/en/": "/en",  "/en/index.html": "/en",
+    "/en/locahun3d_manifesto.html": "/en",
+    "/en/locahun3d_demo.html": "/en/pricing",
+    "/en/locahun3d_contact.html": "/en/contact",
+    "/en/locahun3d_data.html": "/en#service",
+    "/en/locahun3d_pitch_hub.html": "/en",
+    "/en/locahun3d_privacy.html": "/en/privacy",
+  };
+  if (Object.prototype.hasOwnProperty.call(RETIRE, url.pathname)) {
+    return Response.redirect(ONLINE + RETIRE[url.pathname], 301);
   }
 
   if (url.pathname === "/api/contact") {
