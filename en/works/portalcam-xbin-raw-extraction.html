@@ -243,7 +243,7 @@
   <p class="lead">This is Kou Nakamura from Locahun 3D. When you scan with PortalCam, LCC Studio and Lixel Studio export 3DGS and point clouds for you — but behind that, the <strong>original 4K images taken by the camera itself</strong> are still sitting inside the raw data, untouched. This article covers how to extract 4K source images from the raw data (.xbin) using CLI tools alone, and lays out honestly what we learned trying photogrammetry reconstruction from those extracted images.</p>
 
   <figure>
-    <img src="images/xbin_cam_pinholeA.jpg" alt="An example 4K source image extracted from PortalCam's raw data and converted from fisheye to perspective projection (a road and high-rise buildings)">
+    <img src="/works/images/xbin_cam_pinholeA.jpg" alt="An example 4K source image extracted from PortalCam's raw data and converted from fisheye to perspective projection (a road and high-rise buildings)">
     <figcaption><b>An extracted 4K source image, converted to perspective projection.</b> Inside the raw data it's recorded as a fisheye H.264 video, so it's converted here — as-is, it isn't easy to work with in ordinary image-processing software.</figcaption>
   </figure>
 </header>
@@ -318,11 +318,11 @@
   <p>Fortunately, the two streams you do get form a <strong>stereo pair recorded at the same instant</strong>, so parallax information itself is preserved.</p>
   <div class="duo">
     <figure>
-      <img src="images/xbin_cam_pinholeA.jpg" alt="A 4K source image extracted from the camera_0 side (after perspective conversion)">
+      <img src="/works/images/xbin_cam_pinholeA.jpg" alt="A 4K source image extracted from the camera_0 side (after perspective conversion)">
       <figcaption><b>One frame from the left main camera.</b></figcaption>
     </figure>
     <figure>
-      <img src="images/xbin_cam_pinholeB.jpg" alt="A 4K source image extracted from the camera_1 side (after perspective conversion)">
+      <img src="/works/images/xbin_cam_pinholeB.jpg" alt="A 4K source image extracted from the camera_1 side (after perspective conversion)">
       <figcaption><b>One frame from the right main camera.</b>The other eye's view, recorded at the same instant.</figcaption>
     </figure>
   </div>

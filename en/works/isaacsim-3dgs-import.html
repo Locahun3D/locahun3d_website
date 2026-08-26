@@ -275,7 +275,7 @@
   <p class="lead">Kou Nakamura here, from Locahun 3D. If you want to put a 3DGS scan to work in robotics or autonomous-mobility simulation, the destination isn't a game engine — it's <strong>NVIDIA Isaac Sim</strong>. This article lays out the steps to load a scan and render it at photoreal quality, written to hold up for any dataset. The second half covers the <strong>fundamental weaknesses of 3DGS in industrial simulation, and how to work around them</strong>.</p>
 
   <figure>
-    <img src="images/isaacsim_shibuya_walk.jpg" alt="A 3DGS scan rendered in NVIDIA Isaac Sim (pedestrian eye level)">
+    <img src="/works/images/isaacsim_shibuya_walk.jpg" alt="A 3DGS scan rendered in NVIDIA Isaac Sim (pedestrian eye level)">
     <figcaption><b>A 3DGS scan rendered in Isaac Sim.</b> Signage text stays legible, and the real street reproduces as-is.</figcaption>
   </figure>
 </header>
@@ -377,18 +377,18 @@ x.AddRotateXOp().Set(-90.0)</code></pre></div>
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">Outside the scan area</span>
-        <img src="images/isaacsim_shibuya_lowangle.jpg" alt="3DGS viewed from outside the scan area — unscanned surfaces break up visually">
+        <img src="/works/images/isaacsim_shibuya_lowangle.jpg" alt="3DGS viewed from outside the scan area — unscanned surfaces break up visually">
         <figcaption><b>An unscanned surface.</b> This is the back of a building, and the noise is obvious.</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag">On the trajectory, at eye height</span>
-        <img src="images/isaacsim_shibuya_walk.jpg" alt="View from a camera placed on the scan trajectory — signage text is fully reproduced">
+        <img src="/works/images/isaacsim_shibuya_walk.jpg" alt="View from a camera placed on the scan trajectory — signage text is fully reproduced">
         <figcaption><b>A position actually walked.</b> Quality holds up to the point of readable signage.</figcaption>
       </figure>
     </div>
   </div>
   <figure>
-    <img src="images/isaacsim_shibuya_overview.jpg" alt="An overhead view of the intersection rendered in Isaac Sim">
+    <img src="/works/images/isaacsim_shibuya_overview.jpg" alt="An overhead view of the intersection rendered in Isaac Sim">
     <figcaption><b>The same principle applies to overhead shots.</b> Rather than jumping straight up several hundred meters, pulling back gradually from the trajectory is the reliable approach.</figcaption>
   </figure>
   <div class="callout note"><b>Render latency</b>The heavier the scene, the longer RTX takes to settle. If you're saving images from a script, wait until the render has stabilized before capturing. Not waiting long enough saves a black image.</div>
