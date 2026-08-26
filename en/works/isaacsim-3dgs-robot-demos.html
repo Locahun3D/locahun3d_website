@@ -270,7 +270,7 @@
     <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">Navigation</span>
     <span>2026-08-18</span><span>&middot;</span><span>14 min read</span>
   </div>
-  <h1>Robot Development in a 3DGS City<br class="pc">with Isaac Sim 6.0:<br class="pc">RTX LiDAR, Sun Shadows, Autonomous Navigation</h1>
+  <h1>Robot Development in a 3DGS City <br class="pc">with Isaac Sim 6.0: <br class="pc">RTX LiDAR, Sun Shadows, Autonomous Navigation</h1>
   <p class="lead">This is Nakamura from LOCAHUN 3D. On top of the <a href="3dgs-lidar-denoise.html">two-layer environment from last time</a> (untouched 3DGS + raw scanner mesh), this article runs what robot development actually needs in NVIDIA Isaac Sim 6.0. The first half is the foundation &mdash; <strong>a real sensor (RTX LiDAR), shadows that move with the time of day, a map and an autonomous drive, semantic labels</strong>; the second half is simulation by <strong>situation</strong>: teaching the robot the structure of Shibuya (pavements, crosswalks, the pedestrian signal) and letting a delivery robot cross by pedestrian rules. The robot is Isaac's stock Nova Carter; the stage is our scan of Tokyo's Shibuya scramble crossing. Videos first, then the traps you will hit and an honest list of what does not work yet.</p>
 
   <figure>
@@ -509,7 +509,7 @@
 
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>
-    <h3>LOCAHUN 3D scans real places<br class="pc">in a form robot development can use</h3>
+    <h3>LOCAHUN 3D scans real places <br class="pc">in a form robot development can use</h3>
     <p>LiDAR and photos are captured together, so the 3DGS appearance and the measured mesh and point cloud share <strong>one coordinate frame and origin</strong>. The surfaces are not identical, though &mdash; a few centimetres apart. Talk to us about whether your use case can live with that; indoors or out, we deliver the Isaac Sim two-layer environment and occupancy grid with the scan.</p>
     <a class="dc-btn" href="/en/locahun3d_demo.html#contact">Talk to us about a scan &rarr;</a>
   </div>
