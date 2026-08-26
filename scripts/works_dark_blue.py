@@ -59,6 +59,10 @@ INDEX_FILES = {"works/index.html", "en/works/index.html"}
 # 白青化スクリプトが CSS 末尾に書き込んだ目印。残っていたら戻し損ねている。
 LIGHT_MARK = "白青リデザイン: 記事共通オーバーライド"
 
+# index がすでにダーク（＝b418e26^ 由来のマークアップ）であることの目印。
+# 白青版には .filmstrip が無い（代わりに .site-foot）。
+DARK_INDEX_MARK = '<div class="filmstrip"></div>'
+
 # ── アンバー → 青 ─────────────────────────────────────────────────
 COLOR_MAP = [
     (r"rgba\(\s*255\s*,\s*180\s*,\s*84\s*,", "rgba(30,160,196,"),
@@ -67,10 +71,24 @@ COLOR_MAP = [
     (r"#ff9f1c\b", "#5ec8e8"),
     (r"#ff8a4c\b", "#5ec8e8"),
     (r"#ffd9a8\b", "#bfe6f2"),
+
+    # ── 極小メタ文字の明度（2026-08-16 本人指示「極小メタ文字を明るく」） ──
+    # 日付・所要時間・COMING SOON・WORKFLOW帯など 10〜11px のメタ文字が黒地で
+    # 3.06〜3.28:1 しかなく AA(4.5:1) を割っていた。白 55% ＝ 約6.2:1 へ。
+    (r"(--faint\s*:\s*)rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*\.36\s*\)",
+     r"\g<1>rgba(255,255,255,.55)"),                       # 記事22本の --faint
+    (r"rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*\.35\s*\)",
+     "rgba(255,255,255,.55)"),                             # index: .thumb のプレースホルダ文字
+    (r"(text-transform:uppercase;)opacity:\.4;",
+     r"\g<1>opacity:.55;"),                                # index: .tcr / .foot の帯
 ]
 # 変換後に 1 つでも残っていたら失敗とみなす色
 FORBIDDEN = [r"#ffb454\b", r"#ff9f1c\b", r"#ff8a4c\b", r"#ffd9a8\b",
-             r"rgba\(\s*255\s*,\s*180\s*,\s*84\s*,", r"rgba\(\s*255\s*,\s*138\s*,\s*76\s*,"]
+             r"rgba\(\s*255\s*,\s*180\s*,\s*84\s*,", r"rgba\(\s*255\s*,\s*138\s*,\s*76\s*,",
+             # AA を割る旧メタ文字の明度（上の色マップで潰したもの）
+             r"--faint\s*:\s*rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*\.36\s*\)",
+             r"rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*\.35\s*\)",
+             r"text-transform:uppercase;opacity:\.4;"]
 
 
 def rel_targets():
@@ -120,8 +138,10 @@ STYLE_RE = re.compile(r"(<style>)(.*?)(</style>)", re.S)
 def convert(rel, cur):
     """戻したあとの全文を返す。"""
     if rel in INDEX_FILES:
-        # index はマークアップごと戻す（style だけ戻すと旧CSS↔新マークアップで壊れる）
-        out = git_show(REV_INDEX, rel)
+        # index はマークアップごと戻す（style だけ戻すと旧CSS↔新マークアップで壊れる）。
+        # ただし「すでにダーク」なら現物を使う。戻したあとに入れた手入れ
+        # （CTAパネル／実績カードの「実績を見る →」= 2026-08-16）を消さないため。
+        out = cur if DARK_INDEX_MARK in cur else git_show(REV_INDEX, rel)
         out = STYLE_RE.sub(lambda m: m.group(1) + recolor(m.group(2)) + m.group(3), out, count=1)
     else:
         old = git_show(REV_ARTICLE, rel)
