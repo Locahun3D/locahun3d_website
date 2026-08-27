@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/works-header.css?v=927a0cc2">
+<link rel="stylesheet" href="/assets/works-header.css?v=0ba8e08e">
 <style>
   :root{
     --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
@@ -205,20 +205,23 @@
 
 <div class="progress" id="progress"></div>
 <header class="site-header sh-works">
-  <a href="https://locahun3d.com/en" class="sh-brand">
-    <svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
-    <span class="sh-brand-text">Locahun 3D</span>
-    <span class="sh-brand-sub">Work &amp; Blog</span>
-  </a>
   <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
-  <div class="sh-nav" id="sh-nav">
+  <div class="sh-left" id="sh-nav">
     <nav>
-        <a href="https://locahun3d.com/en/properties">Locations</a>
-        <a href="https://locahun3d.com/en/pricing">Pricing &amp; Demo</a>
-        <a href="/en/works/index.html">Work &amp; Blog</a>
-        <a href="https://locahun3d.com/en/contact">Contact</a>
+        <a href="https://locahun3d.com/en/properties"><span class="code">0.1</span>Browse Locations</a>
+        <a href="https://locahun3d.com/en/pricing"><span class="code">0.2</span>Pricing &amp; Demo</a>
+        <a href="/en/works/index.html"><span class="code">0.3</span>Work &amp; Blog</a>
+        <a href="https://locahun3d.com/en/contact"><span class="code">0.4</span>Contact</a>
     </nav>
-    <a class="sh-lang" href="/works/3dgs-software-comparison.html">JA</a>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/en" class="sh-brand" aria-label="Locahun 3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">Locahun 3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/works/3dgs-software-comparison.html" aria-label="Language">JA</a>
   </div>
 </header>
 <div class="backbar">
@@ -290,7 +293,7 @@
   <div class="tblwrap"><table>
     <thead><tr><th>Software</th><th>Rating</th><th>Details</th><th>Where to get it</th><th>License</th></tr></thead>
     <tbody>
-      <tr><td>Locahun 3D Viewer<br><span style="color:var(--sub);font-size:.85em">(our own product)</span></td><td><span style="color:var(--sub)">— Not rated (our own product)</span></td><td>An offline, browser-only viewer we built in-house on top of Spark, designed for handling massive 3DGS datasets. Try a sample scene right now — no download or sign-up required</td><td><a href="/en/locahun3d_demo.html" target="_blank" rel="noopener">Try a sample →</a></td><td>In-house product (free demo)</td></tr>
+      <tr><td>Locahun 3D Viewer<br><span style="color:var(--sub);font-size:.85em">(our own product)</span></td><td><span style="color:var(--sub)">— Not rated (our own product)</span></td><td>An offline, browser-only viewer we built in-house on top of Spark, designed for handling massive 3DGS datasets. Try a sample scene right now — no download or sign-up required</td><td><a href="https://locahun3d.com/en/pricing">Try a sample →</a></td><td>In-house product (free demo)</td></tr>
       <tr><td>SuperSplat<br><span style="color:var(--sub);font-size:.85em">(PlayCanvas)</span></td><td>◎ Top pick</td><td>A fully browser-based 3DGS editor with cropping and color editing. A lightweight viewer meant purely for exported output is distributed as a separate repository</td><td><a href="https://github.com/playcanvas/supersplat" target="_blank" rel="noopener">Editor →</a><br><a href="https://github.com/playcanvas/supersplat-viewer" target="_blank" rel="noopener">Viewer →</a></td><td>MIT, free</td></tr>
       <tr><td>LichtFeld Studio<br><span style="color:var(--sub);font-size:.85em">(MrNeRF)</span></td><td>◎ Top pick end-to-end from training</td><td>An open-source native app that covers everything from training on captured data (COLMAP), through brush/lasso/polygon-selection editing, to exporting PLY/SPZ/SOG and a standalone single-file HTML viewer. Training runs faster than the reference implementation, and recent releases also support LOD workflows. It can be extended with Python plugins too. CUDA is required, so it won't run on machines without an NVIDIA GPU</td><td><a href="https://github.com/MrNeRF/LichtFeld-Studio" target="_blank" rel="noopener">GitHub →</a><br><a href="https://lichtfeld.io/" target="_blank" rel="noopener">lichtfeld.io →</a></td><td>GPLv3, free</td></tr>
       <tr><td>Brush<br><span style="color:var(--sub);font-size:.85em">(ArthurBrussee)</span></td><td>○ No NVIDIA GPU required</td><td>An open-source training and display app. Because it doesn't depend on CUDA, it runs on AMD and Intel GPUs and Apple Silicon in addition to NVIDIA, across native Windows/macOS/Linux/Android and even in-browser training. Research-derived extensions are still thin on the ground, and the developers themselves describe it as experimental</td><td><a href="https://github.com/ArthurBrussee/brush" target="_blank" rel="noopener">GitHub →</a></td><td>Apache 2.0, free</td></tr>
@@ -308,7 +311,7 @@
     <span class="dc-tag">Locahun3D Viewer</span>
     <h3>Try our own viewer with a sample scene too</h3>
     <p>Built in-house on top of Spark (above), this viewer is designed to handle massive 3DGS datasets entirely offline, in the browser. Try a sample scene right now, right in the page — no download or sign-up required.</p>
-    <a class="dc-btn" href="/en/locahun3d_demo.html" target="_blank" rel="noopener">Try a sample scene in your browser →</a>
+    <a class="dc-btn" href="https://locahun3d.com/en/pricing">Try a sample scene in your browser →</a>
   </div>
 
   <h2 id="converter"><span class="n">03</span> Conversion tools</h2>
@@ -360,7 +363,7 @@
     <span class="dc-tag">Contact</span>
     <h3>Get in touch about 3DGS pipeline design and tool selection</h3>
     <p>The right answer for "which software should handle what, and which engine should it hand off to" varies by project. If you need help designing a pipeline or evaluating a specific tool, feel free to reach out.</p>
-    <a class="dc-btn" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <a class="dc-btn" href="https://locahun3d.com/en/contact">Contact us →</a>
   </div>
 </article>
 <section class="related" aria-labelledby="related-h">
@@ -422,10 +425,22 @@
 <footer>
   <div class="wrap">
     <p>This article is a production note from <b>Locahun 3D / LOCAHUN 3D</b>. Feel free to reach out about 3DGS capture, location scouting, VFX backgrounds, or AI production.</p>
-    <a class="cta" href="/en/locahun3d_demo.html#contact">Contact us →</a>
+    <a class="cta" href="https://locahun3d.com/en/contact">Contact us →</a>
   </div>
 </footer>
 <div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 Locahun 3D — KWI Inc.</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/en/terms/service">Terms of Service</a>
+        <a href="https://locahun3d.com/en/privacy">Privacy Policy</a>
+        <a href="https://locahun3d.com/en/terms/tokushoho">Commercial Disclosure</a>
+        <a href="https://locahun3d.com/en/terms/data-download">Purchase Terms</a>
+        <a href="https://locahun3d.com/en/contact/listing">List your location</a>
+    </nav>
+  </div>
+</footer>
 
 <script>
 (function(){

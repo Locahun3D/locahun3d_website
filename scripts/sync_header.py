@@ -233,59 +233,112 @@ def header_markup(relpath, lang):
          ONLINE_URL[lang], ONLINE_LABEL[lang], counterpart(relpath, lang), LANG_CHIP[lang])
 
 # ---------- works 専用ヘッダーのマークアップ ----------
-# ブランドマークは黒ヘッダーと同じ形。works 本文がダークへ戻ったので枠線も明色へ。
-# レティクル円はテーマカラー #1ea0c4（旧アンバー #ffb454 の置き換え）。
-WORKS_BRAND_SVG = ('<svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true">'
+# ⚠ 2026-08-27 本人指示「works へ行くとヘッダーが変わる／別サイトへ飛ばされた感じ」。
+#    works の帯は **オンライン版 locahun3d.com の site-header.tsx** と同じ見た目・
+#    同じ並び（左=ナビ / 中央=ブランド / 右=EN）にする。以前は「左=ブランド＋サブ表記 /
+#    右=ナビ」という works 独自の並びで、これが最大の違和感の原因だった。
+#    URL は web.locahun3d.com のまま据え置き（共有リンク保護・過去指示）。
+# ブランドマークはオンライン版 HeaderMark と同じ 22px・レティクル青 #1ea0c4。
+WORKS_BRAND_SVG = ('<svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true">'
                    '<g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">'
                    '<path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g>'
                    '<circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/>'
                    '<circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>')
 
 # ⚠ works のヘッダーは「オンライン版 locahun3d.com のナビ」を絶対URLで指す。
-#    スキャン/オンラインのトグルは置かない（分岐そのものを廃止するため）。
+#    ⚠ target="_blank" を付けないこと（本人指示 2026-08-27「別タブになるのが良くない」）。
+#    番号コード 0.1〜0.4 もオンライン版と同じく持たせる（表示は ≥1920px のみ。CSS 側）。
 # ⚠ 4項目に固定（2026-08-16）。オンライン側で「サービスについて」タブを廃し
 #    「料金・デモ」を1項目へ統合する方針に合わせる。3番目は works 自身なので
 #    自サイト内の相対URL（オンライン版に /works は無い）。
 WORKS_NAV = {
-    "ja": [("https://locahun3d.com/properties", "物件を探す"),
-           ("https://locahun3d.com/pricing", "料金・デモ"),
-           ("/works/index.html", "実績＆ブログ"),
-           ("https://locahun3d.com/contact", "お問い合わせ")],
-    "en": [("https://locahun3d.com/en/properties", "Locations"),
-           ("https://locahun3d.com/en/pricing", "Pricing &amp; Demo"),
-           ("/en/works/index.html", "Work &amp; Blog"),
-           ("https://locahun3d.com/en/contact", "Contact")],
+    "ja": [("0.1", "https://locahun3d.com/properties", "物件を探す"),
+           ("0.2", "https://locahun3d.com/pricing", "料金・デモ"),
+           ("0.3", "/works/index.html", "実績＆ブログ"),
+           ("0.4", "https://locahun3d.com/contact", "お問い合わせ")],
+    # ⚠ ラベルはオンライン版 src/lib/i18n/dictionaries.ts の nav.* と一字一句同じにする
+    #    （EN の1項目目は "Locations" ではなく "Browse Locations"）。
+    "en": [("0.1", "https://locahun3d.com/en/properties", "Browse Locations"),
+           ("0.2", "https://locahun3d.com/en/pricing", "Pricing &amp; Demo"),
+           ("0.3", "/en/works/index.html", "Work &amp; Blog"),
+           ("0.4", "https://locahun3d.com/en/contact", "Contact")],
 }
 # ブランドの飛び先はオンライン版のトップ（works は locahun3d.com の一部として振る舞う）。
 WORKS_BRAND_HOME = {"ja": "https://locahun3d.com/", "en": "https://locahun3d.com/en"}
-WORKS_BRAND_SUB = {"ja": "実績＆ブログ", "en": "Work &amp; Blog"}
 
 def works_header_markup(relpath, lang):
-    nav = "\n".join('        <a href="%s">%s</a>' % (href, label)
-                    for href, label in WORKS_NAV[lang])
+    """オンライン版 site-header.tsx と同じ 左ナビ / 中央ブランド / 右EN の3ゾーン。
+       クラス名は assets/works-header.css と対（.sh-left / .sh-center / .sh-right）。"""
+    nav = "\n".join(
+        '        <a href="%s"><span class="code">%s</span>%s</a>' % (href, code, label)
+        for code, href, label in WORKS_NAV[lang])
     return (
         '<header class="site-header sh-works">\n'
-        '  <a href="%s" class="sh-brand">\n'
-        '    %s\n'
-        '    <span class="sh-brand-text">%s</span>\n'
-        '    <span class="sh-brand-sub">%s</span>\n'
-        '  </a>\n'
         # 静的HTMLなので開閉状態は .site-header への class 付け外し（inline onclick）で持つ。
         '  <button class="sh-hb" type="button" aria-label="%s" aria-expanded="false"'
         ' aria-controls="sh-nav" onclick="var h=this.closest(\'.site-header\');'
         'var o=h.classList.toggle(\'sh-open\');this.setAttribute(\'aria-expanded\',o)">'
         '<i></i><i></i><i></i></button>\n'
-        '  <div class="sh-nav" id="sh-nav">\n'
+        '  <div class="sh-left" id="sh-nav">\n'
         '    <nav>\n%s\n'
         '    </nav>\n'
-        '    <a class="sh-lang" href="%s">%s</a>\n'
+        '  </div>\n'
+        '  <div class="sh-center">\n'
+        '    <a href="%s" class="sh-brand" aria-label="%s">\n'
+        '      %s\n'
+        '      <span class="sh-brand-text">%s</span>\n'
+        '    </a>\n'
+        '  </div>\n'
+        '  <div class="sh-right">\n'
+        '    <a class="sh-lang" href="%s" aria-label="Language">%s</a>\n'
         '  </div>\n'
         '</header>'
-    ) % (WORKS_BRAND_HOME[lang], WORKS_BRAND_SVG, BRAND_TEXT[lang], WORKS_BRAND_SUB[lang],
-         MENU_LABEL[lang], nav, counterpart(relpath, lang), LANG_CHIP[lang])
+    ) % (MENU_LABEL[lang], nav,
+         WORKS_BRAND_HOME[lang], BRAND_TEXT[lang], WORKS_BRAND_SVG, BRAND_TEXT[lang],
+         counterpart(relpath, lang), LANG_CHIP[lang])
+
+# ---------- works 共通フッターのマークアップ ----------
+# ⚠ オンライン版 src/components/site-footer.tsx と同構成（© 行 + 規約リンク行）。
+#    リンクは locahun3d.com への絶対URL・同一タブ（target を付けない）。
+#    年は静的サイトなので固定。オンライン版は現在年を出すが、表記ゆれが出るのは
+#    年明けの数日だけなので、そのタイミングで更新する。
+WORKS_FOOT_YEAR = "2026"
+WORKS_FOOT_COPY = {"ja": "© %s ロケハン3D — KWI株式会社" % WORKS_FOOT_YEAR,
+                   "en": "© %s Locahun 3D — KWI Inc." % WORKS_FOOT_YEAR}
+WORKS_FOOT_LINKS = {
+    "ja": [("https://locahun3d.com/terms/service", "利用規約"),
+           ("https://locahun3d.com/privacy", "プライバシーポリシー"),
+           ("https://locahun3d.com/terms/tokushoho", "特定商取引法"),
+           ("https://locahun3d.com/terms/data-download", "データ購入規約"),
+           ("https://locahun3d.com/contact/listing", "掲載依頼")],
+    "en": [("https://locahun3d.com/en/terms/service", "Terms of Service"),
+           ("https://locahun3d.com/en/privacy", "Privacy Policy"),
+           ("https://locahun3d.com/en/terms/tokushoho", "Commercial Disclosure"),
+           ("https://locahun3d.com/en/terms/data-download", "Purchase Terms"),
+           ("https://locahun3d.com/en/contact/listing", "List your location")],
+}
+
+def works_footer_markup(lang):
+    links = "\n".join('        <a href="%s">%s</a>' % (href, label)
+                      for href, label in WORKS_FOOT_LINKS[lang])
+    return (
+        '<footer class="site-foot">\n'
+        '  <div class="sf-inner">\n'
+        '    <div class="sf-copy">%s</div>\n'
+        '    <nav class="sf-links">\n%s\n'
+        '    </nav>\n'
+        '  </div>\n'
+        '</footer>'
+    ) % (WORKS_FOOT_COPY[lang], links)
 
 # クラスは "site-header" 前方一致（"site-header sh-works" も拾う）。
 HEADER_RE = re.compile(r'<header class="site-header[^"]*">.*?</header>', re.S)
+# 共通フッター。既にあれば貼り替え、無ければ末尾へ差し込む。
+FOOT_RE = re.compile(r'<footer class="site-foot">.*?</footer>', re.S)
+# works 独自だった飾りの行（「実績＆技術ブログ / LOCAHUN 3D — EST. 2026」）。
+# 共通フッターに置き換わるので撤去する（index と chevron の2ページだけが持っていた）。
+OLD_FOOT_RE = re.compile(r'[ \t]*<div class="foot">.*?</div>\r?\n?', re.S)
+FILMSTRIP_RE = re.compile(r'<div class="filmstrip"></div>')
 
 def link_re(css):
     return re.compile(r'<link rel="stylesheet" href="/%s(?:\?v=[0-9a-f]+)?">' % re.escape(css))
@@ -313,6 +366,21 @@ def ensure_link(html, css):
         return html[:i] + "\n" + tag + html[i:]
     return html.replace("</head>", tag + "\n</head>", 1)
 
+def sync_works_footer(html, lang, nl):
+    """works ページ末尾へオンライン版と同じフッターを1つだけ置く。
+       置き場所は .filmstrip（ページ本体の装飾）の直後、無ければ </body> 直前。
+       ⚠ 記事の <footer>（お問い合わせCTA）は本文コンテンツなので触らない。
+          あれは記事末の誘導で、サイト共通のフッターとは役割が別。"""
+    foot = works_footer_markup(lang).replace("\n", nl)
+    html = OLD_FOOT_RE.sub("", html, count=1)
+    if FOOT_RE.search(html):
+        return FOOT_RE.sub(lambda _: foot, html, count=1)
+    m = list(FILMSTRIP_RE.finditer(html))
+    if m:
+        i = m[-1].end()
+        return html[:i] + nl + foot + html[i:]
+    return html.replace("</body>", foot + nl + "</body>", 1)
+
 def process(path, mode):
     rel = os.path.relpath(path, ROOT).replace("\\", "/")
     lang = "en" if rel.startswith("en/") else "ja"
@@ -323,6 +391,8 @@ def process(path, mode):
     nl = nl_of(src)
     markup = (works_header_markup if works else header_markup)(rel, lang)
     out = HEADER_RE.sub(lambda m: markup.replace("\n", nl), out, count=1)
+    if works:
+        out = sync_works_footer(out, lang, nl)
     changed = out != src
     if changed and mode == "write":
         write(path, out)

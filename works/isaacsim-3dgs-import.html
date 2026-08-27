@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/works-header.css?v=927a0cc2">
+<link rel="stylesheet" href="/assets/works-header.css?v=0ba8e08e">
 <style>
   :root{
     --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
@@ -250,20 +250,23 @@
 
 <div class="progress" id="progress"></div>
 <header class="site-header sh-works">
-  <a href="https://locahun3d.com/" class="sh-brand">
-    <svg viewBox="0 0 64 64" width="20" height="20" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
-    <span class="sh-brand-text">ロケハン3D</span>
-    <span class="sh-brand-sub">実績＆ブログ</span>
-  </a>
   <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
-  <div class="sh-nav" id="sh-nav">
+  <div class="sh-left" id="sh-nav">
     <nav>
-        <a href="https://locahun3d.com/properties">物件を探す</a>
-        <a href="https://locahun3d.com/pricing">料金・デモ</a>
-        <a href="/works/index.html">実績＆ブログ</a>
-        <a href="https://locahun3d.com/contact">お問い合わせ</a>
+        <a href="https://locahun3d.com/properties"><span class="code">0.1</span>物件を探す</a>
+        <a href="https://locahun3d.com/pricing"><span class="code">0.2</span>料金・デモ</a>
+        <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+        <a href="https://locahun3d.com/contact"><span class="code">0.4</span>お問い合わせ</a>
     </nav>
-    <a class="sh-lang" href="/en/works/isaacsim-3dgs-import.html">EN</a>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/" class="sh-brand" aria-label="ロケハン3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/en/works/isaacsim-3dgs-import.html" aria-label="Language">EN</a>
   </div>
 </header>
 <div class="backbar">
@@ -460,7 +463,7 @@ UsdGeom.Imageable(mesh).MakeInvisible()      # 見た目は消す</code></pre></
     <span class="dc-tag">DATA / 3DGS</span>
     <h3>この記事で使っている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
     <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。<br>スタンダードライセンス ¥200,000〜（商用・非商用利用可）。<br>同じデータでIsaac Simのワークフローを試してみたい方は、ぜひご覧ください。</p>
-    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
+    <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq">物件データを見る →</a>
   </div>
 </article>
 <section class="related" aria-labelledby="related-h">
@@ -515,11 +518,23 @@ UsdGeom.Imageable(mesh).MakeInvisible()      # 見た目は消す</code></pre></
 <footer>
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
-    <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
+    <a class="cta" href="https://locahun3d.com/contact">お問い合わせ →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → DECIMATE (&lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 ロケハン3D — KWI株式会社</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/terms/service">利用規約</a>
+        <a href="https://locahun3d.com/privacy">プライバシーポリシー</a>
+        <a href="https://locahun3d.com/terms/tokushoho">特定商取引法</a>
+        <a href="https://locahun3d.com/terms/data-download">データ購入規約</a>
+        <a href="https://locahun3d.com/contact/listing">掲載依頼</a>
+    </nav>
+  </div>
+</footer>
 
 <div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
 <script>
