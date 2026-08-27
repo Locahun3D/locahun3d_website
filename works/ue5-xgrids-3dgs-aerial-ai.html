@@ -283,7 +283,7 @@
     <span>2026-07-24</span>
   </div>
   <h1>UE5 <em>×</em> XGRIDs SDKで<br class="pc">3DGSから素材を出力する</h1>
-  <p class="lead">ロケハン3Dの中村です。3DGSスキャンを映像制作の「素材」として使うなら、ゲームエンジンに持ち込むのがいちばん自由が利きます。この記事では、私が渋谷スクランブル交差点のスキャンで実際に使っている<strong>XGRIDs SDK（LCC Plugin for UE）の導入から、仮想カメラでの素材出力、AIによるライティング変更</strong>まで、UE5連携のワークフロー全体をまとめます。あわせて、3DGSを扱う主要ソフトとUE5向け他プラグインの比較も載せておきます。</p>
+  <p class="lead">ロケハン3Dの中村です。<br>3DGSスキャンを映像制作の「素材」として使うなら、ゲームエンジンに持ち込むのがいちばん自由が利きます。<br>この記事では、私が渋谷スクランブル交差点のスキャンで実際に使っている<strong>XGRIDs SDK（LCC Plugin for UE）の導入から、仮想カメラでの素材出力、AIによるライティング変更</strong>まで、UE5連携のワークフロー全体をまとめます。<br>あわせて、3DGSを扱う主要ソフトとUE5向け他プラグインの比較も載せておきます。</p>
 
   <figure>
     <img src="images/ue5_shibuya_ground_day.jpg" alt="UE5のビューポートに読み込んだ渋谷スクランブル交差点の3DGSスキャン（地上アングル・昼）">
@@ -316,7 +316,7 @@
   </div>
 
   <h2 id="why"><span class="n">01</span> なぜ3DGSをUE5に持ち込むのか</h2>
-  <p>私はロケハン3Dで、都市部を中心にした3DGSスキャンデータを制作・販売しています。3DGSはビューアーで眺めるだけでも十分に使えますが、映像制作の素材として本気で使うなら、UE5に取り込むことで一段階上の自由度が手に入ります。具体的には、次のことができるようになります。</p>
+  <p>私はロケハン3Dで、都市部を中心にした3DGSスキャンデータを制作・販売しています。<br>3DGSはビューアーで眺めるだけでも十分に使えますが、映像制作の素材として本気で使うなら、UE5に取り込むことで一段階上の自由度が手に入ります。<br>具体的には、次のことができるようになります。</p>
   <ul>
     <li><strong>物理的に立てない位置にカメラを置く</strong> ── ビルの真上、道路の上空、駅の直上。現実には撮影許可が下りない画角も、スキャンデータの中では自由です。</li>
     <li><strong>高解像度スチル・動画としての書き出し</strong> ── ビューポートで確定した画角を、そのまま素材として出力できます。</li>
@@ -326,10 +326,10 @@
     <img src="images/ue5_shibuya_car_composite.jpg" alt="渋谷の3DGSスキャンの路上にCGのスポーツカーを合成した例">
     <figcaption><b>スキャンにCGアセットを合成した例。</b>渋谷の3DGSスキャンの路上に、CGのカーモデルを配置しています。実写ベースのスキャンを土台にすることで、遠近・スケール・ライティングの整合が取りやすく、VFX合成の当たりを素早く作れます。<br>画像制作：シニアVFXアーティスト <a href="https://x.com/hectorVFX" target="_blank" rel="noopener">hectorVFX</a> 氏（ロケハン3Dの渋谷データを使用）</figcaption>
   </figure>
-  <p>なお、出力した素材を空撮プレートとして仕上げる工程は別の解説記事で扱う予定なので、この記事は<strong>「UE5との連携」と「素材出力」の部分に絞って</strong>書きます。使うプラグインはXGRIDsのLCC Plugin for UE（無料）です。</p>
+  <p>なお、出力した素材を空撮プレートとして仕上げる工程は別の解説記事で扱う予定なので、この記事は<strong>「UE5との連携」と「素材出力」の部分に絞って</strong>書きます。<br>使うプラグインはXGRIDsのLCC Plugin for UE（無料）です。</p>
 
   <h2 id="sdk"><span class="n">02</span> XGRIDs「LCC Plugin for UE」とは（ダウンロード先）</h2>
-  <p><strong>LCC Plugin for UE</strong>は、XGRIDsが公式配布しているUE5向けの3DGSプラグインです。3DGSシーンの読み込み・描画・編集・リライトまでを1つのプラグインで担います。私がこれを使っている理由は主に2つで、<strong>都市規模のスキャンを一括で扱えるスケール</strong>と、<strong>LCC2という圧縮フォーマットの存在</strong>です。渋谷のような大規模シーンでも、PLYで持ち回すよりファイルが大幅に軽く、読み込みが安定します。</p>
+  <p><strong>LCC Plugin for UE</strong>は、XGRIDsが公式配布しているUE5向けの3DGSプラグインです。<br>3DGSシーンの読み込み・描画・編集・リライトまでを1つのプラグインで担います。<br>私がこれを使っている理由は主に2つで、<strong>都市規模のスキャンを一括で扱えるスケール</strong>と、<strong>LCC2という圧縮フォーマットの存在</strong>です。<br>渋谷のような大規模シーンでも、PLYで持ち回すよりファイルが大幅に軽く、読み込みが安定します。</p>
   <dl class="spec">
     <dt>対応エンジン</dt><dd>Unreal Engine 5.1〜5.8（Windows / Linux）</dd>
     <dt>対応フォーマット</dt><dd>XGRIDs独自のLCC2のほか、PostshotやLuma、Polycamなどが書き出す標準的な3DGSファイルもそのまま読めます</dd>
@@ -340,13 +340,13 @@
   <div class="data-cta">
     <span class="dc-tag">Download / XGRIDs 公式</span>
     <h3>LCC Plugin for UE（プラグイン本体・サンプルデータ）</h3>
-    <p>プラグイン本体は、XGRIDsの開発者ポータルからUEバージョン別のzipとして入手できます。サンプルデータも同じページにあります。</p>
+    <p>プラグイン本体は、XGRIDsの開発者ポータルからUEバージョン別のzipとして入手できます。<br>サンプルデータも同じページにあります。</p>
     <p class="dc-url">https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54</p>
     <a class="dc-btn" href="https://developer.xgrids.com/#/download?page=LCC_UNREAL_SDK_UE54" target="_blank" rel="noopener">ダウンロードページを開く →</a>
   </div>
 
   <h2 id="install"><span class="n">03</span> インストール手順</h2>
-  <p>導入はUE5の標準的なプラグイン追加の流れそのままです。私はUE5.5のプロジェクトに、UE5.5用のプラグインを入れています。</p>
+  <p>導入はUE5の標準的なプラグイン追加の流れそのままです。<br>私はUE5.5のプロジェクトに、UE5.5用のプラグインを入れています。</p>
   <ol>
     <li>上のダウンロードページから、<strong>使っているUEバージョンに合ったzip</strong>を入手します。バージョン違いはロードエラーの元になるので、ここだけは正確に合わせます。</li>
     <li>zipを解凍し、<strong>プロジェクト直下の <code>Plugins</code> フォルダに配置</strong>します（フォルダがなければ作成します）。全プロジェクトで共通利用したい場合は、エンジン側の <code>Engine/Plugins</code> に置くこともできます。</li>
@@ -356,16 +356,16 @@
   <div class="callout note"><b>メニューの正確な位置について</b>プラグインのUIやメニュー配置はバージョンアップで変わることがあります。最新の正確な手順は、XGRIDs公式の<a href="https://developer.xgrids.com/#/tutorial?page=UE_SDK" target="_blank" rel="noopener">チュートリアル</a>と<a href="https://developer.xgrids.com/#/document?titleId=en-1720509312452" target="_blank" rel="noopener">開発者ドキュメント</a>が一次情報です。導入でつまずいたら、まずここを確認してください。</div>
 
   <h2 id="export"><span class="n">04</span> 3DGSを読み込み、仮想カメラで素材を出力する</h2>
-  <p>読み込みが終われば、あとはUE5の標準操作です。パースペクティブビューでカメラを動かし、狙った画角を作ります。渋谷スクランブル交差点の場合、駅直上からの真俯瞰はドローン飛行禁止区域のため現実には撮影できませんが、スキャンデータの中では制約がありません。<strong>地上を歩いて集めた実スキャンを土台に、カメラだけを物理法則から解放する</strong>のがこのワークフローの核です。</p>
+  <p>読み込みが終われば、あとはUE5の標準操作です。<br>パースペクティブビューでカメラを動かし、狙った画角を作ります。<br>渋谷スクランブル交差点の場合、駅直上からの真俯瞰はドローン飛行禁止区域のため現実には撮影できませんが、スキャンデータの中では制約がありません。<br><strong>地上を歩いて集めた実スキャンを土台に、カメラだけを物理法則から解放する</strong>のがこのワークフローの核です。</p>
   <figure>
     <img src="images/ue5_shibuya_topdown_day.jpg" alt="UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
     <figcaption><b>仮想カメラで作った真俯瞰アングル。</b>カメラを駅直上に移動することで、実際にはドローンを飛ばせない場所からの画角を作れます。交差点のペイントや横断歩道のディテールまで実スキャン由来です。</figcaption>
   </figure>
-  <p>画角が決まったら、素材として書き出します。スチルなら<strong>高解像度スクリーンショット（HighResShot）</strong>で解像度を指定して出力することで、そのまま合成・レタッチに回せる静止画になります。動画素材が必要な場合は、<strong>シーケンサーでカメラアニメーションを組む</strong>ことで、カメラワーク付きのショットとしてレンダリングできます。</p>
+  <p>画角が決まったら、素材として書き出します。<br>スチルなら<strong>高解像度スクリーンショット（HighResShot）</strong>で解像度を指定して出力することで、そのまま合成・レタッチに回せる静止画になります。<br>動画素材が必要な場合は、<strong>シーケンサーでカメラアニメーションを組む</strong>ことで、カメラワーク付きのショットとしてレンダリングできます。</p>
   <div class="callout note"><b>ポイント</b>土台になっているのはあくまで実際にスキャンした3DGSデータです。背景をゼロからAIに生成させるのではなく、<strong>実写ベースの点群の上に「物理的にありえないカメラワーク」だけを足す</strong>。構図・建物の配置・スケール感の正確性は、この時点ですべて確定します。</div>
 
   <h2 id="ai-relight"><span class="n">05</span> AIでライティング・季節を変える</h2>
-  <p>UE5から出力したスチルを画像生成AIに渡し、<strong>「夜にして」「雪を降らせて」といった短いプロンプトだけ</strong>でライティングと季節を差し替えます。構図・カメラアングル・建物の配置はUE5側（＝実スキャン）で確定済みなので、AIに任せるのは光と空気感の作り込みだけで済みます。指示が短いほど構図が保たれやすく、この役割分担がいちばん破綻が少ないです。</p>
+  <p>UE5から出力したスチルを画像生成AIに渡し、<strong>「夜にして」「雪を降らせて」といった短いプロンプトだけ</strong>でライティングと季節を差し替えます。<br>構図・カメラアングル・建物の配置はUE5側（＝実スキャン）で確定済みなので、AIに任せるのは光と空気感の作り込みだけで済みます。<br>指示が短いほど構図が保たれやすく、この役割分担がいちばん破綻が少ないです。</p>
   <div class="aiflow">
     <div class="aiflow-h"><span class="k">地上アングル</span>左が変換元。同じ構図のまま、時間帯と季節だけを差し替えます。</div>
     <div class="aiflow-row">
@@ -409,16 +409,16 @@
   </div>
 
   <h2 id="limits"><span class="n">06</span> 現状の限界：看板・文字・人工物は崩れる</h2>
-  <p>条件付きの手法であることも正直に書いておきます。<strong>看板の文字や、電車・標識のような細かい人工物は、現状のAI補完では崩れます。</strong>存在しないはずの構造物が現れる「ゴースト」や、本来ない場所に電車状の構造が生成される破綻が起きます。</p>
+  <p>条件付きの手法であることも正直に書いておきます。<br><strong>看板の文字や、電車・標識のような細かい人工物は、現状のAI補完では崩れます。</strong><br>存在しないはずの構造物が現れる「ゴースト」や、本来ない場所に電車状の構造が生成される破綻が起きます。</p>
   <figure>
     <img src="images/ue5_ai_completion_limitations.jpg" alt="AIによるデータ補完で発生した破綻箇所（存在しない構造物のゴースト、不自然な電車の生成、看板の文字崩れなど）に赤・黄・青の丸と注釈を付けた画像">
     <figcaption><b>破綻箇所の例。</b>黄色の丸＝存在しないはずの構造物（GHOST）。青の線＝本来ないはずの場所に生成された電車状の構造（TRAIN）。赤の丸＝看板・標識の文字が崩れている箇所。</figcaption>
   </figure>
-  <p>私はここを「プロの仕事の領域」だと考えています。崩れやすい箇所はあらかじめ再撮影・手直し前提で設計することで、世に出せるクオリティまで持っていけます。AI補完の精度そのものは、今後の向上に期待です。</p>
+  <p>私はここを「プロの仕事の領域」だと考えています。<br>崩れやすい箇所はあらかじめ再撮影・手直し前提で設計することで、世に出せるクオリティまで持っていけます。<br>AI補完の精度そのものは、今後の向上に期待です。</p>
   <div class="callout warn"><b>使いどころの判断基準</b>この手法は万能ではありません。看板・文字・人工物が写り込まない画角や、多少の破綻が許容されるカットに向いています。看板の文字まで正確に見せたいカットには、現状は不向きです。</div>
 
   <h2 id="software"><span class="n">07</span> 3DGSを扱える既存3DCGソフト比較</h2>
-  <p>ゲームエンジンだけでなく、<strong>普段のVFXパイプラインで使っている3DCGソフト側でも、3DGSはそのまま扱える</strong>ようになってきています。「どこまでをDCCでやり、どこからをUE5でやるか」を決めるうえで、主要ソフトの対応状況を整理しておきます。</p>
+  <p>ゲームエンジンだけでなく、<strong>普段のVFXパイプラインで使っている3DCGソフト側でも、3DGSはそのまま扱える</strong>ようになってきています。<br>「どこまでをDCCでやり、どこからをUE5でやるか」を決めるうえで、主要ソフトの対応状況を整理しておきます。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>ソフト</th><th>3DGS対応</th><th>得意</th><th>不得意</th></tr></thead>
     <tbody>
@@ -428,10 +428,10 @@
       <tr><td>Cinema 4D</td><td>レンダラー経由</td><td>Octaneなどサードパーティレンダラーの3DGS対応を使ってレンダリングできる。カメラワークづくり・モーショングラフィックスとの相性が良い</td><td>C4D標準機能ではなくレンダラー依存。対応状況はレンダラーのバージョン次第</td></tr>
     </tbody>
   </table></div>
-  <p>私の使い分けは、<strong>都市規模のシーンを丸ごと歩き回って画角を探すのはUE5、カット単位の絵作り・レンダリングはDCC側</strong>です。実際、空撮カットの制作ではC4D→Octaneのフローを使っていて、その手順は<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しています。Houdiniでのスプラット加工については、hectorVFX氏が渋谷データで実証した<a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUI ハイブリッドワークフローの記事</a>で詳しく紹介しています。</p>
+  <p>私の使い分けは、<strong>都市規模のシーンを丸ごと歩き回って画角を探すのはUE5、カット単位の絵作り・レンダリングはDCC側</strong>です。<br>実際、空撮カットの制作ではC4D→Octaneのフローを使っていて、その手順は<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しています。<br>Houdiniでのスプラット加工については、hectorVFX氏が渋谷データで実証した<a href="houdini-comfyui-gsplat-workflow.html">Houdini 22 × ComfyUI ハイブリッドワークフローの記事</a>で詳しく紹介しています。</p>
 
   <h2 id="plugins"><span class="n">08</span> UE5でリライトまでできる3DGSプラグイン</h2>
-  <p>UE5に3DGSを「表示するだけ」のプラグインなら、無料・OSSを含めて数多くあります。ただ、この記事のように素材出力まで考えると、実務の分かれ目は<strong>「読み込んだスプラットのライティングを変えられるか」</strong>です。そこで、リライトに対応しているものに絞って紹介します。</p>
+  <p>UE5に3DGSを「表示するだけ」のプラグインなら、無料・OSSを含めて数多くあります。<br>ただ、この記事のように素材出力まで考えると、実務の分かれ目は<strong>「読み込んだスプラットのライティングを変えられるか」</strong>です。<br>そこで、リライトに対応しているものに絞って紹介します。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>プラグイン</th><th>料金</th><th>リライト</th><th>得意</th><th>注意点</th></tr></thead>
     <tbody>
@@ -440,16 +440,16 @@
       <tr><td>Luma AI UE Plugin</td><td>無料</td><td>太陽光などの直接光でのリライトに対応</td><td>Lumaで撮ったデータをそのままUEへ。トリミングや結合まで無料で完結</td><td>リライトは直接光のみ。対応エンジンがやや古い</td></tr>
     </tbody>
   </table></div>
-  <p>3つに共通する注意点として、スプラットはUnrealの標準の描画とは別扱いになるため、<strong>Lumenのグローバルイルミネーションには参加しません</strong>。リライトはどのプラグインでも、スプラットに沿わせた簡易的なメッシュを介して影や光の当たりを再現する方式が主流です。そのうえで私がXGRIDs SDKを軸にしている理由は、リライト対応と<strong>都市1エリアを丸ごと1シーンとして扱えるLCC2の設計</strong>が両立しているからです。</p>
+  <p>3つに共通する注意点として、スプラットはUnrealの標準の描画とは別扱いになるため、<strong>Lumenのグローバルイルミネーションには参加しません</strong>。<br>リライトはどのプラグインでも、スプラットに沿わせた簡易的なメッシュを介して影や光の当たりを再現する方式が主流です。<br>そのうえで私がXGRIDs SDKを軸にしている理由は、リライト対応と<strong>都市1エリアを丸ごと1シーンとして扱えるLCC2の設計</strong>が両立しているからです。</p>
 
   <h2 id="summary"><span class="n">09</span> まとめ</h2>
-  <p>この記事の流れをまとめると、<strong>3DGSスキャンをLCC Plugin for UEでUE5に取り込み、仮想カメラで画角を確定し、スチル・動画として出力し、AIで光と季節だけを差し替える</strong>、という一本道です。いちばんのポイントは、すべてをAIに生成させず、<strong>必ず実スキャンのCGを経由させる</strong>こと。構図と正確性はスキャンデータと仮想カメラで担保し、AIには仕上げだけを任せる。この役割分担があるからこそ、破綻を抑えながら「撮れない画」を実用レベルで出せます。</p>
+  <p>この記事の流れをまとめると、<strong>3DGSスキャンをLCC Plugin for UEでUE5に取り込み、仮想カメラで画角を確定し、スチル・動画として出力し、AIで光と季節だけを差し替える</strong>、という一本道です。<br>いちばんのポイントは、すべてをAIに生成させず、<strong>必ず実スキャンのCGを経由させる</strong>こと。<br>構図と正確性はスキャンデータと仮想カメラで担保し、AIには仕上げだけを任せる。<br>この役割分担があるからこそ、破綻を抑えながら「撮れない画」を実用レベルで出せます。</p>
   <p>UE5連携やVFX素材としての3DGS活用に興味のある方は、お気軽にお問い合わせください。</p>
 
   <div class="data-cta">
     <span class="dc-tag">DATA / 3DGS</span>
     <h3>この記事で使っている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
-    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。スタンダードライセンス ¥200,000〜（商用・非商用利用可）。同じデータでUE5×AIのワークフローを試してみたい方は、ぜひご覧ください。</p>
+    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。<br>スタンダードライセンス ¥200,000〜（商用・非商用利用可）。<br>同じデータでUE5×AIのワークフローを試してみたい方は、ぜひご覧ください。</p>
     <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
   </div>
 </article>
@@ -492,7 +492,7 @@
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
-      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br>3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @Kou45388803 をフォロー →
@@ -504,7 +504,7 @@
     <div>
       <div class="cname">hectorVFX</div>
       <div class="crole">Senior VFX Artist ／ 合成例の図版提供</div>
-      <p>ハンガリー・ブダペスト拠点のシニアVFXアーティスト。本記事のCGカー合成例は、ロケハン3Dの渋谷データを使ったhectorVFX氏の制作画像です。Houdini 22×ComfyUIによるワークフローは<a href="houdini-comfyui-gsplat-workflow.html">解説記事</a>で詳しく紹介しています。</p>
+      <p>ハンガリー・ブダペスト拠点のシニアVFXアーティスト。<br>本記事のCGカー合成例は、ロケハン3Dの渋谷データを使ったhectorVFX氏の制作画像です。<br>Houdini 22×ComfyUIによるワークフローは<a href="houdini-comfyui-gsplat-workflow.html">解説記事</a>で詳しく紹介しています。</p>
       <div class="btnrow">
         <a class="xbtn" href="https://x.com/hectorVFX" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -522,7 +522,7 @@
 
 <footer>
   <div class="wrap">
-    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → UE5 + XGRIDS SDK (IMPORT) → VIRTUAL CAMERA → STILLS / SEQUENCER → AI (RELIGHT / SEASON)</p>
   </div>

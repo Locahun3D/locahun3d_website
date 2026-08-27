@@ -278,7 +278,7 @@
     <span>2026-08-16</span><span>・</span><span>読了 約5分</span>
   </div>
   <h1>Isaac Sim向けに<br class="pc">3DGSシミュレーション環境を<br class="pc">セットアップする</h1>
-  <p class="lead">ロケハン3Dの中村です。LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。削除系の後処理は行いません。渋谷スクランブル交差点のスキャンを通し例に、実際に踏んだ罠を記録します。</p>
+  <p class="lead">ロケハン3Dの中村です。<br>LiDAR搭載スキャナで撮った3DGSを、<strong>NVIDIA Isaac Simでロボットが物理で走れるシミュレーション環境</strong>にする手順をまとめます。<br>方針は徹底してシンプルです——<strong>スキャナ純正の3DGSとメッシュは無加工のまま使い、メッシュの「地面の穴」だけをパッチで塞ぐ</strong>。<br>削除系の後処理は行いません。<br>渋谷スクランブル交差点のスキャンを通し例に、実際に踏んだ罠を記録します。</p>
 
   <figure>
     <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点の3DGSスキャンを俯瞰でレンダリングした図">
@@ -309,8 +309,8 @@
   <div class="callout note"><b>この記事で得られるもの</b>入力は、LiDAR搭載スキャナの標準出力3点——<strong>①3DGS ②スキャナ純正メッシュ ③密なLiDAR点群</strong>です（カメラのみで作った3DGSにはこの手順は適用できません）。「地面の穴埋め」だけの最小の後処理で、<strong>「見た目の3DGS」と「不可視のコライダー」を重ねた2層構造の環境</strong>が得られ、Isaac Sim上でロボットの走行・衝突・センサ検証ができるようになります。依存はPython・点群処理ライブラリ・Isaac Simだけです。</div>
 
   <h2 id="overview"><span class="n">01</span> 全体像と前提──なぜコライダーが要るのか</h2>
-  <p>3DGSは見た目の再現に関しては圧倒的です。ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。そのままシミュレーションに使うと、二つの事故が起きます。</p>
-  <p>一つ目は<strong>フローター</strong>。実体のない場所に残ったガウシアンがロボットのカメラに映り込み、視界ノイズになります。本記事の方針ではこれは<strong>消さずに受け入れます</strong>——削除処理は実在物を巻き添えにしやすいためです（<a href="#cleanup">オプション節</a>参照）。二つ目が本命の<strong>当たり判定の穴</strong>。3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は屋内外どちらのスキャンにも一定量あり、穴の上にロボットを置くとこうなります。</p>
+  <p>3DGSは見た目の再現に関しては圧倒的です。<br>ただしそれは<strong>「写真と一致するように最適化した」結果であって、「形が正しい」わけではありません</strong>。<br>そのままシミュレーションに使うと、二つの事故が起きます。</p>
+  <p>一つ目は<strong>フローター</strong>。<br>実体のない場所に残ったガウシアンがロボットのカメラに映り込み、視界ノイズになります。<br>本記事の方針ではこれは<strong>消さずに受け入れます</strong>——削除処理は実在物を巻き添えにしやすいためです（<a href="#cleanup">オプション節</a>参照）。<br>二つ目が本命の<strong>当たり判定の穴</strong>。<br>3DGSは面を持たないため衝突にはスキャナ純正メッシュを使いますが、その穴（どの面にも閉じないエッジ）は屋内外どちらのスキャンにも一定量あり、穴の上にロボットを置くとこうなります。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/envgen_fall_poster.jpg">
@@ -320,10 +320,10 @@
     <figcaption><b>穴の開いた床にロボットを置いた失敗例です。</b>見た目には床があるのに当たり判定に穴があるため、ロボットは加速しながら床下へ落ち続けました。</figcaption>
   </figure>
 
-  <p>解決の設計は<strong>2層構造</strong>です。見た目はフローターを除去した3DGSが担当し、物理は不可視のコライダーが担当します。NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降のステップだけで同じものが作れます。</p>
+  <p>解決の設計は<strong>2層構造</strong>です。<br>見た目はフローターを除去した3DGSが担当し、物理は不可視のコライダーが担当します。<br>NVIDIA×Nianticの<a href="https://www.youtube.com/watch?v=1XtBPY4i780" target="_blank" rel="noopener">同種のパイプライン</a>は深度をAIで推定して形状を拘束しますが、それは360度カメラしか無いための選択です。<br><strong>LiDARの実測深度を持っているなら、推定モデルも再学習も不要</strong>で、以降のステップだけで同じものが作れます。</p>
 
   <h2 id="step1"><span class="n">02</span> STEP 1：3DGSをIsaac Simに読み込む</h2>
-  <p>3DGSのPLYをUSD（ParticleField形式）へ変換して読み込みます。基本の変換・読み込み手順は<a href="isaacsim-3dgs-import.html">別記事</a>の通りです。セットアップとしてはここで二つの罠を先に潰しておきます。</p>
+  <p>3DGSのPLYをUSD（ParticleField形式）へ変換して読み込みます。<br>基本の変換・読み込み手順は<a href="isaacsim-3dgs-import.html">別記事</a>の通りです。<br>セットアップとしてはここで二つの罠を先に潰しておきます。</p>
   <ul>
     <li><strong>座標系を揃える。</strong>Y-upで出力された3DGS（LCC2由来など）は、参照した上で<strong>X軸まわり-90°回転</strong>させて立てるだけです。データの変換書き出しは不要です。</li>
     <li><strong>レンダラをRaytracedLightingに固定してからステージを開く。</strong>Path Tracing系のモードでは自己発光の3DGSが白飛びします。大きなシーンを読み込んだ後のモード切替はクラッシュの原因になるため、必ず読み込み前に設定します。</li>
@@ -331,8 +331,8 @@
   <div class="callout note"><b>ロボットを置くときの単位の罠</b>cm単位で作られた参照アセット（Isaac標準のフォークリフト等）は、Kitが自動で補正スケールを付けます。ところが変換を組み直すとこの補正も消え、<strong>巨大なフォークリフトが出現</strong>します。組み直した場合は縮尺を明示します。</div>
 
   <h2 id="step3"><span class="n">03</span> STEP 2：メッシュの「地面の穴」だけを塞ぐ</h2>
-  <p>コライダーは<strong>スキャナ純正メッシュを無加工のまま</strong>使います。ボクセル穴埋めの水密シェルは「溶けたロウ」状に形が崩れ、シェルから切り出したパッチはトゲ状の断片を生みます——どちらも試して負けました。細いポールや車止めまで含めて、<strong>形の情報は純正メッシュが一番正確</strong>です。</p>
-  <p>足すのは<strong>地面のパッチだけ</strong>です。LiDAR実測面から滑らかな地面の高さ場を作り、<strong>純正メッシュに地面が存在しないセルだけ</strong>をその高さで面化して敷きます。壁や建物の穴は走行に影響しないため放置します。渋谷では<strong>走行域のどこから落としても抜けない</strong>ことを確認しています。ロボットが落ちる穴だけが塞がり、それ以外は1三角形も変わりません。</p>
+  <p>コライダーは<strong>スキャナ純正メッシュを無加工のまま</strong>使います。<br>ボクセル穴埋めの水密シェルは「溶けたロウ」状に形が崩れ、シェルから切り出したパッチはトゲ状の断片を生みます——どちらも試して負けました。<br>細いポールや車止めまで含めて、<strong>形の情報は純正メッシュが一番正確</strong>です。</p>
+  <p>足すのは<strong>地面のパッチだけ</strong>です。<br>LiDAR実測面から滑らかな地面の高さ場を作り、<strong>純正メッシュに地面が存在しないセルだけ</strong>をその高さで面化して敷きます。<br>壁や建物の穴は走行に影響しないため放置します。<br>渋谷では<strong>走行域のどこから落としても抜けない</strong>ことを確認しています。<br>ロボットが落ちる穴だけが塞がり、それ以外は1三角形も変わりません。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_triple_poster_v4.jpg">
@@ -343,8 +343,8 @@
   </figure>
 
   <h2 id="step5"><span class="n">04</span> STEP 3：2層を重ねて、走らせる</h2>
-  <p>1つのUSDにまとめます。Z-upのステージにphysicsSceneを定義し、<strong>3DGSは元ファイルをそのまま参照してX軸-90°回転で立てる</strong>（座標変換の焼き込み書き出しは不要です）、コライダーはMeshとして埋め込んで<code>CollisionAPI</code>（approximation=none）を適用し、<code>MakeInvisible()</code>で不可視にします。これで<strong>見た目は無加工の3DGS・物理は純正メッシュ＋地面パッチ</strong>の2層環境が完成します。</p>
-  <p>車両は<strong>PhysX Vehicle（omni.physx.vehicle）</strong>で作ります。ウィザードAPI（<code>VehicleData</code>＋<code>create_vehicle</code>）で、スプリング/ダンパー付きサスペンションとアッカーマン操舵を備えた4輪車が数行で生成でき、<code>accelerator</code>（0〜1）と<code>steer</code>（-1〜1）の2値で運転できます。サスペンションが路面の細かな凹凸を吸収するため、無加工のスキャン路面でも滑らかに走れます。罠は二つ：<code>VehicleData</code>には<code>rootVehiclePath</code>と<code>rootSharedPath</code>を明示すること、コライダーを生成された<code>GroundSurfaceCollisionGroup</code>に登録することです。</p>
+  <p>1つのUSDにまとめます。<br>Z-upのステージにphysicsSceneを定義し、<strong>3DGSは元ファイルをそのまま参照してX軸-90°回転で立てる</strong>（座標変換の焼き込み書き出しは不要です）、コライダーはMeshとして埋め込んで<code>CollisionAPI</code>（approximation=none）を適用し、<code>MakeInvisible()</code>で不可視にします。<br>これで<strong>見た目は無加工の3DGS・物理は純正メッシュ＋地面パッチ</strong>の2層環境が完成します。</p>
+  <p>車両は<strong>PhysX Vehicle（omni.physx.vehicle）</strong>で作ります。<br>ウィザードAPI（<code>VehicleData</code>＋<code>create_vehicle</code>）で、スプリング/ダンパー付きサスペンションとアッカーマン操舵を備えた4輪車が数行で生成でき、<code>accelerator</code>（0〜1）と<code>steer</code>（-1〜1）の2値で運転できます。<br>サスペンションが路面の細かな凹凸を吸収するため、無加工のスキャン路面でも滑らかに走れます。<br>罠は二つ：<code>VehicleData</code>には<code>rootVehiclePath</code>と<code>rootSharedPath</code>を明示すること、コライダーを生成された<code>GroundSurfaceCollisionGroup</code>に登録することです。</p>
 
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_drive_poster_v5.jpg">
@@ -363,7 +363,7 @@
   </figure>
 
   <h2 id="cleanup"><span class="n">05</span> オプション：クリーンアップは慎重に</h2>
-  <p>フローターや写り込んだ通行人を後処理で消すことも可能ですが、<strong>削除処理はポール・看板・車止めなどの実在物を巻き添えにしやすい</strong>ため、本手順では行いません。どうしても消す場合は、参照面に生LiDAR点群を含める・矩形でなくシルエット単位で消す・処理のたびにbefore/afterを同一視点で見比べて消えた物を目視確認する、の3点を守ってください。衝突・経路検証が目的なら、消さないのが一番安全です。</p>
+  <p>フローターや写り込んだ通行人を後処理で消すことも可能ですが、<strong>削除処理はポール・看板・車止めなどの実在物を巻き添えにしやすい</strong>ため、本手順では行いません。<br>どうしても消す場合は、参照面に生LiDAR点群を含める・矩形でなくシルエット単位で消す・処理のたびにbefore/afterを同一視点で見比べて消えた物を目視確認する、の3点を守ってください。<br>衝突・経路検証が目的なら、消さないのが一番安全です。</p>
 
   <h2 id="summary"><span class="n">06</span> まとめ</h2>
   <p>LiDAR搭載スキャナの3DGSをIsaac Simのシミュレーション環境にする手順は、この3行に収まります。</p>
@@ -378,7 +378,7 @@
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>
     <h3>ロケハン3Dでは、実在の空間を<br class="pc">シミュレーションに使える形でスキャンします</h3>
-    <p>LiDARと写真を同時に取得するため、見た目と実測形状の両方が揃ったデータになります。ロボット検証・デジタルツイン・映像制作まで、用途に合わせた形式でお渡しします。</p>
+    <p>LiDARと写真を同時に取得するため、見た目と実測形状の両方が揃ったデータになります。<br>ロボット検証・デジタルツイン・映像制作まで、用途に合わせた形式でお渡しします。</p>
     <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
   </div>
 </article>
@@ -422,7 +422,7 @@
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
-      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br>3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @Kou45388803 をフォロー →
@@ -434,7 +434,7 @@
 
 <footer>
   <div class="wrap">
-    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → DECIMATE (&lt; 2^24) → USDC → ISAAC SIM STAGE → TRAJECTORY CAMERA → RTX CAPTURE</p>
   </div>

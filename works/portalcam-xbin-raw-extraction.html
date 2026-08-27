@@ -245,7 +245,7 @@
     <span>2026-07-26</span><span>・</span><span>読了 約6分</span>
   </div>
   <h1>PortalCamの生データ(.xbin)<br class="pc">から4K元画像を取り出す</h1>
-  <p class="lead">ロケハン3Dの中村です。PortalCamでスキャンすると、LCC StudioやLixel Studioが3DGSや点群を書き出してくれますが、その裏には<strong>撮影した元の4K画像</strong>がそのまま生データの中に眠っています。この記事では、CLIツールだけを使って生データ(.xbin)から4K元画像を取り出す方法と、実際にその画像でフォトグラメトリ再構成を試して分かった限界をまとめます。</p>
+  <p class="lead">ロケハン3Dの中村です。<br>PortalCamでスキャンすると、LCC StudioやLixel Studioが3DGSや点群を書き出してくれますが、その裏には<strong>撮影した元の4K画像</strong>がそのまま生データの中に眠っています。<br>この記事では、CLIツールだけを使って生データ(.xbin)から4K元画像を取り出す方法と、実際にその画像でフォトグラメトリ再構成を試して分かった限界をまとめます。</p>
 
   <figure>
     <img src="images/xbin_cam_pinholeA.jpg" alt="PortalCamの生データから抽出し、魚眼から透視投影に変換した4K元画像の例（車道と高層ビル群）">
@@ -276,35 +276,35 @@
   </div>
 
   <h2 id="why"><span class="n">01</span> なぜ生データから元画像を取り出すのか</h2>
-  <p>PortalCamのスキャンをLCC Studioで書き出すと、3DGSと点群、それにLiDARメッシュが出てきます。ここまでで映像制作にはほぼ困りませんが、<strong>現場を歩いたときのカメラそのものの4K画像</strong>が別に欲しい場面があります。3DGSからは作れない使いどころが2つあります。</p>
+  <p>PortalCamのスキャンをLCC Studioで書き出すと、3DGSと点群、それにLiDARメッシュが出てきます。<br>ここまでで映像制作にはほぼ困りませんが、<strong>現場を歩いたときのカメラそのものの4K画像</strong>が別に欲しい場面があります。<br>3DGSからは作れない使いどころが2つあります。</p>
   <ul>
     <li><strong>AIの参照素材として使う</strong> ── 3DGSのレンダリング画像より、実写の4K画像のほうが背景修正・生成AIの参照精度が上がります。</li>
     <li><strong>別のパイプラインでの3D再構成を試す</strong> ── フォトグラメトリなど、3DGS以外の手法にも同じ現場データを流用できないか検証できます（この記事の後半で、実際に試した結果を正直に書きます）。</li>
   </ul>
-  <p>PortalCamのLCC StudioにもGUIから画像を書き出す機能はありますが、この記事では<strong>GUIを開かず、CLIツールだけで完結する方法</strong>を使います。バッチ処理や自動化に組み込みやすいためです。</p>
+  <p>PortalCamのLCC StudioにもGUIから画像を書き出す機能はありますが、この記事では<strong>GUIを開かず、CLIツールだけで完結する方法</strong>を使います。<br>バッチ処理や自動化に組み込みやすいためです。</p>
 
   <h2 id="structure"><span class="n">02</span> PortalCamのスキャン成果物の中身</h2>
-  <p>抽出の前に、PortalCamが1回のスキャンで作るフォルダの中身を把握しておきます。<code>ShotData/&lt;スキャン名&gt;/</code> 配下は、だいたい次のような構成になっています。</p>
+  <p>抽出の前に、PortalCamが1回のスキャンで作るフォルダの中身を把握しておきます。<br><code>ShotData/&lt;スキャン名&gt;/</code> 配下は、だいたい次のような構成になっています。</p>
   <div class="code"><pre><code>ShotData/&lt;スキャン名&gt;/
 ├─ 2026-XX-XX-XXXXXX.xbin        # 生センサー記録（画像＋LiDAR＋IMU＋GNSS）
 ├─ ply/ply-result/                # 3DGS本体
 ├─ Lcc2/lcc2-result/              # LCC2書き出し（3DGS＋メッシュ）
 ├─ mesh-files/&lt;スキャン名&gt;.obj    # LiDARメッシュ（粗い）
 └─ project_data/                  # 移動軌跡・カメラ構成などのログ</code></pre></div>
-  <p>この中で今回使うのは、いちばん重いファイルである<strong><code>.xbin</code></strong>だけです。ファイルサイズは撮影時間に比例し、数分のスキャンで1GB前後になります。</p>
+  <p>この中で今回使うのは、いちばん重いファイルである<strong><code>.xbin</code></strong>だけです。<br>ファイルサイズは撮影時間に比例し、数分のスキャンで1GB前後になります。</p>
 
   <h2 id="xbin"><span class="n">03</span> xBinの正体：JPEGではなくH.264動画</h2>
-  <p><code>.xbin</code>を実際に解析すると、正体は<strong>XBAG形式</strong>という「センサーデータをまとめて詰め込んだ入れ物」でした。カメラ映像・LiDAR点群・IMU・GNSSが時系列で1本のファイルに混在しています。</p>
+  <p><code>.xbin</code>を実際に解析すると、正体は<strong>XBAG形式</strong>という「センサーデータをまとめて詰め込んだ入れ物」でした。<br>カメラ映像・LiDAR点群・IMU・GNSSが時系列で1本のファイルに混在しています。</p>
   <div class="callout warn"><b>ファイルから画像を拾い出すことはできない</b>ファイル全域を探しても、静止画は1枚も埋まっていません。<strong>カメラ映像はH.264の動画として記録されている</strong>ため、デコードしないと1枚の画像も取り出せません。</div>
-  <p>自前で動画部分を取り出してffmpegに渡す方法もありますが、ファイル構造を正しく辿る実装が要るため手間がかかります。次の章で使うXGRIDS純正のCLIツールなら、この工程を意識せずに済みます。</p>
+  <p>自前で動画部分を取り出してffmpegに渡す方法もありますが、ファイル構造を正しく辿る実装が要るため手間がかかります。<br>次の章で使うXGRIDS純正のCLIツールなら、この工程を意識せずに済みます。</p>
 
   <h2 id="extract"><span class="n">04</span> 4K元画像を抽出するコマンド</h2>
-  <p>使うツールは、LixelStudioに同梱されている<code>extract_images_h264.exe</code>です。LCC StudioやLixel Studioを起動する必要はなく、コマンド1行で完結します。</p>
+  <p>使うツールは、LixelStudioに同梱されている<code>extract_images_h264.exe</code>です。<br>LCC StudioやLixel Studioを起動する必要はなく、コマンド1行で完結します。</p>
   <div class="code"><pre><code>"C:\Program Files (x86)\LixelStudio\extract_images_h264.exe" ^
   --hbc_path &lt;xbinのパス&gt; --out_dir &lt;出力先&gt; ^
   --out_fps 5 --prj_version 1 --device_type 4 --use_blur_detect 1</code></pre></div>
   <div class="callout warn"><b><code>--prj_version 1</code> は省略できません</b>省略すると、エラーメッセージも出さずに「hbc not exsit」とだけ表示して無言で終了します。<code>.hbc</code>形式なら0、<code>.xbin</code>形式なら1を指定します。</div>
-  <p><code>--device_type</code>は撮影機材を指定するフラグですが、PortalCamは選択肢の一覧に載っていません。実際に試した結果、次の値が正解でした。</p>
+  <p><code>--device_type</code>は撮影機材を指定するフラグですが、PortalCamは選択肢の一覧に載っていません。<br>実際に試した結果、次の値が正解でした。</p>
   <div class="tblwrap"><table>
     <thead><tr><th>device_type</th><th>対象機材</th><th>結果</th></tr></thead>
     <tbody>
@@ -314,12 +314,12 @@
       <tr><td>5 / 6</td><td>（他機材）</td><td>0枚</td></tr>
     </tbody>
   </table></div>
-  <p>この2つのフラグさえ合わせれば、あとは指定した出力先にカメラごとのフォルダができ、<strong>4Kクラスの魚眼JPEG</strong>がタイムスタンプ付きファイル名で並びます。なお出力フレームレートの指定は実質効かず、元データの全フレームがそのまま出力されます。</p>
+  <p>この2つのフラグさえ合わせれば、あとは指定した出力先にカメラごとのフォルダができ、<strong>4Kクラスの魚眼JPEG</strong>がタイムスタンプ付きファイル名で並びます。<br>なお出力フレームレートの指定は実質効かず、元データの全フレームがそのまま出力されます。</p>
   <div class="callout note"><b>魚眼のまま扱いにくい場合</b>抽出される画像は魚眼レンズそのままの円形の写り込みです。一般的な画像処理・フォトグラメトリソフトで使うには、同梱の<code>fisheye2perspective.exe</code>で透視投影に変換します。この記事の冒頭とこのあとの図版も、変換後のものです。</div>
 
   <h2 id="stereo"><span class="n">05</span> 4カメラのうち2台しか出せない制約</h2>
-  <p>PortalCamは<strong>左右にメインとサブ、合わせて4眼</strong>を積んでいます。<code>.xbin</code>の中にも、この4本分の定義が入っています。</p>
-  <p>ところが<code>extract_images_h264.exe</code>が実際にデコードするのは<strong>左右のメイン2本だけ</strong>です。サブ側を出力する方法は今のところ見つかっていません。</p>
+  <p>PortalCamは<strong>左右にメインとサブ、合わせて4眼</strong>を積んでいます。<br><code>.xbin</code>の中にも、この4本分の定義が入っています。</p>
+  <p>ところが<code>extract_images_h264.exe</code>が実際にデコードするのは<strong>左右のメイン2本だけ</strong>です。<br>サブ側を出力する方法は今のところ見つかっていません。</p>
   <p>幸い、出てくる2本は<strong>同時刻に記録された同期ステレオペア</strong>になっているので、視差情報そのものは確保できています。</p>
   <div class="duo">
     <figure>
@@ -333,15 +333,15 @@
   </div>
 
   <h2 id="photogrammetry"><span class="n">06</span> 検証：抽出画像からのフォトグラメトリは全滅</h2>
-  <p>ここからは条件付きの結論です。「4K元画像が取れるなら、フォトグラメトリでメッシュも作れるのでは」と考え、会議室のスキャンで実際に試しましたが、<strong>現時点ではこの道は塞がっています</strong>。</p>
+  <p>ここからは条件付きの結論です。<br>「4K元画像が取れるなら、フォトグラメトリでメッシュも作れるのでは」と考え、会議室のスキャンで実際に試しましたが、<strong>現時点ではこの道は塞がっています</strong>。</p>
   <div class="callout warn"><b>RealityScanは完全にハングする</b>魚眼のままだと起動直後にクラッシュします。透視投影に変換してから読み込んでも、<strong>画像を並べる工程で処理が止まったまま進みません</strong>。長時間待っても進捗はまったく動かず、最終的にウィンドウが操作不能になって強制終了しました。出力は0件です。</div>
   <div class="callout warn"><b>COLMAPは起動すらできない</b>実行すると即座に落ちます。原因はWindowsのセキュリティ機能が、同梱の署名なしファイルをブロックしていることです。<strong>この機能の無効化はWindowsの再インストールでしか元に戻せない不可逆操作</strong>のため、この検証では実施していません。</div>
-  <p>本質的な原因は撮り方の違いです。<strong>歩きながら点在して撮った程度の枚数では、特徴点マッチングが成立しません。</strong>PortalCamは歩きながら連続的に3DGS用のデータを集める設計であり、フォトグラメトリが前提とする「1点にとどまって、写真どうしの重なりを大きく取りながら撮る」撮り方とは根本的に噛み合いません。加えて、検証した会議室は無地の壁が多く、手がかりになる特徴点自体が少ない現場でした。魚眼から透視投影への変換自体は問題なく機能しており、詰まっているのはあくまで再構成側です。</p>
+  <p>本質的な原因は撮り方の違いです。<br><strong>歩きながら点在して撮った程度の枚数では、特徴点マッチングが成立しません。</strong><br>PortalCamは歩きながら連続的に3DGS用のデータを集める設計であり、フォトグラメトリが前提とする「1点にとどまって、写真どうしの重なりを大きく取りながら撮る」撮り方とは根本的に噛み合いません。<br>加えて、検証した会議室は無地の壁が多く、手がかりになる特徴点自体が少ない現場でした。<br>魚眼から透視投影への変換自体は問題なく機能しており、詰まっているのはあくまで再構成側です。</p>
   <div class="callout note"><b>再挑戦するなら</b>同じ現場なら、写真どうしの重なりを大きく取った別撮りが必要になります。サブ側の2眼まで抽出できれば情報量は増えますが、現状はメイン側の2眼のみです。今のところ、抽出画像は次章のAI参照素材としての使い道に絞るのが現実的です。</div>
 
   <h2 id="summary"><span class="n">07</span> 使いどころとまとめ</h2>
-  <p>この記事の流れをまとめると、<strong>PortalCamの生データ(.xbin)はXBAG形式のH.264動画で、<code>extract_images_h264.exe</code>に<code>--prj_version 1</code>と<code>--device_type 4</code>を指定すれば4K元画像を抽出できる</strong>、という一本道です。ただし4眼のうち出せるのは2眼のみで、抽出画像そのものからのフォトグラメトリ再構成は現状うまくいっていません。</p>
-  <p>いちばん実用的な使いどころは、<strong>AIの参照素材</strong>です。抽出した連番フレームは現場の実写そのものなので、Nano Banana ProやGeminiで背景の破綻を修正するときの参照や、動画生成AIにロケーションを指定するときの参照として強力に効きます。実際のAI活用ワークフローは<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しているので、あわせて参照してください。</p>
+  <p>この記事の流れをまとめると、<strong>PortalCamの生データ(.xbin)はXBAG形式のH.264動画で、<code>extract_images_h264.exe</code>に<code>--prj_version 1</code>と<code>--device_type 4</code>を指定すれば4K元画像を抽出できる</strong>、という一本道です。<br>ただし4眼のうち出せるのは2眼のみで、抽出画像そのものからのフォトグラメトリ再構成は現状うまくいっていません。</p>
+  <p>いちばん実用的な使いどころは、<strong>AIの参照素材</strong>です。<br>抽出した連番フレームは現場の実写そのものなので、Nano Banana ProやGeminiで背景の破綻を修正するときの参照や、動画生成AIにロケーションを指定するときの参照として強力に効きます。<br>実際のAI活用ワークフローは<a href="portalcam-drone-ai-workflow.html">3DGSから「空撮カット」を生成する方法</a>で詳しく解説しているので、あわせて参照してください。</p>
   <p>生データの取り扱いや3DGS制作についてご相談があれば、お気軽にお問い合わせください。</p>
 
   <div class="data-cta">
@@ -390,7 +390,7 @@
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
-      <p>ロケハン3D（LOCAHUN 3D）代表。3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br>3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @Kou45388803 をフォロー →
@@ -402,7 +402,7 @@
 
 <footer>
   <div class="wrap">
-    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM SCAN → .XBIN (XBAG/H.264) → EXTRACT_IMAGES_H264 → 4K FISHEYE JPEG → PERSPECTIVE CONVERT</p>
   </div>

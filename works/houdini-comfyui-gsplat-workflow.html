@@ -242,7 +242,7 @@
     <span>2026-07-23</span>
   </div>
   <h1>Houdini 22 <em>×</em> ComfyUI ──<br class="pc">渋谷のGaussian Splatsで実証されたVFX <em>×</em> AIハイブリッドワークフロー</h1>
-  <p class="lead">シニアVFXアーティストの <strong>hectorVFX</strong> 氏（拠点：ハンガリー・ブダペスト）が、ロケハン3Dが提供した<strong>渋谷スクランブル交差点の Gaussian Splats（3DGS）</strong>データを使い、新しいVFX × AIハイブリッドワークフローの実験結果をXで公開してくれました。使用したのは <strong>Houdini 22</strong> と <strong>ComfyUI</strong> を組み合わせた手法です。</p>
+  <p class="lead">シニアVFXアーティストの <strong>hectorVFX</strong> 氏（拠点：ハンガリー・ブダペスト）が、ロケハン3Dが提供した<strong>渋谷スクランブル交差点の Gaussian Splats（3DGS）</strong>データを使い、新しいVFX × AIハイブリッドワークフローの実験結果をXで公開してくれました。<br>使用したのは <strong>Houdini 22</strong> と <strong>ComfyUI</strong> を組み合わせた手法です。</p>
 
   <figure>
     <img src="images/hectorvfx_shibuya_ai_render.jpg" alt="渋谷スクランブル交差点のGaussian Splatsに合成され、AIレンダリングで仕上げられた白いスポーツカー（夜景）">
@@ -271,26 +271,26 @@
   </div>
 
   <h2 id="intro"><span class="n">01</span> きっかけ：Houdini 22でのGaussian Splattingネイティブ対応</h2>
-  <p>このワークフローの起点は、2026年7月にリリースされた<strong>Houdini 22</strong>で<strong>Gaussian Splatting（3DGS）がネイティブ機能になった</strong>ことです。これまで外部プラグインに頼るしかなかった3DGSを、<strong>通常の点群と同じようにHoudiniのノードで加工できる</strong>ようになりました。標準の変形ノードでアニメーションさせることも、Karmaレンダラーでそのままレンダリングすることもできます。3DGSが「見るだけの背景素材」から<strong>3D DCCの中で加工できるレイヤー</strong>に変わったことが、このハイブリッドワークフローを成り立たせています。</p>
+  <p>このワークフローの起点は、2026年7月にリリースされた<strong>Houdini 22</strong>で<strong>Gaussian Splatting（3DGS）がネイティブ機能になった</strong>ことです。<br>これまで外部プラグインに頼るしかなかった3DGSを、<strong>通常の点群と同じようにHoudiniのノードで加工できる</strong>ようになりました。<br>標準の変形ノードでアニメーションさせることも、Karmaレンダラーでそのままレンダリングすることもできます。<br>3DGSが「見るだけの背景素材」から<strong>3D DCCの中で加工できるレイヤー</strong>に変わったことが、このハイブリッドワークフローを成り立たせています。</p>
 
   <h2 id="workflow"><span class="n">02</span> ワークフローの流れ</h2>
-  <p>hectorVFX氏が公開した制作画面の録画をもとに手順を整理すると、次の4ステップになります。ポイントは、<strong>背景（渋谷の3DGS）と被写体（車両）を別々の経路で用意し、どちらも「Gaussian Splatsのまま」Houdini上で1つのシーンに合成する</strong>ことです。2D画像の合成ではなく、点群同士を3D空間でマージします。</p>
+  <p>hectorVFX氏が公開した制作画面の録画をもとに手順を整理すると、次の4ステップになります。<br>ポイントは、<strong>背景（渋谷の3DGS）と被写体（車両）を別々の経路で用意し、どちらも「Gaussian Splatsのまま」Houdini上で1つのシーンに合成する</strong>ことです。<br>2D画像の合成ではなく、点群同士を3D空間でマージします。</p>
 
   <h3>① Houdini 22：渋谷の3DGSをネイティブに読み込む</h3>
-  <p>ロケハン3Dが提供した渋谷スクランブル交差点の3DGSデータを、Houdini 22にそのまま読み込みます。Gaussian Splatting専用ノードを通すことで、3DGSは「見るだけの点群」ではなく<strong>法線を持つジオメトリ</strong>になり、他のノードと組み合わせて加工できる状態になります。</p>
+  <p>ロケハン3Dが提供した渋谷スクランブル交差点の3DGSデータを、Houdini 22にそのまま読み込みます。<br>Gaussian Splatting専用ノードを通すことで、3DGSは「見るだけの点群」ではなく<strong>法線を持つジオメトリ</strong>になり、他のノードと組み合わせて加工できる状態になります。</p>
 
   <h3>② ComfyUI：車両を「画像から3DGS」として生成する</h3>
-  <p>被写体の白いスポーツカーは、写真合成ではなく<strong>ComfyUI上でゼロから3D Gaussian Splatとして生成</strong>します。2D画像を作ってから3D化するのではなく、<strong>拡散モデルから直接3Dガウシアンを書き出す</strong>のがポイントです。メッシュに変換されずスプラットのまま出てくるため、①のHoudiniシーンにそのまま合流できます。</p>
+  <p>被写体の白いスポーツカーは、写真合成ではなく<strong>ComfyUI上でゼロから3D Gaussian Splatとして生成</strong>します。<br>2D画像を作ってから3D化するのではなく、<strong>拡散モデルから直接3Dガウシアンを書き出す</strong>のがポイントです。<br>メッシュに変換されずスプラットのまま出てくるため、①のHoudiniシーンにそのまま合流できます。</p>
   <div class="callout note"><b>TripoSplatとは</b>画像／テキストto3Dモデルの生成結果を、メッシュではなくガウシアンスプラットとして出力するComfyUIカスタムノード群です。スプラットのまま出てくるため、①のHoudini上の3DGSシーンにそのままネイティブに合流させられる点が、このワークフローの肝になっています。</div>
 
   <h3>③ Houdiniで合成：2つの3DGSを1つのシーンへ</h3>
-  <p>②で生成した車両スプラットをHoudiniに読み込み、①の渋谷シーンと結合します。位置・回転・スケールを合わせて交差点の横断歩道上に据えることで、<strong>実写スキャンとAI生成物という出自の違うデータが、1つの3Dシーンになります</strong>。</p>
+  <p>②で生成した車両スプラットをHoudiniに読み込み、①の渋谷シーンと結合します。<br>位置・回転・スケールを合わせて交差点の横断歩道上に据えることで、<strong>実写スキャンとAI生成物という出自の違うデータが、1つの3Dシーンになります</strong>。</p>
 
   <h3>④ カメラ・ライティング・最終レンダリング</h3>
-  <p>合成が済んだシーンにカメラを立て、モーションブラーと被写界深度を設定してレンダリングします。仕上げに夜間のネオン反射や濡れた路面のライティングでグレーディングすることで、記事冒頭の最終カットになります。</p>
+  <p>合成が済んだシーンにカメラを立て、モーションブラーと被写界深度を設定してレンダリングします。<br>仕上げに夜間のネオン反射や濡れた路面のライティングでグレーディングすることで、記事冒頭の最終カットになります。</p>
 
   <h2 id="video"><span class="n">03</span> 制作画面の録画で見る、全体の流れ</h2>
-  <p>hectorVFX氏からは、この一連の手順をキャプチャした短い画面録画も提供いただきました。Houdiniのシーングラフとビューポート、ComfyUIのノードグラフが実際にどう切り替わりながら進むのか、文章で読むより一目で伝わります。</p>
+  <p>hectorVFX氏からは、この一連の手順をキャプチャした短い画面録画も提供いただきました。<br>Houdiniのシーングラフとビューポート、ComfyUIのノードグラフが実際にどう切り替わりながら進むのか、文章で読むより一目で伝わります。</p>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/hector_workflow_poster.jpg">
       <source src="images/hector_houdini_comfyui_workflow.mp4" type="video/mp4">
@@ -309,7 +309,7 @@
     <figcaption><b>AIレンダリング後の最終カット。</b>構図・配置はプレビュー段階のまま、質感・ライティング・反射をAIレンダリングで作り込んでいる。</figcaption>
   </figure>
 
-  <p>元となった投稿には、この工程を動画で解説したクリップも公開されています。あわせてご覧ください。</p>
+  <p>元となった投稿には、この工程を動画で解説したクリップも公開されています。<br>あわせてご覧ください。</p>
   <a class="tweetcard" href="https://x.com/hectorVFX/status/2079919142052720768" target="_blank" rel="noopener">
     <span class="xic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
     <span class="tx"><b>@hectorVFX</b><span>元投稿を見る（動画あり）</span></span>
@@ -317,17 +317,17 @@
   </a>
 
   <h2 id="credit"><span class="n">05</span> 使用データについて</h2>
-  <p>今回のワークフローの舞台になっている<strong>渋谷スクランブル交差点のGaussian Splats</strong>は、ロケハン3D代表・中村航が提供したデータです。実際にPortalCamで現場を歩いてスキャンしたデータが、海を越えて別のクリエイターの手で新しい表現に使われた、うれしい事例になりました。</p>
+  <p>今回のワークフローの舞台になっている<strong>渋谷スクランブル交差点のGaussian Splats</strong>は、ロケハン3D代表・中村航が提供したデータです。<br>実際にPortalCamで現場を歩いてスキャンしたデータが、海を越えて別のクリエイターの手で新しい表現に使われた、うれしい事例になりました。</p>
 
   <div class="data-cta">
     <span class="dc-tag">DATA / 3DGS</span>
     <h3>この記事で使われている渋谷スクランブル交差点の3DGSデータは、<br class="pc">ロケハン3Dのオンライン版で購入・閲覧できます</h3>
-    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。スタンダードライセンス ¥200,000〜（商用・非商用利用可）。同じデータを使ってVFX × AIハイブリッドワークフローを試してみたい方は、ぜひご覧ください。</p>
+    <p>PLY／OBJ形式（3DGSウォークスルー付き）で提供。<br>スタンダードライセンス ¥200,000〜（商用・非商用利用可）。<br>同じデータを使ってVFX × AIハイブリッドワークフローを試してみたい方は、ぜひご覧ください。</p>
     <a class="dc-btn" href="https://locahun3d.com/properties/shibuyasq" target="_blank" rel="noopener">物件データを見る →</a>
   </div>
 
   <h2 id="summary"><span class="n">06</span> まとめ</h2>
-  <p>Houdini 22 の登場で、Gaussian Splats を「見るだけの素材」から「3Dシーンの中で本格的に制御できるレイヤー」として扱える環境が整いつつあります。ロケハン3Dのスキャンデータも、こうしたVFX × AIハイブリッドワークフローの土台として活用いただけます。同様の実験・制作にご興味のある方は、お気軽にお問い合わせください。</p>
+  <p>Houdini 22 の登場で、Gaussian Splats を「見るだけの素材」から「3Dシーンの中で本格的に制御できるレイヤー」として扱える環境が整いつつあります。<br>ロケハン3Dのスキャンデータも、こうしたVFX × AIハイブリッドワークフローの土台として活用いただけます。<br>同様の実験・制作にご興味のある方は、お気軽にお問い合わせください。</p>
 </article>
 <section class="related" aria-labelledby="related-h">
   <h2 id="related-h">関連する記事</h2>
@@ -368,7 +368,7 @@
     <div>
       <div class="cname">hectorVFX</div>
       <div class="crole">シニアVFXアーティスト</div>
-      <p>Houdini・ComfyUIを軸にしたVFX × AIハイブリッドワークフローを探求するシニアVFXアーティスト。YouTubeでもVFX技術を発信している。拠点はハンガリー・ブダペスト。</p>
+      <p>Houdini・ComfyUIを軸にしたVFX × AIハイブリッドワークフローを探求するシニアVFXアーティスト。<br>YouTubeでもVFX技術を発信している。<br>拠点はハンガリー・ブダペスト。</p>
       <div class="btnrow">
         <a class="xbtn" href="https://x.com/hectorVFX" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -387,7 +387,7 @@
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 3DGSスキャン</div>
-      <p>ロケハン3D（LOCAHUN 3D）代表。本ワークフローで使用された<strong>渋谷スクランブル交差点の3DGSデータ</strong>のスキャンを担当。</p>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br>本ワークフローで使用された<strong>渋谷スクランブル交差点の3DGSデータ</strong>のスキャンを担当。</p>
       <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         @Kou45388803 をフォロー →
@@ -399,7 +399,7 @@
 
 <footer>
   <div class="wrap">
-    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
     <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: SHIBUYA 3DGS + COMFYUI TRIPOSPLAT (CAR) → HOUDINI 22 (MERGE / CAMERA) → FINAL RENDER</p>
   </div>
