@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>渋谷の3DGSでロボットを走らせてみました｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="渋谷スクランブル交差点をスキャンした3DGSをNVIDIA Isaac Simに持ち込み、ロボットを走らせた記録。LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。">
 <link rel="canonical" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/isaacsim-3dgs-robot-demos.html">
@@ -13,16 +13,16 @@
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
-<meta property="og:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
+<meta property="og:title" content="渋谷の3DGSでロボットを走らせてみました">
+<meta property="og:description" content="渋谷スクランブル交差点をスキャンした3DGSをNVIDIA Isaac Simに持ち込み、ロボットを走らせた記録。LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/isaacsim-3dgs-robot-demos.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="720">
 <meta property="og:image:alt" content="渋谷スクランブル交差点の3DGSをNova CarterがRTX LiDARを回しながら走る図">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Isaac Sim 6.0で3DGSの街をロボット開発に使う──RTX LiDAR・太陽の影・自律走行">
-<meta name="twitter:description" content="LiDARスキャンした渋谷スクランブル交差点の3DGS環境で、NVIDIA Isaac Sim 6.0のNova CarterにRTX LiDARを載せて走らせ、純正メッシュの影を3DGSに落とし、占有格子＋A*で自律走行させるまでの手順と罠。不可視プリムはRTXセンサーに映らない、GMOのマウント高、占有格子バッファのx反転、キャスターシミーなど、実際に動かして踏んだ落とし穴を全部書きます。">
+<meta name="twitter:title" content="渋谷の3DGSでロボットを走らせてみました">
+<meta name="twitter:description" content="渋谷スクランブル交差点をスキャンした3DGSをNVIDIA Isaac Simに持ち込み、ロボットを走らせた記録。LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/shibuya_lidar_hero.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -274,250 +274,79 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">Isaac Sim 6.0</span><span class="badge">RTX LiDAR</span><span class="badge">自律走行</span>
-    <span>2026-08-18</span><span>・</span><span>読了 約14分</span>
+    <span class="badge">3DGS</span><span class="badge">Isaac Sim</span><span class="badge">ロボット</span><span class="badge">渋谷</span>
+    <span>2026-08-18</span><span>・</span><span>読了 約3分</span>
   </div>
-  <h1>Isaac Sim 6.0で<br class="pc">3DGSの街をロボット開発に使う<br class="pc">──RTX LiDAR・太陽の影・自律走行</h1>
-  <p class="lead">ロケハン3Dの中村です。<a href="3dgs-lidar-denoise.html">前回</a>作った「無加工の3DGS＋純正メッシュの2層環境」の上で、ロボット開発で実際に要ることをNVIDIA Isaac Sim 6.0で通しました。前半は<strong>実センサ（RTX LiDAR）・時刻で動く影・地図と自律走行・意味ラベル</strong>という土台、後半は<strong>渋谷の街の構造（歩道・横断歩道・信号）をロボットに読ませ、配送ロボットが歩行者ルールで渡る</strong>といった「状況」ごとのシミュレーションです。機体はIsaac標準のNova Carter、舞台は渋谷スクランブル交差点のスキャン。動く画とあわせて、真似すると必ず踏む罠と「まだできないこと」を正直に書きます。</p>
+  <h1>渋谷の3DGSで<br class="pc">ロボットを走らせてみました</h1>
+  <p class="lead">ロケハン3Dの中村です。渋谷スクランブル交差点をスキャンした3DGSを、NVIDIA Isaac Simにそのまま持ち込んで、ロボットを走らせました。舞台は実在の交差点、機体はIsaac標準のNova Carterです。細かい話は省いて、動いた画だけ並べます。</p>
 
   <figure>
     <img src="images/shibuya_lidar_hero.jpg" alt="渋谷スクランブル交差点の3DGSをNova CarterがRTX LiDARを回しながら走る図">
-    <figcaption><b>Nova CarterのLiDARが3DGSの渋谷をなぞっているところです。</b>点群はシミュレータ内のLiDARモデルの出力で（実機LiDARの再現性は未検証）、見た目は3DGS、当たり判定は純正メッシュ側の担当です。</figcaption>
+    <figcaption><b>スキャンした渋谷の中を、ロボットがLiDARを回しながら走っています。</b>見えている街並みは、撮ってきたスキャンをそのまま使っています。</figcaption>
   </figure>
 </header>
 
-<nav class="toc">
-  <h2>目次</h2>
-  <ol>
-    <li><a href="#overview">前提と、センサが「どの面」を見るか</a></li>
-    <li><a href="#lidar">デモ1：Nova Carter＋RTX LiDARで街をなぞる</a></li>
-    <li><a href="#sun">デモ2：純正メッシュの影を3DGSに落とす（太陽タイムラプス）</a></li>
-    <li><a href="#nav">デモ3：地図を作ってゴールまで自律走行</a></li>
-    <li><a href="#semantic">追試：3DGSに「意味ラベル」を持たせる</a></li>
-    <li><a href="#structure">渋谷の構造を読む：歩道・横断歩道の地図</a></li>
-    <li><a href="#pedrule">状況1：配送ロボットが歩行者ルールで渡る（信号待ち）</a></li>
-    <li><a href="#peds">状況2：全方向から来る歩行者の中で止まる・再発進する</a></li>
-    <li><a href="#landmarks">状況3：言葉で指定したランドマークへ行く</a></li>
-    <li><a href="#planning">状況4：現地に行く前に決める（巡回の死角・イベント設営）</a></li>
-    <li><a href="#limits">実用シミュとして足りないもの</a></li>
-    <li><a href="#summary">まとめ・納品物</a></li>
-  </ol>
-</nav>
-
 <article>
-  <div class="stepflow">
-    <b>2層環境（前回）</b><span class="a">→</span>
-    <b>Nova Carter＋RTX LiDAR</b><span class="a">→</span>
-    <b>影の合成</b><span class="a">→</span>
-    <b>地図＋自律走行</b><span class="a">→</span>
-    <b>街の構造（歩道・横断歩道）</b><span class="a">→</span>
-    <b>状況別シミュレーション</b>
-  </div>
-
-  <div class="callout note"><b>この記事で得られるもの</b>前回の2層USD（3DGS＋不可視コライダー）を入力に、<strong>①Isaac標準ロボの走行とLiDAR点群の取得 ②純正メッシュを影キャスターにした時刻変化 ③コライダーからの地図生成と経路追従</strong>の3本が動く状態になり、その上で<strong>④歩道・横断歩道・車道の地面地図と、実測の信号サイクルで歩行者ルールに従って渡る配送ロボットのシミュレーション</strong>まで進みます。シミュレーション側はIsaac Sim 6.0.1同梱の機能だけで、追加インストールはありません（ROS 2は使っていません）。</div>
-
-  <h2 id="overview"><span class="n">01</span> 前提と、センサが「どの面」を見るか</h2>
-  <p>環境は<a href="3dgs-lidar-denoise.html">前回</a>のまま——見た目は無加工の3DGS、物理はスキャナ純正メッシュ＋地面パッチの不可視コライダーです。Isaac Sim 6.0では3DGSの取り込みがUSDのParticleField中心に整理され、RTX LiDARのAPIも新しくなり、ROS 2はWindowsでも公式手順が用意されました（ROS 2は本記事では未検証）。</p>
-  <p>先に、全部に共通する<strong>「センサはどの面を見るか」</strong>を整理します。実測で分かったのは次の3点です。<strong>①RTXのLiDARは3DGSそのもの（スプラット）に当たります</strong>——3DGSだけを表示した状態で地面も建物も返り、全部を非表示にすると返りがゼロになることを確認しました。ただしこれは手元のIsaac Sim 6.0.1での実測で、NVIDIAは6.0.0時点のフォーラム回答で「スプラットはLiDARに見えない」としており、公式に保証された挙動ではありません。バージョンが変われば必ず再確認し、納品ではメッシュの返り（③）も用意します。<strong>②不可視にしたプリムには当たりません</strong>——なので不可視のコライダーはLiDARに映らず、LiDARの返りと衝突面は数cmずれます（この差はロボットには小さく、カメラとLiDARが同じ面を見るという意味ではむしろ好都合です）。<strong>③メッシュの返りが欲しいときは、カットアウト透過のマテリアルを付けたメッシュを置くと、手元の6.0.1ではカメラには写らずLiDARだけが当たりました</strong>（透過の設定次第でLiDARからも消えるので、使う設定で受入試験が要ります）。一方、影の方はこの手が効きません——影を落とすメッシュはカメラからも見えてしまうので、デモ2は合成で作っています。</p>
-  
-  <figure>
-    <img src="images/shibuya_sharpness_v1.jpg" alt="同じカメラ・同じ3DGSを、描画設定だけ変えて並べた6面比較">
-    <figcaption><b>「Isaacの中の3DGSは元のビューアーよりぼやける」の正体を切り分けたところです。</b>同じカメラ・同じ3DGSで描画設定だけを変えています。既定のアップスケール（DLSS）を切り、4Kで描いてから縮小すると最も締まりますが、それでも遠景の看板や細い物の縁は元データなりに滲みます。ぼやけの大半は3DGSそのものの性質で、シミュレータ側の設定で取り戻せるのは一部です。本記事の以降の動画はこの「アップスケール無し＋高解像度で描いて縮小」の設定で撮っています。</figcaption>
-  </figure>
-  <div class="callout note"><b>検証環境</b>Isaac Sim 6.0.1（Windows 11）＋GeForce RTX 5090。この環境を読み込むとVRAMを十数GB使います。座標はZ-up・メートル単位で、原点はスキャナ出力のローカル原点（緯度経度との対応なし）。Linuxでは未検証。<strong>本記事の動画はシミュレーション時間の約2倍速</strong>で再生しています（本文の速度・時間はすべてシミュ時間基準）。使っている拡張は一部がexperimental扱いで、バージョンを固定して運用してください。</div>
-
-  <h2 id="lidar"><span class="n">02</span> デモ1：Nova Carter＋RTX LiDARで街をなぞる</h2>
+  <h2 id="lidar">街をLiDARでなぞる</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_carter_lidar_live_poster_v1.jpg">
       <source src="videos/shibuya_carter_lidar_live_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>Nova Carterが横断歩道を渡り、車載LiDARの点群が街をなぞります。</b>LiDARは3DGSそのものに当てており、カメラ映像と点群を1回の走行で同時に取っています。走行は実機と同じ差動2輪＋前キャスター構成で、見た目は無加工の生スキャン、接地と衝突は不可視のコライダーです。</figcaption>
+    <figcaption><b>ロボットが横断歩道を渡りながら、車載LiDARの点群が街をなぞります。</b>カメラの映像と点群を、1回の走行で同時に取っています。</figcaption>
   </figure>
-  <figure>
-    <img src="images/shibuya_lidar_splat_vs_mesh_v1.jpg" alt="同じ位置のLiDARを3DGSに当てた場合と純正メッシュに当てた場合の俯瞰比較">
-    <figcaption><b>同じ位置に置いたLiDARを、3DGSに当てた場合（左）と純正メッシュに当てた場合（右）で見比べたところです。</b>3DGSの返りはリングの間に霞や放射状の筋（半透明の粒や浮遊物への反射）が出ます。近距離では1割弱の点が面から外れます。メッシュの返りは形が正確でノイズはほぼゼロですが、カメラが見ている面とは数cmずれます。用途に応じてどちらにも当てられます。</figcaption>
-  </figure>
-  <figure>
-    <img src="images/shibuya_lidar_models_v1.jpg" alt="同じ位置で2機種のLiDAR設定を比べた俯瞰図">
-    <figcaption><b>同じ位置で機種設定だけ変えて比べたところです。</b>Isaacに同梱の実在機種プリセット（左が32ch、右がOuster OS1）を差し替えるだけで、点の密度や届く範囲の違いを同じ街で見比べられます（比較できるのはそこまでで、機種選定には実機ログとの照合が要ります）。なお本構成では安定して動かせるLiDARは環境あたり1台で、機種ごとに環境を開き直しました。</figcaption>
-  </figure>
-  <p>手順は4つです。<strong>①機体</strong>：Isaac標準のNova Carterを読み込み、同梱の差動駆動コントローラで動かします。<strong>②センサ</strong>：同梱のRTX LiDAR（実在機種の設定）を車体の上に子付けし、毎フレーム点群を読み出します。<strong>③制御</strong>：数m先の目標へ向く単純な向き制御。<strong>④描画</strong>：点群を世界座標に変換してビューポートに描きます。</p>
-  <div class="callout warn"><b>踏んだ罠</b>
-    <ul>
-      <li><strong>メッシュの返りが欲しいときは</strong>、コライダーと同形のメッシュにカットアウト透過のマテリアルを付けて置きます。カメラには写らずLiDARだけが当たるので、こちらも1回の走行で同時に取れます。</li>
-      <li><strong>LiDARの点を世界座標に戻すと、センサの取付高さ分だけ地面が低く出ました。</strong>取付オフセットを足すと一致します。</li>
-      <li><strong>ホイールの駆動設定を自分で上書きしない。</strong>資産の既定に任せた方が安定します。</li>
-      <li><strong>速度を上げるとキャスターが振れてスピンします。</strong>生スキャン路面では歩く速さ程度が安定域。これはシミュ側の現象で実機の挙動ではないので、この環境で走行の安定性やゲインを詰めても実機には持ち込めません。</li>
-      <li><strong>同じ場所へロボを読み直すと車体が消える。</strong>テイクごとにステージを開き直すのが確実です。ステージの開き直しを繰り返すと3DGSが真っ黒になることもあり、その時はIsaacを再起動します。</li>
-      <li><strong>LiDARの点群にはモーション歪みが入っていません</strong>（既定設定）。SLAM検証に使うなら別途有効化が要ります。</li>
-    </ul>
-  </div>
 
-  <h2 id="sun"><span class="n">03</span> デモ2：純正メッシュの影を3DGSに落とす（太陽タイムラプス）</h2>
+  <h2 id="sun">時刻を動かして影を見る</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_sun_poster_v1.jpg">
       <source src="videos/shibuya_sun_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>日の出から日没まで、街灯・標識・交番の影がスクランブル交差点を掃引します。</b>影の形はスキャナ純正メッシュから、色は3DGSからです。朝夕の色味は合成時に足しています。</figcaption>
+    <figcaption><b>日の出から日没まで、街灯・標識・交番の影がスクランブル交差点を掃引します。</b>同じ場所を「別の時間帯」として見せられます。</figcaption>
   </figure>
-  <figure>
-    <img src="images/shibuya_sun_stills_v1.jpg" alt="朝・昼・夕の3時刻で影の向きと長さが変わる交差点の静止画">
-    <figcaption><b>朝・昼・夕の3時刻を切り出したものです。</b>影の向きと長さが変わるので、同じ場所を「別の時間帯」として見せられます。色味は合成時に加えています。</figcaption>
-  </figure>
-  <p>Omniverseの<a href="https://docs.omniverse.nvidia.com/materials-and-rendering/latest/particle-fields.html" target="_blank" rel="noopener">公式仕様</a>にある通り、6.0では<strong>メッシュの影が3DGSの上に落ちます</strong>（デモ1のロボの影がそれです）。ただしスプラットの色は焼き込みなので、<strong>ライトを足しても明るくならず、色温度も変わりません</strong>。「影だけは付けられる、リライトはできない」が6.0時点の正確な状態です。</p>
-  <p>建物や街灯の影を落とすには純正メッシュをキャスターにすればよいのですが、キャスターをカメラから隠せません。そこで<strong>3枚のレンダを合成</strong>しました：3DGSだけの絵、白く塗ったメッシュに太陽を当てた「影あり」の絵、同じく「影なし」の絵。影あり／影なしの比から影だけを取り出して、3DGSの絵に掛けます。</p>
-  <div class="callout note"><b>限界</b>影マスクはメッシュから、貼る先はスプラットなので、両者の面のズレ（数cm〜遠景で1m超）の分だけ影の位置もずれます。近景の路面影は実用範囲、遠景の建物影は輪郭が合いません。この方式は固定カメラのオフライン合成で、走行中のカメラ映像にはそのまま使えません。受けた影は仕様上滲み、スキャン時に焼き込まれた影と二重になるため、曇天スキャンほど自然です。夜景化・ネオン点灯などのリライトは6.0では不可です。</div>
 
-  <h2 id="nav"><span class="n">04</span> デモ3：地図を作ってゴールまで自律走行</h2>
+  <h2 id="nav">地図を作ってゴールまで自律走行</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_nav_poster_v1.jpg">
       <source src="videos/shibuya_nav_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>コライダーから生成した占有格子（右上）で経路（緑）を引き、Nova Carterが交番の角を回り込んでゴールへ到達します。</b>橙が実走行の軌跡、赤三角が現在位置。地図はIsaac同梱の占有格子ジェネレータで、コライダーからそのまま出しています。</figcaption>
+    <figcaption><b>街から起こした地図（右上）の上に経路を引き、ロボットが交番の角を回り込んでゴールへ着きます。</b>橙が実際に走った跡、赤い三角が現在位置です。</figcaption>
   </figure>
-  <figure>
-    <img src="images/shibuya_nav_routes_v1.jpg" alt="占有格子の上に3つのゴールへの計画経路と実走行軌跡を重ねた図">
-    <figcaption><b>同じ出発点から3つのゴールへ走らせたところです。</b>交番の角を回るA、南側へ抜けるB、北側の歩道へ向かうC。太い線が計画経路、細い線が実際の走行軌跡で、3本ともほぼ計画通りにゴールへ着いています。Bは途中で写り込みの障害物を避けて折れています。</figcaption>
-  </figure>
-  <p><strong>地図</strong>はIsaac同梱の占有格子ジェネレータで、コライダーから数秒で出ます。路面の小さな凹凸を障害物にしないよう、地面から少し上〜機体の高さまでの帯だけを見ます。<strong>経路</strong>は地図をロボの大きさ分ふくらませてから最短経路を引き、いくつかの経由点に間引いてロボが追従します。</p>
-  <div class="callout warn"><b>踏んだ罠</b>
-    <ul>
-      <li><strong>占有格子のデータは、私たちの座標系の与え方では左右（x方向）が反転して出ました。</strong>反転を入れないと「障害物の無い所を避け、ある所へ突っ込む」経路になります（実際に最初は交番の真上がゴールになりました）。ジェネレータの仕様か私たちの変換のどちらで起きたかは切り分けていないので、答え合わせ用の地図（既知の形）と必ず照合してから使ってください。</li>
-      <li>見る帯の上端を機体の高さより低くすると、庇や標識の腕のように「その帯だけに張り出す物」が地図に載りません。今回のシーンでは走行域に該当物が無いことを確認しました。汎用には上端を機体より高めに。</li>
-      <li>ふくらませる量が機体の外接円ぎりぎりだと安全余裕はありません。狭い所を通す用途では大きめに。</li>
-      <li>縁石はこの帯設定では障害物になりません。Nova Carterの前キャスターは縁石を越えられないので、歩道へ乗り上げる経路を許すなら帯の下端を下げてください。</li>
-    </ul>
-  </div>
-  <p>ROS 2／Nav2について。Isaac Sim 6.0の公式手順でWindows向けの環境が案内されていますが、本記事ではROSを使わず自前の経路計画にしています。占有格子は画像に落とせますが、Nav2の地図形式には原点の取り方や色の意味などの規約があり、上のx反転を踏まえると変換は自明ではありません。Nav2での実走はまだしていません。</p>
 
-  <h2 id="semantic"><span class="n">05</span> 追試：3DGSに「意味ラベル」を持たせる</h2>
-  <p>この環境の最大の穴は「セグメンテーションの正解が作れない」ことでした。そこで<strong>ラベルをメッシュ側でなく3DGS側（点の一粒ごと）に持たせ、同じ点をクラス色で塗った複製を描く</strong>方式を試しました。3DGSは色を焼き込みのまま出す性質があるので、複製の色をクラス色にすれば<strong>RGBと同じカメラ・同じ点からラベル画像が出て、メッシュを経由する方式より画素が合いやすくなります</strong>（半透明の合成や推定誤差、補完による境界のズレは残ります）。</p>
-  <figure>
-    <img src="images/shibuya_semlabel_pair_v1.jpg" alt="3DGSのRGBレンダと、同じカメラからのクラス色複製レンダ（セマンティックラベル）">
-    <figcaption><b>同じカメラからのRGB（上）とラベル画像（下）です。</b>ラベル付けに使っていない新しい視点。紫=道路、桃=歩道、灰=建物、黄緑=植生、薄灰=ポール、黄=信号。黒はラベル無し（空には点が無い／未観測）。</figcaption>
-  </figure>
-  <p><strong>作り方</strong>：ロボットの目線で街を多方向から描画し、公開されている2Dのセグメンテーションモデルに見せてクラスを推定させます。その結果を、コライダーで「その視点から見えているか」を確かめながら3DGSの点ごとに投票で集約し、見えなかった点は近くの点から補います。最後に点の色をクラス色に置き換えた複製を書き出します（元データは無加工のまま、上書きレイヤだけを持ちます）。</p>
-  <figure>
-    <img src="images/shibuya_semlabel_gallery_v1.jpg" alt="ラベル付けに使っていない4つの新規視点でのRGBとラベル画像の比較">
-    <figcaption><b>ラベル付けに使っていない4つの新しい視点です。</b>左がRGB、右が同じカメラからのラベル画像。交差点の中央、歩道沿い、交番の前、街路樹の下——場所が変わっても塗り分けは崩れません。</figcaption>
-  </figure>
-  <p><strong>結果</strong>：新しい視点でも道路・建物・植生はほぼ正しく塗り分けられ、ポールのような細い物は苦手、歩道と道路の区別は不安定です。2Dモデル同士を比べても同程度の食い違いがあるので、3D側に集約したことによる損失は小さいと見ています。</p>
-  <figure>
-    <img src="images/shibuya_semlabel_conf_v1.jpg" alt="RGB、ラベル、信頼度マップ、自信のある画素だけを残したラベルの4面比較">
-    <figcaption><b>ラベルと一緒に「信頼度」も描き出せます。</b>左下は点ごとに投票がどれだけ割れたかを明るさで示した信頼度マップ（青は近くの点から補った部分）、右下は自信のある画素だけを残したラベルです。<strong>画素の8割は「自信あり」で、その部分だけ見れば別のAIモデルとの一致は9割</strong>。学習に使うときは、この信頼度で選別するか「無視」扱いにするのが実用的です。</figcaption>
-  </figure>
-  <div class="callout warn"><b>これは正解データではなく擬似ラベルです（限界）</b>
-    <ul>
-      <li><strong>ラベル源はAIの推定</strong>で、人手の正解とは照合していません。上の一致率は「同じ種類のモデルとどれだけ合うか」であって正解率ではありません。街灯を信号と誤るなど、2D側の誤りはそのまま3Dに伝わります。</li>
-      <li>歩道と道路の混同、細い物・境界、写り込んだ通行人は使えません。空は点が無いので黒（別途「無視」扱いが要ります）。補完した部分はクラス境界で滲みます。インスタンス（個体）IDもありません。</li>
-      <li>用途は<strong>擬似ラベル付きの新規視点生成／弱い教師でのデータ拡張</strong>まで。学習の正解として使うには、人手ラベルの小セットでの検証が先です。</li>
-    </ul>
-  </div>
-
-  <h2 id="structure"><span class="n">06</span> 渋谷の構造を読む：歩道・横断歩道の地図</h2>
-  <p>ここまでのロボットは、地図の「空いている所」をただ走っていました。しかし渋谷スクランブル交差点で意味のあるシミュレーションをするには、<strong>どこが歩道で、どこが横断歩道で、どこが車道か</strong>をロボットに分からせる必要があります。歩行者用の配送ロボットは歩道を走り、横断歩道を青のうちに渡り、車道には出ない——この前提が無いと、渡り切れるかも待ち時間も評価できません。</p>
-  <figure>
-    <img src="images/shibuya_ortho_semmap_v1.jpg" alt="スキャンを真上から見た画像（上）と、その上に道路・歩道・横断歩道の地図とロボットの経路を重ねた図（下）">
-    <figcaption><b>スキャンを真上から描いた画像（上）と、そこから作った地面の意味地図（下）です。</b>紫が車道、桃が歩道と広場、黄が横断歩道、橙は青のあいだだけ歩けるスクランブル内。上の写真で白い縞が見える所が、下でそのまま黄色になっています。水色の線が状況1の配送ロボットの経路（S=西の広場、G=中央の横断歩道の南端）、赤い点は横断歩道の手前で信号を待つ位置。目印（交番・TSUTAYA側の歩道・側道・各横断歩道）は上の写真に書き込んでいます。</figcaption>
-  </figure>
-  <p><strong>作り方</strong>は3段で、意味ラベルの手修正はしていません（スクランブル内の区域だけは横断歩道の配置からルールで足しています）。①ロボット目線で街を多方向から描画した画像（05節と同じ視点）を、<strong>街路の写真で学習した認識モデル</strong>（Mapillary Vistas学習のMask2Former。歩道・歩行者広場・横断歩道・縁石といった路面の種類を区別できます）に見せて、路面の種類を推定します。②その結果を、見えているかを確かめながら3DGSの点ごとに投票で集約します。③地面付近の点を真上から集計して、車道・歩道（広場を含む）・横断歩道の地図にします。このスキャンの範囲では、交番の島やタイル敷きの広場は「歩道」、4本の横断歩道は縞の形のまま出ます（車道の白線まわりや日陰の路面には誤りが残ります）。④スクランブル交差点は歩行者の青のあいだ交差点内のどこでも歩けるので、4本の横断歩道に囲まれた車道を「スクランブル内」として、青のときだけ通れる区域にしています。</p>
-  <p>この地図の上で、歩道は通りやすく、横断歩道はそれに次いで、スクランブル内はその次、車道は通らない、という重み付けで経路を引くと、図の水色のようにロボットは歩道→横断歩道→（交番の島で待つ）→横断歩道と、歩道と横断歩道を優先する道順を選びます（人流や混雑、右左どちら側を歩くかといった歩行者の癖は入っていません）。横断歩道の中では縞の真ん中を通り、端をかすめません。ロボットの幅（約0.7m）に左右の余裕と地図の粗さを見込むと通り抜けに1.3m弱が要り、TSUTAYA側の歩道に上がるボラードのすき間（1.3〜1.5m）は余裕が無いため通れない判定になり、ロボットは横断歩道からスクランブル内の縁を通って交番の島へ向かいます——歩道に上がれるかどうかは、この間隔を安全に抜ける制御精度で決まります。問題設定として参照したのは、NVIDIAがIsaac Simの<a href="https://docs.isaacsim.omniverse.nvidia.com/latest/synthetic_data_generation/tutorial_replicator_mobility_gen.html" target="_blank" rel="noopener">MobilityGen</a>で示す「占有地図＋経路の記録」と、3DGSのデジタルツインに可視性を考えた意味ラベルを融合する<a href="https://arxiv.org/abs/2601.03200" target="_blank" rel="noopener">最近の研究</a>です。ここでは研究手法の再実装ではなく、検証用に簡略化した作りにしています。</p>
-
-  <h2 id="pedrule"><span class="n">07</span> 状況1：配送ロボットが歩行者ルールで渡る（信号待ち）</h2>
-  <p>この環境で最初に試す価値があるのが「歩道を走る配送ロボットが、渋谷の信号サイクルの中で目的地に着けるか」です。街の構造と実際の信号を入れると、単なる走行デモではなく<strong>導入前の判断材料</strong>——速度の仕様、待つ場所、カメラの画角、信号待ちを含む所要時間の見積もり——になります。シナリオは<strong>西の広場（駅側）を出て、北西の横断歩道を渡り、スクランブル内の縁を通って交番の島まで行き、島で信号を待って中央の横断歩道を南へ渡る</strong>（06節の図の水色。信号待ちは2か所）。渋谷スクランブル交差点の歩行者信号は、実測記録（<a href="https://www.shingou-saikuru.com/2019/01/shibuya-sta.html" target="_blank" rel="noopener">信号サイクル調査サイト・平日18時台</a>）で<strong>1周140秒、歩行者の青は47秒（点灯37秒＋点滅10秒）、赤は93秒</strong>。この値をそのままシミュレーションの信号にしました。ロボットのルールは歩行者に倣い、<strong>点滅中は渡り始めない、渡り切る時間が残っていなければ次の青を待つ、渡り始めたら途中で止まらない</strong>の3つです（渡り切るまでには点滅の10秒も使う設定）。道路交通法上の位置付けの整理ではなく、歩行者信号に従う低速の配送ロボットの運用ルールとして置いています。</p>
-  <p><strong>信号も路面も、ロボットは自分のカメラで見て判断します。</strong>スキャンの中の歩行者信号は色が焼き込まれていて変えられないので、渡る先の縁石側に実物と同じ形の歩行者用信号機（柱・箱・上が赤／下が青の2灯）を置き、車体前方の広角カメラの映像から灯の色を認識させました。認識は、地図上で分かっている信号機の位置をカメラに投影した箱の範囲だけを見て、上の灯が赤か下の灯が青かを判定し、短い時間の中で青が点いたり消えたりすれば点滅と判定する単純なものです。加えて、カメラ映像を06節と同じ街路認識モデルに毎コマかけ（別プロセスで動かし、実機と同じく認識結果は少し遅れて届きます）、<strong>足元の先に横断歩道の縞が見えているときだけ縁石を降りる</strong>ようにしました。地図の経路はあくまで予定で、実際に踏み出すかどうかは見えているものが決めます。判断のルールは、信号の残り時間を通信で受け取らない単独運用を想定して安全側に倒し、<strong>自分の目で赤から青に変わるのを見た青でしか渡り始めない</strong>（青の途中で横断歩道に着いたら、残り時間が分からないので次の青を待つ）としました。</p>
+  <h2 id="pedrule">信号を見ながら横断する</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_pedrule_poster_v1.jpg">
       <source src="videos/shibuya_pedrule_west_to_south_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>西の広場から交番の島を経て、中央の横断歩道を南へ渡る配送ロボットです。</b>左が追いかけカメラ、右上がロボットのカメラ映像、右下が同じ映像に対する認識結果（紫=車道、桃=歩道、黄=横断歩道、赤枠=人、黄枠=見ている信号機）。下段は正解の信号と残り秒数、ロボットの状態、走行全体の中で今どこにいるか、地図上の位置です。横断歩道の手前で赤なら止まり、青でも「渡り切れない」「青の始まりを見ていない」「足元に横断歩道が見えない」なら渡り始めません。待ち時間は早送りにしています（表示あり）。歩行者役（人の背丈の柱）も歩いています。</figcaption>
+    <figcaption><b>配送ロボットが西の広場を出て、交番の島で信号を待ち、中央の横断歩道を南へ渡ります。</b>信号の色も足元の横断歩道も、ロボットが自分のカメラで見て判断しています。赤なら止まり、渡り切れないと判断したときは次の青を待ちます。</figcaption>
   </figure>
-  <p><strong>結果</strong>：西の広場の縁で赤を見て止まり、赤から青に変わったのを見て出発。北西の横断歩道からスクランブル内の縁を通って交番の島まで約27mを約30秒で渡り切り（青は残り17秒）、島の縁の待ち位置に着く頃には点滅に変わっていました。次の赤（93秒）を待ち、青に変わったのを見てから中央の横断歩道16mを約20秒で渡って、出発から約3分で到着。内訳は、最初の赤待ち10秒、横断1が30秒、島までの移動が十数秒、島での待ちが約1分40秒、横断2が20秒で、信号待ちは合計約2分です。<strong>渋谷の信号は青が短く赤が長いので、島で一度待つだけで所要時間の半分以上が待ち時間になります。</strong>この条件（他の歩行者・車なし）では、目的地までの時間を決めていたのは走行速度ではなく<strong>横断を始めるタイミング</strong>でした。同じ経路を毎秒0.6mで走らせると、最初の27mは青の始まりに出て点滅の終わりと同時に渡り切り（余裕はほぼゼロで、認識や加速の遅れがあれば渡り切れません）、島では同じ赤を待つので、到着は約3分と歩く速さのときと大きくは変わりませんでした。信号の認識は、この走行で判定した約900コマのうち赤はほぼ全て、点灯中の青は9割を正しく読み、誤って逆の色を読んだのは2コマ、見落としの多くは点滅でした（横断判断が成り立つかの確認であって、認識器の性能評価ではありません）。待っている間に信号灯が視野の端に外れると青を丸ごと1回見逃すので、カメラは広角（横約80度）にしています。</p>
-  <p><strong>歩行者を入れると</strong>。動画の歩行者役は青のあいだだけ横断歩道と斜め横断を行き交い、赤では縁石で待ち、青になると数秒ずつずれて歩き出します。ロボットは前方の枠内に人が入ると止まって道を譲ります。ロボットの経路と交わる人数を増やした別の走行では、24人が交わる条件で、道を譲るための停止が7回・合計55秒、最初の27mの横断は譲りながら37秒かかって<strong>点滅に入ってから渡り終え</strong>（青の残り9秒）、到着は約3分40秒。人がいない場合より50秒ほど遅く、ゴール直前でも人に塞がれて赤の中で止まりました。人数を32人に増やすと、横断そのものより<strong>縁石で信号を待つ人に前を塞がれる時間</strong>が伸びて（譲るための停止が合計4分超）、到着は5分を超えました。人の脇を抜ける動きが無いと交差点では前に進めない、という当たり前のことが数字で出ます。歩行者を入れると、渡り切れるかどうかは信号だけでなく<strong>横断歩道の上で何回譲るか</strong>で決まり、点滅で渡り終える危うい横断が普通に起きます。歩行者役は決まった線を歩くだけで避け合いはしないので、これも実際より甘い見積もりです。</p>
-  <figure>
-    <img src="images/shibuya_signal_window_v1.jpg" alt="ロボットの速度と、青のうちに渡り始めてよい時間の関係を横断歩道ごとに描いたグラフ">
-    <figcaption><b>速度ごとに「青のうち何秒間なら渡り始めてよいか」を、この経路の2つの横断について描いたものです。</b>歩く速さ（毎秒1m）なら約27mの横断も青の最初の17秒で始めれば渡り切れますが、<strong>一般的な配送ロボットの速さ（毎秒0.5〜0.6m台）では最初の数秒しか使えず、赤から青に変わった瞬間に出発できる位置で待っている必要があります</strong>。島で一度待つ経路にしているのはこのためで、同じ地図で速度に合わせて待つ場所を選べます。</figcaption>
-  </figure>
-  <p><strong>先行事例との関係</strong>。歩道ロボットの横断は研究でも中心的なテーマで、横断歩道で歩行者の流れと「青のうちに渡り切る」制約を同時に扱う研究（<a href="https://ieeexplore.ieee.org/document/9538660/" target="_blank" rel="noopener">Chugoら, 2021</a>）、配送ロボットの横断判断モジュールをシミュレーションで検証してから実機で試した研究（<a href="https://www.sciencedirect.com/science/article/pii/S0967066124002545" target="_blank" rel="noopener">Control Engineering Practice, 2024</a>）、実機センサデータから横断可否を学習した研究（<a href="https://www.researchgate.net/publication/318361253_Why_did_the_Robot_Cross_the_Road_-_Learning_from_Multi-Modal_Sensor_Data_for_Autonomous_Road_Crossing" target="_blank" rel="noopener">Radwanら, 2017</a>）があります。ベンチマークとしては、実在の街区の3DGSをIsaac Simでロボットの評価環境に使う点で<a href="https://arxiv.org/abs/2606.16953" target="_blank" rel="noopener">SidewalkBench（2026）</a>が近く、そちらは歩行者への反応や長距離走行まで評価しています。本記事の位置付けは、<strong>実在の交差点の形と実測の信号サイクルで、信号を目で見ながら「渡れるか・どれだけ待つか」を数える</strong>ところまでで、他の歩行者や車は入っていません。歩行者流を入れた評価はSidewalkBenchのような枠組みが先にあります。</p>
-  <div class="callout warn"><b>この結果を使うときの前提</b>
-    <ul>
-      <li>信号は「全横断歩道が同時に青」のスクランブル方式を仮定し、上の実測値で固定しています。時間帯で変わるので、対象時間帯の実測が要ります。信号灯はスキャン内の実物ではなく、同じ位置関係に置いた仮想の灯です。</li>
-      <li>歩行者役は決まった線を歩くだけの簡易モデルで、避け合いはせず、車両はいません。人がいない場合の待ち時間は<strong>最良ケース</strong>です。</li>
-      <li>スキャン範囲の外（南の広場や東の歩道）はロボットに見えないため、経路の始点・終点はスキャン内の歩道に置いています。ボラードの間を抜けて歩道に上がる動きは、この機体と制御では安全側に見て許していません。</li>
-    </ul>
-  </div>
 
-  <h2 id="peds"><span class="n">08</span> 状況2：全方向から来る歩行者の中で止まる・再発進する</h2>
+  <h2 id="peds">歩行者の中で止まる・再発進する</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_sim02_peds_poster_v1.jpg">
       <source src="videos/shibuya_sim02_peds_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>横断する歩行者役（色付きの柱）が交差点を行き交う中を、ロボットがLiDARで前方を見張りながら進みます。</b>前方の安全域に何か入ると止まり、抜けると再発進します。歩行者役は決まった線を歩くだけの簡易モデルです。</figcaption>
+    <figcaption><b>行き交う歩行者役（色付きの柱）の中を、前方を見張りながら進みます。</b>前に何か入ると止まり、抜けると再発進します。</figcaption>
   </figure>
-  <p>スクランブル交差点特有の「全方向から人が来る」状況で、ロボットが<strong>止まれるか・再発進できるか</strong>を確かめました。LiDARは3DGSの街と歩行者役の両方をきちんと捉え、横切りに対して停止・再発進しました。<strong>分からないこと</strong>：本物の人の動き（避け合い・立ち止まり）は入っていません。人流データと歩行者エージェントを入れると、状況1の待ち時間の見積もりも現実に近づきます。</p>
 
-  <h2 id="landmarks"><span class="n">09</span> 状況3：言葉で指定したランドマークへ行く</h2>
+  <h2 id="landmarks">言葉で指定した場所へ行く</h2>
   <figure>
     <video controls muted loop playsinline preload="metadata" poster="images/shibuya_sim04_landmarks_poster_v1.jpg">
       <source src="videos/shibuya_sim04_landmarks_v1.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
-    <figcaption><b>「交番の角まで」「南側の歩道へ」「街路樹の下の歩道へ」「天津甘栗の看板の下まで」の4つの指示先へ、同じ出発点から到達したところです。</b>指示は実在のランドマークで書けるので、人手で課題を作りやすいのが利点です。</figcaption>
+    <figcaption><b>「交番の角まで」「南側の歩道へ」「街路樹の下の歩道へ」「天津甘栗の看板の下まで」の4つの指示先へ、同じ出発点から到達します。</b>実在のランドマークで行き先を書けます。</figcaption>
   </figure>
-  <figure>
-    <img src="images/shibuya_sim04_landmarks_v1.jpg" alt="交番の角・南側歩道・街路樹の歩道・MAGNET前の看板下という4つの指示先への走行軌跡">
-    <figcaption><b>4課題の走行軌跡です。</b>言葉で目的地を指定するナビゲーション（VLN）の評価場として、実在のランドマークで課題を書けるのは大きな利点です。</figcaption>
-  </figure>
-  <p>今回は「言葉→地図上の座標」を人手で対応付け、そこへ自律で走らせました。4課題すべて到達。06節の意味地図と組み合わせれば、同じ課題を「歩道を通って」解かせることもできます。<strong>分からないこと</strong>：言葉から目的地を理解する部分（言語モデル側）は未接続で、課題集も4本だけです。</p>
 
-  <h2 id="planning"><span class="n">10</span> 状況4：現地に行く前に決める（巡回の死角・イベント設営）</h2>
-  <p>ロボットの学習以外にも、実在の配置だからこそ出る答えがあります。記事冒頭の写真（LiDARを回しながらの巡回）では、1往復で周囲の路面の85%は視認でき、残る死角は交番の裏・ポールと車止めの陰・建物の凹みでした。警備ロボの巡回経路やカメラの増設位置を、現地に行く前に議論できます（センサ高さは1種類、動く物による一時的な遮蔽は未考慮）。</p>
-  <figure>
-    <img src="images/shibuya_sim10_event_v1.jpg" alt="交差点中央に仮設ステージとトラスを置いた俯瞰と、2か所のカメラ台からの見え方">
-    <figcaption><b>交差点中央に仮設ステージと屋根を置いてみたところです。</b>上は俯瞰、下は2か所のカメラ台からの見え方。右下のカメラ台は交番の中に置いてしまい視界が塞がっています——こういう干渉を現地に行く前に見つけられます。ステージの影も3DGSの路面に落ちます。</figcaption>
-  </figure>
-  <p>仮設物の位置と実在の構造物の干渉、カメラからの見え方、動線の空きを、実寸の街で確認できます。ロケハン3D本業との相乗効果が最も大きい項目で、機材リストの寸法さえあれば同じ手順で置けます。</p>
-
-  <h2 id="limits"><span class="n">11</span> 実用シミュとして足りないもの</h2>
-  <figure>
-    <img src="images/shibuya_depth_splat_vs_mesh_v1.jpg" alt="同じカメラからのRGB、3DGSの深度、純正メッシュの深度、両者の差の4面比較">
-    <figcaption><b>深度もカメラから直接取れます。</b>左上がRGB、右上が3DGSから取った深度、左下が純正メッシュから取った深度、右下が両者の差です。3DGSの深度は画面全体で取れ、路面や壁では数cmの範囲でメッシュと一致しますが、細い物の縁と浮遊物にノイズが出ます（赤青の点）。RGB・深度・ラベルは同じカメラから、LiDARは別センサとして、同じ環境で揃うところまで来ました。</figcaption>
-  </figure>
-  <p>「動いた」と「使える」は違うので、ここに正直に書いておきます。</p>
-  <ul>
-    <li><strong>カメラが見る面とLiDAR／衝突が見る面が別物です。</strong>RGBとLiDARはスプラット、衝突は純正メッシュで、路面で数cm、遠景では1m超ずれます。カメラとLiDARは同じ面を見るのでフュージョン用途には都合が良い一方、「LiDARが返す面」と「ぶつかる面」が一致しないことは覚えておいてください。</li>
-    <li><strong>意味ラベルは擬似ラベル止まり</strong>（05節）。人手正解との照合とインスタンスIDが未了です（信頼度による選別はできます）。<strong>地面の意味地図も半自動</strong>（06節）で、広場と短い横断歩道は人手で直しています。</li>
-    <li><strong>信号と歩行者。</strong>信号は実測値で固定した仮定で、信号灯は仮想のもの。他の歩行者・車両はいません。状況1の待ち時間は最良ケースです。縁石はこの交差点の横断歩道まわりにはほぼ無く（バリアフリー化）、段差走破の評価には別の場所が要ります。</li>
-        <li><strong>ゴーストと歩行者。</strong>スキャンに写り込んだ通行人は静止障害物として残り、動く人はいません。</li>
-    <li><strong>センサの現実味。</strong>点群にモーション歪みが無く、反射強度・IMU・カメラのノイズも既定のまま。同じ場所の実機ログとの突き合わせは一度も行っていません。</li>
-    <li><strong>ROS 2／Nav2／Linux。</strong>いずれも未検証。ROSを使っていないのでTFやロボット記述の提供もありません。撮影中はリアルタイムよりかなり遅く、人が操作する用途には最適化が要ります。</li>
-    <li><strong>リライトは影のみ。</strong>夜間・雨天は作れません。速度域は歩く速さまで（高速・車両スケールは前回のPhysX Vehicle側）。</li>
-  </ul>
-
-  <h2 id="summary"><span class="n">12</span> まとめ・納品物</h2>
-  <p><strong>使える用途</strong>：USD化、センサ出力（RGB・深度・LiDAR・擬似ラベル）の取得、経路候補の比較、信号待ちを含む所要時間の概算、設営・巡回の事前検討。<strong>そのままでは使えない用途</strong>：制御性能の保証、知覚精度の評価、実機転移の根拠。</p>
-  <ul>
-    <li><strong>センサ：</strong>RTX LiDARは3DGSに当たる（不可視のコライダーには当たらない）。メッシュの返りが欲しければカットアウト透過材のメッシュを置く。点を世界座標へ戻すときは取付高さを足す。</li>
-    <li><strong>影：</strong>6.0ではメッシュの影が3DGSに落ちる。キャスターは隠せないので3枚合成。リライトは不可。</li>
-    <li><strong>地図・経路：</strong>同梱の占有格子ジェネレータで数秒。<strong>本環境の変換では左右反転して出た</strong>ので、必ず答え合わせ用の地図と照合。</li>
-    <li><strong>機体：</strong>Nova Carterは同梱コントローラに任せ、歩く速さまで、テイクごとにステージを開き直す。</li>
-    <li><strong>意味ラベル：</strong>3DGS側に持たせればRGBと画素一致で描ける。ただし擬似ラベルで、正解データではない。</li>
-    <li><strong>街の構造：</strong>意味ラベル＋縞の周期で歩道・横断歩道・車道の地面地図を作り、人と同じ道順の経路が引ける（広場と短い横断歩道は人手確認）。</li>
-    <li><strong>状況1（配送×信号）：</strong>実測の信号サイクル（青47秒／1周140秒）で、仮想の信号灯をカメラで読みながら渡らせると、約27mと16mの2回の横断で待ちが約2分、所要約3分。歩行者役24人を入れると譲りで50秒延び、32人では縁石で待つ人に塞がれて5分超。ボトルネックは速度でなく、横断を始めるタイミングと人の脇を抜ける動き。</li>
-    <li><strong>状況2〜4：</strong>歩行者の中での停止・再発進、ランドマーク到達、巡回死角と設営検証は、判断材料の入口として使える。</li>
-    <li><strong>使う前提：</strong>カメラとLiDAR・衝突は別の面。実機ログとの突き合わせ・Nav2実走・Linuxは未検証。用途は<strong>USD化・センサ出力の取得・経路デモといったPoC</strong>までで、制御性能・知覚精度の評価や実機転移の根拠には<strong>そのままでは</strong>使えません。</li>
-  </ul>
-  <p>この環境をお渡しする場合の納品物は、<strong>2層USD（3DGS参照＋不可視コライダー）／センサ用メッシュ／占有格子（画像＋原点・解像度）／スポーン地点と走行検証済みレーン／再現スクリプト</strong>に加えて、<strong>動作確認バージョンと座標系・単位の仕様書／受入テスト用スクリプトと期待出力／スキャンデータの利用許諾範囲</strong>です。最後の点は重要で、<strong>渋谷の生スキャンには通行人の顔や車両ナンバーが写り込んでいます</strong>。AI学習を含む商用納品では、写り込みのマスク処理か利用範囲の限定を契約に含めます。本記事の動画は原データのままで、人物が遠く低解像度でしか写らないカットを選んでいますが個別のマスク処理はしていません——問題のあるカットはご指摘があれば差し替えます。</p>
+  <p>実在の場所を実寸のまま持ち込めるので、ロボットが通れるか、どこで待つことになるか、カメラをどこに置くか——といった話を、現地に行く前に画で確かめられます。</p>
 
   <div class="data-cta">
     <span class="dc-tag">SCAN / 3DGS</span>
     <h3>ロケハン3Dでは、実在の空間を<br class="pc">ロボット開発に使える形でスキャンします</h3>
-    <p>LiDARと写真を同時に取得するため、見た目の3DGSと実測メッシュ・点群は<strong>同一の座標系・同一原点</strong>で揃います。ただし表面位置は完全一致ではなく数cmの差が残ります。この誤差を前提にできる用途かを含めて、屋外・屋内を問わずIsaac Sim向けの2層環境と占有格子までご相談ください。</p>
+    <p>見た目そのままの3DGSと、実測にもとづく形のデータを、同じ座標系で揃えてお渡しします。屋外・屋内を問わず、Isaac Simで使う環境づくりからご相談いただけます。</p>
     <a class="dc-btn" href="/locahun3d_demo.html#contact">スキャンの相談をする →</a>
   </div>
 </article>
@@ -575,7 +404,7 @@
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="/locahun3d_demo.html#contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: 3DGS SCAN → 2-LAYER USD → NOVA CARTER + RTX LIDAR → OCCUPANCY MAP → A* → RTX CAPTURE</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">SHIBUYA SCRAMBLE CROSSING — 3DGS SCAN × NVIDIA ISAAC SIM</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
