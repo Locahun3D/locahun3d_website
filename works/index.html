@@ -269,7 +269,7 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
 
 <script>
 var WORKS = [
-  { meta:"WORK 01 / MUSIC VIDEO", title:"Chevon「六ノ輪」Music Video", excerpt:"アニメ『刃牙道』第2クールOPテーマ。ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。", thumb:"https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg", href:"chevron-rokunowa-mv.html" },
+  { meta:"WORK 01 / MUSIC VIDEO", title:"Chevon「六ノ輪」Music Video", excerpt:"アニメ『刃牙道』第2クールOPテーマ。<br>ロケハン3Dの3DGSファイルを使用した制作が取り入れられました。", thumb:"https://i.ytimg.com/vi/9B66VzveNzI/maxresdefault.jpg", href:"chevron-rokunowa-mv.html" },
   { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"参加作品・導入事例・制作実績をここに掲載していきます。", ph:true },
   { meta:"WORK / 準備中", title:"（実績を追加予定）", excerpt:"案件ごとの担当範囲・使用技術・成果をカードで紹介します。", ph:true }
 ];
@@ -289,49 +289,49 @@ var POSTS = [
   {
     tag:"industry", tagLabel:"技術", date:"2026-08-18", read:"約3分",
     title:"渋谷の3DGSでロボットを走らせてみました",
-    excerpt:"渋谷スクランブル交差点のスキャンをNVIDIA Isaac Simに持ち込んで、ロボットを走らせた記録。LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。",
+    excerpt:"渋谷スクランブル交差点のスキャンをNVIDIA Isaac Simに持ち込んで、ロボットを走らせた記録。<br>LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。",
     href:"isaacsim-3dgs-robot-demos.html", thumb:"images/shibuya_lidar_hero.jpg"
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約9分",
     title:"3DGSのファイルフォーマットを整理する",
-    excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。8フォーマット早見表つき。",
+    excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。<br>8フォーマット早見表つき。",
     href:"3dgs-file-formats.html", thumb:"images/logos/format-logos-thumb.svg"
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-08-16", read:"約5分",
     title:"Isaac Sim向けに3DGSシミュレーション環境をセットアップする",
-    excerpt:"LiDAR搭載スキャナの3DGSを、Isaac Simでロボットが走れる環境にする5ステップの手順。座標系とレンダラの罠、フローター除去、水密コライダー、路面平滑化と写り込み除去、2層構造での走行まで、渋谷スクランブル交差点(1,650万ガウシアン)の実測値つき。",
+    excerpt:"LiDAR搭載スキャナの3DGSを、Isaac Simでロボットが走れる環境にする5ステップの手順。<br>座標系とレンダラの罠、フローター除去、水密コライダー、路面平滑化と写り込み除去、2層構造での走行まで、渋谷スクランブル交差点(1,650万ガウシアン)の実測値つき。",
     href:"3dgs-lidar-denoise.html", thumb:"images/shibuya_hero.jpg"
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-08-04", read:"約7分",
     title:"3DGSを扱えるソフト・ツール比較",
-    excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグイン・産業向けプラットフォームを、入手先URL付きで整理。Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・AEからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unityプラグインまで。",
+    excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグイン・産業向けプラットフォームを、入手先URL付きで整理。<br>Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・AEからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unityプラグインまで。",
     href:"3dgs-software-comparison.html", thumb:"images/logos/dcc-logos-thumb.svg"
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約6分",
     title:"PortalCamの生データ(.xbin)から4K元画像を取り出す",
-    excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
+    excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。<br>xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
     href:"portalcam-xbin-raw-extraction.html", thumb:"images/xbin_cam_pinholeA.jpg"
   },
   {
     tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約6分",
     title:"NVIDIA Isaac Simに3DGSを持ち込む",
-    excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
+    excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。<br>エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
     href:"isaacsim-3dgs-import.html", thumb:"images/isaacsim_shibuya_walk.jpg"
   },
   {
     tag:"art", tagLabel:"アート", date:"2026-07-24", read:"約12分",
     title:"UE5 × XGRIDs SDKで3DGSから素材を出力する",
-    excerpt:"3DGSスキャンをXGRIDsのLCC Plugin for UEでUE5に取り込み、仮想カメラで画像・映像素材を出力してAIでリライトするまでの実践手順。プラグインの導入方法、Houdini/Blender等の3DGS対応比較、リライト対応UE5プラグインの紹介まで。",
+    excerpt:"3DGSスキャンをXGRIDsのLCC Plugin for UEでUE5に取り込み、仮想カメラで画像・映像素材を出力してAIでリライトするまでの実践手順。<br>プラグインの導入方法、Houdini/Blender等の3DGS対応比較、リライト対応UE5プラグインの紹介まで。",
     href:"ue5-xgrids-3dgs-aerial-ai.html", thumb:"images/ue5_shibuya_topdown_day.jpg"
   },
   {
     tag:"art", tagLabel:"アート", date:"2026-06-16", read:"約9分",
     title:"3DGSから「空撮カット」を生成する方法",
-    excerpt:"現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る方法。基本（C4Dカメラ→Octaneレンダ→背景修正）と、応用（人物・動きの生成）までを実素材で解説。",
+    excerpt:"現場をPortalCamで徒歩スキャンした3DGSから、ドローンを飛ばさずに上空アングルの空撮カットを作る方法。<br>基本（C4Dカメラ→Octaneレンダ→背景修正）と、応用（人物・動きの生成）までを実素材で解説。",
     href:"portalcam-drone-ai-workflow.html", thumb:"images/work04_bgfix.jpg"
   },
   {
