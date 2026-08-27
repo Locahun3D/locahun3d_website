@@ -185,7 +185,19 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
   color:var(--dim);padding:8px 18px;border:1px solid var(--line);transition:color .2s,background .2s}
 .works-subnav a+a{border-left:0}
 .works-subnav a:hover{color:#fff}
-.works-subnav a.cur{background:var(--accent);color:#000;border-color:var(--accent)}</style>
+.works-subnav a.cur{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* ===== スマホ(<720px)の見やすさ調整（2026-08-27） =====
+   ・タップ領域は 44px（Apple HIG / WCAG 2.5.5）。文字サイズは意匠のまま。
+   ・カード一覧は1カラムになるため、罫線の詰め合わせ(gap:0)だと隣接カードの
+     誤タップが起きる。スマホだけ 8px 空けて各カードに枠を回す
+     （PC/タブレットの「表組み」意匠はそのまま）。 */
+@media(max-width:719px){
+  .chip{min-height:44px;display:flex;align-items:center;justify-content:center}
+  .works-subnav a{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .grid{gap:8px;border-top:none;border-left:none}
+  .card{border:1px solid var(--line)}
+}</style>
 </head>
 <body>
 

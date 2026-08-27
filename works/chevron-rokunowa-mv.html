@@ -71,6 +71,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 /* back link */
 .back{display:inline-flex;align-items:center;gap:8px;margin:32px 0 0;
   font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);transition:color .2s}
+
+/* スマホ(<720px)のタップ領域を44pxに（2026-08-27）。文字サイズ・余白の
+   見た目は変えず、当たり判定の高さだけ確保する。 */
+@media(max-width:719px){.back{min-height:44px}
+  .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
 .back:hover{color:#fff}
 .back svg{width:16px;height:16px;flex:none}
 

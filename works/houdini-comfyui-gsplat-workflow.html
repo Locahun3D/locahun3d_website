@@ -186,6 +186,12 @@
     color:var(--sub);transition:color .2s;text-decoration:none}
   .backlink:hover{color:#fff}
   .backlink svg{width:15px;height:15px;flex:none}
+  /* スマホ(<720px)のタップ領域を44pxに（2026-08-27）。文字サイズ・余白の
+     見た目は変えず、当たり判定の高さだけ確保する。 */
+  @media(max-width:719px){.backlink{min-height:44px}
+    .back{min-height:44px;display:inline-flex;align-items:center}
+    .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+
 
   .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
   .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
