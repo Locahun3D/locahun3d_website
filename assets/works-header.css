@@ -86,9 +86,12 @@ html{scrollbar-gutter:stable both-edges}
   text-decoration:none;color:inherit}
 .site-header.sh-works .sh-brand svg{flex:none;width:22px;height:22px}
 /* ⚠ -1px は光学補正（オンライン版と同じ。Noto Sans JP のグリフが行内で
-      1px強沈み、マークより低く見えるため。数値でなく見た目で合わせている）。 */
-.site-header.sh-works .sh-brand-text{font-weight:900;font-size:18px;letter-spacing:.01em;
-  white-space:nowrap;color:var(--wh-ink);position:relative;top:-1px}
+      1px強沈み、マークより低く見えるため。数値でなく見た目で合わせている）。
+   ⚠ line-height:28px はオンライン版 Tailwind text-lg（18px/28px）と同値。
+      ヘッダー既定の 1.5(=27px) のままだと文字箱が y13.0/h27 になり、
+      オンラインの y12.5/h28 と 0.5px ずれる（2026-09-01 実Chrome 8幅×JA/EN実測）。 */
+.site-header.sh-works .sh-brand-text{font-weight:900;font-size:18px;line-height:28px;
+  letter-spacing:.01em;white-space:nowrap;color:var(--wh-ink);position:relative;top:-1px}
 
 /* ── ナビ ──
    既定＝ドロワー（<1024px）。1024px 以上で1行ナビへ戻す。
