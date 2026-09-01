@@ -25,6 +25,13 @@ SHARED_CSS = "assets/site-header.css"
 # CSSもマークアップも系統ごと分ける（1ファイルに同居させない）。
 WORKS_CSS = "assets/works-header.css"
 
+# ⚠ 2026-09-01: works/** のヘッダーは**配信時にオンライン版の本物と差し替わる**
+#   （worker.js の injectOnlineHeader → locahun3d.com/partials/header）。
+#   ここで生成する works 系ヘッダーとCSSは、その取得が失敗したときの
+#   **フォールバック専用**になった。見た目を直したいときにここを触っても
+#   本番の表示は変わらない。正しい直し先は locahun3d_online 側の SiteHeader。
+#   詳細: locahun3d_online/docs/header-rules.md の R10
+
 def is_works(rel):
     """works/ と en/works/ 配下か。ヘッダーの系統はこれだけで決まる。"""
     return rel.startswith("works/") or rel.startswith("en/works/")

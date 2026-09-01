@@ -217,6 +217,93 @@ async function handleWorksAPI(request, env) {
   return jsonResponse({ ok: false, error: "Not found" }, 404);
 }
 
+// ══════════════════════════════════════════════════════════════
+// works のヘッダーを「オンライン版の本物のヘッダー」に差し替える
+// ══════════════════════════════════════════════════════════════
+// 背景: works（このリポの静的HTML）はヘッダーのマークアップとCSSを自前で持って
+// いた。オンライン版(locahun3d.com)のヘッダーが変わるたびに、こちら側の複製へ
+// パッチを当て直す運用になっており、寸法や項目が延々と食い違い続けた。
+// 本人指示（2026-09-01）「ヘッダーの複製に独立してパッチを当て続けるのは
+// 構造的によくない、やめて」により、**配信時にオンライン版の部品を埋め込む**方式へ変更。
+//
+//   locahun3d.com/partials/header  … 本物の <header> を Declarative Shadow DOM
+//                                    （必要CSS内包）1ブロックで返すルート
+//   ここ                            … /works/** の HTML を配る瞬間に、ページ内の
+//                                    静的ヘッダーをその部品で置換する
+//
+// ⚠ 静的ヘッダー（<header class="site-header sh-works">）と assets/works-header.css
+//   は**消さない**。取得に失敗したらそのまま出す＝ヘッダー無しのページを絶対に
+//   出さないためのフォールバック。scripts/sync_header.py の仕組みもそのまま。
+//   ただし今後の見た目調整はオンライン版側だけで完結する。
+const DEFAULT_PARTIALS_ORIGIN = "https://locahun3d.com";
+const WORKS_ORIGIN = "https://web.locahun3d.com";
+const HEADER_PARTIAL_TTL = 300; // 5分。エッジでキャッシュする
+
+/** works の HTML ページか（ヘッダー差し替えの対象）。 */
+function isWorksPage(pathname) {
+  return /^(?:\/en)?\/works\/[a-z0-9_-]+\.html$/i.test(pathname);
+}
+
+/** 言語トグルの行き先（同じ記事の他言語版）。 */
+function altLangUrl(pathname) {
+  return pathname.startsWith("/en/")
+    ? WORKS_ORIGIN + pathname.slice(3)
+    : WORKS_ORIGIN + "/en" + pathname;
+}
+
+async function fetchHeaderPartial(pathname, env) {
+  const origin = (env && env.PARTIALS_ORIGIN) || DEFAULT_PARTIALS_ORIGIN;
+  const isEn = pathname.startsWith("/en/");
+  const url =
+    `${origin}${isEn ? "/en" : ""}/partials/header` +
+    `?alt=${encodeURIComponent(altLangUrl(pathname))}`;
+  try {
+    const res = await fetch(url, {
+      cf: { cacheTtl: HEADER_PARTIAL_TTL, cacheEverything: true },
+      // オンライン版が重いときに works ページまで道連れにしない。
+      // タイムアウトしたら静的ヘッダーへフォールバックする。
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    // 部品の体裁を最低限確認する（空・エラーページを差し込まない）。
+    if (!html.includes("shadowrootmode") || !html.includes("<header")) return null;
+    return html;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * works ページの静的ヘッダーをオンライン版の部品で置換する。
+ * 失敗時は response をそのまま返す（＝静的ヘッダーで表示が保たれる）。
+ */
+async function injectOnlineHeader(request, response, env) {
+  const url = new URL(request.url);
+  if (!isWorksPage(url.pathname)) return response;
+  if (!response.ok) return response;
+  const ct = response.headers.get("Content-Type") || "";
+  if (!ct.includes("text/html")) return response;
+
+  const partial = await fetchHeaderPartial(url.pathname, env);
+  if (!partial) return response;
+
+  /* 旧ヘッダーは position:fixed だったので、各 works ページは
+     `body{padding-top:56px}` でその分を空けている。差し替え後のヘッダーは
+     オンライン版と同じ position:sticky ＝ 通常フローに場所を取るため、この予約が
+     残ると **ヘッダーが56px下がって表示される**（実測）。置換したページに限って
+     打ち消す（フォールバック時はこの style ごと出ないので静的ヘッダーは無傷）。 */
+  const reset = "<style>body{padding-top:0}</style>";
+
+  return new HTMLRewriter()
+    .on("header.site-header", {
+      element(el) {
+        el.replace(reset + partial, { html: true });
+      },
+    })
+    .transform(response);
+}
+
 const ALLOWED_ORIGINS = new Set([
   "https://web.locahun3d.com",
   "https://locahun3d.com",
@@ -461,6 +548,7 @@ async function route(request, env) {
 export default {
   async fetch(request, env) {
     const response = await route(request, env);
-    return withSecurityHeaders(response);
+    const withHeader = await injectOnlineHeader(request, response, env);
+    return withSecurityHeaders(withHeader);
   },
 };

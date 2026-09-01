@@ -5,6 +5,12 @@
   "compatibility_date": "2026-05-13",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // works のヘッダーは配信時に「オンライン版の本物のヘッダー」を埋め込む
+  // （worker.js の injectOnlineHeader）。本番はここ固定。
+  // ローカル検証で手元の Next dev(:3001) を向かせたいときは `.dev.vars` に
+  //   PARTIALS_ORIGIN="http://localhost:3001"
+  // と書く（.dev.vars は wrangler dev のみが読み、本番には出ない）。
+  "vars": { "PARTIALS_ORIGIN": "https://locahun3d.com" },
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
