@@ -612,8 +612,21 @@ async function route(request, env) {
 
 export default {
   async fetch(request, env, ctx) {
-    const response = await route(request, env);
-    const withHeader = await injectOnlineHeader(request, response, env, ctx);
+    /* ⚠ works ページは条件付きリクエスト（If-None-Match 等）を剥がして常に 200 を
+       取る。静的アセット自体が変わらない限り 304 が返り続け、ブラウザは
+       **ヘッダー注入前の古い本体**を使い回してしまう（本番で実際に起きた）。 */
+    let req = request;
+    try {
+      const p = new URL(request.url).pathname;
+      if (isWorksPage(p) && (request.headers.has("if-none-match") || request.headers.has("if-modified-since"))) {
+        const h = new Headers(request.headers);
+        h.delete("if-none-match");
+        h.delete("if-modified-since");
+        req = new Request(request, { headers: h });
+      }
+    } catch { /* 解析できなくても通常処理を続ける */ }
+    const response = await route(req, env);
+    const withHeader = await injectOnlineHeader(req, response, env, ctx);
     return withSecurityHeaders(withHeader);
   },
 };
