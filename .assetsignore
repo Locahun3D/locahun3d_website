@@ -5,6 +5,8 @@
 wrangler.jsonc
 wrangler.toml
 worker.js
+lib/
+scripts/
 _seo_inject.py
 package.json
 package-lock.json

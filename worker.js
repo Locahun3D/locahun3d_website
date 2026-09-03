@@ -3,6 +3,7 @@
 // - everything else  : delegate to static assets
 
 import { EmailMessage } from "cloudflare:email";
+import { applyAltLangUrl, composeHeaderPartial } from "./lib/header-partial.mjs";
 
 const TO_ADDR = "l3dtools@gmail.com";
 const FROM_ADDR = "noreply@locahun3d.com";
@@ -226,18 +227,42 @@ async function handleWorksAPI(request, env) {
 // 本人指示（2026-09-01）「ヘッダーの複製に独立してパッチを当て続けるのは
 // 構造的によくない、やめて」により、**配信時にオンライン版の部品を埋め込む**方式へ変更。
 //
-//   locahun3d.com/partials/header  … 本物の <header> を Declarative Shadow DOM
-//                                    （必要CSS内包）1ブロックで返すルート
-//   ここ                            … /works/** の HTML を配る瞬間に、ページ内の
-//                                    静的ヘッダーをその部品で置換する
+//   locahun3d.com/partials/header-frame … 本物の <header> を素の1ページとして描画する
+//                                         オンライン版のルート（素材）
+//   ここ                                 … その素材と、素材ページが読んでいるCSSを取得して
+//                                          部品HTMLへ合成し、/works/** の HTML を配る
+//                                          瞬間に静的ヘッダーと差し替える
+//
+// ⚠ 合成が「オンライン版側」ではなく「ここ」にある理由（2026-09-03）:
+//   当初はオンライン版の /partials/header が自分の /partials/header-frame を
+//   self-fetch して合成し、ここは完成品を1回 fetch するだけ、という設計だった。
+//   しかし **Worker が自分自身へ fetch する経路は Cloudflare 上で全滅**する
+//   （自ゾーンのホスト名・自分の workers.dev・SELF service binding のいずれも
+//   本番で 522。binding は `bound` と診断まで出るが、binding 越しに再入した
+//   OpenNext が内部でまた自己フェッチする）。一方 **別 Worker からオンライン版の
+//   workers.dev への fetch は自己参照ではないので通る**（本番実測: header-frame 200・
+//   CSS 200）。そこで合成ロジックを lib/header-partial.mjs としてこちらへ移した。
+//   → オンライン版の /partials/header は dev 検証用に残っているが本番では使わない。
+//
+// ⚠ 変換ロジックの正典はオンライン版リポの src/lib/header-partial.ts。
+//   lib/header-partial.mjs はその移植。変えるときは両方（scripts/test-header-partial.mjs
+//   がハッシュで乖離を検知する）。
 //
 // ⚠ 静的ヘッダー（<header class="site-header sh-works">）と assets/works-header.css
 //   は**消さない**。取得に失敗したらそのまま出す＝ヘッダー無しのページを絶対に
 //   出さないためのフォールバック。scripts/sync_header.py の仕組みもそのまま。
 //   ただし今後の見た目調整はオンライン版側だけで完結する。
-const DEFAULT_PARTIALS_ORIGIN = "https://locahun3d.com";
+//
+// ⚠ PARTIALS_ORIGIN の既定は **workers.dev**。apex（locahun3d.com）を向けると
+//   Cloudflare のゾーン内ループ扱いで落ちることがあるため、素材取得は
+//   ワーカー直アドレスで行う。ヘッダー内リンクの行き先は
+//   lib/header-partial.mjs の ONLINE_ORIGIN（= https://locahun3d.com）で別管理。
+const DEFAULT_PARTIALS_ORIGIN = "https://locahun3d-online.nakamurakou1108.workers.dev";
 const WORKS_ORIGIN = "https://web.locahun3d.com";
-const HEADER_PARTIAL_TTL = 300; // 5分。エッジでキャッシュする
+const HEADER_PARTIAL_TTL = 300; // 5分。エッジ(caches.default)にキャッシュする
+const HEADER_FETCH_TIMEOUT_MS = 3000;
+// 合成結果のキャッシュキー（alt を含めない＝JA/EN の2キーで済む。alt は配信時に当てる）
+const HEADER_CACHE_BASE = "https://header-partial.locahun3d.internal/v1";
 
 /** works の HTML ページか（ヘッダー差し替えの対象）。 */
 function isWorksPage(pathname) {
@@ -251,42 +276,82 @@ function altLangUrl(pathname) {
     : WORKS_ORIGIN + "/en" + pathname;
 }
 
-async function fetchHeaderPartial(pathname, env) {
-  const origin = (env && env.PARTIALS_ORIGIN) || DEFAULT_PARTIALS_ORIGIN;
-  const isEn = pathname.startsWith("/en/");
-  const url =
-    `${origin}${isEn ? "/en" : ""}/partials/header` +
-    `?alt=${encodeURIComponent(altLangUrl(pathname))}`;
+/** 素材取得。オンライン版が重いときに works ページまで道連れにしない。 */
+function materialFetch(url) {
+  return fetch(url, {
+    // Cookie を渡さない＝常に未ログイン形＝キャッシュ可能（オンライン版の
+    // /partials/header がやっていたのと同じ約束）。
+    headers: { "user-agent": "locahun3d-header-partial" },
+    cf: { cacheTtl: HEADER_PARTIAL_TTL, cacheEverything: true },
+    signal: AbortSignal.timeout(HEADER_FETCH_TIMEOUT_MS),
+  });
+}
+
+/** 部品の体裁を最低限確認する（空・エラーページを差し込まない）。 */
+function looksLikePartial(html) {
+  return !!html && html.includes("shadowrootmode") && html.includes("<header");
+}
+
+/**
+ * ロケール別の合成済み部品（alt 未適用）をエッジキャッシュ込みで返す。
+ * 失敗したら null（＝呼び出し側は静的ヘッダーのまま出す）。
+ */
+async function getHeaderPartial(locale, env, ctx) {
+  const cacheKey = new Request(`${HEADER_CACHE_BASE}?locale=${locale}`);
+  const cache = caches.default;
   try {
-    const res = await fetch(url, {
-      cf: { cacheTtl: HEADER_PARTIAL_TTL, cacheEverything: true },
-      // オンライン版が重いときに works ページまで道連れにしない。
-      // タイムアウトしたら静的ヘッダーへフォールバックする。
-      signal: AbortSignal.timeout(3000),
-    });
-    if (!res.ok) return null;
-    const html = await res.text();
-    // 部品の体裁を最低限確認する（空・エラーページを差し込まない）。
-    if (!html.includes("shadowrootmode") || !html.includes("<header")) return null;
-    return html;
+    const hit = await cache.match(cacheKey);
+    if (hit) {
+      const html = await hit.text();
+      if (looksLikePartial(html)) return html;
+    }
+  } catch {
+    /* キャッシュが使えない環境（wrangler dev 等）でも合成は続ける */
+  }
+
+  const origin = (env && env.PARTIALS_ORIGIN) || DEFAULT_PARTIALS_ORIGIN;
+  let html;
+  try {
+    html = await composeHeaderPartial(materialFetch, origin, locale);
   } catch {
     return null;
   }
+  if (!looksLikePartial(html)) return null;
+
+  try {
+    const put = cache.put(
+      cacheKey,
+      new Response(html, {
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": `public, max-age=${HEADER_PARTIAL_TTL}`,
+        },
+      }),
+    );
+    if (ctx && ctx.waitUntil) ctx.waitUntil(put);
+    else await put;
+  } catch {
+    /* キャッシュできなくても配信は続ける */
+  }
+  return html;
 }
 
 /**
  * works ページの静的ヘッダーをオンライン版の部品で置換する。
  * 失敗時は response をそのまま返す（＝静的ヘッダーで表示が保たれる）。
  */
-async function injectOnlineHeader(request, response, env) {
+async function injectOnlineHeader(request, response, env, ctx) {
   const url = new URL(request.url);
   if (!isWorksPage(url.pathname)) return response;
   if (!response.ok) return response;
   const ct = response.headers.get("Content-Type") || "";
   if (!ct.includes("text/html")) return response;
 
-  const partial = await fetchHeaderPartial(url.pathname, env);
-  if (!partial) return response;
+  const locale = url.pathname.startsWith("/en/") ? "en" : "ja";
+  const cached = await getHeaderPartial(locale, env, ctx);
+  if (!cached) return response;
+  // 言語トグルの行き先だけはページごとに違うので、キャッシュ後にここで当てる。
+  const partial = applyAltLangUrl(cached, altLangUrl(url.pathname));
 
   /* 旧ヘッダーは position:fixed だったので、各 works ページは
      `body{padding-top:56px}` でその分を空けている。差し替え後のヘッダーは
@@ -546,9 +611,9 @@ async function route(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const response = await route(request, env);
-    const withHeader = await injectOnlineHeader(request, response, env);
+    const withHeader = await injectOnlineHeader(request, response, env, ctx);
     return withSecurityHeaders(withHeader);
   },
 };
