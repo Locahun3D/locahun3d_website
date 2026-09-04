@@ -6,6 +6,7 @@ desktop.ini
 *~
 .vscode/
 .idea/
+__pycache__/
 
 # Cloudflare Wrangler caches and local builds
 .wrangler/

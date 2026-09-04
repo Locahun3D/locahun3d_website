@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /works/admin.html
-Sitemap: https://web.locahun3d.com/sitemap.xml
