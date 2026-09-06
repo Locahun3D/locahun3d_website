@@ -298,18 +298,21 @@
     <li><a href="#gs">1. 3DGS — Vectorworks does not support it</a></li>
     <li><a href="#pc">2. Point cloud — you can measure it, but it has no surfaces</a></li>
     <li><a href="#mesh">3. Mesh — it displays, but it is heavy to work in</a></li>
-    <li><a href="#answer">Connect an editable model to Vectorworks</a></li>
+    <li><a href="#modeling">4. Build an editable model from a separate hall scan</a></li>
+    <li><a href="#answer">5. Connect the editable model to Vectorworks</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
-    <b>1. 3DGS</b><span class="a">→</span><b>unsupported</b><span class="a">|</span>
-    <b>2. point cloud</b><span class="a">→</span><b>measurable, no surfaces</b><span class="a">|</span>
-    <b>3. mesh</b><span class="a">→</span><b>displays, but heavy</b>
+    <b>1. 3DGS</b><span class="a">→</span><b>appearance</b><span class="a">|</span>
+    <b>2. point cloud</b><span class="a">→</span><b>measurement</b><span class="a">|</span>
+    <b>3. scan mesh</b><span class="a">→</span><b>shape reference</b><span class="a">|</span>
+    <b>4. editable model</b><span class="a">→</span><b>Blender</b><span class="a">|</span>
+    <b>5. drawings</b><span class="a">→</span><b>Vectorworks</b>
   </div>
 
-  <h2 id="basics"><span class="n">00</span> The three formats, briefly</h2>
+  <h2 id="basics">The three formats, briefly</h2>
   <p>A single capture can produce three kinds of data for different jobs.</p>
   <ul>
     <li><strong>1. 3DGS</strong> — coloured particles recreate a photographic appearance. Best for reviewing and sharing site conditions.</li>
@@ -326,6 +329,10 @@
   <h2 id="gs"><span class="n">01</span> 1. 3DGS — Vectorworks does not support it</h2>
   <p><strong>Vectorworks does not support 3DGS.</strong> A 3DGS file stores more than positions — each particle also carries what colour it is, how transparent it is and what shape it takes — but Vectorworks has no way to read any of that. On import it <strong>takes only the positions and discards everything else, colour included</strong>. What lands on screen is a sparse scatter of near-black dots.</p>
   <p>You can bake colour into a conventional point cloud before import, but the view-dependent appearance is lost. The converted result belongs in the next category; it is no longer 3DGS.</p>
+  <figure>
+    <img src="/works/images/vw_locahun_viewer.jpg" alt="The city-block 3DGS displayed in a dedicated viewer">
+    <figcaption><b>The test city block displayed as 3DGS.</b> Roads, power lines, signage and sky retain their captured appearance. This view cannot be brought directly into Vectorworks.</figcaption>
+  </figure>
 
   <h2 id="pc"><span class="n">02</span> 2. Point cloud — you can measure it, but it has no surfaces</h2>
   <p>Vectorworks supports point clouds natively, so they <strong>import without any conversion</strong>. On colour fidelity alone, this is the best of the three.</p>
@@ -362,8 +369,26 @@
     <figcaption><b>The same data opened in Blender.</b> Buildings, road, crosswalk and street trees all keep their real photographic detail, and changing the view costs no wait at all. <strong>The data is not the problem — CAD simply is not built to handle it.</strong></figcaption>
   </figure>
 
-  <h2 id="answer"><span class="n">04</span> Connect an editable model to Vectorworks</h2>
-  <p>For the recent hall project, I kept 3DGS and captured images aligned in Blender, then rebuilt the stage, walls, ceiling, upper gallery and railings as editable parts. Instead of only decimating a raw scan mesh, the method <strong>keeps 3DGS as the comparison baseline and reconstructs the required geometry with fewer faces</strong>.</p>
+  <h2 id="modeling"><span class="n">04</span> 4. Build an editable model from a separate hall scan</h2>
+  <p>Sections 1–3 above are direct Vectorworks import tests using the city-block scan. I then used a separate hall capture to test a different path: keeping 3DGS and captured images as references while rebuilding editable geometry in Blender. <strong>The city block and hall are different datasets</strong>; the hall test checks the proposed solution rather than continuing the same import test.</p>
+  <div class="duo">
+    <figure>
+      <img src="/works/images/musicholl_early_stage_model.webp" alt="Early stage of the editable hall model">
+      <figcaption><b>Early model.</b> Work began with the floor and major walls, then added the ceiling, upper gallery, stage and wall-side parts.</figcaption>
+    </figure>
+    <figure>
+      <img src="/works/images/musicholl_stage_model.webp" alt="Editable hall model built with the 3DGS and captured images as references">
+      <figcaption><b>Current editable model.</b> The stage, walls, ceiling, upper gallery and railings are separate parts that can be selected and revised.</figcaption>
+    </figure>
+  </div>
+  <p>This is not merely a decimated scan mesh. I kept the 3DGS as the comparison baseline and repeatedly matched the same cameras while reconstructing only the required geometry with fewer faces. The model is not yet an exact match, so it remains a rough model that requires manual correction rather than a design or construction model.</p>
+  <figure>
+    <img src="/works/images/musicholl_stage_3dgs.webp" alt="Hall 3DGS used as the comparison baseline for the editable model">
+    <figcaption><b>The 3DGS comparison baseline.</b> Matching the model camera made it possible to compare the stage width, ceiling height, upper gallery and wall positions.</figcaption>
+  </figure>
+  <p><a href="3dgs-codex-hall-modeling.html">The full hall reconstruction workflow and location-by-location comparisons are documented here.</a></p>
+
+  <h2 id="answer"><span class="n">05</span> 5. Connect the editable model to Vectorworks</h2>
   <ul>
     <li><strong>3DGS</strong> — remains the visual and spatial comparison baseline.</li>
     <li><strong>Captured images</strong> — resolve thin parts, wall edges and materials that blur in 3DGS.</li>
@@ -371,12 +396,6 @@
     <li><strong>Vectorworks</strong> — uses the lightweight model as a base for classes, layers, lighting, furniture and drawings.</li>
   </ul>
   <p><a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">Vectorworks 2026 can import formats including OBJ and IFC</a>. OBJ is a candidate for shape reference; IFC is a candidate when building elements and storey information matter. Export only the parts required for the job.<br>Importing this particular hall model into Vectorworks is the next validation step. This article does not yet claim verified editing performance after import.</p>
-  <p><a href="3dgs-codex-hall-modeling.html">The hall reconstruction workflow is documented in this article.</a></p>
-  <figure>
-    <img src="/works/images/vw_locahun_viewer.jpg" alt="The same site shown as 3DGS in a dedicated viewer">
-    <figcaption><b>The same site from this article, opened in a dedicated viewer.</b> The 3DGS is displayed as-is — no conversion, no thinning — so the road surface, power lines, signage and sky all look exactly as they did on the day. It runs in a browser and you can move the view freely.</figcaption>
-  </figure>
-
   <p>3DGS, Blender and Vectorworks serve different roles. <strong>Separate the visual baseline, editable geometry and design drawings, then connect them</strong>. This preserves the scan's information without making CAD carry the entire raw dataset.</p>
 
   <div class="data-cta">

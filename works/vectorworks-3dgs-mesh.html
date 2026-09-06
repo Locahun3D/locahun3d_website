@@ -299,18 +299,21 @@
     <li><a href="#gs">① 3DGS ── Vectorworksが非対応</a></li>
     <li><a href="#pc">② 点群 ── 測れるが、面がない</a></li>
     <li><a href="#mesh">③ メッシュ ── 表示できるが、作業には重い</a></li>
-    <li><a href="#answer">編集モデルをVectorworksへつなぐ</a></li>
+    <li><a href="#modeling">④ 別のホールで編集モデルを制作</a></li>
+    <li><a href="#answer">⑤ 編集モデルをVectorworksへつなぐ</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
-    <b>① 3DGS</b><span class="a">→</span><b>非対応</b><span class="a">|</span>
-    <b>② 点群</b><span class="a">→</span><b>測れるが面がない</b><span class="a">|</span>
-    <b>③ メッシュ</b><span class="a">→</span><b>表示できるが重い</b>
+    <b>① 3DGS</b><span class="a">→</span><b>見た目</b><span class="a">|</span>
+    <b>② 点群</b><span class="a">→</span><b>計測</b><span class="a">|</span>
+    <b>③ スキャンメッシュ</b><span class="a">→</span><b>形状参照</b><span class="a">|</span>
+    <b>④ 編集モデル</b><span class="a">→</span><b>Blender</b><span class="a">|</span>
+    <b>⑤ 作図</b><span class="a">→</span><b>Vectorworks</b>
   </div>
 
-  <h2 id="basics"><span class="n">00</span> 3つの形式を短く整理</h2>
+  <h2 id="basics">3つの形式を短く整理</h2>
   <p>同じ撮影から、用途の違う3種類のデータを作れます。</p>
   <ul>
     <li><strong>① 3DGS</strong> ── 色の粒で写真に近い見た目を再現します。現況確認と共有向きです。</li>
@@ -327,6 +330,10 @@
   <h2 id="gs"><span class="n">01</span> ① 3DGS ── Vectorworksが非対応</h2>
   <p><strong>Vectorworksは3DGSに対応していません。</strong><br>3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」といった情報が一緒に入っていますが、Vectorworksにはこれらを読む機能がありません。<br>読み込むと<strong>位置の情報だけを取り出して、色を含む残りをすべて捨ててしまいます</strong>。<br>画面に出るのは黒くまばらな点の集まりです。</p>
   <p>色を一般的な点群へ焼き込んでから読ませることはできますが、見る角度による質感変化は失われます。変換後は3DGSではなく、次の点群として扱います。</p>
+  <figure>
+    <img src="images/vw_locahun_viewer.jpg" alt="街区スキャンの3DGSを専用ビューアーで表示した画面">
+    <figcaption><b>検証に使った街区を3DGSで表示した状態です。</b>道路、電線、看板、空まで撮影時の見た目を確認できます。この表示をVectorworksへ直接持ち込むことはできません。</figcaption>
+  </figure>
 
   <h2 id="pc"><span class="n">02</span> ② 点群 ── 測れるが、面がない</h2>
   <p>点群はVectorworksが元から対応している形式なので、<strong>変換なしでそのまま読み込めます</strong>。<br>色の再現という一点だけを見れば、3つのなかでこれが最良です。</p>
@@ -363,8 +370,26 @@
     <figcaption><b>同じデータをBlenderで開いたところです。</b>建物・道路・横断歩道・街路樹まで実際の写真の質感が残っており、視点を変えても待たされません。<strong>データが悪いのではなく、CADがこの種のデータを扱うようにできていない</strong>ということです。</figcaption>
   </figure>
 
-  <h2 id="answer"><span class="n">04</span> 編集モデルをVectorworksへつなぐ</h2>
-  <p>今回のホール制作では、3DGSと撮影画像をBlenderへ重ね、舞台・壁・天井・2階・手すりを編集できる部材として作り直しました。<br>生のスキャンメッシュを軽くするだけではなく、<strong>3DGSを比較の基準として残し、必要な形を少ない面数で再構成する</strong>方法です。</p>
+  <h2 id="modeling"><span class="n">04</span> ④ 別のホールで編集モデルを制作</h2>
+  <p>ここまでの①〜③は、街区スキャンをVectorworksへ直接取り込んだ検証です。<br>次に別のホールを使い、3DGSと撮影画像を基準にして、Blenderで編集できるモデルを作る工程を試しました。<br><strong>街区とホールは別の撮影データ</strong>ですが、「スキャンをそのままCADへ入れるのではなく、見た目を参照しながら必要な形だけ作り直す」という解決方法を確認するための検証です。</p>
+  <div class="duo">
+    <figure>
+      <img src="images/musicholl_early_stage_model.webp" alt="ホール編集モデルの制作初期">
+      <figcaption><b>制作初期。</b>床と大きな壁から始め、天井、2階、舞台、壁際の部材を順番に追加しました。</figcaption>
+    </figure>
+    <figure>
+      <img src="images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作したホールの編集モデル">
+      <figcaption><b>現在の編集モデル。</b>舞台・壁・天井・2階・手すりを、個別に選択して直せる部材として作っています。</figcaption>
+    </figure>
+  </div>
+  <p>生のスキャンメッシュを軽くするだけではありません。3DGSを比較の基準として残し、同じカメラから何度も見比べながら、必要な形を少ない面数で再構成しました。<br>実物と完全には一致していないため、現状は設計モデルではなく、手動修正を前提としたラフモデルです。</p>
+  <figure>
+    <img src="images/musicholl_stage_3dgs.webp" alt="編集モデルの比較基準にしたホールの3DGS">
+    <figcaption><b>比較基準にした3DGSです。</b>モデルと同じカメラで、舞台の幅、天井の高さ、2階や壁の位置を確認しました。</figcaption>
+  </figure>
+  <p><a href="3dgs-codex-hall-modeling.html">3DGSからホールの編集モデルを作った工程と、場所ごとの比較はこちらの記事</a>にまとめています。</p>
+
+  <h2 id="answer"><span class="n">05</span> ⑤ 編集モデルをVectorworksへつなぐ</h2>
   <ul>
     <li><strong>3DGS</strong> ── 現況の見た目と全体関係を確認する比較基準として残します。</li>
     <li><strong>撮影画像</strong> ── 薄い部材、壁際、材質など3DGSで崩れる部分を確認します。</li>
@@ -372,12 +397,6 @@
     <li><strong>Vectorworks</strong> ── 軽量モデルを下敷きに、クラス・レイヤ・照明・什器・図面を整えます。</li>
   </ul>
   <p>Vectorworks 2026は<a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">OBJやIFCなどを読み込めます</a>。形状参照ならOBJ、建築部材や階情報を渡す場合はIFCを候補にし、部材を絞って出力します。<br>今回のホールモデルをVectorworksへ読み込む検証は次の工程です。現時点では、読み込み後の編集性や速度まで確認済みとはしていません。</p>
-  <p><a href="3dgs-codex-hall-modeling.html">3DGSと撮影画像からホールの編集モデルを作った工程はこちらの記事</a>にまとめました。</p>
-  <figure>
-    <img src="images/vw_locahun_viewer.jpg" alt="同じ現場の3DGSを専用ビューアーで表示した画面">
-    <figcaption><b>記事で使ったのと同じ現場を、専用ビューアーで開いたところです。</b>変換も間引きもせず3DGSをそのまま表示しているので、路面の質感・電線・看板・空の色まで撮影時のまま残ります。ブラウザだけで動き、視点も自由に動かせます。</figcaption>
-  </figure>
-
   <p>3DGS、Blender、Vectorworksは役割が違います。<br><strong>見た目の基準、編集できる形、設計図面を分けてつなぐ</strong>ことで、スキャンの情報量を残しながらCADを重くしすぎずに使えます。</p>
 
   <div class="data-cta">
