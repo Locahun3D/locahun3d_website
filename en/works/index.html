@@ -203,8 +203,20 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
 #worksGrid .card.ph p{display:none}
 #worksGrid .card.ph .cm{font-size:.5em}
 @media(min-width:720px) and (max-width:959px){
-  #worksGrid{grid-template-columns:minmax(0,1.5fr) minmax(200px,.7fr)}
-  #worksGrid .card:not(.ph){grid-row:span 2}
+  .tcr{padding-top:12px}
+  .hero{padding:12px 0 18px;text-align:left}
+  .hero .kick{margin-bottom:6px;text-indent:0}
+  .hero h1.big{font-size:clamp(2.5em,6vw,3.4em);line-height:1}
+  .overview{grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr);gap:18px}
+  .overview .chapter-rule{margin:18px 0 12px}
+  .overview .grid{margin-top:0}
+  #worksGrid,#blogGrid{grid-template-columns:1fr}
+  .overview .card{min-height:0}
+  .overview .card .thumb{aspect-ratio:16/7}
+  .overview .card .cb{padding:11px 14px 13px;gap:6px}
+  .overview .card p{font-size:.72em;line-height:1.58}
+  .blog-head{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:12px}
+  .blog-head .filters{width:100%}
 }
 @media(min-width:960px){
   .tcr{padding-top:12px}
@@ -222,7 +234,7 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
   .overview .card p{font-size:.74em;line-height:1.65}
   .blog-head .section-head h2.big{font-size:2em;line-height:1}
 }
-@media(max-width:959px){.overview{gap:0}}
+@media(max-width:719px){.overview{gap:0}}
 @media(max-width:620px){
   .blog-head{align-items:stretch;flex-direction:column;margin-bottom:0}
   .blog-head .filters{width:100%}

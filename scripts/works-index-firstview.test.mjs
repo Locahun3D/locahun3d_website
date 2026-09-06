@@ -78,4 +78,26 @@ for (const path of ['/works/index.html', '/en/works/index.html']) {
       await page.close();
     });
   }
+
+  test(`${path} summarizes works and technical articles side by side at tablet width`, async () => {
+    const page = await browser.newPage({ viewport: { width: 820, height: 900 } });
+    await page.goto(`${origin}${path}`, { waitUntil: 'domcontentloaded' });
+    const layout = await page.evaluate(() => {
+      const overview = document.querySelector('.overview');
+      const works = document.querySelector('#works');
+      const blog = document.querySelector('#blog');
+      const article = document.querySelector('#blogGrid .card:not(.ph)');
+      const columns = getComputedStyle(overview).gridTemplateColumns.split(' ').filter(Boolean);
+      return {
+        columns,
+        worksTop: works.getBoundingClientRect().top,
+        blogTop: blog.getBoundingClientRect().top,
+        articleTop: article.getBoundingClientRect().top,
+      };
+    });
+    assert.equal(layout.columns.length, 2, 'tablet opening view must use two overview columns');
+    assert.ok(Math.abs(layout.worksTop - layout.blogTop) < 2, 'works and technical articles must start on the same row');
+    assert.ok(layout.articleTop < 600, `first technical article starts too low at ${layout.articleTop}px`);
+    await page.close();
+  });
 }
