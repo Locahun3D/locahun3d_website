@@ -301,6 +301,12 @@ document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
+    tag:"industry", tagLabel:"技術", date:"2026-09-06", read:"約8分",
+    title:"3DGSと撮影画像から、編集できるホールの3Dモデルを作る",
+    excerpt:"3DGSと撮影画像を比較基準に残し、CodexとBlenderで編集できるホールモデルを制作。<br>同一カメラで形を詰めた工程、忠実再現に残るAIの限界、時間・トークン・参考費用をまとめます。",
+    href:"3dgs-codex-hall-modeling.html", thumb:"images/musicholl_stage_model.webp"
+  },
+  {
     tag:"industry", tagLabel:"技術", date:"2026-08-18", read:"約3分",
     title:"渋谷の3DGSでロボットを走らせてみました",
     excerpt:"渋谷スクランブル交差点のスキャンをNVIDIA Isaac Simに持ち込んで、ロボットを走らせた記録。<br>LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。",

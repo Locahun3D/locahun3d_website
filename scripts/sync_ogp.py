@@ -20,6 +20,7 @@ BRAND_OG = ("/assets/Digiloke_OG_Cover.jpg", 1200, 630)
 
 # slug -> (画像パス, 幅, 高さ)。記事本文の代表画像を使う（自前ホストのみ／外部ホットリンク禁止）
 EYECATCH = {
+    "3dgs-codex-hall-modeling":      ("/works/images/musicholl_stage_model.webp", 1600, 1100),
     "chevron-rokunowa-mv":            ("/works/images/work04_bgfix.jpg", 1500, 844),
     "houdini-comfyui-gsplat-workflow":("/works/images/hectorvfx_shibuya_ai_render.jpg", 1920, 1067),
     "portalcam-drone-ai-workflow":    ("/works/images/work03_poster.jpg", 1280, 720),

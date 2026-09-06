@@ -2,29 +2,28 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSスキャンをVectorworksで使うには｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
-<meta name="robots" content="noindex,nofollow">
-<link rel="canonical" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
-<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
-<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/vectorworks-3dgs-mesh.html">
-<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSと撮影画像から、編集できるホールの3Dモデルを作る｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="PortalCamで撮影したホールの3DGSと元画像を参照し、CodexとBlenderで編集できる建築モデルを制作する流れと、同一カメラによる比較、現在の限界をまとめます。">
+<link rel="canonical" href="https://web.locahun3d.com/works/3dgs-codex-hall-modeling.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-codex-hall-modeling.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-codex-hall-modeling.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-codex-hall-modeling.html">
 <!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:title" content="3DGSスキャンをVectorworksで使うには">
-<meta property="og:description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
-<meta property="og:url" content="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
-<meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="3Dスキャンした街区のデータ">
+<meta property="og:title" content="3DGSと撮影画像から、編集できるホールの3Dモデルを作る">
+<meta property="og:description" content="PortalCamで撮影したホールの3DGSと元画像を参照し、CodexとBlenderで編集できる建築モデルを制作する流れと、同一カメラによる比較、現在の限界をまとめます。">
+<meta property="og:url" content="https://web.locahun3d.com/works/3dgs-codex-hall-modeling.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/musicholl_stage_model.webp">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="1100">
+<meta property="og:image:alt" content="3DGSと撮影画像を参照して制作中のホールのBlenderモデル">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="3DGSスキャンをVectorworksで使うには">
-<meta name="twitter:description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
-<meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
+<meta name="twitter:title" content="3DGSと撮影画像から、編集できるホールの3Dモデルを作る">
+<meta name="twitter:description" content="PortalCamで撮影したホールの3DGSと元画像を参照し、CodexとBlenderで編集できる建築モデルを制作する流れと、同一カメラによる比較、現在の限界をまとめます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/musicholl_stage_model.webp">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -88,28 +87,10 @@
   figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
   figcaption b{color:var(--brand-ink);font-weight:500}
 
-  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
-  .aiflow{margin:38px 0}
-  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
-    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
-  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
-    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
-    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
-  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  .aiflow-step{margin:0;position:relative}
-  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
-  .aiflow-tag{display:inline-block;margin-bottom:8px;
-    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
-    padding:3px 8px;border-radius:var(--radius);
-    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
-  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
-  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
-  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
-    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
-  @media(max-width:720px){
-    .aiflow-row{grid-template-columns:1fr;gap:26px}
-    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
-  }
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:38px 0}
+  .duo figure{margin:0}
+  .duo figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  @media(max-width:640px){.duo{grid-template-columns:1fr}}
 
   .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
   .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
@@ -129,14 +110,7 @@
   article ul,article ol{margin:18px 0 18px 24px}
   article li{margin:9px 0}
   article li::marker{color:var(--brand-ink)}
-  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
-     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
-     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
   article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
-/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
-     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
-     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
-     包み箱の .code 側で overflow-x:auto にするのが正解。 */
   article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   article .code pre{margin:0}
 
@@ -157,21 +131,18 @@
   .stepflow .a{color:var(--brand-ink);font-weight:700}
 
   .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
-  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:560px}
   .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
     text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
   .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
   .tblwrap tr:last-child td{border-bottom:none}
   .tblwrap td b{color:#fff;font-weight:700}
   .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
-  .tblwrap td:nth-child(2){white-space:nowrap}
 
   .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
   .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
   .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
   .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
-  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
-    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
   .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
     border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
   .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
@@ -211,12 +182,7 @@
     .topbar .tag{display:none}
     .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
   .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
-  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
-     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
-     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
-  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
-     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
-     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  body{padding-top:56px}
   .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
   .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
     font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
@@ -267,7 +233,7 @@
     </a>
   </div>
   <div class="sh-right">
-    <a class="sh-lang" href="/en/works/vectorworks-3dgs-mesh.html" aria-label="Language">EN</a>
+    <a class="sh-lang" href="/en/works/3dgs-codex-hall-modeling.html" aria-label="Language">EN</a>
   </div>
 </header>
 <div class="backbar">
@@ -278,135 +244,147 @@
 <div class="wrap">
 <header class="post">
   <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">Vectorworks</span><span class="badge">検証</span>
-    <span>2026-08-16</span><span>・</span><span>読了 約6分</span>
+    <span class="badge">3DGS</span><span class="badge">Blender</span><span class="badge">Codex</span><span class="badge">モデリング</span>
+    <span>2026-09-06</span><span>・</span><span>読了 約8分</span>
   </div>
-  <h1>3DGSを<br>Vectorworksで使うには</h1>
-  <p class="lead">ロケハン3Dの中村です。<br>現地スキャンをVectorworksの作業へどうつなぐかを確かめるため、<strong>3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込みました</strong>。<br>生のスキャンデータだけでは、見た目・計測・編集性を同時に満たせません。<br>この記事では3形式の実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへ渡す方法をまとめます。</p>
+  <h1>3DGSと撮影画像から、<br class="pc">編集できるホールの3Dモデルを作る</h1>
+  <p class="lead">ロケハン3Dの中村です。<br>今回は、PortalCamで撮影したホールの3DGSと撮影画像を使い、<strong>Blenderで編集できる建築モデル</strong>を制作しています。<br>3DGSの見た目をそのままメッシュへ変換するのではなく、壁・天井・手すり・舞台などを、あとから個別に修正できる形へ起こします。<br>CodexにBlenderでの制作と比較レンダリングを進めてもらい、私は出てきた画像を見ながら、形・材質・優先順位を指示しました。<br>この記事では、元データの準備から、3DGSとの比較、修正を繰り返した流れ、現在残っている差までまとめます。</p>
 
   <figure>
-    <img src="images/vw_hero_block.jpg" alt="3Dスキャンした街区のデータ">
-    <figcaption><b>検証に使った街区のスキャンデータです。</b>ハンディスキャナ（XGRIDS Lixel K2）で現地を歩いて撮影しました。この見た目を保ったまま、Vectorworksで軽快に編集できる形式はありませんでした。</figcaption>
+    <img src="/works/images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作中のホールのBlenderモデル">
+    <figcaption><b>現在の制作モデル。</b>3DGSと撮影画像を見ながら、舞台、天井、2階、手すり、壁際の設備まで編集できるメッシュとして作っています。</figcaption>
   </figure>
 </header>
-
-<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b><strong>3DGSは見た目、点群は計測、Vectorworksは作図に使い分けます。</strong>設計に必要な形は、3DGSと撮影画像を基準にBlenderで軽量な編集モデルへ起こし、必要な部材だけVectorworksへ渡す方法が現実的です。</div>
 
 <nav class="toc">
   <h2>目次</h2>
   <ol>
-    <li><a href="#basics">3つの形式を短く整理</a></li>
-    <li><a href="#gs">① 3DGS ── Vectorworksが非対応</a></li>
-    <li><a href="#pc">② 点群 ── 測れるが、面がない</a></li>
-    <li><a href="#mesh">③ メッシュ ── 表示できるが、作業には重い</a></li>
-    <li><a href="#answer">編集モデルをVectorworksへつなぐ</a></li>
+    <li><a href="#why">なぜ3DGSから編集モデルを作るのか</a></li>
+    <li><a href="#sources">3DGSと撮影画像を分けて使う</a></li>
+    <li><a href="#align">Blenderに3DGSを重ね、同じカメラで比べる</a></li>
+    <li><a href="#codex">Codexで形を作り、画像で方向を直す</a></li>
+    <li><a href="#geometry">形状の作り方そのものを修正する</a></li>
+    <li><a href="#materials">木目と材質を作る</a></li>
+    <li><a href="#compare">6つの場所で3DGSと比較する</a></li>
+    <li><a href="#limits">現在の限界とまとめ</a></li>
   </ol>
 </nav>
 
 <article>
   <div class="stepflow">
-    <b>① 3DGS</b><span class="a">→</span><b>非対応</b><span class="a">|</span>
-    <b>② 点群</b><span class="a">→</span><b>測れるが面がない</b><span class="a">|</span>
-    <b>③ メッシュ</b><span class="a">→</span><b>表示できるが重い</b>
+    <b>PortalCamで撮影</b><span class="a">→</span>
+    <b>3DGS＋元画像を用意</b><span class="a">→</span>
+    <b>Blenderへ重ねる</b><span class="a">→</span>
+    <b>Codexでモデリング</b><span class="a">→</span>
+    <b>同じカメラで比較</b><span class="a">→</span>
+    <b>修正</b>
   </div>
 
-  <h2 id="basics"><span class="n">00</span> 3つの形式を短く整理</h2>
-  <p>同じ撮影から、用途の違う3種類のデータを作れます。</p>
-  <ul>
-    <li><strong>① 3DGS</strong> ── 色の粒で写真に近い見た目を再現します。現況確認と共有向きです。</li>
-    <li><strong>② 点群</strong> ── 計測した座標の集まりです。寸法確認とトレースに使えます。</li>
-    <li><strong>③ メッシュ</strong> ── 三角形の面に写真を貼った一般的な3D形状です。面はありますが、スキャン由来のままでは重くなります。</li>
-  </ul>
+  <h2 id="why"><span class="n">01</span> なぜ3DGSから編集モデルを作るのか</h2>
+  <p>3DGSは、現地の色や光、細かな物の置かれ方まで、その場に近い見た目で残せます。<br>ロケーションを確認し、画角を探す用途では、この見た目自体が大きな強みです。</p>
+  <p>一方で、壁だけを選んで動かす、舞台の形を変える、手すりを非表示にする、といった作業には、通常の3Dモデルが必要です。<br>そこで今回は、<strong>3DGSを現況の見本として残しながら、同じ空間を編集できるメッシュで作り直す</strong>方法を試しました。</p>
+  <div class="callout note"><b>自動変換ではありません</b>3DGSから完成した建築メッシュを自動で取り出したわけではありません。3DGSと撮影画像を下敷きに、必要な部材をBlenderで別に作っています。</div>
+
+  <h2 id="sources"><span class="n">02</span> 3DGSと撮影画像を分けて使う</h2>
+  <p>元データには、ホール全体の3DGSと、PortalCamの撮影データが入っています。<br>撮影データから左右のカメラ画像を取り出し、形が分かりにくい場所を別の角度から確認できるようにします。</p>
   <figure>
-    <img src="images/vw_three_formats.jpg" alt="点群・メッシュ・3DGSの3形式を同じ建物で比較した図">
-    <figcaption><b>同じ建物を3つの形式で表したものです。</b>左から、点だけの「点群」、三角形の面に写真を貼った「メッシュ」、色の粒で写真そっくりに再現する「3DGS」。形は同じでも、表現方法とできることが違います。</figcaption>
+    <img src="/works/images/musicholl_raw_contact_sheet.webp" alt="PortalCamの撮影データから取り出したホールの元画像一覧">
+    <figcaption><b>撮影データから取り出した元画像。</b>3DGSではにじんでいる壁際や、薄い部材の形を確認する資料として使います。</figcaption>
+  </figure>
+  <p>3DGSは空間全体のつながりと見た目をつかむために使い、撮影画像は部材の形や材質を確認するために使います。<br>どちらか一方だけに決めず、役割を分けることで、スキャンの欠けやにじみを建物の形として作ってしまうことを避けます。</p>
+  <p>PortalCamの生データから元画像を取り出す方法は、<a href="portalcam-xbin-raw-extraction.html">PortalCamの生データ(.xbin)から4K元画像を取り出す</a>で詳しくまとめています。</p>
+
+  <h2 id="align"><span class="n">03</span> Blenderに3DGSを重ね、同じカメラで比べる</h2>
+  <p>まず3DGSをBlenderに読み込み、制作モデルと同じ座標へ置きます。<br>次に、舞台、後方、左右、天井、2階を見るカメラを固定します。<br>モデルと3DGSを<strong>同じ位置・同じ画角</strong>から出すことで、目で見ただけでは気づきにくい幅や高さの差を追いやすくなります。</p>
+  <figure>
+    <img src="/works/images/musicholl_early_stage_model.webp" alt="制作初期のホールモデルを舞台側から見たレンダリング">
+    <figcaption><b>制作初期のモデル。</b>大きな壁と床はありますが、天井、2階、舞台まわり、壁際の部材には不足が多い状態です。</figcaption>
+  </figure>
+  <p>カメラだけを合わせても、3DGSとCGでは光の出方が違います。<br>明るさや色の差をそのまま寸法差とは考えず、柱や梁の輪郭、床との接点、部材どうしの重なりを中心に見ます。</p>
+
+  <h2 id="codex"><span class="n">04</span> Codexで形を作り、画像で方向を直す</h2>
+  <p>制作は、CodexからBlenderのスクリプトを実行して進めました。<br>壁や梁を追加し、レンダリングし、元の3DGSと比較します。<br>私は比較画像を見て、次に直す場所と、形の作り方を指示します。</p>
+  <p>一度でホール全体を完成させようとすると、間違った形まで広い範囲に増えてしまいます。<br>そこで、天井、2階、舞台、壁際の設備というように場所を分け、<strong>1つ直すたびに別の角度から確認する</strong>流れにしました。</p>
+  <div class="callout warn"><b>スキャンのノイズを作り込まない</b>3DGSの浮いた点や欠け、撮影時に置かれていた物を、建物の固定形状と決めつけないようにします。判断できない部分は推定として残します。</div>
+
+  <h2 id="geometry"><span class="n">05</span> 形状の作り方そのものを修正する</h2>
+  <p>途中のモデルでは、曲がった部材を短い円柱でつないだ箇所がありました。<br>これでは継ぎ目が見え、建築部材として不自然です。<br>曲面は連続した1つの形へ作り直し、角のつながりも拡大して確認します。</p>
+  <p>舞台の前板も、最初は縁が太く、中央の板が深く沈んでいました。<br>3DGSと同じカメラで比べながら、縁を細くし、凹みを浅くします。</p>
+  <figure>
+    <img src="/works/images/musicholl_stage_profile_before.webp" alt="修正前の太く深い舞台前板の縁">
+    <figcaption><b>修正前。</b>中央板のまわりが太い額縁のように見え、凹みの影も強く出ています。</figcaption>
+  </figure>
+  <figure>
+    <img src="/works/images/musicholl_stage_profile_after.webp" alt="縁を細くし凹みを浅くした舞台前板">
+    <figcaption><b>修正後。</b>縁の幅と奥行きを抑え、実景の薄い見え方へ近づけています。正確な断面寸法は図面ではなく、画像からの推定です。</figcaption>
   </figure>
 
-  <div class="callout note"><b>検証環境</b>ハンディスキャナ（XGRIDS Lixel K2）で撮影した街区スキャンを、Vectorworks Spotlight 2026へ取り込みました。街区全体を一度に扱うには大きすぎるため、メッシュは3分割して1つずつ読み込んでいます。比較のため、3D制作でよく使われるBlenderでも同じデータを開いています。</div>
+  <h2 id="materials"><span class="n">06</span> 木目と材質を作る</h2>
+  <p>形が近づいても、同じ木目をすべての板に繰り返すと、CGらしい規則性が目立ちます。<br>そこで舞台の前板には、画像生成で作った異なる木目を割り当て、板ごとに模様を変えました。</p>
+  <p>生成した木目は、実物の木材を撮影して作ったテクスチャではありません。<br><strong>色と木目の方向を近づけるための汎用素材</strong>として使い、実物と同じ樹種や模様だとは扱いません。<br>木目だけでなく、縁の形と明るさも一緒に調整します。</p>
+  <div class="callout note"><b>書き出し後も確認する</b>Blenderで見えていても、別形式へ書き出すと材質の接続が変わる場合があります。GLBとFBXを読み込み直し、形と画像が残るかを別に確認しています。</div>
 
-  <h2 id="gs"><span class="n">01</span> ① 3DGS ── Vectorworksが非対応</h2>
-  <p><strong>Vectorworksは3DGSに対応していません。</strong><br>3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」といった情報が一緒に入っていますが、Vectorworksにはこれらを読む機能がありません。<br>読み込むと<strong>位置の情報だけを取り出して、色を含む残りをすべて捨ててしまいます</strong>。<br>画面に出るのは黒くまばらな点の集まりです。</p>
-  <p>色を一般的な点群へ焼き込んでから読ませることはできますが、見る角度による質感変化は失われます。変換後は3DGSではなく、次の点群として扱います。</p>
+  <h2 id="compare"><span class="n">07</span> 6つの場所で3DGSと比較する</h2>
+  <p>ここからは、現在の制作モデルと元の3DGSを、同じカメラから1枚ずつ並べます。<br>画像の重ね合わせや位置の変形はしていません。<br>各場所で、1枚目が制作モデル、2枚目が3DGSです。</p>
 
-  <h2 id="pc"><span class="n">02</span> ② 点群 ── 測れるが、面がない</h2>
-  <p>点群はVectorworksが元から対応している形式なので、<strong>変換なしでそのまま読み込めます</strong>。<br>色の再現という一点だけを見れば、3つのなかでこれが最良です。</p>
+  <h3>舞台</h3>
+  <figure><img src="/works/images/musicholl_stage_model.webp" alt="制作モデルの舞台側"><figcaption><b>制作モデル。</b>舞台、2階、天井、左右の壁まで、編集できる部材として構成しています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_stage_3dgs.webp" alt="元の3DGSの舞台側"><figcaption><b>元の3DGS。</b>舞台前板の色、柱や2階の幅、壁際の物量を比べます。</figcaption></figure>
 
-  <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を通常より細かい精度（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。データが壊れているのではなく、Vectorworks側がこの細かい色を読めていないだけです。<strong>色を一般的な精度（8ビット）に変換してから読み込ませることで、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
-  <figure>
-    <img src="images/vw_pointcloud_e57.jpg" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
-    <figcaption><b>色を8ビットに変換してから読み込んだ点群です。</b>建物のレンガ・赤い舗装・街路樹・横断歩道まで実物どおりの色になりました。ただし近くで見れば分かる通り、面ではなく<strong>点が集まってできた見た目</strong>です。</figcaption>
-  </figure>
+  <h3>後方</h3>
+  <figure><img src="/works/images/musicholl_rear_model.webp" alt="制作モデルの後方"><figcaption><b>制作モデル。</b>後方の開口と壁、2階の床、手すりを作っています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_rear_3dgs.webp" alt="元の3DGSの後方"><figcaption><b>元の3DGS。</b>後方には細かな物と形の揺らぎが多く、モデル側はまだ均一に見える部分があります。</figcaption></figure>
 
-  <p>点にはスナップが効くため、距離の計測や寸法線の作成ができます。<br>ただし面はないので、壁を選んで押し出すような編集はできません。<strong>計測と下敷きまで</strong>が点群の役割です。</p>
+  <h3>左側</h3>
+  <figure><img src="/works/images/musicholl_left_model.webp" alt="制作モデルの左側"><figcaption><b>制作モデル。</b>鏡、壁際の机、手すり、空調を分けて作っています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_left_3dgs.webp" alt="元の3DGSの左側"><figcaption><b>元の3DGS。</b>壁際の設備と、2階の柱・天井との関係に差が残っています。</figcaption></figure>
 
-  <h2 id="mesh"><span class="n">03</span> ③ メッシュ ── 表示できるが、作業には重い</h2>
-  <p>メッシュは面を選択でき、写真の質感も表示されます。<br>問題は速度です。同じデータをBlenderでも開いて比べました。</p>
+  <h3>右側</h3>
+  <figure><img src="/works/images/musicholl_right_model.webp" alt="制作モデルの右側"><figcaption><b>制作モデル。</b>扉、空調、壁面、移動式のバレエバーを配置しています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_right_3dgs.webp" alt="元の3DGSの右側"><figcaption><b>元の3DGS。</b>扉まわりや壁際の備品には、まだ不足と位置差があります。</figcaption></figure>
 
-  <div class="tblwrap"><table>
-    <thead><tr><th>作業</th><th>Vectorworks Spotlight 2026</th><th>Blender 4.5</th></tr></thead>
-    <tbody>
-      <tr><td>読み込み</td><td>約20〜30秒</td><td>数秒</td></tr>
-      <tr><td>視点の切り替え</td><td>約1.5秒待つ</td><td>待ちなしで動く</td></tr>
-      <tr><td>その他の操作</td><td>0.3〜2秒</td><td>そのまま普通に操作できる</td></tr>
-      <tr><td>質感の表示</td><td>正しく出る</td><td>問題なく表示</td></tr>
-    </tbody>
-  </table></div>
+  <h3>天井</h3>
+  <figure><img src="/works/images/musicholl_ceiling_model.webp" alt="制作モデルの天井"><figcaption><b>制作モデル。</b>梁の流れ、天井面、照明を個別の形として作っています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_ceiling_3dgs.webp" alt="元の3DGSの天井"><figcaption><b>元の3DGS。</b>大きな高さ関係は近づいてきましたが、照明の光量と天井表面の情報量は一致していません。</figcaption></figure>
 
-  <p>視点を変えるたびに1.5秒待つのは、作図しながら何度も視点を変える作業ではかなり煩わしい速度です。<br>ただし<strong>「開けないほど重い」わけではありません</strong>。<br>そしてこれは、街区全体を3分割したうちの<strong>1つ分だけ</strong>を開いた状態での話です。<br>全体を読み込めば、さらに重くなります。</p>
-  <figure>
-    <img src="images/vw_in_vectorworks.jpg" alt="Vectorworksでスキャンデータを開いた画面">
-    <figcaption><b>Vectorworksで実際に開いたところです。</b>質感はきちんと表示されます。ただしこの1つ分を表示するだけで、視点を変えるたびに待たされます。</figcaption>
-  </figure>
+  <h3>2階</h3>
+  <figure><img src="/works/images/musicholl_balcony_model.webp" alt="制作モデルの2階"><figcaption><b>制作モデル。</b>通路、座席の段差、椅子、手すりを編集できる状態にしています。</figcaption></figure>
+  <figure><img src="/works/images/musicholl_balcony_3dgs.webp" alt="元の3DGSの2階"><figcaption><b>元の3DGS。</b>手すりの透明感や床の古さ、座席まわりの細部には差が残っています。</figcaption></figure>
 
-  <figure>
-    <img src="images/vw_street_eye.jpg" alt="同じデータをBlenderで開いた画面">
-    <figcaption><b>同じデータをBlenderで開いたところです。</b>建物・道路・横断歩道・街路樹まで実際の写真の質感が残っており、視点を変えても待たされません。<strong>データが悪いのではなく、CADがこの種のデータを扱うようにできていない</strong>ということです。</figcaption>
-  </figure>
+  <h2 id="limits"><span class="n">08</span> 現在の限界とまとめ</h2>
+  <p>3DGSと撮影画像を組み合わせることで、空間全体の見た目を確認しながら、編集できるモデルを作れます。<br>Codexに制作と比較を繰り返してもらうことで、天井や曲面のつながり、舞台前板のような局所的な形も段階的に詰められました。</p>
+  <p>ただし、このモデルはまだ商用で使用できるほどのクオリティではありません。<br>実際の3DGSスキャンと比較すると、壁の位置やパーツごとのサイズには、場所によって大きな差が残っています。<br>写真で見えない部分や部材の厚みには推定が含まれるため、<strong>実測図面や施工用モデルの代わりにはなりません</strong>。</p>
+  <p>今回わかったのは、AIに一度で完成品を作らせるより、<strong>3DGSを比較の基準として残し、場所を分けて作り、同じカメラで何度も確認する</strong>方法が有効だということです。<br>一方で、今回のMCPを使った制作手法だけで完全に再現するには限界があります。現状はラフモデルとして扱い、手動修正を前提にする必要があります。<br>できることの限界を見極め、適切なリソースを使って納品品質まで仕上げることが最も重要でした。AIに任せた後の修正とデータ管理には、依然としてプロの目と作業が必要です。</p>
+  <p>現実に存在するものを忠実に再現するタスクは、現在のAIが苦手とする分野です。AIは欠けた情報をそれらしい形で補うことはできますが、写真や3DGSだけでは確認できない寸法、部材の厚み、裏側の構造まで正しく知ることはできません。場所ごとに修正した形が、空間全体の座標や隣接部材と矛盾することもあります。<br>そのためAIは、形の提案、ラフモデルの作成、比較レンダリングの反復には有効ですが、忠実な再現には実測値や図面による拘束条件と、モデラーによる最終調整が必要です。</p>
 
-  <h2 id="answer"><span class="n">04</span> 編集モデルをVectorworksへつなぐ</h2>
-  <p>今回のホール制作では、3DGSと撮影画像をBlenderへ重ね、舞台・壁・天井・2階・手すりを編集できる部材として作り直しました。<br>生のスキャンメッシュを軽くするだけではなく、<strong>3DGSを比較の基準として残し、必要な形を少ない面数で再構成する</strong>方法です。</p>
-  <ul>
-    <li><strong>3DGS</strong> ── 現況の見た目と全体関係を確認する比較基準として残します。</li>
-    <li><strong>撮影画像</strong> ── 薄い部材、壁際、材質など3DGSで崩れる部分を確認します。</li>
-    <li><strong>Blenderの編集モデル</strong> ── 必要な部材だけを軽量に作り、用途ごとに分けます。</li>
-    <li><strong>Vectorworks</strong> ── 軽量モデルを下敷きに、クラス・レイヤ・照明・什器・図面を整えます。</li>
-  </ul>
-  <p>Vectorworks 2026は<a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">OBJやIFCなどを読み込めます</a>。形状参照ならOBJ、建築部材や階情報を渡す場合はIFCを候補にし、部材を絞って出力します。<br>今回のホールモデルをVectorworksへ読み込む検証は次の工程です。現時点では、読み込み後の編集性や速度まで確認済みとはしていません。</p>
-  <p><a href="3dgs-codex-hall-modeling.html">3DGSと撮影画像からホールの編集モデルを作った工程はこちらの記事</a>にまとめました。</p>
-  <figure>
-    <img src="images/vw_locahun_viewer.jpg" alt="同じ現場の3DGSを専用ビューアーで表示した画面">
-    <figcaption><b>記事で使ったのと同じ現場を、専用ビューアーで開いたところです。</b>変換も間引きもせず3DGSをそのまま表示しているので、路面の質感・電線・看板・空の色まで撮影時のまま残ります。ブラウザだけで動き、視点も自由に動かせます。</figcaption>
-  </figure>
-
-  <p>3DGS、Blender、Vectorworksは役割が違います。<br><strong>見た目の基準、編集できる形、設計図面を分けてつなぐ</strong>ことで、スキャンの情報量を残しながらCADを重くしすぎずに使えます。</p>
+  <div class="callout note"><b>今回の実行条件と参考コスト</b>生成モデルは <a href="https://developers.openai.com/api/docs/models/gpt-6-astra">GPT-6 Astra</a>。2026年9月5日12:50から翌日13:00まで、停止までの経過時間は約24時間10分でした。待機や確認時間も含みます。<br>主タスクのログ差分は約2億5,174万トークンです。内訳は、キャッシュ入力約2億4,769万、未キャッシュ入力約357万、出力約48万トークンでした。公式API単価を当てはめると約307米ドル、<a href="https://www.boj.or.jp/about/services/tame/tame_rate/kijun/kiju2609.htm">2026年9月の日本銀行基準レート</a>1米ドル＝163円では<strong>約5万100円</strong>です。これはCodexアプリの実請求額ではなく、サブエージェント分やPC上の処理費も含まないAPI相当の参考値です。<br>今回はGPT-6 Astra公開初日の作業で、制作手法を探りながら進めた数値です。作業場所の分割、比較カメラの固定、修正範囲の絞り込みを先に設計することで、所要時間・トークン量・換算費用はさらに削減できます。</div>
 
   <div class="data-cta">
-    <span class="dc-tag">DEMO / 3DGS VIEWER</span>
-    <h3>ロケハン3Dのビューアーを<br class="pc">実際に触ってみてください</h3>
-    <p>CADに載せずに現況を共有するとはどういうことか、実際のスキャンデータを開いて確かめられます。<br>ブラウザだけで動き、インストールも追加のライセンスも不要です。<br>撮影から共有までの流れも含めて、デモでご説明します。</p>
-    <a class="dc-btn" href="https://locahun3d.com/pricing">デモを見る →</a>
+    <span class="dc-tag">3DGS / Modeling</span>
+    <h3>実在空間のスキャンと、編集用3Dモデル制作のご相談</h3>
+    <p>3DGSによる現況共有から、映像・シミュレーションで扱うための編集モデル制作まで、用途に合わせてご相談いただけます。</p>
+    <a class="dc-btn" href="https://locahun3d.com/contact">お問い合わせ →</a>
   </div>
 </article>
-
 <section class="related" aria-labelledby="related-h">
   <h2 id="related-h">関連する記事</h2>
   <div class="rgrid">
-      <a class="rcard" href="3dgs-file-formats.html">
-        <div class="rthumb" style="background-image:url('images/format-og-cover.jpg')"></div>
+      <a class="rcard" href="portalcam-drone-ai-workflow.html">
+        <div class="rthumb" style="background-image:url('/works/images/work04_bgfix.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約9分</span></div>
-          <h3>3DGSのファイル形式を整理する</h3>
+          <div class="rmeta"><span>技術</span><span>2026-06-16</span><span>約9分</span></div>
+          <h3>3DGSから「空撮カット」を生成する方法</h3>
         </div>
       </a>
-      <a class="rcard" href="3dgs-software-comparison.html">
-        <div class="rthumb" style="background-image:url('images/dcc-og-cover.jpg')"></div>
+      <a class="rcard" href="ue5-xgrids-3dgs-aerial-ai.html">
+        <div class="rthumb" style="background-image:url('/works/images/ue5_shibuya_topdown_day.jpg')"></div>
         <div class="rbody">
-          <div class="rmeta"><span>技術</span><span>2026-08-14</span><span>約7分</span></div>
-          <h3>3DGSを扱えるソフトを比較する</h3>
+          <div class="rmeta"><span>技術</span><span>2026-07-24</span><span>約12分</span></div>
+          <h3>UE5 × XGRIDs SDKで3DGSから素材を出力する</h3>
         </div>
       </a>
       <a class="rcard" href="isaacsim-3dgs-import.html">
-        <div class="rthumb" style="background-image:url('images/isaacsim_shibuya_walk.jpg')"></div>
+        <div class="rthumb" style="background-image:url('/works/images/isaacsim_shibuya_walk.jpg')"></div>
         <div class="rbody">
           <div class="rmeta"><span>技術</span><span>2026-07-26</span><span>約6分</span></div>
           <h3>NVIDIA Isaac Simに3DGSを持ち込む</h3>
@@ -423,7 +401,7 @@
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -441,7 +419,7 @@
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="https://locahun3d.com/contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: LIXEL K2 SCAN → E57 / OBJ+MTL / 3DGS → ASCII PATH → VECTORWORKS IMPORT → SHADED VIEW</p>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PORTALCAM CAPTURE → 3DGS + SOURCE IMAGES → BLENDER + CODEX → MATCHED-CAMERA REVIEW → REVISION</p>
   </div>
 </footer>
 <div class="filmstrip"></div>
@@ -477,7 +455,7 @@
 <script type="module">
   import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
   const bp = loadDefaultJapaneseParser();
-  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p';
   document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
 </script>
 </body>

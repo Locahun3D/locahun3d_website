@@ -35,6 +35,7 @@ const shots = args.includes('--shots') ? args[args.indexOf('--shots') + 1] : 'sh
 const width = args.includes('--width') ? +args[args.indexOf('--width') + 1] : 1280;
 
 const ARTICLES = [
+  '3dgs-codex-hall-modeling',
   '3dgs-file-formats', '3dgs-lidar-denoise', '3dgs-software-comparison',
   'chevron-rokunowa-mv', 'houdini-comfyui-gsplat-workflow', 'isaacsim-3dgs-import',
   'isaacsim-3dgs-robot-demos', 'portalcam-drone-ai-workflow',
