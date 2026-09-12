@@ -231,6 +231,7 @@
   <h2>目次</h2>
   <ol>
     <li><a href="#formats">届くデータは3つ</a></li>
+    <li><a href="#compare">早見表：まず全体像から</a></li>
     <li><a href="#obj">① OBJ ── 形はきれいに読み込める</a></li>
     <li><a href="#ply">② 点群（PLY） ── そのまま開いても何も映らない</a></li>
     <li><a href="#addon">③ 別のアドオン ── 入れても色は乗らなかった</a></li>
@@ -248,49 +249,82 @@
     <li><strong>③ 点群（PLY・大きいほう）</strong> ── 色の粒で写真そっくりの見た目を再現する3DGSのデータです。</li>
   </ul>
 
-  <h2 id="obj"><span class="n">01</span> ① OBJ ── 形はきれいに読み込める</h2>
+  <h2 id="compare"><span class="n">01</span> 早見表：まず全体像から</h2>
+  <p>まずこの表で4つの方法の性格をつかんでください。<br>詳しくは各セクションで解説します。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>方法</th><th>一言でいうと</th><th>導入の手間</th><th>色の再現</th><th>向いている用途</th></tr></thead>
+    <tbody>
+      <tr><td>OBJ</td><td>形だけの素の3Dモデル</td><td>不要（標準機能）</td><td>なし</td><td>形の確認、計測、モデリングの下敷き</td></tr>
+      <tr><td>点群（PLY）をそのまま</td><td>読み込めるが何も映らない</td><td>不要（標準機能）</td><td>なし</td><td>Blenderでの利用には向かない</td></tr>
+      <tr><td>別のアドオン</td><td>変換はできるが色が出ない</td><td>やや手間（バージョン制約あり）</td><td>グレーの点のみ</td><td>実用に至らない</td></tr>
+      <tr><td>BlendSplat</td><td>色付きのまま表示できる無料ツール</td><td>軽い（展開して登録のみ）</td><td>写真そっくりの色</td><td>撮影現場の見た目をBlenderで確認・作業したいとき</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="obj"><span class="n">02</span> ① OBJ ── 形はきれいに読み込める</h2>
   <p>OBJはBlenderが最初から読み込める形式なので、<strong>特別な準備なしでそのまま開けます</strong>。渋谷スクランブル交差点のデータでは、交差点全体の建物や道路の形が正しく読み込まれました。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>導入</td><td>不要。Blender標準のOBJインポートで開ける</td></tr>
+      <tr><td>色の再現</td><td>なし（形状のみ、灰色で表示）</td></tr>
+      <tr><td>向いている用途</td><td>寸法を測る、形を基準にほかのモデルを作る</td></tr>
+    </tbody>
+  </table></div>
   <figure>
     <img src="images/shibuya_obj_render.jpg" alt="渋谷スクランブル交差点のOBJをBlenderに読み込んでレンダリングした画面">
     <figcaption><b>OBJを読み込んでレンダリングしたところです。</b>交差点、周囲のビル、歩道橋まで、形はそのまま再現されています。ただし色や質感の情報は入っていないため、灰色の塊として表示されます。</figcaption>
   </figure>
-  <p>色や写真の質感は入っていないので、見た目の確認には向きません。<strong>寸法を測ったり、形を基準にほかのモデルを作ったりする用途</strong>で使うファイルです。</p>
 
-  <h2 id="ply"><span class="n">02</span> ② 点群（PLY） ── そのまま開いても何も映らない</h2>
-  <p>点群のファイルもBlenderは読み込めますが、<strong>色が乗らず、画面には何も映りません</strong>。</p>
+  <h2 id="ply"><span class="n">03</span> ② 点群（PLY） ── そのまま開いても何も映らない</h2>
+  <p>点群のファイルもBlenderは読み込めますが、<strong>色が乗らず、画面には何も映りません</strong>。3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」という情報が一緒に入っていますが、<strong>Blenderにはこれを読む機能がもともと備わっていない</strong>ため、点の位置だけを読み込んで残りをすべて無視してしまいます。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>導入</td><td>不要。Blender標準のPLYインポートで開ける</td></tr>
+      <tr><td>色の再現</td><td>なし（画面には何も映らない）</td></tr>
+      <tr><td>向いている用途</td><td>Blenderでの利用には向かない</td></tr>
+    </tbody>
+  </table></div>
   <figure>
     <img src="images/shibuya_ply_native_black.jpg" alt="3DGSの点群データをBlenderに読み込んだが真っ黒になった画面">
     <figcaption><b>3DGSの点群をBlenderへそのまま読み込んだ画面です。</b>データの読み込み自体は成功していますが、色・透明度・粒の形といった3DGS特有の情報をBlenderが理解できないため、画面には何も映りません。</figcaption>
   </figure>
-  <p>3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」という情報が一緒に入っています。<strong>Blenderにはこれを読む機能がもともと備わっていない</strong>ため、点の位置だけを読み込んで、残りをすべて無視してしまいます。</p>
 
-  <h2 id="addon"><span class="n">03</span> ③ 別のアドオン ── 入れても色は乗らなかった</h2>
+  <h2 id="addon"><span class="n">04</span> ③ 別のアドオン ── 入れても色は乗らなかった</h2>
   <p>3DGSをBlenderで表示するための無料アドオンも試しました。読み込みの手応えはよく、色・透明度・粒の形をBlenderのデータへきちんと変換してくれます。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>導入</td><td>アドオンのインストールが必要。対応バージョンの制約あり</td></tr>
+      <tr><td>色の再現</td><td>変換自体は成功するが、画面はグレーの点のみ</td></tr>
+      <tr><td>向いている用途</td><td>実用に至らない</td></tr>
+    </tbody>
+  </table></div>
   <figure>
     <img src="images/shibuya_kiri_addon_gray.jpg" alt="別のアドオンで読み込んだあとの表示画面">
     <figcaption><b>アドオンで読み込んだあとの表示です。</b>データの変換自体はうまくいきましたが、画面に映るのは色のないグレーの点の集まりで、写真そっくりの見た目にはなりませんでした。</figcaption>
   </figure>
   <div class="callout warn"><b>このアドオンでは実用にならず</b>読み込みの処理は正常に終わり、必要な情報もすべて揃っていました。それでも実際の画面ではグレーの点が並ぶだけで、色付きの見た目を再現することはできませんでした。</div>
 
-  <h2 id="blendsplat"><span class="n">04</span> ④ BlendSplat ── 色付きのまま表示できた</h2>
+  <h2 id="blendsplat"><span class="n">05</span> ④ BlendSplat ── 色付きのまま表示できた</h2>
   <p>さらに探したところ、<strong>BlendSplat</strong>という無料ツールに行き着きました。<br>Blenderの標準機能（ジオメトリノードとEEVEE）だけで3DGSを扱う仕組みで、外部エンジンを別途動かす必要がありません。これを使ったところ、<strong>色付きのまま、看板の文字まで読み取れる見た目で表示・書き出しができました</strong>。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>導入</td><td>ファイルを展開してBlenderのアセットライブラリに登録するだけ</td></tr>
+      <tr><td>色の再現</td><td>写真そっくりの色。看板の文字まで判別できる</td></tr>
+      <tr><td>向いている用途</td><td>撮影現場の色付きの見た目をBlenderで確認・作業したいとき</td></tr>
+    </tbody>
+  </table></div>
   <figure>
     <img src="images/shibuya_blendsplat_result.jpg" alt="BlendSplatで表示した渋谷スクランブル交差点の3DGS">
     <figcaption><b>BlendSplatで表示した渋谷スクランブル交差点です。</b>建物、看板、横断歩道、車まで色付きで再現されています。読み込みから画像の書き出しまで1分もかかりませんでした。</figcaption>
   </figure>
-  <p>導入はファイルを展開してBlenderのアセットライブラリとして登録するだけで、追加のインストール作業はありません。読み込みも軽く、パソコンの画面を介さずに処理を回しても正しく色付きの結果が得られました。</p>
+  <p>読み込みも軽く、パソコンの画面を介さずに処理を回しても正しく色付きの結果が得られました。</p>
   <div class="callout note"><b>気になる点も少しあります</b>撮影データの端やまばらな部分には、色の乗ったノイズのような粒が残ることがあります。気になる場合は、大きすぎる粒を取り除く調整をすると見た目がすっきりします。</div>
 
-  <h2 id="answer">まとめ ── 用途で使い分ける</h2>
-  <div class="tblwrap"><table>
-    <thead><tr><th>方法</th><th>Blenderでの見え方</th><th>向いている用途</th></tr></thead>
-    <tbody>
-      <tr><td>OBJ</td><td>形は正しく表示（色なし）</td><td>形の確認、計測、モデリングの下敷き</td></tr>
-      <tr><td>点群（PLY）をそのまま</td><td>何も映らない</td><td>Blenderでの利用には向かない</td></tr>
-      <tr><td>別のアドオン</td><td>色のない点の集まり</td><td>実用に至らない</td></tr>
-      <tr><td><b>BlendSplat</b></td><td><b>色付きでそのまま表示</b></td><td>撮影現場の見た目をBlenderで確認・作業したいとき</td></tr>
-    </tbody>
-  </table></div>
+  <h2 id="answer"><span class="n">06</span> まとめ ── 用途で使い分ける</h2>
   <p>形を基準にモデリングや計測をしたいときは<strong>OBJ</strong>を、Blenderの中で色付きの見た目を確認・活用したいときは<strong>BlendSplat</strong>を使ってください。インストールなしでブラウザだけで確認したいときは、<strong>ロケハン3Dのビューアー</strong>もあわせてご利用いただけます。</p>
 
   <div class="data-cta">
