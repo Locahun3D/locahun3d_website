@@ -99,6 +99,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .section-head h2{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.5em,4.4vw,2.4em);line-height:1.5;letter-spacing:.02em}
 .section-head p{margin:16px auto 0;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
 
+#moreWorks{margin-top:16px}
+#moreWorks summary{cursor:pointer;min-height:44px;padding:10px 14px;border:1px solid var(--line);color:var(--ink)}
+#moreWorks[open] summary{margin-bottom:12px}
 .filters{display:flex;gap:0;margin:30px 0 0;border:1px solid var(--line);width:fit-content}
 .chip{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.22em;text-transform:uppercase;
   color:var(--dim);background:none;border:none;border-right:1px solid var(--line);
@@ -222,11 +225,6 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
   </div>
 </header>
 
-<nav class="works-subnav">
-  <a href="#works" class="cur">実績</a>
-  <a href="#blog">技術ブログ</a>
-</nav>
-
 <div class="wrap" id="top">
 
   <section class="hero">
@@ -235,6 +233,10 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
 
   <section id="works">
     <div class="grid fade" id="worksGrid"></div>
+    <details id="moreWorks" hidden>
+      <summary>その他の実績を表示</summary>
+      <div class="grid" id="moreWorksGrid"></div>
+    </details>
   </section>
 
   <section id="blog">
@@ -244,23 +246,11 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
     <div class="filters" id="filters">
       <button class="chip active" data-f="all">すべて</button>
       <button class="chip" data-f="art">アート</button>
-      <button class="chip" data-f="industry">技術</button>
+      <button class="chip" data-f="cg">CG技術</button>
+      <button class="chip" data-f="industry">産業</button>
     </div>
     <div class="grid" id="blogGrid"></div>
   </section>
-
-  <div class="cta-panel fade">
-    <div>
-      <div class="ct-kick">Locahun 3D</div>
-      <h2>実在のロケ地を、ブラウザで歩いて下見。</h2>
-      <!-- 句点ごとに改行（本人指示 2026-08-27）。全端末共通の意図改行。 -->
-      <p>ロケハン3D は、実在のロケ地を 3DGS データ化してカタログに掲載しているサービスです。<br>デモは登録不要で視聴できます。</p>
-    </div>
-    <div class="cta-actions">
-      <a class="primary" href="https://viewer.locahun3d.com/Locahun3D_OfflineViewer?demo=1&amp;showcase=1" target="_blank" rel="noopener">▶ デモツアーを見る — 登録不要</a>
-      <a class="ghost" href="https://locahun3d.com/properties">物件を探す →</a>
-    </div>
-  </div>
 
 </div>
 <div class="filmstrip"></div>
@@ -292,54 +282,59 @@ function workCard(p){
   if(p.ph || !p.href) return '<div class="card ph">'+inner+'</div>';
   return '<a class="card" href="'+p.href+'">'+inner+'</a>';
 }
-document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
+function renderWorks(){
+  document.getElementById('worksGrid').innerHTML = WORKS.slice(0,3).map(workCard).join('');
+  document.getElementById('moreWorksGrid').innerHTML = WORKS.slice(3).map(workCard).join('');
+  document.getElementById('moreWorks').hidden = WORKS.length <= 3;
+}
+renderWorks();
 
 // 公開記事=href設定 / 近日公開=soon:true / 枠=ph:true
 var POSTS = [
   {
-    tag:"industry", tagLabel:"技術", date:"2026-09-12", read:"約7分",
+    tag:"cg", tagLabel:"CG技術", date:"2026-09-12", read:"約7分",
     title:"購入した3DGSデータをBlenderで使う方法",
     excerpt:"物件購入時に届くOBJと点群をBlenderで実際に開き、いくつかの方法を比較。<br>色付きの3DGSをそのまま表示できる無料ツールも見つかったので、あわせて紹介します。",
     href:"3dgs-blender-workflow.html", thumb:"images/shibuya_blendsplat_result.jpg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-09-06", read:"約8分",
+    tag:"cg", tagLabel:"CG技術", date:"2026-09-06", read:"約8分",
     title:"3DGSと撮影画像から、編集できるホールの3Dモデルを作る",
     excerpt:"3DGSと撮影画像を比較基準に残し、CodexとBlenderで編集できるホールモデルを制作。<br>同一カメラで形を詰めた工程、忠実再現に残るAIの限界、時間・トークン・参考費用をまとめます。",
     href:"3dgs-codex-hall-modeling.html", thumb:"images/musicholl_stage_model.webp"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-08-18", read:"約3分",
+    tag:"industry", tagLabel:"産業", date:"2026-08-18", read:"約3分",
     title:"渋谷の3DGSでロボットを走らせてみました",
     excerpt:"渋谷スクランブル交差点のスキャンをNVIDIA Isaac Simに持ち込んで、ロボットを走らせた記録。<br>LiDARで街をなぞる、時刻を動かして影を見る、地図を作って自律走行、信号を見ながら横断する——動画で紹介します。",
     href:"isaacsim-3dgs-robot-demos.html", thumb:"images/shibuya_lidar_hero.jpg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-08-09", read:"約9分",
+    tag:"cg", tagLabel:"CG技術", date:"2026-08-09", read:"約9分",
     title:"3DGSのファイルフォーマットを整理する",
     excerpt:"3D Gaussian Splatting(3DGS)の主要ファイルフォーマット(PLY・SPLAT・KSPLAT・SPZ・SOG・RAD・LCC/LCC2・glTF)を、圧縮方式・対応ツール・用途で比較。<br>8フォーマット早見表つき。",
     href:"3dgs-file-formats.html", thumb:"images/logos/format-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-08-16", read:"約5分",
+    tag:"industry", tagLabel:"産業", date:"2026-08-16", read:"約5分",
     title:"Isaac Sim向けに3DGSシミュレーション環境をセットアップする",
     excerpt:"LiDAR搭載スキャナの3DGSを、Isaac Simでロボットが走れる環境にする5ステップの手順。<br>座標系とレンダラの罠、フローター除去、水密コライダー、路面平滑化と写り込み除去、2層構造での走行まで、渋谷スクランブル交差点(1,650万ガウシアン)の実測値つき。",
     href:"3dgs-lidar-denoise.html", thumb:"images/shibuya_hero.jpg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-08-04", read:"約7分",
+    tag:"cg", tagLabel:"CG技術", date:"2026-08-04", read:"約7分",
     title:"3DGSを扱えるソフト・ツール比較",
     excerpt:"3D Gaussian Splatting(3DGS)を読み込み・編集・書き出しできるDCC・ビューアー・変換ツール・ゲームエンジンプラグイン・産業向けプラットフォームを、入手先URL付きで整理。<br>Maya+Arnold・Houdini・Blender・3ds Max・Cinema 4D・Nuke・AEからSuperSplat、LichtFeld Studio、Volinga、splat-transform、UE5/Unityプラグインまで。",
     href:"3dgs-software-comparison.html", thumb:"images/logos/dcc-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約6分",
+    tag:"cg", tagLabel:"CG技術", date:"2026-07-26", read:"約6分",
     title:"PortalCamの生データ(.xbin)から4K元画像を取り出す",
     excerpt:"PortalCamのスキャン成果物に埋まっている生データ(.xbin)から、CLIツールだけで4K元画像を取り出す方法。<br>xBin(XBAG形式)の中身、抽出コマンドの必須フラグ、4眼のうち2眼しか出せない制約、そして抽出画像からのフォトグラメトリ再構成を試して分かった限界まで。",
     href:"portalcam-xbin-raw-extraction.html", thumb:"images/xbin_cam_pinholeA.jpg"
   },
   {
-    tag:"industry", tagLabel:"技術", date:"2026-07-26", read:"約6分",
+    tag:"industry", tagLabel:"産業", date:"2026-07-26", read:"約6分",
     title:"NVIDIA Isaac Simに3DGSを持ち込む",
     excerpt:"3DGSスキャンをIsaac Simに読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形で解説。<br>エラーを出さずに何も表示されなくなる1プリム1,677万点の描画上限や、上下反転の補正といったつまずきどころに加え、産業用シミュレーションで使う際の弱点（オブジェクト単位に分離できない・セマンティックラベルがシーンに1つしか付かない・当たり判定を持たない）と、その回避策まで。",
     href:"isaacsim-3dgs-import.html", thumb:"images/isaacsim_shibuya_walk.jpg"
@@ -391,16 +386,7 @@ document.getElementById('filters').addEventListener('click',function(e){
   b.classList.add('active'); renderBlog(b.dataset.f);
 });
 
-function syncNav(){
-  var y = window.scrollY || document.documentElement.scrollTop;
-  var blogTop = document.getElementById('blog').offsetTop - 120;
-  var atBlog = y >= blogTop;
-  document.querySelectorAll('.works-subnav a[href="#works"], .works-subnav a[href="#blog"]').forEach(function(a){
-    a.classList.toggle('cur', (a.getAttribute('href')==='#blog') === atBlog);
-  });
-}
-document.addEventListener('scroll', syncNav, {passive:true});
-syncNav();
+
 </script>
 
 <!-- BudouX：日本語を文節単位で改行（中途半端な折返しを防ぐ） -->

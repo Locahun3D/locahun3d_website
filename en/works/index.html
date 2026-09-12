@@ -88,6 +88,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .section-head h2{font-family:'Noto Serif JP',serif;font-weight:200;font-size:clamp(1.5em,4.4vw,2.6em);line-height:1.3;letter-spacing:0}
 .section-head p{margin:16px auto 0;max-width:58ch;color:var(--dim);font-size:clamp(.88em,1.1vw,.96em);line-height:1.95}
 
+#moreWorks{margin-top:16px}
+#moreWorks summary{cursor:pointer;min-height:44px;padding:10px 14px;border:1px solid var(--line);color:var(--ink)}
+#moreWorks[open] summary{margin-bottom:12px}
 .filters{display:flex;gap:0;margin:30px 0 0;border:1px solid var(--line);width:fit-content}
 .chip{font-family:'JetBrains Mono',monospace;font-size:.66em;letter-spacing:.22em;text-transform:uppercase;
   color:var(--dim);background:none;border:none;border-right:1px solid var(--line);
@@ -209,11 +212,6 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
   </div>
 </header>
 
-<nav class="works-subnav">
-  <a href="#works" class="cur">Works</a>
-  <a href="#blog">Tech Blog</a>
-</nav>
-
 <div class="wrap" id="top">
 
   <section class="hero">
@@ -222,6 +220,10 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
 
   <section id="works">
     <div class="grid fade" id="worksGrid"></div>
+    <details id="moreWorks" hidden>
+      <summary>Show more works</summary>
+      <div class="grid" id="moreWorksGrid"></div>
+    </details>
   </section>
 
   <section id="blog">
@@ -231,22 +233,11 @@ body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一�
     <div class="filters" id="filters">
       <button class="chip active" data-f="all">All</button>
       <button class="chip" data-f="art">Art</button>
-      <button class="chip" data-f="industry">Technical</button>
+      <button class="chip" data-f="cg">CG Technology</button>
+      <button class="chip" data-f="industry">Industry</button>
     </div>
     <div class="grid" id="blogGrid"></div>
   </section>
-
-  <div class="cta-panel fade">
-    <div>
-      <div class="ct-kick">Locahun 3D</div>
-      <h2>Real locations, scouted in your browser.</h2>
-      <p>Locahun 3D scans real locations into 3DGS data and lists them on a catalog. The demo needs no sign-up.</p>
-    </div>
-    <div class="cta-actions">
-      <a class="primary" href="https://viewer.locahun3d.com/Locahun3D_OfflineViewer?demo=1&amp;showcase=1" target="_blank" rel="noopener">▶ Demo tour — no sign-up</a>
-      <a class="ghost" href="https://locahun3d.com/en/properties">Browse the catalog →</a>
-    </div>
-  </div>
 
 </div>
 <div class="filmstrip"></div>
@@ -278,53 +269,58 @@ function workCard(p){
   if(p.ph || !p.href) return '<div class="card ph">'+inner+'</div>';
   return '<a class="card" href="'+p.href+'">'+inner+'</a>';
 }
-document.getElementById('worksGrid').innerHTML = WORKS.map(workCard).join('');
+function renderWorks(){
+  document.getElementById('worksGrid').innerHTML = WORKS.slice(0,3).map(workCard).join('');
+  document.getElementById('moreWorksGrid').innerHTML = WORKS.slice(3).map(workCard).join('');
+  document.getElementById('moreWorks').hidden = WORKS.length <= 3;
+}
+renderWorks();
 
 var POSTS = [
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-09-12", read:"~7 min",
+    tag:"cg", tagLabel:"CG Technology", date:"2026-09-12", read:"~7 min",
     title:"Using Purchased 3DGS Data in Blender",
     excerpt:"We opened the OBJ and point-cloud files included with a property purchase in Blender and compared several approaches. Along the way we found a free tool that displays the colored 3DGS correctly.",
     href:"3dgs-blender-workflow.html", thumb:"/works/images/shibuya_blendsplat_result.jpg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-09-06", read:"~8 min",
+    tag:"cg", tagLabel:"CG Technology", date:"2026-09-06", read:"~8 min",
     title:"Building an Editable Hall Model from 3DGS and Captured Images",
     excerpt:"A practical test using 3DGS and captured images as a comparison baseline while Codex and Blender build an editable hall model. Covers matched-camera revision, the limits of faithful AI reconstruction, and the recorded time, token use and reference cost.",
     href:"3dgs-codex-hall-modeling.html", thumb:"/works/images/musicholl_stage_model.webp"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-08-18", read:"~3 min",
+    tag:"industry", tagLabel:"Industry", date:"2026-08-18", read:"~3 min",
     title:"We Drove a Robot Through a 3DGS of Shibuya",
     excerpt:"We took our 3DGS scan of Shibuya crossing into NVIDIA Isaac Sim and drove a robot around it: sweeping the street with LiDAR, moving the time of day, building a map and driving to a goal, and crossing while watching the signal - in video.",
     href:"isaacsim-3dgs-robot-demos.html", thumb:"/works/images/shibuya_lidar_hero.jpg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-08-16", read:"~5 min",
+    tag:"industry", tagLabel:"Industry", date:"2026-08-16", read:"~5 min",
     title:"Setting Up a 3DGS Simulation Environment for Isaac Sim",
     excerpt:"A five-step guide to turning a LiDAR-fusion 3DGS scan into an environment robots can drive in Isaac Sim: coordinate and renderer pitfalls, floater removal, watertight colliders, road smoothing and de-ghosting, and the two-layer drive - with measured numbers from Shibuya crossing.",
     href:"3dgs-lidar-denoise.html", thumb:"/works/images/shibuya_hero.jpg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-08-09", read:"~10 min",
+    tag:"cg", tagLabel:"CG Technology", date:"2026-08-09", read:"~10 min",
     title:"A Field Guide to 3DGS File Formats",
     excerpt:"The major 3D Gaussian Splatting file formats — PLY, SPLAT, KSPLAT, SPZ, SOG, RAD, LCC/LCC2 and glTF (KHR_gaussian_splatting) — compared by compression, tool support, and use case. Includes an 8-format cheat sheet.",
     href:"3dgs-file-formats.html", thumb:"/works/images/logos/format-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-08-04", read:"~8 min",
+    tag:"cg", tagLabel:"CG Technology", date:"2026-08-04", read:"~8 min",
     title:"Software & Tools That Handle 3DGS, Compared",
     excerpt:"DCCs, viewers/editors, converters, game-engine plugins and industrial platforms that can load, edit, and export 3D Gaussian Splatting — with download links. From Maya+Arnold, Houdini, Blender, 3ds Max, Cinema 4D, Nuke and After Effects to SuperSplat, LichtFeld Studio, Volinga, splat-transform and UE5/Unity plugins.",
     href:"3dgs-software-comparison.html", thumb:"/works/images/logos/dcc-logos-thumb.svg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-07-26", read:"~8 min",
+    tag:"cg", tagLabel:"CG Technology", date:"2026-07-26", read:"~8 min",
     title:"Extracting 4K Source Images from PortalCam Raw Data (.xbin)",
     excerpt:"How to pull 4K source images out of the raw .xbin data buried in PortalCam scan output using nothing but CLI tools — the XBAG container layout, the required extraction flags, the two-of-four-camera limitation, and what we learned trying photogrammetry on the extracted frames.",
     href:"portalcam-xbin-raw-extraction.html", thumb:"/works/images/xbin_cam_pinholeA.jpg"
   },
   {
-    tag:"industry", tagLabel:"Technical", date:"2026-07-26", read:"~13 min",
+    tag:"industry", tagLabel:"Industry", date:"2026-07-26", read:"~13 min",
     title:"Bringing 3DGS into NVIDIA Isaac Sim",
     excerpt:"A repeatable walkthrough for loading a 3DGS scan into Isaac Sim and rendering it at photoreal quality — including the silent 16.77M-splat-per-prim draw limit, the upside-down import fix, and the weak points for industrial simulation (no per-object separation, one semantic label per scene, no collision) with workarounds.",
     href:"isaacsim-3dgs-import.html", thumb:"/works/images/isaacsim_shibuya_walk.jpg"
@@ -377,16 +373,7 @@ document.getElementById('filters').addEventListener('click',function(e){
   b.classList.add('active'); renderBlog(b.dataset.f);
 });
 
-function syncNav(){
-  var y = window.scrollY || document.documentElement.scrollTop;
-  var blogTop = document.getElementById('blog').offsetTop - 120;
-  var atBlog = y >= blogTop;
-  document.querySelectorAll('.works-subnav a[href="#works"], .works-subnav a[href="#blog"]').forEach(function(a){
-    a.classList.toggle('cur', (a.getAttribute('href')==='#blog') === atBlog);
-  });
-}
-document.addEventListener('scroll', syncNav, {passive:true});
-syncNav();
+
 </script>
 
 </body>
