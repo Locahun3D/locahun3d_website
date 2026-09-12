@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>購入した3DGSデータをBlenderで使う方法｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="ロケハン3Dで購入したデータをBlenderで使う方法を実際に試し、色付きの3DGSまで表示できる無料ツールを見つけました。">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blenderで3DGSを読み込み、映像素材を出力する｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="渋谷の3DGSをBlenderで映像素材にする手順。BlendSplat＋EEVEEの導入・読み込み・画質設定と、交差点中央の360度実レンダリングを紹介します。">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
@@ -14,16 +14,16 @@
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:title" content="購入した3DGSデータをBlenderで使う方法">
-<meta property="og:description" content="ロケハン3Dで購入したデータをBlenderで使う方法を実際に試し、色付きの3DGSまで表示できる無料ツールを見つけました。">
+<meta property="og:title" content="Blenderで3DGSを読み込み、映像素材を出力する">
+<meta property="og:description" content="渋谷の3DGSをBlenderで映像素材にする手順。BlendSplat＋EEVEEの導入・読み込み・画質設定と、交差点中央の360度実レンダリングを紹介します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="渋谷スクランブル交差点のスキャンデータ">
+<meta property="og:image:alt" content="Blender / BlendSplat＋EEVEEからの実出力。">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="購入した3DGSデータをBlenderで使う方法">
-<meta name="twitter:description" content="ロケハン3Dで購入したデータをBlenderで使う方法を実際に試し、色付きの3DGSまで表示できる無料ツールを見つけました。">
+<meta name="twitter:title" content="Blenderで3DGSを読み込み、映像素材を出力する">
+<meta name="twitter:description" content="渋谷の3DGSをBlenderで映像素材にする手順。BlendSplat＋EEVEEの導入・読み込み・画質設定と、交差点中央の360度実レンダリングを紹介します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -181,6 +181,8 @@
   .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
   .related .backwrap{margin-top:32px;text-align:center}
   .related .backwrap .backlink{margin:0}
+/* workflow-mobile-table */
+@media(max-width:600px){.tblwrap table{min-width:0;width:100%}.tblwrap thead{display:none}.tblwrap tbody,.tblwrap tr,.tblwrap td{display:block;width:auto}.tblwrap tr{border-bottom:1px solid var(--line)}.tblwrap td{border:0}.tblwrap td:first-child{padding-bottom:8px}.tblwrap td:last-child{padding-top:0}}
 </style>
 </head>
 <body>
@@ -211,129 +213,35 @@
 </div>
 
 <div class="wrap">
-<header class="post">
-  <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">Blender</span><span class="badge">検証</span>
-    <span>2026-09-12</span><span>・</span><span>読了 約7分</span>
-  </div>
-  <h1>購入した3DGSデータを<br>Blenderで使う方法</h1>
-  <p class="lead">ロケハン3Dの中村です。<br>物件を購入すると、OBJと点群（PLY）が入ったデータをお渡ししています。<br>「Blenderで開けますか」というお問い合わせをいただいたので、<strong>実際にBlenderへ読み込んで、どこまで使えるかを確かめました</strong>。<br>調べている途中で、色付きの3DGSをそのまま表示できる無料ツールも見つかったので、あわせて紹介します。</p>
-
-  <figure>
-    <img src="images/shibuya_hero.jpg" alt="渋谷スクランブル交差点のスキャンデータ">
-    <figcaption><b>検証に使ったのは渋谷スクランブル交差点のデータです。</b>ロケハン3Dで販売している物件のひとつで、購入すると届く3種類のファイルをそれぞれBlenderで開いています。</figcaption>
-  </figure>
-</header>
-
-<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b>形の確認や計測には<strong>OBJ</strong>が手軽です。色付きの3DGSをBlenderで見たい場合は、無料ツール「<strong>BlendSplat</strong>」を使うことで、写真そっくりの見た目のまま表示・レンダリングできました。Blender単体や別のアドオンでは実用的な見え方になりませんでしたが、BlendSplatならインストールも軽く、表示も高速です。</div>
-
-<nav class="toc">
-  <h2>目次</h2>
-  <ol>
-    <li><a href="#formats">届くデータは3つ</a></li>
-    <li><a href="#compare">早見表：まず全体像から</a></li>
-    <li><a href="#obj">① OBJ ── 形はきれいに読み込める</a></li>
-    <li><a href="#ply">② 点群（PLY） ── そのまま開いても何も映らない</a></li>
-    <li><a href="#addon">③ 別のアドオン ── 入れても色は乗らなかった</a></li>
-    <li><a href="#blendsplat">④ BlendSplat ── 色付きのまま表示できた</a></li>
-    <li><a href="#answer">まとめ ── 用途で使い分ける</a></li>
-  </ol>
-</nav>
-
-<article>
-  <h2 id="formats">届くデータは3つ</h2>
-  <p>物件を購入すると、次の3つのファイルが入ったデータをお渡ししています。</p>
-  <ul>
-    <li><strong>① OBJ</strong> ── 面でできた一般的な3D形状のファイルです。</li>
-    <li><strong>② 点群（PLY・小さいほう）</strong> ── 撮影時の位置合わせに使う内部データで、お客様が使う想定のものではありません。</li>
-    <li><strong>③ 点群（PLY・大きいほう）</strong> ── 色の粒で写真そっくりの見た目を再現する3DGSのデータです。</li>
-  </ul>
-
-  <h2 id="compare"><span class="n">01</span> 早見表：まず全体像から</h2>
-  <p>まずこの表で4つの方法の性格をつかんでください。<br>詳しくは各セクションで解説します。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>方法</th><th>一言でいうと</th><th>導入の手間</th><th>色の再現</th><th>向いている用途</th></tr></thead>
-    <tbody>
-      <tr><td>OBJ</td><td>形だけの素の3Dモデル</td><td>不要（標準機能）</td><td>なし</td><td>形の確認、計測、モデリングの下敷き</td></tr>
-      <tr><td>点群（PLY）をそのまま</td><td>読み込めるが何も映らない</td><td>不要（標準機能）</td><td>なし</td><td>Blenderでの利用には向かない</td></tr>
-      <tr><td>別のアドオン</td><td>変換はできるが色が出ない</td><td>やや手間（バージョン制約あり）</td><td>グレーの点のみ</td><td>実用に至らない</td></tr>
-      <tr><td>BlendSplat</td><td>色付きのまま表示できる無料ツール</td><td>軽い（展開して登録のみ）</td><td>写真そっくりの色</td><td>撮影現場の見た目をBlenderで確認・作業したいとき</td></tr>
-    </tbody>
-  </table></div>
-
-  <h2 id="obj"><span class="n">02</span> ① OBJ ── 形はきれいに読み込める</h2>
-  <p>OBJはBlenderが最初から読み込める形式なので、<strong>特別な準備なしでそのまま開けます</strong>。渋谷スクランブル交差点のデータでは、交差点全体の建物や道路の形が正しく読み込まれました。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>項目</th><th>内容</th></tr></thead>
-    <tbody>
-      <tr><td>導入</td><td>不要。Blender標準のOBJインポートで開ける</td></tr>
-      <tr><td>色の再現</td><td>なし（形状のみ、灰色で表示）</td></tr>
-      <tr><td>向いている用途</td><td>寸法を測る、形を基準にほかのモデルを作る</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_obj_render.jpg" alt="渋谷スクランブル交差点のOBJをBlenderに読み込んでレンダリングした画面">
-    <figcaption><b>OBJを読み込んでレンダリングしたところです。</b>交差点、周囲のビル、歩道橋まで、形はそのまま再現されています。ただし色や質感の情報は入っていないため、灰色の塊として表示されます。</figcaption>
-  </figure>
-
-  <h2 id="ply"><span class="n">03</span> ② 点群（PLY） ── そのまま開いても何も映らない</h2>
-  <p>点群のファイルもBlenderは読み込めますが、<strong>色が乗らず、画面には何も映りません</strong>。3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」という情報が一緒に入っていますが、<strong>Blenderにはこれを読む機能がもともと備わっていない</strong>ため、点の位置だけを読み込んで残りをすべて無視してしまいます。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>項目</th><th>内容</th></tr></thead>
-    <tbody>
-      <tr><td>導入</td><td>不要。Blender標準のPLYインポートで開ける</td></tr>
-      <tr><td>色の再現</td><td>なし（画面には何も映らない）</td></tr>
-      <tr><td>向いている用途</td><td>Blenderでの利用には向かない</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_ply_native_black.jpg" alt="3DGSの点群データをBlenderに読み込んだが真っ黒になった画面">
-    <figcaption><b>3DGSの点群をBlenderへそのまま読み込んだ画面です。</b>データの読み込み自体は成功していますが、色・透明度・粒の形といった3DGS特有の情報をBlenderが理解できないため、画面には何も映りません。</figcaption>
-  </figure>
-
-  <h2 id="addon"><span class="n">04</span> ③ 別のアドオン ── 入れても色は乗らなかった</h2>
-  <p>3DGSをBlenderで表示するための無料アドオンも試しました。読み込みの手応えはよく、色・透明度・粒の形をBlenderのデータへきちんと変換してくれます。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>項目</th><th>内容</th></tr></thead>
-    <tbody>
-      <tr><td>導入</td><td>アドオンのインストールが必要。対応バージョンの制約あり</td></tr>
-      <tr><td>色の再現</td><td>変換自体は成功するが、画面はグレーの点のみ</td></tr>
-      <tr><td>向いている用途</td><td>実用に至らない</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_kiri_addon_gray.jpg" alt="別のアドオンで読み込んだあとの表示画面">
-    <figcaption><b>アドオンで読み込んだあとの表示です。</b>データの変換自体はうまくいきましたが、画面に映るのは色のないグレーの点の集まりで、写真そっくりの見た目にはなりませんでした。</figcaption>
-  </figure>
-  <div class="callout warn"><b>このアドオンでは実用にならず</b>読み込みの処理は正常に終わり、必要な情報もすべて揃っていました。それでも実際の画面ではグレーの点が並ぶだけで、色付きの見た目を再現することはできませんでした。</div>
-
-  <h2 id="blendsplat"><span class="n">05</span> ④ BlendSplat ── 色付きのまま表示できた</h2>
-  <p>さらに探したところ、<strong>BlendSplat</strong>という無料ツールに行き着きました。<br>Blenderの標準機能（ジオメトリノードとEEVEE）だけで3DGSを扱う仕組みで、外部エンジンを別途動かす必要がありません。これを使ったところ、<strong>色付きのまま、看板の文字まで読み取れる見た目で表示・書き出しができました</strong>。</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>項目</th><th>内容</th></tr></thead>
-    <tbody>
-      <tr><td>導入</td><td>ファイルを展開してBlenderのアセットライブラリに登録するだけ</td></tr>
-      <tr><td>色の再現</td><td>写真そっくりの色。看板の文字まで判別できる</td></tr>
-      <tr><td>向いている用途</td><td>撮影現場の色付きの見た目をBlenderで確認・作業したいとき</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_blendsplat_result.jpg" alt="BlendSplatで表示した渋谷スクランブル交差点の3DGS">
-    <figcaption><b>BlendSplatで表示した渋谷スクランブル交差点です。</b>建物、看板、横断歩道、車まで色付きで再現されています。読み込みから画像の書き出しまで1分もかかりませんでした。</figcaption>
-  </figure>
-  <p>読み込みも軽く、パソコンの画面を介さずに処理を回しても正しく色付きの結果が得られました。</p>
-  <div class="callout note"><b>気になる点も少しあります</b>撮影データの端やまばらな部分には、色の乗ったノイズのような粒が残ることがあります。気になる場合は、大きすぎる粒を取り除く調整をすると見た目がすっきりします。</div>
-
-  <h2 id="answer"><span class="n">06</span> まとめ ── 用途で使い分ける</h2>
-  <p>形を基準にモデリングや計測をしたいときは<strong>OBJ</strong>を、Blenderの中で色付きの見た目を確認・活用したいときは<strong>BlendSplat</strong>を使ってください。インストールなしでブラウザだけで確認したいときは、<strong>ロケハン3Dのビューアー</strong>もあわせてご利用いただけます。</p>
-
-  <div class="data-cta">
-    <span class="dc-tag">DEMO / 3DGS VIEWER</span>
-    <h3>色付きの見た目は<br class="pc">ビューアーでも確認できます</h3>
-    <p>撮影時そのままの色と質感を、ブラウザだけで確認できます。<br>インストールも追加のライセンスも不要です。<br>物件データの使い方は、デモの中でご説明します。</p>
-    <a class="dc-btn" href="https://locahun3d.com/pricing">デモを見る →</a>
-  </div>
+<header class="post"><div class="meta"><span class="badge">3DGS</span><span class="badge">Blender</span><span>2026-09-12</span><span>読了 約7分</span></div><h1>Blenderで3DGSを読み込み、映像素材を出力する</h1><p class="lead">渋谷の3DGSを使って、導入・読み込み・画質設定・動画出力まで。<br>実際の描画結果から選んだ構成を紹介します。</p><figure><img src="/works/images/shibuya-blendsplat-best.png" alt="Blender / BlendSplat＋EEVEEからの実出力。" loading="lazy"><figcaption>Blender / BlendSplat＋EEVEEからの実出力。</figcaption></figure></header><article><nav class="toc"><h2>目次</h2><ol><li><a href="#why">なぜ3DGSをBlenderに持ち込むのか</a></li><li><a href="#more-tools">今回の推奨：BlendSplat＋EEVEE</a></li><li><a href="#install">ダウンロードとインストール</a></li><li><a href="#workflow">3DGSを読み込み、カメラから出力する</a></li><li><a href="#results">交差点の中央から360度見回す</a></li><li><a href="#limits">画質を保つ設定と、残る限界</a></li><li><a href="#alternatives">他の方式を選ぶなら</a></li><li><a href="#ai">AIでの仕上げは別工程</a></li><li><a href="#summary">まとめ：まずはこの構成で始める</a></li></ol></nav><h2 id="why"><span class="n">01</span> なぜ3DGSをBlenderに持ち込むのか</h2>
+<p>ロケハン3Dの中村です。<br>渋谷スクランブル交差点の3DGSを、Blenderで映像素材として使う方法をまとめます。</p><p>Blenderに持ち込むと、いつものカメラ操作で画角を決め、静止画やカメラワーク付きの映像を書き出せます。<br>この記事では、スキャンを撮影済みの背景として使うところまでを扱います。<br>データを読み込めることだけでなく、建物や看板がどのように描画されるかを実際の出力で確認しました。</p>
+<h2 id="more-tools"><span class="n">02</span> 今回の推奨：BlendSplat＋EEVEE</h2>
+<div class="callout"><b>今回の渋谷データをBlenderで映像にするなら、BlendSplat＋EEVEEを採用します。</b><p>建物の面や看板の形を残して描画でき、通常のBlenderのカメラから出力できるためです。<br>以下は、この組み合わせで再現するための手順です。</p></div><p>BlendSplatは、Geometry Nodesとマテリアルを使うアセットライブラリーです。<br>専用のBlender改造版へ移る必要はありません。<br>今回の推奨は、渋谷データとこの検証環境で実際に確認した結果に基づきます。<br>未取得の有料版まで含めた、すべての製品の画質順位ではありません。</p><p><a href="https://codeberg.org/soerensc/BlendSplat-Library/releases" target="_blank" rel="noopener">BlendSplat公式配布ページ</a> ／ <a href="https://soerensc.gumroad.com/l/BlendSplat" target="_blank" rel="noopener">作者の製品ページ</a></p>
+<h2 id="install"><span class="n">03</span> ダウンロードとインストール</h2>
+<ol><li>公式配布ページからBlendSplatのライブラリーを入手し、移動しない場所に展開します。</li><li>Blenderの「編集 → プリファレンス → ファイルパス → アセットライブラリー」で、展開したライブラリーを登録します。</li><li>アセットブラウザーで、BlendSplatのノードやマテリアルが表示されることを確認します。</li></ol><p>今回はBlender 5.1.2で検証しています。<br>通常のアドオンZIPを「ディスクからインストール」する方式ではなく、アセットライブラリーとして登録します。<br>配布物の対応バージョンは導入前に確認してください。</p>
+<h2 id="workflow"><span class="n">04</span> 3DGSを読み込み、カメラから出力する</h2>
+<h3>読み込み用のノードをつなぐ</h3><p>メッシュオブジェクトにGeometry Nodesを作成し、ライブラリーの <code>splat.import</code> と <code>splat.display</code> を追加します。<br><code>splat.import</code> のSplat出力を <code>splat.display</code> のSplat入力へ、そこからグループ出力のGeometryへつなぎます。</p><ol><li><code>splat.import</code> のPathに3DGSのPLYファイルを指定します。</li><li><code>splat.display</code> は <code>Billboard (EEVEE)</code> を選びます。</li><li>BillboardMatには、ライブラリーの <code>splat.shader.billboard</code> を割り当てます。</li><li>レンダーエンジンをEEVEEにし、まずサイズフィルターを挟まずに描画します。</li></ol><p>標準のPLYインポートだけで終えるのではなく、BlendSplatの読み込みノードを通します。<br>今回はPLYだけで描画しており、OBJは使用していません。</p><figure><img src="/works/images/blendsplat-nodes.png" alt="読み込み → EEVEE用表示 → 出力。接続とマテリアル設定を表示したBlenderの実画面です。" loading="lazy"><figcaption>読み込み → EEVEE用表示 → 出力。接続とマテリアル設定を表示したBlenderの実画面です。</figcaption></figure><h3>カメラを置き、素材として書き出す</h3><p>カメラをスキャン内に置き、レンズと向きを決めます。<br>F12で静止画を確認してから、カメラにキーフレームを付けます。<br>動画は出力先・解像度・フレーム範囲を設定し、「レンダー → アニメーションをレンダリング」でPNG連番として出力できます。<br>連番を動画にする工程は、通常のBlender映像制作と同じです。</p>
+<h2 id="results"><span class="n">05</span> 交差点の中央から360度見回す</h2>
+<p>交差点の中央にカメラを固定し、その場で一周させました。<br>遠くから見下ろす全景ではなく、背景として使う距離で確認できます。</p><figure><video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya-blendsplat-best.png" style="width:100%;display:block" src="/works/videos/shibuya-blendsplat-best-360-24fps.mp4"></video><figcaption>BlendSplat＋EEVEEの実レンダリング。AI補修やフレーム補間はしていません。</figcaption></figure><p>同じ地点から、周囲の建物・看板・路面を見比べてください。<br>動画は1280×720・24fps（10秒・240フレーム）、カメラのレンズ設定は24mmです。<br>掲載動画の再生速度は、ビューポートの操作速度を示すものではありません。</p>
+<h2 id="limits"><span class="n">06</span> 画質を保つ設定と、残る限界</h2>
+<h3>大きい粒を一律に消さない</h3><p>サイズフィルターで大きな粒を除くと、ノイズだけでなく建物の面まで抜ける場合があります。<br>今回の渋谷データでは、フィルターを外した構成のほうが建物と看板を保てました。<br>まずフィルターなしで読み込み、実際に不要な部分だけを調整します。</p><figure><img src="/works/images/shibuya-blendsplat-station.png" alt="交差点から駅側を向いた実描画。壁面は残りますが、細部にはスキャン由来の崩れがあります。" loading="lazy"><figcaption>交差点から駅側を向いた実描画。壁面は残りますが、細部にはスキャン由来の崩れがあります。</figcaption></figure><h3>ざらつきはサンプル数を調整する</h3><p>BlendSplatは透過の表現にディザリングを使います。<br>今回の連番はEEVEEのレンダーサンプルを64に設定しました。<br>細かいざらつきが残る場合は、サンプル数を増やして確認します。</p><h3>スキャンにない情報は戻らない</h3><p>人物の残像、細い構造物、スキャンが薄い部分には崩れが残ります。<br>レンダー設定を上げても、写っていなかった情報が正確に復元されるわけではありません。<br>また、今回確認したのは撮影時の色を使った背景出力です。<br>Blenderのライトや影が、通常のメッシュと同じように作用することまでは保証しません。</p>
+<h2 id="alternatives"><span class="n">07</span> 他の方式を選ぶなら</h2>
+<p>既存の11候補を整理し、追加の生成系ツールも調べました。<br>今回は「購入した渋谷のPLYを、Blenderで背景映像に出せるか」で採用を判断しています。</p><div class="tblwrap"><table><thead><tr><th>方式</th><th>今回の判断</th></tr></thead><tbody><tr><td>BlendSplat＋EEVEE</td><td>今回の採用方式。サイズフィルターを外した構成で画質を確認。</td></tr><tr><td><a href="https://github.com/pristinaai/Splat-enabled-blender" target="_blank" rel="noopener">Splat-enabled Blender / Cycles</a></td><td>全量の360度出力を確認。別の表示方式も追試しましたが、今回の比較では細部の再現と導入の扱いやすさからBlendSplatを選びました。実験的な改造版です。</td></tr><tr><td><a href="https://www.kiriengine.app/3d-tools/3dgs-render" target="_blank" rel="noopener">KIRI 3DGS Render</a></td><td>少量の専用描画は確認。全量は分割して読み込みまで進めましたが、メモリー使用量が増え、完成画像を確認できていません。</td></tr><tr><td>ReshotAI / SplatBake</td><td>少量データの出力は確認。今回と同じ全量背景の完成映像は未確認。</td></tr><tr><td>Fast Splatting / Octane</td><td>今回の環境・設定では、採用判断に使える完成画像を確認できていません。</td></tr><tr><td><a href="https://splatforge.cloud/" target="_blank" rel="noopener">Splat Forge</a></td><td>有料パッケージ未取得。実機試験は未実施。</td></tr><tr><td>3DGS Painter / SkySplat / 公式4DGSデモ</td><td>筆致表現、生成・学習、別データのデモなど、今回の背景読み込みとは条件が異なります。</td></tr></tbody></table></div><details><summary>追加で検討した生成・連携系</summary><p><a href="https://github.com/neroforgeyt/gaussian_splat_add_on">Gaussian Splat Generator</a>と<a href="https://github.com/warpgatelabs/gauss-cannon">Gauss Cannon</a>は、Blenderシーンから学習用素材を作る方向のツールです。<br>購入済みPLYの描画方式としては採用していません。<br><a href="https://arxiv.org/abs/2601.15431">SplatBus</a>は外部描画との連携を扱う研究で、今回のBlender連番出力は未検証です。</p></details><p>未確認は、そのツールでできないという意味ではありません。<br>未実施・失敗した条件を画質順位へ置き換えず、完成出力を確認できた方式から選んでいます。</p>
+<h2 id="ai"><span class="n">08</span> AIでの仕上げは別工程</h2>
+<p>昼の背景を夜や別の季節へ変える場合は、まずBlenderから元画像を出力し、その後の工程として扱います。<br>AI加工した画像を、Blender自体の描画品質を示す画像とは混ぜません。</p><p>渋谷データを使った具体例と、看板・文字などの崩れは、<a href="/works/ue5-xgrids-3dgs-aerial-ai.html">UE5 × XGRIDs・AI仕上げの記事</a>で紹介しています。<br>そちらの作例はUE5からの出力であり、今回のBlender検証結果ではありません。</p>
+<h2 id="summary"><span class="n">09</span> まとめ：まずはこの構成で始める</h2>
+<p>今回の渋谷データでは、<b>BlendSplat＋EEVEE、サイズフィルターなし</b>を推奨構成にします。<br>ライブラリーを登録し、PLYを読み込み、カメラから静止画を確認してから連番を出力してください。</p><p>まずは掲載した360度動画で、使いたい背景に必要な画質かを確認できます。<br>細部の破綻が目立つカットは、画角の変更や仕上げを含めて判断してください。</p>
 </article>
+
+
+
+
+
+
+
+
+
+
 
 <section class="related" aria-labelledby="related-h">
   <h2 id="related-h">関連する記事</h2>
@@ -387,7 +295,7 @@
   <div class="wrap">
     <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
     <a class="cta" href="https://locahun3d.com/contact">お問い合わせ →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PURCHASE → OBJ + PLY → BLENDER IMPORT → NATIVE / ADDON COMPARISON</p>
+
   </div>
 </footer>
 <div class="filmstrip"></div>

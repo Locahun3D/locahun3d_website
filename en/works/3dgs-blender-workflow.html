@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Using purchased 3DGS data in Blender｜Locahun3D Tech Blog</title>
-<meta name="description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Import 3DGS into Blender and render background footage | Locahun3D</title>
+<meta name="description" content="A tested Shibuya 3DGS workflow with BlendSplat and EEVEE: installation, import, quality settings and an actual 360-degree render from the crossing.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/3dgs-blender-workflow.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
@@ -11,19 +11,19 @@
 <link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
 <!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Locahun3D">
+<meta property="og:site_name" content="Locahun 3D">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
-<meta property="og:title" content="Using purchased 3DGS data in Blender">
-<meta property="og:description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta property="og:title" content="Import 3DGS into Blender and render background footage ｜ Locahun3D">
+<meta property="og:description" content="A tested Shibuya 3DGS workflow with BlendSplat and EEVEE: installation, import, quality settings and an actual 360-degree render from the crossing.">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/3dgs-blender-workflow.html">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Scan data of Shibuya Scramble Crossing">
+<meta property="og:image:alt" content="Actual Blender output using BlendSplat and EEVEE.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Using purchased 3DGS data in Blender">
-<meta name="twitter:description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta name="twitter:title" content="Import 3DGS into Blender and render background footage ｜ Locahun3D">
+<meta name="twitter:description" content="A tested Shibuya 3DGS workflow with BlendSplat and EEVEE: installation, import, quality settings and an actual 360-degree render from the crossing.">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -174,6 +174,8 @@
   .rcard h3{font-size:13px;line-height:1.6;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
   .related .backwrap{margin-top:32px;text-align:center}
   .related .backwrap .backlink{margin:0}
+/* workflow-mobile-table */
+@media(max-width:600px){.tblwrap table{min-width:0;width:100%}.tblwrap thead{display:none}.tblwrap tbody,.tblwrap tr,.tblwrap td{display:block;width:auto}.tblwrap tr{border-bottom:1px solid var(--line)}.tblwrap td{border:0}.tblwrap td:first-child{padding-bottom:8px}.tblwrap td:last-child{padding-top:0}}
 </style>
 </head>
 <body>
@@ -204,149 +206,55 @@
 </div>
 
 <div class="wrap">
-<header class="post">
-  <div class="meta">
-    <span class="badge">3DGS</span><span class="badge">Blender</span><span class="badge">Test</span>
-    <span>2026-09-12</span><span>・</span><span>7 min read</span>
-  </div>
-  <h1>Using purchased 3DGS data<br>in Blender</h1>
-  <p class="lead">This is Kou from Locahun3D.<br>Every property purchase includes an OBJ mesh and point-cloud (PLY) files. A customer asked whether these can be opened in Blender, so <strong>we imported each file ourselves and checked what actually works</strong>. Along the way we also found a free tool that displays the colored 3DGS correctly, so we're covering that too.</p>
-
-  <figure>
-    <img src="images/shibuya_hero.jpg" alt="Scan data of Shibuya Scramble Crossing">
-    <figcaption><b>We tested with the Shibuya Scramble Crossing property.</b> It's one of the listings sold on Locahun3D, and we opened each of the three files included with a purchase in Blender.</figcaption>
-  </figure>
-</header>
-
-<div class="callout warn" style="margin:0 22px 8px"><b>Short answer</b>For checking shape or taking measurements, the <strong>OBJ mesh</strong> is the easiest to work with. If you want to see the colored 3DGS inside Blender, a free tool called <strong>BlendSplat</strong> displays and renders it correctly, keeping the photoreal look. Blender on its own, and another add-on we tried, didn't produce a usable colored view — but BlendSplat is light to install and fast to display.</div>
-
-<nav class="toc">
-  <h2>Contents</h2>
-  <ol>
-    <li><a href="#formats">Three files come with every purchase</a></li>
-    <li><a href="#compare">At a glance: comparing the options</a></li>
-    <li><a href="#obj">① OBJ — the geometry imports cleanly</a></li>
-    <li><a href="#ply">② Point cloud (PLY) — opens, but shows nothing</a></li>
-    <li><a href="#addon">③ Another add-on — still no usable color</a></li>
-    <li><a href="#blendsplat">④ BlendSplat — displays the color correctly</a></li>
-    <li><a href="#answer">Summary — pick the tool for the job</a></li>
-  </ol>
-</nav>
-
-<article>
-  <h2 id="formats">Three files come with every purchase</h2>
-  <p>Every property purchase includes three files:</p>
-  <ul>
-    <li><strong>① OBJ</strong> — a standard 3D mesh made of polygon faces.</li>
-    <li><strong>② Point cloud (PLY, smaller file)</strong> — an internal reference used for alignment during capture. It isn't meant to be used directly.</li>
-    <li><strong>③ Point cloud (PLY, larger file)</strong> — the 3DGS data, which reproduces a photoreal look using colored splats.</li>
-  </ul>
-
-  <h2 id="compare"><span class="n">01</span> At a glance: comparing the options</h2>
-  <p>This table gives you the shape of all four approaches.<br>Each one is covered in detail below.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Method</th><th>In short</th><th>Setup effort</th><th>Color reproduction</th><th>Best used for</th></tr></thead>
-    <tbody>
-      <tr><td>OBJ</td><td>A plain 3D mesh, shape only</td><td>None (built-in)</td><td>None</td><td>Checking geometry, measuring, modeling reference</td></tr>
-      <tr><td>Point cloud (PLY) directly</td><td>Opens, but shows nothing</td><td>None (built-in)</td><td>None</td><td>Not suited to Blender</td></tr>
-      <tr><td>Another add-on</td><td>Converts the data but no color appears</td><td>Some (version constraints)</td><td>Gray points only</td><td>Not practical</td></tr>
-      <tr><td>BlendSplat</td><td>Free tool that displays the color correctly</td><td>Light (extract and register)</td><td>Photoreal color</td><td>Viewing or working with the colored scan inside Blender</td></tr>
-    </tbody>
-  </table></div>
-
-  <h2 id="obj"><span class="n">02</span> ① OBJ — the geometry imports cleanly</h2>
-  <p>OBJ is a format Blender supports natively, so <strong>it opens with no extra setup</strong>. For the Shibuya Scramble Crossing data, the buildings and roads across the whole intersection loaded correctly.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Setup</td><td>None — opens with Blender's built-in OBJ import</td></tr>
-      <tr><td>Color reproduction</td><td>None (shape only, shown in gray)</td></tr>
-      <tr><td>Best used for</td><td>Taking measurements, using the shape as a modeling base</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_obj_render.jpg" alt="Shibuya Scramble Crossing OBJ imported and rendered in Blender">
-    <figcaption><b>The OBJ imported and rendered.</b> The intersection, surrounding buildings, and pedestrian bridge all keep their shape. Color and photo texture aren't included, so everything appears as plain gray geometry.</figcaption>
-  </figure>
-
-  <h2 id="ply"><span class="n">03</span> ② Point cloud (PLY) — opens, but shows nothing</h2>
-  <p>Blender can open the point-cloud file too, but <strong>no color appears, and the screen stays empty</strong>. 3DGS data carries more than point positions — it also stores each point's color, how transparent it is, and the shape of its splat. <strong>Blender doesn't have a built-in way to read that</strong>, so it imports only the positions and discards everything else.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Setup</td><td>None — opens with Blender's built-in PLY import</td></tr>
-      <tr><td>Color reproduction</td><td>None (screen stays empty)</td></tr>
-      <tr><td>Best used for</td><td>Not suited to Blender</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_ply_native_black.jpg" alt="3DGS point cloud imported into Blender but the screen stays black">
-    <figcaption><b>The 3DGS point cloud opened directly in Blender.</b> The import itself succeeds, but Blender has no built-in way to read the color, transparency, and splat-shape data that make up 3DGS, so nothing shows on screen.</figcaption>
-  </figure>
-
-  <h2 id="addon"><span class="n">04</span> ③ Another add-on — still no usable color</h2>
-  <p>We also tried a free add-on built specifically for displaying 3DGS in Blender. The import itself went well — it correctly converts the color, transparency, and splat-shape data into Blender's own data.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Setup</td><td>Requires installing the add-on; version constraints apply</td></tr>
-      <tr><td>Color reproduction</td><td>Conversion succeeds, but the view is gray points only</td></tr>
-      <tr><td>Best used for</td><td>Not practical</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_kiri_addon_gray.jpg" alt="Point cloud displayed after importing with another 3DGS add-on">
-    <figcaption><b>The result after importing with the add-on.</b> The conversion itself worked, but what appeared on screen was a colorless gray point cloud — not the photoreal look 3DGS is meant to produce.</figcaption>
-  </figure>
-  <div class="callout warn"><b>This add-on wasn't usable in practice</b>The import finished without errors, and all the necessary data was present. Even so, the actual view showed nothing but gray points — the colored look never appeared.</div>
-
-  <h2 id="blendsplat"><span class="n">05</span> ④ BlendSplat — displays the color correctly</h2>
-  <p>Looking further, we found a free tool called <strong>BlendSplat</strong>. It handles 3DGS using only Blender's built-in features (geometry nodes and EEVEE), with no separate external engine to run. Using it, <strong>we got a colored display — sharp enough to read the text on signage — and could export it as an image</strong>.</p>
-  <div class="tblwrap"><table>
-    <thead><tr><th>Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Setup</td><td>Extract the files and register the folder as a Blender asset library</td></tr>
-      <tr><td>Color reproduction</td><td>Photoreal color, sharp enough to read signage text</td></tr>
-      <tr><td>Best used for</td><td>Viewing or working with the colored scan inside Blender</td></tr>
-    </tbody>
-  </table></div>
-  <figure>
-    <img src="images/shibuya_blendsplat_result.jpg" alt="Shibuya Scramble Crossing 3DGS displayed with BlendSplat">
-    <figcaption><b>Shibuya Scramble Crossing displayed with BlendSplat.</b> Buildings, signage, the crosswalk, and cars all appear in color. The whole process, from import to image export, took under a minute.</figcaption>
-  </figure>
-  <p>Importing is light, and it produced a correctly colored result reliably.</p>
-  <div class="callout note"><b>A couple of things to note</b>Sparse or edge areas of a scan can leave behind some colored noise-like specks. If that bothers you, filtering out oversized splats cleans up the look.</div>
-
-  <h2 id="answer"><span class="n">06</span> Summary — pick the tool for the job</h2>
-  <p>Use the <strong>OBJ</strong> file when you need the shape as a modeling or measurement base. Use <strong>BlendSplat</strong> when you want to view and work with the colored scan inside Blender itself. If you'd rather skip any install and just check the look in a browser, the <strong>Locahun3D viewer</strong> is also available.</p>
-
-  <div class="data-cta">
-    <span class="dc-tag">DEMO / 3DGS VIEWER</span>
-    <h3>The colored scan is also<br class="pc">viewable without Blender</h3>
-    <p>View the original color and texture right in your browser.<br>No install and no extra license required.<br>We'll walk you through how to use property data during the demo.</p>
-    <a class="dc-btn" href="https://locahun3d.com/en/pricing">See the demo →</a>
-  </div>
+<header class="post"><div class="meta"><span class="badge">3DGS</span><span class="badge">Blender</span><span>2026-09-12</span><span>7 min read</span></div><h1>Import 3DGS into Blender and render background footage</h1><p class="lead">A tested Shibuya workflow: installation, import, image-quality settings and video output.</p><figure><img src="/works/images/shibuya-blendsplat-best.png" alt="Actual Blender output using BlendSplat and EEVEE." loading="lazy"><figcaption>Actual Blender output using BlendSplat and EEVEE.</figcaption></figure></header><article><nav class="toc"><h2>Contents</h2><ol><li><a href="#why">Why bring 3DGS into Blender?</a></li><li><a href="#more-tools">Our choice: BlendSplat with EEVEE</a></li><li><a href="#install">Download and installation</a></li><li><a href="#workflow">Import the splat and render through a camera</a></li><li><a href="#results">A 360-degree view from the crossing</a></li><li><a href="#limits">Quality settings and remaining limitations</a></li><li><a href="#alternatives">Other options</a></li><li><a href="#ai">AI finishing is a separate step</a></li><li><a href="#summary">Summary: start with this setup</a></li></ol></nav><h2 id="why"><span class="n">01</span> Why bring 3DGS into Blender?</h2>
+<p>I’m Nakamura from Locahun3D. This guide covers using our Shibuya Scramble Crossing 3DGS data as a background in Blender.</p><p>Importing the scan lets you frame shots with Blender cameras and export stills or camera animation. We tested the actual appearance of buildings and signs, rather than treating a successful import as proof of image quality.</p>
+<h2 id="more-tools"><span class="n">02</span> Our choice: BlendSplat with EEVEE</h2>
+<div class="callout"><b>For this Shibuya dataset, our choice is BlendSplat with EEVEE.</b><p>It preserves building surfaces and sign shapes while using normal Blender cameras and rendering. The steps below reproduce this setup.</p></div><p>BlendSplat is an asset library built with Geometry Nodes and materials, not a separate Blender fork. This recommendation is specific to our dataset and tested setup. It is not a quality ranking of every product, including paid packages we have not obtained.</p><p><a href="https://codeberg.org/soerensc/BlendSplat-Library/releases">Official releases</a> / <a href="https://soerensc.gumroad.com/l/BlendSplat">Creator’s product page</a></p>
+<h2 id="install"><span class="n">03</span> Download and installation</h2>
+<ol><li>Download the BlendSplat library and extract it to a permanent folder.</li><li>In Blender, open Edit → Preferences → File Paths → Asset Libraries and add the extracted library.</li><li>Check that its nodes and materials appear in the Asset Browser.</li></ol><p>We tested Blender 5.1.2. Register an asset library rather than installing the archive as a conventional add-on. Check compatibility on the release page before installation.</p>
+<h2 id="workflow"><span class="n">04</span> Import the splat and render through a camera</h2>
+<h3>Connect the import and display nodes</h3><p>Add Geometry Nodes to a mesh object, then add the library’s <code>splat.import</code> and <code>splat.display</code> groups. Connect the import Splat output to the display Splat input, then the display output to Group Output Geometry.</p><ol><li>Set the import Path to the Gaussian-splat PLY.</li><li>Select <code>Billboard (EEVEE)</code> in the display group.</li><li>Assign <code>splat.shader.billboard</code> to BillboardMat.</li><li>Select EEVEE and start without a size-filter node.</li></ol><p>Use BlendSplat’s import node rather than stopping at Blender’s standard PLY import. This test uses the PLY alone, without an OBJ.</p><figure><img src="/works/images/blendsplat-nodes.png" alt="Blender node setup: import → EEVEE display → output, including the billboard material assignment." loading="lazy"><figcaption>Blender node setup: import → EEVEE display → output, including the billboard material assignment.</figcaption></figure><h3>Frame and export</h3><p>Place a camera inside the scan, set its lens and orientation, and check a still with F12. Add camera keyframes, choose the output folder, resolution and frame range, then use Render → Render Animation to export a PNG sequence. Encode the sequence using your normal video workflow.</p>
+<h2 id="results"><span class="n">05</span> A 360-degree view from the crossing</h2>
+<p>The camera stays in the middle of the crossing and turns through a full circle. This shows the background from inside the scene rather than from a distant aerial viewpoint.</p><figure><video controls muted loop playsinline preload="metadata" poster="/works/images/shibuya-blendsplat-best.png" style="width:100%;display:block" src="/works/videos/shibuya-blendsplat-best-360-24fps.mp4"></video><figcaption>Actual BlendSplat / EEVEE renders. No AI repair or interpolated frames.</figcaption></figure><p>Compare the buildings, signs and road as the camera rotates. The video is 1280×720 at 24 fps (240 frames over 10 seconds), with a 24 mm camera lens setting. Playback speed is not a measurement of viewport performance.</p>
+<h2 id="limits"><span class="n">06</span> Quality settings and remaining limitations</h2>
+<h3>Do not remove every large splat</h3><p>A size filter can remove building surfaces along with unwanted splats. For this dataset, removing that filter preserved the buildings and signs. Start without the filter, then edit genuinely unwanted regions.</p><figure><img src="/works/images/shibuya-blendsplat-station.png" alt="Actual render facing the station. Building surfaces remain, while fine details still contain capture artifacts." loading="lazy"><figcaption>Actual render facing the station. Building surfaces remain, while fine details still contain capture artifacts.</figcaption></figure><h3>Adjust render samples for grain</h3><p>BlendSplat uses dithering for transparency. This sequence uses 64 EEVEE render samples. Increase samples if fine grain remains distracting.</p><h3>Missing capture information stays missing</h3><p>Moving-person remnants, thin structures and sparsely captured regions can still break up. More render samples cannot accurately reconstruct information that was never captured. This test uses the captured background color; it does not establish normal-mesh lighting and shadow behavior.</p>
+<h2 id="alternatives"><span class="n">07</span> Other options</h2>
+<p>We reviewed the original 11 candidates and additional generation tools. The selection is based on turning the purchased Shibuya PLY into background footage.</p><div class="tblwrap"><table><thead><tr><th>Method</th><th>Assessment</th></tr></thead><tbody><tr><td>BlendSplat + EEVEE</td><td>Selected for this dataset, with the size filter removed.</td></tr><tr><td><a href="https://github.com/pristinaai/Splat-enabled-blender" target="_blank" rel="noopener">Splat-enabled Blender / Cycles</a></td><td>Completed a full-data 360-degree render and tested another visibility mode. We prefer BlendSplat for detail and use within stock Blender. This is an experimental fork.</td></tr><tr><td><a href="https://www.kiriengine.app/3d-tools/3dgs-render" target="_blank" rel="noopener">KIRI 3DGS Render</a></td><td>Small dedicated render verified. Split full-data import succeeded, but memory use rose and a completed image was not verified.</td></tr><tr><td>ReshotAI / SplatBake</td><td>Small outputs verified; equivalent completed full-data background footage not verified.</td></tr><tr><td>Fast Splatting / Octane</td><td>No completed usable result verified in the tested setup.</td></tr><tr><td><a href="https://splatforge.cloud/" target="_blank" rel="noopener">Splat Forge</a></td><td>Paid package unavailable; not tested.</td></tr><tr><td>3DGS Painter / SkySplat / official 4DGS demo</td><td>Different purposes or source data: stylized painting, reconstruction/training, or a separate demo.</td></tr></tbody></table></div><details><summary>Additional generation and integration tools</summary><p><a href="https://github.com/neroforgeyt/gaussian_splat_add_on">Gaussian Splat Generator</a> and <a href="https://github.com/warpgatelabs/gauss-cannon">Gauss Cannon</a> target training-data generation from Blender scenes, not rendering the purchased PLY. <a href="https://arxiv.org/abs/2601.15431">SplatBus</a> studies external-renderer integration; this Blender sequence workflow was not tested with it.</p></details><p>Unverified does not mean unsupported. Failed or untested configurations are not converted into quality rankings.</p>
+<h2 id="ai"><span class="n">08</span> AI finishing is a separate step</h2>
+<p>For a different time of day or season, first export the Blender image, then treat AI processing as a separate finishing stage. AI-enhanced images are not evidence of native Blender rendering quality.</p><p>The <a href="/en/works/ue5-xgrids-3dgs-aerial-ai.html">UE5 / XGRIDs and AI article</a> contains Shibuya examples and limitations involving text and signs. Those examples originate in UE5, not this Blender test.</p>
+<h2 id="summary"><span class="n">09</span> Summary: start with this setup</h2>
+<p>For this Shibuya dataset, start with <b>BlendSplat + EEVEE, without a size filter</b>. Register the library, load the PLY, check a camera still, then render a sequence.</p><p>Use the 360-degree video to judge whether the background meets your shot’s needs. If defects remain conspicuous, adjust the framing or plan additional finishing.</p>
 </article>
+
+
+
+
+
+
+
+
+
+
 
 <section class="related" aria-labelledby="related-h">
   <h2 id="related-h">Related articles</h2>
   <div class="rgrid">
       <a class="rcard" href="vectorworks-3dgs-mesh.html">
-        <div class="rthumb" style="background-image:url('images/vw_hero_block.jpg')"></div>
+        <div class="rthumb" style="background-image:url('/works/images/vw_hero_block.jpg')"></div>
         <div class="rbody">
           <div class="rmeta"><span>Tech</span><span>2026-08-16</span><span>8 min</span></div>
           <h3>A realistic way to use 3DGS in Vectorworks</h3>
         </div>
       </a>
       <a class="rcard" href="3dgs-file-formats.html">
-        <div class="rthumb" style="background-image:url('images/format-og-cover.jpg')"></div>
+        <div class="rthumb" style="background-image:url('/works/images/format-og-cover.jpg')"></div>
         <div class="rbody">
           <div class="rmeta"><span>Tech</span><span>2026-08-14</span><span>9 min</span></div>
           <h3>Sorting out 3DGS file formats</h3>
         </div>
       </a>
       <a class="rcard" href="3dgs-software-comparison.html">
-        <div class="rthumb" style="background-image:url('images/dcc-og-cover.jpg')"></div>
+        <div class="rthumb" style="background-image:url('/works/images/dcc-og-cover.jpg')"></div>
         <div class="rbody">
           <div class="rmeta"><span>Tech</span><span>2026-08-14</span><span>7 min</span></div>
           <h3>Comparing software that handles 3DGS</h3>
@@ -362,7 +270,7 @@
   <div class="ey">Credits</div>
   <h2>Credits</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="Kou Nakamura">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
       <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
       <div class="crole">Founder, Locahun3D ／ Testing &amp; Writing</div>
@@ -380,7 +288,7 @@
   <div class="wrap">
     <p>This article is a production note from <b>Locahun3D / LOCAHUN 3D</b>.<br>Feel free to reach out about 3DGS scanning, location scouting, VFX backgrounds, or AI production.</p>
     <a class="cta" href="https://locahun3d.com/en/contact">Contact us →</a>
-    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PURCHASE → OBJ + PLY → BLENDER IMPORT → NATIVE / ADDON COMPARISON</p>
+
   </div>
 </footer>
 <div class="filmstrip"></div>
