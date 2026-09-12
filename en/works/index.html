@@ -68,13 +68,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .tcr{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
   font-size:.62em;letter-spacing:.24em;text-transform:uppercase;opacity:.55;padding:22px 0 0}
 
-.hero{padding:34px 0 54px;border-bottom:1px solid var(--line-2);text-align:center}
+.hero{padding:32px 0;border-bottom:1px solid var(--line-2);text-align:center}
+@media(max-width:719px){.hero{padding:24px 0}}
 .hero .kick{font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.42em;
   text-transform:uppercase;color:var(--accent);margin-bottom:26px;text-indent:.42em}
 .hero h1{font-family:'Noto Serif JP',serif;font-weight:200;
   font-size:clamp(1.65em,6vw,4em);line-height:1.42;letter-spacing:.01em;text-wrap:balance}
-.hero h1.big,.section-head h2.big{font-family:'Noto Sans JP',sans-serif;font-weight:900;
-  font-size:clamp(2.6em,8vw,4.8em);letter-spacing:0;line-height:1.1;color:#fff}
+.hero h1.big,.section-head h2.big{font-family:'Noto Sans JP',sans-serif;font-weight:700;
+  font-size:clamp(28px,3.2vw,40px);letter-spacing:0;line-height:1.35;color:#fff}
 .hero h1 em{font-style:normal;font-weight:700}
 .hero p{margin:24px auto 0;max-width:60ch;color:var(--dim);font-size:clamp(.92em,1.2vw,1.02em);line-height:2}
 
@@ -114,7 +115,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .card .cm .b{padding:4px 9px;border:1px solid var(--line)}
 .card .cm .b.tech{color:var(--accent);border-color:rgba(30,160,196,.5)}
 .card .cm .b.work{color:#fff}
-.card h2,.card h3{font-family:'Noto Serif JP',serif;font-weight:400;font-size:1.1em;line-height:1.5;letter-spacing:0}
+.card h2,.card h3{font-family:'Noto Serif JP',serif;font-weight:700;font-size:18px;line-height:1.5;letter-spacing:0}
 .card p{font-size:.8em;color:var(--dim);line-height:1.75}
 .card .more{margin-top:auto;font-family:'JetBrains Mono',monospace;font-size:.62em;letter-spacing:.24em;
   text-transform:uppercase;color:var(--accent);padding-top:4px}
@@ -156,7 +157,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .bar .bn{display:none}
   .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
   .tcr{font-size:.5em;letter-spacing:.16em}
-  .hero{padding:22px 0 38px}
+  .hero{padding:24px 0}
   .chapter-rule{font-size:.6em;gap:12px;margin:44px 0 24px;flex-wrap:wrap}
   .chapter-rule .en{flex-basis:100%;margin-top:6px}
   .filters{width:100%}
