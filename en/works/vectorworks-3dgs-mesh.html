@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>How to Use 3DGS Scans with Vectorworks｜LOCAHUN 3D Tech Blog</title>
-<meta name="description" content="Measured results from importing 3DGS, coloured point clouds and textured meshes into Vectorworks Spotlight 2026, plus a workflow that rebuilds a lightweight editable model against 3DGS before bringing it into Vectorworks.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>A Practical 3DGS-to-Vectorworks Workflow｜LOCAHUN 3D Tech Blog</title>
+<meta name="description" content="A practical test separating the roles of 3DGS, point clouds and meshes, then importing a hall OBJ rebuilt against 3DGS into Vectorworks Spotlight 2026.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/vectorworks-3dgs-mesh.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
@@ -14,16 +14,16 @@
 <meta property="og:site_name" content="Locahun 3D">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
-<meta property="og:title" content="How to Use 3DGS Scans with Vectorworks">
-<meta property="og:description" content="Measured results from importing 3DGS, coloured point clouds and textured meshes into Vectorworks Spotlight 2026, plus a workflow that rebuilds a lightweight editable model against 3DGS before bringing it into Vectorworks.">
+<meta property="og:title" content="A Practical 3DGS-to-Vectorworks Workflow">
+<meta property="og:description" content="A practical test separating the roles of 3DGS, point clouds and meshes, then importing a hall OBJ rebuilt against 3DGS into Vectorworks Spotlight 2026.">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/vectorworks-3dgs-mesh.html">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="A city block captured as a 3D scan">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="How to Use 3DGS Scans with Vectorworks">
-<meta name="twitter:description" content="Measured results from importing 3DGS, coloured point clouds and textured meshes into Vectorworks Spotlight 2026, plus a workflow that rebuilds a lightweight editable model against 3DGS before bringing it into Vectorworks.">
+<meta name="twitter:title" content="A Practical 3DGS-to-Vectorworks Workflow">
+<meta name="twitter:description" content="A practical test separating the roles of 3DGS, point clouds and meshes, then importing a hall OBJ rebuilt against 3DGS into Vectorworks Spotlight 2026.">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -278,10 +278,10 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Vectorworks</span><span class="badge">Benchmark</span>
-    <span>2026-08-16</span><span>·</span><span>6 min read</span>
+    <span>2026-08-16</span><span>·</span><span>8 min read</span>
   </div>
-  <h1>How to Use 3DGS Scans <br class="pc">with Vectorworks</h1>
-  <p class="lead">This is Kou Nakamura from Locahun 3D. To see how site scans can connect to Vectorworks work, I <strong>imported 3DGS, a coloured point cloud and a textured mesh into Vectorworks Spotlight 2026</strong>. No raw scan format delivers appearance, measurement and editability at once. This article covers the measured results and a workflow that uses 3DGS as a comparison baseline, rebuilds a lightweight editable model, and passes only the required geometry into Vectorworks.</p>
+  <h1>A Practical 3DGS-to-Vectorworks Workflow</h1>
+  <p class="lead">This is Kou Nakamura from Locahun 3D. I first compared <strong>3DGS, a coloured point cloud and a textured mesh</strong> from a city-block scan. I then rebuilt a separate hall against its 3DGS and captured images, and <strong>imported that editable model into Vectorworks Spotlight 2026</strong>. The test separates appearance, measurement, editing and drafting instead of forcing one dataset to do every job.</p>
 
   <figure>
     <img src="/works/images/vw_hero_block.jpg" alt="A city block captured as a 3D scan">
@@ -289,7 +289,7 @@
   </figure>
 </header>
 
-<div class="callout warn" style="margin:0 22px 8px"><b>The conclusion, up front</b><strong>Use 3DGS for appearance, point clouds for measurement and Vectorworks for drafting.</strong> Rebuild only the required geometry as a lightweight editable model against 3DGS and captured images, then pass those parts into Vectorworks.</div>
+<div class="callout warn" style="margin:0 22px 8px"><b>The conclusion, up front</b><strong>Use 3DGS for site review, point clouds for measurement and Vectorworks for drafting.</strong> The hall OBJ imported successfully, but 1,051 Blender meshes arrived as only four meshes in Vectorworks. It works as shape reference; it does not preserve component-level editability without a purpose-built export split or rebuilding the drafting elements in Vectorworks.</div>
 
 <nav class="toc">
   <h2>Contents</h2>
@@ -311,6 +311,8 @@
     <b>4. editable model</b><span class="a">→</span><b>Blender</b><span class="a">|</span>
     <b>5. drawings</b><span class="a">→</span><b>Vectorworks</b>
   </div>
+
+  <div class="callout note"><b>Test A | Use the city-block scan directly</b>Sections 1–3 compare 3DGS, point cloud and scan mesh outputs from the same city-block capture.</div>
 
   <h2 id="basics">The three formats, briefly</h2>
   <p>A single capture can produce three kinds of data for different jobs.</p>
@@ -370,6 +372,7 @@
   </figure>
 
   <h2 id="modeling"><span class="n">04</span> 4. Build an editable model from a separate hall scan</h2>
+  <div class="callout note"><b>Test B | Pass an editable model into Vectorworks</b>Sections 4–5 rebuild a separate hall against its 3DGS and captured images, then import the result as OBJ.</div>
   <p>Sections 1–3 above are direct Vectorworks import tests using the city-block scan. I then used a separate hall capture to test a different path: keeping 3DGS and captured images as references while rebuilding editable geometry in Blender. <strong>The city block and hall are different datasets</strong>; the hall test checks the proposed solution rather than continuing the same import test.</p>
   <div class="duo">
     <figure>
@@ -395,8 +398,30 @@
     <li><strong>Editable Blender model</strong> — contains only the required geometry, separated by use.</li>
     <li><strong>Vectorworks</strong> — uses the lightweight model as a base for classes, layers, lighting, furniture and drawings.</li>
   </ul>
-  <p><a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">Vectorworks 2026 can import formats including OBJ and IFC</a>. OBJ is a candidate for shape reference; IFC is a candidate when building elements and storey information matter. Export only the parts required for the job.<br>Importing this particular hall model into Vectorworks is the next validation step. This article does not yet claim verified editing performance after import.</p>
-  <p>3DGS, Blender and Vectorworks serve different roles. <strong>Separate the visual baseline, editable geometry and design drawings, then connect them</strong>. This preserves the scan's information without making CAD carry the entire raw dataset.</p>
+  <p>I exported the hall from Blender 4.5 as OBJ and imported it into Vectorworks Spotlight 2026. The OBJ is 155.6 MB, the MTL is 25.6 KB and the package contains 12 images. The saved Vectorworks file is 109.8 MB.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Check</th><th>Observed result</th></tr></thead>
+    <tbody>
+      <tr><td>Geometry</td><td>The complete hall displayed in both Wireframe and Shaded modes</td></tr>
+      <tr><td>Object separation</td><td>1,051 Blender meshes were consolidated into four Vectorworks meshes</td></tr>
+      <tr><td>Textures</td><td>OBJ and MTL alone were insufficient; the 12 images packed in Blender had to be extracted beside the OBJ</td></tr>
+      <tr><td>Practical use</td><td>Useful as whole-model shape reference, not as directly editable CAD walls, floors or stage parts</td></tr>
+    </tbody>
+  </table></div>
+  <div class="duo">
+    <figure>
+      <img src="/works/images/musicholl_vectorworks_obj_wireframe.jpg" alt="The hall OBJ displayed in Vectorworks Wireframe mode">
+      <figcaption><b>The imported OBJ in Wireframe mode.</b> The ceiling, walls, stage, upper gallery and railings are visible.</figcaption>
+    </figure>
+    <figure>
+      <img src="/works/images/musicholl_vectorworks_obj_shaded.jpg" alt="The hall OBJ displayed in Vectorworks Shaded mode">
+      <figcaption><b>The same data in Shaded mode.</b> The overall form comes through, but Blender's component structure does not.</figcaption>
+    </figure>
+  </div>
+  <div class="callout warn"><b>The first import stopped because texture files were missing</b>The MTL named the images, but the files themselves were packed inside the Blender document. Import completed after extracting all 12 images beside the OBJ. An OBJ delivery therefore needs the OBJ, MTL and referenced images kept together.</div>
+  <p><a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">Vectorworks 2026 can import OBJ, IFC and point-cloud formats including PLY</a>. PLY support does not mean it preserves Gaussian scale, rotation and opacity. Vectorworks handles it as a point cloud, not as a 3DGS rendering.</p>
+  <p>IFC is not a better OBJ. It carries BIM meaning such as walls, slabs and storeys. This hall is a mesh without those semantics, so wrapping it in IFC would not automatically turn the geometry into editable building elements. Drafting elements still need to be rebuilt as Vectorworks classes, layers and architectural objects.</p>
+  <p>The practical result is to <strong>review the site in 3DGS, organise only the required geometry in Blender, then pass it into Vectorworks in smaller purpose-based groups</strong>. The one-piece OBJ succeeded as shape reference, but it is not a delivery-ready drafting model.</p>
 
   <div class="data-cta">
     <span class="dc-tag">DEMO / 3DGS VIEWER</span>

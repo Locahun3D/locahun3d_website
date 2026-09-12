@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Using purchased 3DGS data in Blender｜Locahun3D Tech Blog</title>
+<meta name="description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/3dgs-blender-workflow.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-blender-workflow.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-blender-workflow.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Using purchased 3DGS data in Blender">
+<meta property="og:description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/3dgs-blender-workflow.html">
+<meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Scan data of Shibuya Scramble Crossing">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Using purchased 3DGS data in Blender">
+<meta name="twitter:description" content="We tested several ways to open Locahun3D property data in Blender and found a free tool that displays colored 3DGS correctly.">
+<meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/works-header.css?v=a6ac8c58">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#1ea0c4; --brand-ink:#1ea0c4; --brand-bg:rgba(30,160,196,.08);
+    --accent2:#5ec8e8; --accent2-bg:rgba(94,200,232,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(30,160,196,.06); --note-line:rgba(30,160,196,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.85;font-size:17px;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(30,160,196,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#5ec8e8);transition:width .1s linear}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.24;font-weight:900;letter-spacing:-.01em;color:#fff}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.85;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:-.005em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7;min-width:560px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;line-height:1.4}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.75;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.01em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.75;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}}
+  body{padding-top:56px}
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+  @media(max-width:719px){.backlink{min-height:44px}
+    .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.6;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header sh-works">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+        <a href="https://locahun3d.com/en/properties"><span class="code">0.1</span>Properties</a>
+        <a href="https://locahun3d.com/en/pricing"><span class="code">0.2</span>Pricing / Demo</a>
+        <a href="/en/works/index.html"><span class="code">0.3</span>Works &amp; Blog</a>
+        <a href="https://locahun3d.com/en/contact"><span class="code">0.4</span>Contact</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/en" class="sh-brand" aria-label="Locahun3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">Locahun3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/works/3dgs-blender-workflow.html" aria-label="Language">JA</a>
+  </div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Works &amp; Blog</a>
+</div>
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">Blender</span><span class="badge">Test</span>
+    <span>2026-09-12</span><span>・</span><span>7 min read</span>
+  </div>
+  <h1>Using purchased 3DGS data<br>in Blender</h1>
+  <p class="lead">This is Kou from Locahun3D.<br>Every property purchase includes an OBJ mesh and point-cloud (PLY) files. A customer asked whether these can be opened in Blender, so <strong>we imported each file ourselves and checked what actually works</strong>. Along the way we also found a free tool that displays the colored 3DGS correctly, so we're covering that too.</p>
+
+  <figure>
+    <img src="images/shibuya_hero.jpg" alt="Scan data of Shibuya Scramble Crossing">
+    <figcaption><b>We tested with the Shibuya Scramble Crossing property.</b> It's one of the listings sold on Locahun3D, and we opened each of the three files included with a purchase in Blender.</figcaption>
+  </figure>
+</header>
+
+<div class="callout warn" style="margin:0 22px 8px"><b>Short answer</b>For checking shape or taking measurements, the <strong>OBJ mesh</strong> is the easiest to work with. If you want to see the colored 3DGS inside Blender, a free tool called <strong>BlendSplat</strong> displays and renders it correctly, keeping the photoreal look. Blender on its own, and another add-on we tried, didn't produce a usable colored view — but BlendSplat is light to install and fast to display.</div>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#formats">Three files come with every purchase</a></li>
+    <li><a href="#obj">① OBJ — the geometry imports cleanly</a></li>
+    <li><a href="#ply">② Point cloud (PLY) — opens, but shows nothing</a></li>
+    <li><a href="#addon">③ Another add-on — still no usable color</a></li>
+    <li><a href="#blendsplat">④ BlendSplat — displays the color correctly</a></li>
+    <li><a href="#answer">Summary — pick the tool for the job</a></li>
+  </ol>
+</nav>
+
+<article>
+  <h2 id="formats">Three files come with every purchase</h2>
+  <p>Every property purchase includes three files:</p>
+  <ul>
+    <li><strong>① OBJ</strong> — a standard 3D mesh made of polygon faces.</li>
+    <li><strong>② Point cloud (PLY, smaller file)</strong> — an internal reference used for alignment during capture. It isn't meant to be used directly.</li>
+    <li><strong>③ Point cloud (PLY, larger file)</strong> — the 3DGS data, which reproduces a photoreal look using colored splats.</li>
+  </ul>
+
+  <h2 id="obj"><span class="n">01</span> ① OBJ — the geometry imports cleanly</h2>
+  <p>OBJ is a format Blender supports natively, so <strong>it opens with no extra setup</strong>. For the Shibuya Scramble Crossing data, the buildings and roads across the whole intersection loaded correctly.</p>
+  <figure>
+    <img src="images/shibuya_obj_render.jpg" alt="Shibuya Scramble Crossing OBJ imported and rendered in Blender">
+    <figcaption><b>The OBJ imported and rendered.</b> The intersection, surrounding buildings, and pedestrian bridge all keep their shape. Color and photo texture aren't included, so everything appears as plain gray geometry.</figcaption>
+  </figure>
+  <p>Because there's no color or texture, this file isn't meant for checking the look of a location. It's meant for <strong>taking measurements or using the shape as a base for further modeling</strong>.</p>
+
+  <h2 id="ply"><span class="n">02</span> ② Point cloud (PLY) — opens, but shows nothing</h2>
+  <p>Blender can open the point-cloud file too, but <strong>no color appears, and the screen stays empty</strong>.</p>
+  <figure>
+    <img src="images/shibuya_ply_native_black.jpg" alt="3DGS point cloud imported into Blender but the screen stays black">
+    <figcaption><b>The 3DGS point cloud opened directly in Blender.</b> The import itself succeeds, but Blender has no built-in way to read the color, transparency, and splat-shape data that make up 3DGS, so nothing shows on screen.</figcaption>
+  </figure>
+  <p>3DGS data carries more than point positions — it also stores each point's color, how transparent it is, and the shape of its splat. <strong>Blender doesn't have a built-in way to read that</strong>, so it imports only the positions and discards everything else.</p>
+
+  <h2 id="addon"><span class="n">03</span> ③ Another add-on — still no usable color</h2>
+  <p>We also tried a free add-on built specifically for displaying 3DGS in Blender. The import itself went well — it correctly converts the color, transparency, and splat-shape data into Blender's own data.</p>
+  <figure>
+    <img src="images/shibuya_kiri_addon_gray.jpg" alt="Point cloud displayed after importing with another 3DGS add-on">
+    <figcaption><b>The result after importing with the add-on.</b> The conversion itself worked, but what appeared on screen was a colorless gray point cloud — not the photoreal look 3DGS is meant to produce.</figcaption>
+  </figure>
+  <div class="callout warn"><b>This add-on wasn't usable in practice</b>The import finished without errors, and all the necessary data was present. Even so, the actual view showed nothing but gray points — the colored look never appeared.</div>
+
+  <h2 id="blendsplat"><span class="n">04</span> ④ BlendSplat — displays the color correctly</h2>
+  <p>Looking further, we found a free tool called <strong>BlendSplat</strong>. It handles 3DGS using only Blender's built-in features (geometry nodes and EEVEE), with no separate external engine to run. Using it, <strong>we got a colored display — sharp enough to read the text on signage — and could export it as an image</strong>.</p>
+  <figure>
+    <img src="images/shibuya_blendsplat_result.jpg" alt="Shibuya Scramble Crossing 3DGS displayed with BlendSplat">
+    <figcaption><b>Shibuya Scramble Crossing displayed with BlendSplat.</b> Buildings, signage, the crosswalk, and cars all appear in color. The whole process, from import to image export, took under a minute.</figcaption>
+  </figure>
+  <p>Setup is just extracting the files and registering the folder as a Blender asset library — no extra installation. Importing is light, and it produced a correctly colored result reliably.</p>
+  <div class="callout note"><b>A couple of things to note</b>Sparse or edge areas of a scan can leave behind some colored noise-like specks. If that bothers you, filtering out oversized splats cleans up the look.</div>
+
+  <h2 id="answer">Summary — pick the tool for the job</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Method</th><th>What Blender shows</th><th>Best used for</th></tr></thead>
+    <tbody>
+      <tr><td>OBJ</td><td>Correct shape (no color)</td><td>Checking geometry, measuring, modeling reference</td></tr>
+      <tr><td>Point cloud (PLY) directly</td><td>Nothing appears</td><td>Not suited to Blender</td></tr>
+      <tr><td>Another add-on</td><td>Colorless point cloud</td><td>Not practical</td></tr>
+      <tr><td><b>BlendSplat</b></td><td><b>Displays in color</b></td><td>Viewing or working with the colored scan inside Blender</td></tr>
+    </tbody>
+  </table></div>
+  <p>Use the <strong>OBJ</strong> file when you need the shape as a modeling or measurement base. Use <strong>BlendSplat</strong> when you want to view and work with the colored scan inside Blender itself. If you'd rather skip any install and just check the look in a browser, the <strong>Locahun3D viewer</strong> is also available.</p>
+
+  <div class="data-cta">
+    <span class="dc-tag">DEMO / 3DGS VIEWER</span>
+    <h3>The colored scan is also<br class="pc">viewable without Blender</h3>
+    <p>View the original color and texture right in your browser.<br>No install and no extra license required.<br>We'll walk you through how to use property data during the demo.</p>
+    <a class="dc-btn" href="https://locahun3d.com/en/pricing">See the demo →</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">Related articles</h2>
+  <div class="rgrid">
+      <a class="rcard" href="vectorworks-3dgs-mesh.html">
+        <div class="rthumb" style="background-image:url('images/vw_hero_block.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-08-16</span><span>8 min</span></div>
+          <h3>A realistic way to use 3DGS in Vectorworks</h3>
+        </div>
+      </a>
+      <a class="rcard" href="3dgs-file-formats.html">
+        <div class="rthumb" style="background-image:url('images/format-og-cover.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-08-14</span><span>9 min</span></div>
+          <h3>Sorting out 3DGS file formats</h3>
+        </div>
+      </a>
+      <a class="rcard" href="3dgs-software-comparison.html">
+        <div class="rthumb" style="background-image:url('images/dcc-og-cover.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>Tech</span><span>2026-08-14</span><span>7 min</span></div>
+          <h3>Comparing software that handles 3DGS</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Works &amp; Blog</a>
+  </div>
+</section>
+
+<section class="credit">
+  <div class="ey">Credits</div>
+  <h2>Credits</h2>
+  <div class="credit-card">
+    <img class="av" src="images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
+      <div class="crole">Founder, Locahun3D ／ Testing &amp; Writing</div>
+      <p>Founder of Locahun3D (LOCAHUN 3D).<br>Researches and tests capture workflows that combine 3DGS scanning with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun3D / LOCAHUN 3D</b>.<br>Feel free to reach out about 3DGS scanning, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="https://locahun3d.com/en/contact">Contact us →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: PURCHASE → OBJ + PLY → BLENDER IMPORT → NATIVE / ADDON COMPARISON</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 Locahun3D — KWI Inc.</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/en/terms/service">Terms of Service</a>
+        <a href="https://locahun3d.com/en/privacy">Privacy Policy</a>
+        <a href="https://locahun3d.com/en/terms/tokushoho">Legal Notice</a>
+        <a href="https://locahun3d.com/en/terms/data-download">Data Purchase Terms</a>
+        <a href="https://locahun3d.com/en/contact/listing">List Your Location</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+</body>
+</html>

@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSスキャンをVectorworksで使うには｜ロケハン3D 技術ブログ</title>
-<meta name="description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSをVectorworksで使う現実的な方法｜ロケハン3D 技術ブログ</title>
+<meta name="description" content="3DGS・点群・メッシュの役割を整理し、3DGSを基準に作ったホールのOBJをVectorworks Spotlight 2026へ実際に読み込んだ結果をまとめます。">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
@@ -14,16 +14,16 @@
 <meta property="og:site_name" content="ロケハン3D">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:title" content="3DGSスキャンをVectorworksで使うには">
-<meta property="og:description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
+<meta property="og:title" content="3DGSをVectorworksで使う現実的な方法">
+<meta property="og:description" content="3DGS・点群・メッシュの役割を整理し、3DGSを基準に作ったホールのOBJをVectorworks Spotlight 2026へ実際に読み込んだ結果をまとめます。">
 <meta property="og:url" content="https://web.locahun3d.com/works/vectorworks-3dgs-mesh.html">
 <meta property="og:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="3Dスキャンした街区のデータ">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="3DGSスキャンをVectorworksで使うには">
-<meta name="twitter:description" content="3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込んだ実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへつなぐ方法をまとめます。">
+<meta name="twitter:title" content="3DGSをVectorworksで使う現実的な方法">
+<meta name="twitter:description" content="3DGS・点群・メッシュの役割を整理し、3DGSを基準に作ったホールのOBJをVectorworks Spotlight 2026へ実際に読み込んだ結果をまとめます。">
 <meta name="twitter:image" content="https://web.locahun3d.com/assets/Digiloke_OG_Cover.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -279,10 +279,10 @@
 <header class="post">
   <div class="meta">
     <span class="badge">3DGS</span><span class="badge">Vectorworks</span><span class="badge">検証</span>
-    <span>2026-08-16</span><span>・</span><span>読了 約6分</span>
+    <span>2026-08-16</span><span>・</span><span>読了 約8分</span>
   </div>
-  <h1>3DGSを<br>Vectorworksで使うには</h1>
-  <p class="lead">ロケハン3Dの中村です。<br>現地スキャンをVectorworksの作業へどうつなぐかを確かめるため、<strong>3DGS・色付き点群・テクスチャ付きメッシュをVectorworks Spotlight 2026へ取り込みました</strong>。<br>生のスキャンデータだけでは、見た目・計測・編集性を同時に満たせません。<br>この記事では3形式の実測結果と、3DGSを比較基準にして軽量な編集モデルを作り、Vectorworksへ渡す方法をまとめます。</p>
+  <h1>3DGSを<br>Vectorworksで使う現実的な方法</h1>
+  <p class="lead">ロケハン3Dの中村です。<br>現地スキャンをVectorworksの作業へどうつなぐかを確かめるため、街区では<strong>3DGS・色付き点群・テクスチャ付きメッシュ</strong>の違いを検証し、別のホールでは3DGSを基準に作った編集モデルを<strong>Vectorworks Spotlight 2026へ実際に読み込みました</strong>。<br>見た目、計測、編集、作図を1つのデータで済ませず、用途ごとに分けるための検証です。</p>
 
   <figure>
     <img src="images/vw_hero_block.jpg" alt="3Dスキャンした街区のデータ">
@@ -290,7 +290,7 @@
   </figure>
 </header>
 
-<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b><strong>3DGSは見た目、点群は計測、Vectorworksは作図に使い分けます。</strong>設計に必要な形は、3DGSと撮影画像を基準にBlenderで軽量な編集モデルへ起こし、必要な部材だけVectorworksへ渡す方法が現実的です。</div>
+<div class="callout warn" style="margin:0 22px 8px"><b>先に結論</b><strong>3DGSは現況確認、点群は計測、Vectorworksは作図に使い分けます。</strong>ホールの編集モデルはOBJで読み込めました。ただしBlenderの1,051メッシュはVectorworks上で4メッシュにまとまり、部材単位の編集性は維持されませんでした。形状参照には使えますが、作図用にするには用途別の分割か、Vectorworks側での作り直しが必要です。</div>
 
 <nav class="toc">
   <h2>目次</h2>
@@ -312,6 +312,8 @@
     <b>④ 編集モデル</b><span class="a">→</span><b>Blender</b><span class="a">|</span>
     <b>⑤ 作図</b><span class="a">→</span><b>Vectorworks</b>
   </div>
+
+  <div class="callout note"><b>検証A｜街区スキャンを直接使う</b>①〜③では、同じ街区スキャンから作った3DGS、点群、スキャンメッシュを比較します。</div>
 
   <h2 id="basics">3つの形式を短く整理</h2>
   <p>同じ撮影から、用途の違う3種類のデータを作れます。</p>
@@ -371,6 +373,7 @@
   </figure>
 
   <h2 id="modeling"><span class="n">04</span> ④ 別のホールで編集モデルを制作</h2>
+  <div class="callout note"><b>検証B｜編集モデルをVectorworksへ渡す</b>④〜⑤では、別のホールを3DGSと撮影画像から再構成し、OBJとしてVectorworksへ読み込んだ結果を確認します。</div>
   <p>ここまでの①〜③は、街区スキャンをVectorworksへ直接取り込んだ検証です。<br>次に別のホールを使い、3DGSと撮影画像を基準にして、Blenderで編集できるモデルを作る工程を試しました。<br><strong>街区とホールは別の撮影データ</strong>ですが、「スキャンをそのままCADへ入れるのではなく、見た目を参照しながら必要な形だけ作り直す」という解決方法を確認するための検証です。</p>
   <div class="duo">
     <figure>
@@ -396,8 +399,30 @@
     <li><strong>Blenderの編集モデル</strong> ── 必要な部材だけを軽量に作り、用途ごとに分けます。</li>
     <li><strong>Vectorworks</strong> ── 軽量モデルを下敷きに、クラス・レイヤ・照明・什器・図面を整えます。</li>
   </ul>
-  <p>Vectorworks 2026は<a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">OBJやIFCなどを読み込めます</a>。形状参照ならOBJ、建築部材や階情報を渡す場合はIFCを候補にし、部材を絞って出力します。<br>今回のホールモデルをVectorworksへ読み込む検証は次の工程です。現時点では、読み込み後の編集性や速度まで確認済みとはしていません。</p>
-  <p>3DGS、Blender、Vectorworksは役割が違います。<br><strong>見た目の基準、編集できる形、設計図面を分けてつなぐ</strong>ことで、スキャンの情報量を残しながらCADを重くしすぎずに使えます。</p>
+  <p>ホールモデルをBlender 4.5からOBJで出力し、Vectorworks Spotlight 2026へ読み込みました。OBJは155.6MB、MTLは25.6KB、画像は12枚です。保存したVectorworksファイルは109.8MBでした。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>確認したこと</th><th>実際の結果</th></tr></thead>
+    <tbody>
+      <tr><td>形状</td><td>ホール全体を読み込み、ワイヤーフレームとシェイドで表示できた</td></tr>
+      <tr><td>部材の分かれ方</td><td>Blenderの1,051メッシュが、Vectorworksでは4メッシュに統合された</td></tr>
+      <tr><td>テクスチャ</td><td>OBJとMTLだけでは不足。Blender内にパックされていた画像12枚を同じフォルダへ展開して読み込んだ</td></tr>
+      <tr><td>用途</td><td>全体形状の参照には使える。壁・床・舞台をCAD部材として直接編集する状態ではない</td></tr>
+    </tbody>
+  </table></div>
+  <div class="duo">
+    <figure>
+      <img src="images/musicholl_vectorworks_obj_wireframe.jpg" alt="ホールのOBJをVectorworksでワイヤーフレーム表示した画面">
+      <figcaption><b>Vectorworksへ読み込んだOBJのワイヤーフレーム表示。</b>天井、壁、舞台、2階、手すりなどの形状を確認できます。</figcaption>
+    </figure>
+    <figure>
+      <img src="images/musicholl_vectorworks_obj_shaded.jpg" alt="ホールのOBJをVectorworksでシェイド表示した画面">
+      <figcaption><b>同じデータのシェイド表示。</b>全体の形は追えますが、Blenderで分けた部材構成はそのまま移りません。</figcaption>
+    </figure>
+  </div>
+  <div class="callout warn"><b>最初の読み込みはテクスチャ不足で停止</b>OBJのMTLには画像名が書かれていましたが、画像自体はBlenderファイル内にパックされていました。12枚をOBJと同じフォルダへ展開すると読み込みが完了しました。OBJを渡すときは、OBJ・MTL・参照画像を1セットで管理する必要があります。</div>
+  <p>Vectorworks 2026は<a href="https://app-help.vectorworks.net/2026/eng/VW2026_Guide/Import/Drag_and_drop_importing.htm" target="_blank" rel="noopener">OBJ、IFC、PLYを含む点群形式を読み込めます</a>。ただしPLYを読めることと、Gaussianの大きさ・回転・透明度まで保った3DGS表示ができることは別です。PLYは点群として扱います。</p>
+  <p>IFCはOBJの上位互換ではありません。壁、床、階などの意味を持つBIMモデルを渡す形式です。今回のモデルはメッシュで、BIM部材の情報を持っていません。IFCへ包み直しても自動的に壁や床にはならないため、Vectorworksで作図する部分はクラス・レイヤ・建築部材として作り直します。</p>
+  <p>結果として、<strong>3DGSで現況を確認し、Blenderで必要な形を整理し、Vectorworksには用途別に小さく分けて渡す</strong>方法が現実的です。今回の一括OBJは形状参照までは成功しましたが、そのまま納品用の作図モデルにはなりませんでした。</p>
 
   <div class="data-cta">
     <span class="dc-tag">DEMO / 3DGS VIEWER</span>
