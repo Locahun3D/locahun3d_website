@@ -78,8 +78,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   font-size:.62em;letter-spacing:.24em;text-transform:uppercase;opacity:.55;padding:22px 0 0}
 
 /* ===== hero ===== */
-.hero{padding:32px 0;border-bottom:1px solid var(--line-2);text-align:center}
-@media(max-width:719px){.hero{padding:24px 0}}
+.hero{padding:32px 0 0;text-align:center}
+#worksGrid{margin-top:28.8px}
+@media(max-width:719px){.hero{padding:24px 0 0}}
 .hero .kick{font-family:'JetBrains Mono',monospace;font-size:.7em;letter-spacing:.42em;
   text-transform:uppercase;color:var(--accent);margin-bottom:26px;text-indent:.42em}
 .hero h1{font-family:'Noto Serif JP',serif;font-weight:200;
@@ -96,12 +97,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .chapter-rule .line{flex:1;height:1px;background:currentColor;opacity:.22}
 .chapter-rule .en{font-family:'JetBrains Mono',monospace;opacity:.5;font-size:.85em}
 
-#blog{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;margin-top:48px}
-#blog .section-head{text-align:left}
-#blog .filters{margin:0}
+#blog{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:28.8px;margin-top:57.6px}
+#blog .section-head{text-align:center}
+#blog .filters{margin:0;justify-self:end}
 #blogGrid{grid-column:1/-1;margin-top:0}
 @media(max-width:719px){
-  #blog{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:32px}
+  #blog{grid-template-columns:minmax(0,1fr);gap:19.2px;margin-top:38.4px}
   #blog .filters{width:100%}
   #blogGrid{margin-top:8px}
 }
@@ -179,7 +180,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .bar .bn{display:none}                         /* ワードマークを隠してナビを表示 */
   .bar nav a{padding:7px 9px;font-size:10px;letter-spacing:.1em}
   .tcr{font-size:.5em;letter-spacing:.16em}
-  .hero{padding:24px 0}
+  .hero{padding:24px 0 0}
   .chapter-rule{font-size:.6em;gap:12px;margin:44px 0 24px;flex-wrap:wrap}
   .chapter-rule .en{flex-basis:100%;margin-top:6px}
   .filters{width:100%}
