@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Direct from LCC2 to Blender: using 3DGS for VFX｜Locahun3D</title>
+<meta name="description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://web.locahun3d.com/en/works/blender-lcc2-vfx.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/blender-lcc2-vfx.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Locahun 3D">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="Direct from LCC2 to Blender: using 3DGS for VFX">
+<meta property="og:description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta property="og:url" content="https://web.locahun3d.com/en/works/blender-lcc2-vfx.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
+<meta property="og:image:alt" content="Direct from LCC2 to Blender: using 3DGS for VFX">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Direct from LCC2 to Blender: using 3DGS for VFX">
+<meta name="twitter:description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/works-header.css?v=a6ac8c58">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#1ea0c4; --brand-ink:#1ea0c4; --brand-bg:rgba(30,160,196,.08);
+    --accent2:#5ec8e8; --accent2-bg:rgba(94,200,232,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(30,160,196,.06); --note-line:rgba(30,160,196,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.85;font-size:17px;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(30,160,196,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#5ec8e8);transition:width .1s linear}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.24;font-weight:900;letter-spacing:-.01em;color:#fff}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.85;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.7;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:-.005em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.75;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7;min-width:560px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;line-height:1.4}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.75;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.01em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.75;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}}
+  body{padding-top:56px}
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+  @media(max-width:719px){.backlink{min-height:44px}
+    .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.6;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+/* workflow-mobile-table */
+@media(max-width:600px){.tblwrap table{min-width:0;width:100%}.tblwrap thead{display:none}.tblwrap tbody,.tblwrap tr,.tblwrap td{display:block;width:auto}.tblwrap tr{border-bottom:1px solid var(--line)}.tblwrap td{border:0}.tblwrap td:first-child{padding-bottom:8px}.tblwrap td:last-child{padding-top:0}}
+
+/* Article-only readability and media layout; shared navigation is unchanged. */
+body{line-height:1.8;letter-spacing:.04em}
+.wrap,.backbar{max-width:1000px}
+header.post{padding-top:42px}
+.post-meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--brand);margin-bottom:16px}
+article>p,article>h2,article>h3,article>.toc,article>.callout,article>.measurements{max-width:760px;margin-left:auto;margin-right:auto}
+figure{width:100%;margin:36px 0}
+figure video,figure img{width:100%;height:auto;display:block}
+figure a{display:block}
+figure img{cursor:zoom-in}
+video{aspect-ratio:16/9;background:#050505}
+a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+.measurements{border:1px solid var(--line);background:var(--surface);padding:18px 20px}
+.measurements summary{cursor:pointer;color:var(--ink);min-height:44px;display:flex;align-items:center}
+.measurements summary::before{content:"+";color:var(--brand);margin-right:12px}
+.measurements[open] summary::before{content:"−"}
+.measurements dl{margin:16px 0 0}
+.measurements dt{font-weight:600;color:var(--ink);margin-top:16px;font-size:14px}
+.measurements dd{margin:4px 0 0;color:var(--sub);font-size:14px;overflow-wrap:anywhere}
+.related{padding:0;max-width:760px}
+.related li{margin:14px 0}
+@media(max-width:640px){.wrap{padding:0 18px}header.post h1{font-size:clamp(25px,7vw,34px)}figure{margin:28px 0}.measurements{padding:14px}.credit-card{padding:20px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header sh-works">
+  <button class="sh-hb" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+        <a href="https://locahun3d.com/en/properties"><span class="code">0.1</span>Properties</a>
+        <a href="https://locahun3d.com/en/pricing"><span class="code">0.2</span>Pricing / Demo</a>
+        <a href="/en/works/index.html"><span class="code">0.3</span>Works &amp; Blog</a>
+        <a href="https://locahun3d.com/en/contact"><span class="code">0.4</span>Contact</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/en" class="sh-brand" aria-label="Locahun3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">Locahun3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/works/blender-lcc2-vfx.html" aria-label="Language">JA</a>
+  </div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Back to Works &amp; Blog</a>
+</div>
+
+<div class="wrap">
+
+<header class="post">
+  <div class="post-meta">BLENDER / LCC2 / VFX · 2026-09-14</div>
+  <h1>Direct from LCC2 to Blender: using 3DGS for VFX</h1>
+  <p class="lead">A local prototype that loads the full scene without an intermediate PLY and exports footage and compositing passes.</p>
+</header>
+<article>
+  <p>I am Kou from Locahun3D. I built a local Blender prototype that reads LCC2 directly, renders the full Shibuya scene as stills and footage, and sends depth, masks, lighting and motion information to the compositor. Here is how I use those passes to finish a scanned background together with CG added in Blender.</p>
+  <aside class="callout note"><b>What this article covers</b>This is a local prototype tested in my own environment. It is not a publicly distributed addon or an official XGRIDS plugin. This article does not claim it is faster or more memory-efficient than other formats or products.</aside>
+  <h2 id="video"><span class="n">01</span> Start with the feature video</h2>
+  <figure>
+    <video controls playsinline preload="metadata" poster="/works/images/blender-lcc2-vfx/poster.jpg" width="1920" height="1080" aria-label="Feature video of the direct-LCC2 Blender prototype" aria-describedby="video-caption" src="/works/videos/blender-lcc2-vfx-intro.mp4">If playback is unavailable, <a href="/works/videos/blender-lcc2-vfx-intro.mp4">open the MP4</a>.</video>
+    <figcaption id="video-caption">An edited overview combining full-scene rendering with actual exported VFX passes. The camera-motion material used in the video is a five-second sequence of 120 individually rendered frames.</figcaption>
+  </figure>
+  <p>The original 120 frames contain no interpolation or duplicated-frame padding. The 24fps figure describes playback, not interactive Blender performance.</p>
+  <nav class="toc" aria-label="Contents"><div class="toc-title">In this article</div><ol>
+    <li><a href="#blender">Working in Blender</a></li><li><a href="#memory">File size is not memory usage</a></li><li><a href="#passes">Passes for compositing</a></li><li><a href="#lighting">What lighting can and cannot do</a></li><li><a href="#measurements">Test conditions</a></li><li><a href="#summary">From a background to compositing material</a></li>
+  </ol></nav>
+  <h2 id="blender"><span class="n">02</span> Working in Blender</h2>
+  <p>First, point the prototype at the LCC2 source and load the full scene through its dedicated renderer. There is no intermediate PLY file. For this test, I retain the entire scan without cropping or decimation.</p>
+  <p>Next, frame the shot with a Blender camera and add the CG objects and lights the shot needs. Use F12 for a still, or animate the camera and render a sequence. Enable only the VFX passes needed by the compositor. These extra passes are F12 outputs, not additional passes continuously rendered in the viewport.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/blender-ui.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/blender-ui.jpg" alt="The full scanned scene and added blue box in the Blender viewport"></a><figcaption>The full scan and added mesh share the same Blender scene. The blue test box is added CG, not part of the scan.</figcaption></figure>
+  <p>The imported 3DGS does not become a conventional editable mesh. Editing buildings as faces and vertices, or reconstructing unobserved backsides, is outside this workflow.</p>
+  <h2 id="memory"><span class="n">03</span> File size is not memory usage</h2>
+  <p>Reading LCC2 directly removes the intermediate PLY export step. However, the size of the compressed source does not equal RAM or VRAM usage during rendering.</p>
+  <p>The renderer decodes the source and prepares CPU arrays and GPU-resident data. Depth sorting, output images, additional passes and shadow calculations also require memory. Storage size and working memory must be evaluated separately.</p>
+  <p>I did not measure peak RAM and VRAM across the full VFX workflow in this test. I therefore do not infer memory savings from the compressed file size.</p>
+  <h2 id="passes"><span class="n">04</span> Passes for compositing</h2>
+  <p>Alongside the finished Combined image, the renderer exports separate information for specific compositing tasks. Treat color and brightness images separately from numeric data such as distance and object identity.</p>
+  <h3>Depth and Mist: adjust by distance</h3>
+  <p>Depth is the opacity-weighted expected camera distance of overlapping splats. ZFront gives the distance to the nearest splat center that meets the opacity condition, or to an added opaque mesh fragment. Mist supplies a distance-dependent compositing weight for effects such as haze or distant color adjustments.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/depth-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/depth-comparison.jpg" alt="Display previews of Depth, Mist and approximate Normal from the same view"></a><figcaption>Display previews of Depth, Mist and Normal. Depth is normalized to a visible range, and Normal shows approximate orientation as color. ZFront is not a reconstruction of the scan's exact surface geometry.</figcaption></figure>
+  <h3>Masks and Cryptomatte: separate the scan from added CG</h3>
+  <p>GaussianMask isolates the scan as a whole; MeshMask isolates added opaque meshes. IndexOB gives an integer identity for the frontmost accepted target. Cryptomatte selects the entire scan dataset and added objects or instances.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/masks-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/masks-comparison.jpg" alt="Masks separating the scanned scene from the added blue box"></a><figcaption>Adjust the blue box separately from the scanned city. This does not automatically segment individual buildings within the scan.</figcaption></figure>
+  <p>I tested Cryptomatte by reopening the saved EXR in Blender and extracting the selected target. I have not tested it in the Nuke application.</p>
+  <h3>Vector and MotionValid: finish moving shots</h3>
+  <p>Feed Vector into Blender's Vector Blur to add blur from camera motion and mesh motion with stable correspondence. MotionValid marks where that correspondence is usable. It helps distinguish unsupported cases, including topology-changing deformation, from genuinely stationary geometry.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/vector-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/vector-comparison.jpg" alt="A same-frame crop of the added blue box, comparing Combined and Vector Blur"></a><figcaption>A same-frame crop around the added mesh compares Combined with the Vector Blur result. The pass does not correctly reconstruct newly revealed areas behind moving objects.</figcaption></figure>
+  <aside class="callout note"><b>Keep compositing data in EXR</b>Use lossless 32-bit float EXR for distances, masks and identity information, without applying display color transforms to the numeric data. The JPEGs in this article are explanatory previews, not numeric compositing assets.</aside>
+  <h2 id="lighting"><span class="n">05</span> What lighting can and cannot do</h2>
+  <p>Add Sun, Point, Spot and Area lights to apply approximate lighting and shadows to the scan and added meshes. CapturedColor provides the captured color, Ambient the ambient-side contribution, and AddedLighting the added-light contribution. UnshadowedLighting and ShadowLoss separate the added lighting from its shadow loss.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/lighting-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/lighting-comparison.jpg" alt="Display previews of CapturedColor, AddedLighting and ShadowLoss"></a><figcaption>Lighting passes are adjusted for display. This is a compositing decomposition, not a physical material decomposition.</figcaption></figure>
+  <p>CapturedColor retains illumination and shadows from the capture. It is not unlit albedo: adding a new light does not remove shadows already present in the scan. The prototype does not recover materials or roughness, recompute global illumination, or provide Cycles-equivalent physical rendering.</p>
+  <p>Treat these as signed scene-linear compositing contributions. Ambient plus AddedLighting plus Background reconstructs Combined; UnshadowedLighting minus ShadowLoss gives AddedLighting. I also verified these relationships through compositing from a saved EXR.</p>
+  <h2 id="measurements"><span class="n">06</span> Test conditions</h2>
+  <p>I reopened the saved scene, rendered the full scene with F12 and composited from saved EXRs. These measurements apply to this environment and scene, not automatically to other PCs or datasets.</p>
+  <details class="measurements"><summary>Open the measured environment and outputs</summary><dl>
+    <dt>Environment</dt><dd>Blender 5.1.2 / NVIDIA RTX 5090</dd>
+    <dt>Full scene</dt><dd>34,803,455 splats, without cropping or decimation</dd>
+    <dt>Stills</dt><dd>1920 × 1080 / 32-bit float / lossless ZIP EXR / 52 channels including Composite</dd>
+    <dt>First F12 after reopening</dt><dd>13.812 seconds for this single still render</dd>
+    <dt>Original motion material</dt><dd>1280 × 720 / 120 individually rendered frames / 24fps / five seconds</dd>
+    <dt>Compositing</dt><dd>Saved-EXR lighting reconstruction, masks, Cryptomatte and Vector Blur tested in Blender</dd>
+  </dl></details>
+  <p>13.812 seconds is not a real-time FPS measurement. The PLY in my earlier article differs in point count, retained data and rendering conditions, so I do not directly rank render time or memory usage against it.</p>
+  <h2 id="summary"><span class="n">07</span> From a background to compositing material</h2>
+  <p>The prototype connects direct full-scene LCC2 loading, Blender camera rendering and pass export for compositing. I use it to preserve the captured scene while adjusting added CG and visual effects separately. It does not make the original illumination or missing geometry freely reconstructable.</p>
+</article>
+<section class="related" aria-labelledby="related-h"><h2 id="related-h">Related articles</h2><ul>
+  <li><a href="/en/works/3dgs-blender-workflow.html">Which Blender 3DGS workflow? Image quality, render time and motion tests</a></li>
+  <li><a href="/en/works/3dgs-file-formats.html">Understanding 3DGS file formats</a></li>
+  <li><a href="/en/works/ue5-xgrids-3dgs-aerial-ai.html">Finishing footage with UE5, XGRIDS and AI</a></li>
+</ul></section>
+<section class="credit">
+  <div class="ey">Credits</div>
+  <h2>Credits</h2>
+  <div class="credit-card">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <div>
+      <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
+      <div class="crole">Founder, Locahun3D ／ Testing &amp; Writing</div>
+      <p>Founder of Locahun3D (LOCAHUN 3D).<br>I research and test capture workflows that combine 3DGS scanning with game engines and AI.</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow @Kou45388803 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>This article is a production note from <b>Locahun3D / LOCAHUN 3D</b>.<br>Feel free to reach out about 3DGS scanning, location scouting, VFX backgrounds, or AI production.</p>
+    <a class="cta" href="https://locahun3d.com/en/contact">Contact us →</a>
+
+  </div>
+</footer>
+<div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 Locahun3D — KWI Inc.</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/en/terms/service">Terms of Service</a>
+        <a href="https://locahun3d.com/en/privacy">Privacy Policy</a>
+        <a href="https://locahun3d.com/en/terms/tokushoho">Legal Notice</a>
+        <a href="https://locahun3d.com/en/terms/data-download">Data Purchase Terms</a>
+        <a href="https://locahun3d.com/en/contact/listing">List Your Location</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
