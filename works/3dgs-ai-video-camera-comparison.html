@@ -260,362 +260,92 @@ article .duo figure{max-width:100%;margin:0}
 静止画と動画入力で、回り込みはどう変わる？</h1><p class="lead">渋谷の3DGSを使い、静止画の仕上げと動画の形状保持を比較します。
 
 </p></header>
-<article><p>ロケハン3Dの中村です。
-
-<br />渋谷の3DGSを写真調に仕上げる工程を、静止画、Klingによる動画化、回り込みの順に比較します。
-
-<br />各結果を単独で見た後に、横並びで確認します。
-
-</p><nav class="toc" aria-label="Contents"><h2>目次</h2><ol><li><a href="#stills"> 静止画を仕上げる</a></li><li><a href="#kling"> Klingで動画にする</a></li><li><a href="#orbit"> 回り込みを比較する</a></li><li><a href="#production-workflow">合成用の背景へ</a></li></ol></nav><p>価格はRunwayの追加購入単価によるUSドル換算です。<br>
-月額料金・撮影・作業・電気代は含みません。<br>
-今回の追加購入はありません。
-
-</p><p><a href="https://help.runwayml.com/hc/en-us/articles/23987639973267-Will-unused-credits-carry-over-after-my-billing-day">換算根拠：1クレジット＝US$0.01</a></p><h2 id="stills"><span class="n">01</span> 静止画を仕上げる</h2><p>同じ3DGSレンダーを入力し、晴れた真昼の建築写真へ仕上げます。<br>
-入力画像と文章は共通ですが、出力の縦横比設定は一致していません。
-
-</p><h3>共通の入力</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/source.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/source.png" alt="入力した3DGSレンダー。
+<article><p>ロケハン3Dの中村です。<br>
+以前、渋谷の3DGSから切り出した画像をGPTで仕上げたところ、狙っていた写真らしい見た目になりました。<br>
+この質感を、カメラが動く動画にも持ち込めないか。<br>
+今回は静止画の仕上げから始めて、Kling、Wan、Seedance、Alephで試しています。</p><nav class="toc" aria-label="Contents"><h2>目次</h2><ol><li><a href="#stills"> 静止画を仕上げる</a></li><li><a href="#kling"> Klingで動画にする</a></li><li><a href="#orbit"> 回り込みを比較する</a></li><li><a href="#production-workflow">仕上がりを画像で決める</a></li></ol></nav><p>画像と動画には、それぞれ生成にかかった価格を添えています。<br>
+Runwayの追加購入単価でUSドルに換算した金額で、月額料金や撮影・作業費は含みません。</p><p><a href="https://help.runwayml.com/hc/en-us/articles/23987639973267-Will-unused-credits-carry-over-after-my-billing-day">換算根拠：1クレジット＝US$0.01</a></p><h2 id="stills"><span class="n">01</span> 静止画を仕上げる</h2><p>まずは、同じ3DGS画像をNano BananaとSeedreamで仕上げます。<br>
+指示はどちらも「晴れた真昼の建築写真」。<br>
+モデルによって、明るさや質感だけでなく、構図がどのくらい変わるかも見ていきます。<br>
+出力の縦横比はそれぞれの設定による違いがあります。</p><h3>共通の入力</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/source.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/source.png" alt="入力した3DGSレンダー。
 
  静止画比較はこの画像を共通の入力にしています。
 
- "></a><figcaption>入力した3DGSレンダー。
-
-<br />
-静止画比較はこの画像を共通の入力にしています。
-
-<br />
-<br /><b>AI生成料金なし（描画・作業費は未計測）。
-
-</b></figcaption></figure><h3>目標の参考：GPT</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/gpt.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/gpt.png" alt="以前GPTで仕上げた画像。
+ "></a><figcaption>共通の入力にした3DGSのレンダー。</figcaption></figure><h3>きっかけになったGPTの画像</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/gpt.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/gpt.png" alt="以前GPTで仕上げた画像。
 
  今回の目標とする写真らしさの参考です。
 
  同条件で再生成した比較結果ではありません。
 
- "></a><figcaption>以前GPTで仕上げた画像。
-
-<br />
-今回の目標とする写真らしさの参考です。
-
-<br />
-同条件で再生成した比較結果ではありません。
-
-<br />
-<br /><b>以前のGPT画像：個別料金は記録なし。
-
-</b></figcaption></figure><h3>Nano Banana Pro</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/nano.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/nano.png" alt="Nano Banana Pro。
+ "></a><figcaption>以前GPTで仕上げた一枚。今回も、この写真らしさを目指します。<br>当時の個別料金は記録していません。</figcaption></figure><h3>Nano Banana Pro</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/nano.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/nano.png" alt="Nano Banana Pro。
 
  明るい露出と写真らしい材質へ変化しますが、構図や細部も変わります。
 
- "></a><figcaption>Nano Banana Pro。
-
-<br />
-明るい露出と写真らしい材質へ変化しますが、構図や細部も変わります。
-
-<br />
-<br /><b>生成費：US$0.20相当。
-
-</b></figcaption></figure><h3>Seedream 5.0 Pro</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream.png" alt="Seedream 5.0 Pro。
+ "></a><figcaption>Nano Banana Pro。明るい外壁と路面の質感が目を引きます。<br><b>US$0.20相当</b></figcaption></figure><h3>Seedream 5.0 Pro</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream.png" alt="Seedream 5.0 Pro。
 
  元に近い画角が残る一方、暗さとスキャンの粗さも残ります。
 
- "></a><figcaption>Seedream 5.0 Pro。
-
-<br />
-元に近い画角が残る一方、暗さとスキャンの粗さも残ります。
-
-<br />
-<br /><b>生成費：US$0.09相当。
-
-</b></figcaption></figure><p>今回のNanoは明るさと写真らしい質感が出ました。<br>
-Seedreamは元に近い画角ですが、暗さとスキャンの粗さが残ります。<br>
-構図や細部は両方で変化しており、この結果だけでモデル全体の順位は決めません。
-
-</p><h3>静止画を横並びで確認</h3><div class="duo"><figure><a href="/works/images/3dgs-ai-video-camera-comparison/nano.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/nano.png" alt="Nano Banana Pro。
+ "></a><figcaption>Seedream 5.0 Pro。元に近い画角で、スキャンの暗さや粗さも残っています。<br><b>US$0.09相当</b></figcaption></figure><p>この一枚では、Nano Bananaの明るさと写真らしい材質が印象的です。<br>
+Seedreamは元の画角に近いものの、もう少し仕上げたくなる暗さが残りました。<br>
+ただ、どちらも看板や建物の細部は描き直しています。<br>
+見栄えの良さと、元の場所をどこまで残すかは、別々に見た方がよさそうです。</p><h3>静止画を横並びで確認</h3><div class="duo"><figure><a href="/works/images/3dgs-ai-video-camera-comparison/nano.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/nano.png" alt="Nano Banana Pro。
 
  明るい露出と写真らしい材質へ変化しますが、構図や細部も変わります。
 
- "></a><figcaption>Nano Banana Pro。
-
-<br />
-明るい露出と写真らしい材質へ変化しますが、構図や細部も変わります。
-
-<br />
-<br /><b>生成費：US$0.20相当。
-
-</b></figcaption></figure><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream.png" alt="Seedream 5.0 Pro。
+ "></a><figcaption>Nano Banana Pro<br><b>US$0.20相当</b></figcaption></figure><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream.png" alt="Seedream 5.0 Pro。
 
  元に近い画角が残る一方、暗さとスキャンの粗さも残ります。
 
- "></a><figcaption>Seedream 5.0 Pro。
-
-<br />
-元に近い画角が残る一方、暗さとスキャンの粗さも残ります。
-
-<br />
-<br /><b>生成費：US$0.09相当。
-
-</b></figcaption></figure></div><h2 id="kling"><span class="n">02</span> Klingで動画にする</h2><p>上の2枚をKling 3.0 Proに渡し、同じ指示で3秒の前進動画にします。<br>
-Seedream画像は中央で16:9に切り出しています。
-
-</p><h3>Nano Banana画像から</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-kling-nano.mp4" aria-label="画像＋動画の生成費：US$0.56相当。
-
-"></video><figcaption>画像＋動画の生成費：US$0.56相当。
-
-</figcaption></figure><h3>Seedream画像から</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-kling-seedream.mp4" aria-label="画像＋動画の生成費：US$0.45相当。
-
-"></video><figcaption>画像＋動画の生成費：US$0.45相当。
-
-</figcaption></figure><p>写真らしさは引き継がれますが、両方とも元は黒い画面に広告や人物を追加します。<br>
-場所の細部を固定する用途では未合格です。
-
-</p><h3>横並びで確認</h3><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/stills-motion.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-stills-motion.mp4" aria-label="左：Nano Banana Proから動画化。
-
- 右：Seedreamから動画化。
-
- どちらもKling 3.0 Pro。
-
- "></video><figcaption>左：Nano Banana Proから動画化。
-
-<br />
-右：Seedreamから動画化。
-
-<br />
-どちらもKling 3.0 Pro。
-
-<br />
-<br /><b>完成まで：左 US$0.56相当／右 US$0.45相当（画像＋動画）。
-
-</b></figcaption></figure><h2 id="orbit"><span class="n">03</span> 回り込みを比較する</h2><p>基準はBlenderのLCC2_DIRECTで描画したFHD・3秒・6度の回り込みです。<br>
-撮影時の色を使い、追加照明なし。<br>
-前章とはカメラも入力素材も異なります。
-
-</p><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-source.mp4" aria-label="基準の3DGS動画。
-
-ローカル描画費は未計測。
-
-"></video><figcaption>基準の3DGS動画。
-
-ローカル描画費は未計測。
-
-</figcaption></figure><h3 id="wan">Wan 3.0</h3><p>同じ指示・FHD・3秒で、先頭画像のみと動画参照を比較します。
-
-</p><h3>先頭画像のみ</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-wan-image.mp4" aria-label="生成費：US$0.60相当。
-
-画角と街路の形状が大きく変わります。
-
-"></video><figcaption>生成費：US$0.60相当。
-
-画角と街路の形状が大きく変わります。
-
-</figcaption></figure><h3>3DGS動画を参照</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-wan-video.mp4" aria-label="生成費：US$0.60相当。
-
-元に近い動きですが、文字・窓割り・顔は変わります。
-
-"></video><figcaption>生成費：US$0.60相当。
-
-元に近い動きですが、文字・窓割り・顔は変わります。
-
-</figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/orbit-inputs.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-orbit-inputs.mp4" aria-label="左：先頭画像のみを入力。
-
- 右：3DGS動画を参照入力。
-
- どちらもWan 3.0、FHD、3秒。
-
- "></video><figcaption>左：先頭画像のみを入力。
-
-<br />
-右：3DGS動画を参照入力。
-
-<br />
-どちらもWan 3.0、FHD、3秒。
-
-<br />
-<br /><b>生成費：左 US$0.60相当／右 US$0.60相当。
-
-</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/orbit-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-orbit-source.mp4" aria-label="左：Blenderで描画した元の3DGS動画。
-
- 右：その動画を参照したWan 3.0の結果。
-
- "></video><figcaption>左：Blenderで描画した元の3DGS動画。
-
-<br />
-右：その動画を参照したWan 3.0の結果。
-
-<br />
-<br /><b>右の生成費：US$0.60相当（同じ結果を再掲）。
-
-</b></figcaption></figure><h3 id="seedance">Seedance 2.5</h3><p>同じ3DGS動画を使い、補助画像なし・ありを同じ文章、FHD、4秒で比較します。<br>
-最初の3秒は元の動き、最後の1秒は停止を指示しました。
-
-</p><h3>補助画像</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream-orbit-reference.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream-orbit-reference.png" alt="今回の3DGS動画の先頭フレームからSeedreamで仕上げた補助画像"></a><figcaption>今回使用したSeedreamの補助画像。
-
-大きな文字やポスターは概ね残りますが、細かな文字・窓割りまで元画像と完全一致ではありません。
-
-<br /><b>補助画像の生成費：US$0.09相当。
-
-</b></figcaption></figure><h3>3DGS動画のみ</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-video.mp4" aria-label="生成費：US$3.74相当。
-
-DMMポスターの消失と文字の変更が発生。
-
-"></video><figcaption>生成費：US$3.74相当。
-
-DMMポスターの消失と文字の変更が発生。
-
-</figcaption></figure><h3>3DGS動画＋Seedream補助画像</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-image.mp4" aria-label="補助画像込み：US$3.83相当。
-
-路面・ガラス・ポスター保持が改善。
-
-ただし細部は不一致。
-
-"></video><figcaption>補助画像込み：US$3.83相当。
-
-路面・ガラス・ポスター保持が改善。
-
-ただし細部は不一致。
-
-</figcaption></figure><p>補助画像ありでも窓割りや小文字が変わり、右側に元の先頭画像にはないSTARBUCKS表記が加わります。<br>
-文字と形状の完全保持には未合格です。
-
-</p><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/seedance-reference-ab.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-reference-ab.mp4" aria-label="左：3DGS動画のみ。
-
-右：同じ動画＋Seedream補助画像。
-
-両方ともSeedance 2.5、FHD。
-
-"></video><figcaption>左：3DGS動画のみ。
-
-右：同じ動画＋Seedream補助画像。
-
-両方ともSeedance 2.5、FHD。
-
-<br /><b>完成まで：左 US$3.74相当／右 US$3.83相当（右は補助画像込み）。
-
-</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/seedance-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-source.mp4" aria-label="左：元の3DGS動画。
-
-右：Seedance＋補助画像。
-
-最初の3秒を同じ再生時刻で比較。
-
-"></video><figcaption>左：元の3DGS動画。
-
-右：Seedance＋補助画像。
-
-最初の3秒を同じ再生時刻で比較。
-
-<br /><b>右の生成費：US$3.83相当（補助画像込み・同じ結果を再掲）。
-
-</b></figcaption></figure><h3>WanとSeedanceを見比べる</h3><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/wan-seedance.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-wan-seedance.mp4" aria-label="左：Wan 3.0に3DGS動画を入力。
-
-右：Seedance 2.5に動画＋補助画像を入力。
-
-最初の3秒の比較。
-
-"></video><figcaption>左：Wan 3.0に3DGS動画を入力。
-
-右：Seedance 2.5に動画＋補助画像を入力。
-
-最初の3秒の比較。
-
-<br /><b>完成まで：左 US$0.60相当／右 US$3.83相当（右は補助画像込み・既出の結果を再掲）。
-
-</b></figcaption></figure><p>ここはモデルに加え、文章・補助画像・指定尺も異なる工程比較です。<br>
-Seedance＋補助画像は今回の組み合わせでは晴天の光と質感が良好ですが、モデル単体の優劣とは断定しません。
-
-</p><h2>カメラと形状をどこまで守れるか</h2><p>同じ元動画を渡しても、生成結果のカメラは完全一致していません。<br>
-画像列を参照として渡しており、Blenderの位置・回転・焦点距離を拘束として渡しているわけではないためです。
-
-<br />同じ時刻の横比較も、同じ視点を保証しません。
-
-<br />
-
-合成による看板の復元や、カメラの完全一致はまだ実証していません。
-
-</p><p>掲載した生成結果の合計：US$10.62相当。<br>
-比較から除外したEdit試行US$1.65相当を含めるとUS$12.27相当です。<br>
-再掲は二重計上せず、以前のGPT画像と記事外の過去試行は含めません。
-
-</p><details><summary>Seedanceの条件と費用</summary><p>比較は各条件1回ずつで、再現性や大きな回転は未検証です。
-
-<br />
-両原動画は1920×1080、24fps、約4秒。<br>
-AIアップスケールや色補正は加えていません。
-
-<br />
-Wanとの横並び版のみ30fpsから24fpsへフレームを選択し、3秒で切っています。
-
-<br />
-補助画像は残高差9、FHD動画は各374で、この比較工程は計757クレジットでした。
-
-<br />
-先に試したEditモードは720p・約4秒となったためFHD比較から除外し、別途165クレジットを消費しました。
-
-<br />
-今回の追加購入はありません。<br>
-Nano Bananaはこの画面で生成受付に至らず、補助画像にはSeedreamを使用しました。
-
-</p></details><details><summary>比較条件と消費クレジット</summary><p>Runwayを使用。
-
-<br />
-
-静止画2枚は残高差で29、Klingの動画2本は72、Wanの回り込み2本は120クレジットを消費しました。
-
-<br />
-
-静止画のうちSeedreamは公称料金と残高差に相違があるため、29は実際の残高差として記載しています。
-
-<br />
-
-比較動画は横に並べた編集版で、AIアップスケールや色補正は加えていません。
-
-<br />
-
-元の3DGS動画は24fps、Wan出力は30fpsです。
-
-<br />
-
-左右比較版のみフレームの重複・選択で再生速度をそろえています。
-
-<br />
-
-料金体系は<a href="https://academy.runwayml.com/models-pricing">Runway公式料金表</a>で確認できます。
-
-<br />
-</p></details><section aria-labelledby="production-workflow"><h2 id="production-workflow"><span class="n">04</span> 仕上げ画像と3DGSを組み合わせ、合成用の背景へ</h2>
-<p>今回の結果から、Seedreamで補助画像の見た目を先に決め、3DGS動画で構図と動きを渡す構成を制作の基本方針にします。<br>
-写真らしい材質とポスターの保持は改善しました。<br>
-ただし、現時点で忠実な再現を保証する工程にはなっていません。<br>
-見た目の管理と、カメラ・文字・形状の固定を分けて仕上げます。
-</p>
-<h3>Seedanceも仕上げの候補</h3><p>Seedanceも、Seedream補助画像を併用すると晴天の質感とポスター保持が改善しました。<br>
-細字・窓割りの変更や不要な看板表記が残るため、場所を厳密に再現する用途では未合格です。<br>
-補助画像込みの費用は約4秒でUS$3.83相当、今回のAlephは3秒でUS$0.93相当。<br>
-条件が違うため、品質の優劣は断定しません。
-
-</p><h3>カメラと照明に残る課題</h3><p>3DGS動画を参照しても、生成側でカメラや建物の形状が変わります。<br>厳密な合成では、元のカメラによる描画と全フレームを照合する必要があります。<br>また、FHDの出力でも細字や窓枠が鮮明になるとは限りません。</p><p>照明は太陽の方向、影の硬さ、露出を先に決め、補助画像と追加するCGで揃えます。<br>ただし、撮影時の影は3DGSの色に含まれ、ライトを加えるだけでは消えません。<br>今回の検証では、照明の自由な変更やCGの接地・影の合成までは確認していません。</p><h3>生成結果：Seedream＋Aleph 2.0</h3><p>Seedreamの仕上げ画像を編集済みの先頭フレームとして登録し、Aleph 2.0 Edit Studioで元の3DGS動画へ展開しました。<br>
-取得した原寸動画は1920×1080、24fps、72フレームです。<br>
-AIアップスケールと色補正は加えていません。
-</p><figure><video class="single" controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/aleph-final.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-aleph-final.mp4" aria-label="Seedream補助画像＋Aleph 2.0。
-FHD・3秒。
-動画生成US$0.84相当、補助画像込みUS$0.93相当。
-"></video><figcaption>Seedream補助画像＋Aleph 2.0。
-FHD・3秒。
-動画生成US$0.84相当、補助画像込みUS$0.93相当。
-</figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/aleph-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-aleph-source.mp4" aria-label="左：元の3DGS。
-右：Aleph。
-再生時刻を揃えた比較で、形状の完全一致を示すものではありません。
-"></video><figcaption>左：元の3DGS。
-右：Aleph。
-再生時刻を揃えた比較で、形状の完全一致を示すものではありません。
-</figcaption></figure><p>晴天の見た目と大きなDMMポスターは引き継がれています。<br>
-一方、看板の細字・ポスターの顔・路面の細部には描き替えが残ります。<br>
-回り込みは元動画に概ね沿いますが、カメラと形状の完全一致は実証できていません。<br>
-今回は生成した背景候補として掲載し、合成用の完成品とは判定しません。<br>
-制作に使う際は、文字と形状の補修、CGを置いた接地と影の確認が必要です。
-</p><details><summary>生成時の設定と費用</summary><p>このアカウントではUnlimitedモードが今回の生成に対応せず、既存クレジットを使うモードへ切り替えると生成できました。<br>
-追加購入はありません。<br>
-残高差84クレジット、US$0.84相当です。<br>
-補助画像US$0.09相当は再利用し、記事の合計では二重計上していません。
-</p></details></section></article>
+ "></a><figcaption>Seedream 5.0 Pro<br><b>US$0.09相当</b></figcaption></figure></div><h2 id="kling"><span class="n">02</span> Klingで動画にする</h2><p>次に、この2枚をKling 3.0 Proで動かしてみます。<br>
+どちらも3秒の前進を指示しました。<br>
+Seedreamの画像は、中央を16:9に切り出して使っています。</p><h3>Nano Banana画像から</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-kling-nano.mp4" aria-label="画像＋動画の生成費：US$0.56相当。"></video><figcaption>画像＋動画の生成費：US$0.56相当。
+
+</figcaption></figure><h3>Seedream画像から</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-kling-seedream.mp4" aria-label="画像＋動画の生成費：US$0.45相当。"></video><figcaption>画像＋動画の生成費：US$0.45相当。
+
+</figcaption></figure><p>静止画の写真らしさは、動画にもつながっています。<br>
+気になるのは、黒かった広告画面に人物や広告が現れること。<br>
+街の雰囲気を作るには使えても、実在する看板までそのまま動かしたい場合は、ここが引っかかります。</p><h3>横並びで確認</h3><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/stills-motion.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-stills-motion.mp4" aria-label="左：Nano Bananaの画像から。右：Seedreamの画像から。動画生成はどちらもKling 3.0 Pro。 画像＋動画：左 US$0.56／右 US$0.45相当"></video><figcaption>左：Nano Bananaの画像から。右：Seedreamの画像から。動画生成はどちらもKling 3.0 Pro。<br><b>画像＋動画：左 US$0.56／右 US$0.45相当</b></figcaption></figure><h2 id="orbit"><span class="n">03</span> 回り込みを比較する</h2><p>前進だけでなく、建物を少し横から見る動きも試します。<br>
+BlenderのLCC2_DIRECTで、3秒かけて6度回り込むFHD動画を用意しました。<br>
+追加のライトは使わず、3DGSに記録された色で描画しています。<br>
+ここからは、このカメラと動画が比較の出発点です。</p><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-source.mp4" aria-label="Blenderで描画した、元の3DGS動画。"></video><figcaption>Blenderで描画した、元の3DGS動画。</figcaption></figure><h3 id="wan">Wan 3.0</h3><p>Wan 3.0には、先頭の一枚だけを渡す場合と、3DGS動画を丸ごと渡す場合を比べました。<br>
+文章の指示と、FHD・3秒の設定は揃えています。</p><h3>先頭画像のみ</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-wan-image.mp4" aria-label="先頭画像だけでは、街路の形や画角も大きく変わりました。 US$0.60相当"></video><figcaption>先頭画像だけでは、街路の形や画角も大きく変わりました。<br><b>US$0.60相当</b></figcaption></figure><h3>3DGS動画を参照</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-wan-video.mp4" aria-label="動画を渡すと元に近い動きに。ただし、窓や文字は描き直されています。 US$0.60相当"></video><figcaption>動画を渡すと元に近い動きに。ただし、窓や文字は描き直されています。<br><b>US$0.60相当</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/orbit-inputs.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-orbit-inputs.mp4" aria-label="左：先頭画像のみ。右：3DGS動画を入力。 どちらもUS$0.60相当"></video><figcaption>左：先頭画像のみ。右：3DGS動画を入力。<br><b>どちらもUS$0.60相当</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/orbit-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-orbit-source.mp4" aria-label="左：元の3DGS動画。右：動画を参照したWanの結果。"></video><figcaption>左：元の3DGS動画。右：動画を参照したWanの結果。</figcaption></figure><h3 id="seedance">Seedance 2.5</h3><p>Seedance 2.5では、元動画に「仕上がりの見本」を添えるとどう変わるかを見ます。<br>
+同じ動画と指示で、Seedreamの補助画像がない場合と、ある場合を生成しました。<br>
+指定はFHD・4秒で、最初の3秒は元の動き、最後の1秒は停止です。</p><h3>補助画像</h3><figure><a href="/works/images/3dgs-ai-video-camera-comparison/seedream-orbit-reference.png"><img loading="lazy" src="/works/images/3dgs-ai-video-camera-comparison/seedream-orbit-reference.png" alt="今回の3DGS動画の先頭フレームからSeedreamで仕上げた補助画像"></a><figcaption>動画の先頭フレームをSeedreamで仕上げた参照画像。大きな看板は残っていますが、小さな文字や窓割りには描き替えがあります。<br><b>US$0.09相当</b></figcaption></figure><h3>3DGS動画のみ</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-video.mp4" aria-label="動画だけを渡した結果。DMMのポスターが消えています。 US$3.74相当"></video><figcaption>動画だけを渡した結果。DMMのポスターが消えています。<br><b>US$3.74相当</b></figcaption></figure><h3>3DGS動画＋Seedream補助画像</h3><figure><video class="single" controls playsinline preload="metadata" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-image.mp4" aria-label="補助画像を添えると、ポスターが残り、路面やガラスの質感も変わりました。 画像＋動画：US$3.83相当"></video><figcaption>補助画像を添えると、ポスターが残り、路面やガラスの質感も変わりました。<br><b>画像＋動画：US$3.83相当</b></figcaption></figure><p>補助画像の効果は、ポスターを見ると分かりやすいです。<br>
+動画だけでは消えた絵柄が、画像を添えると残りました。<br>
+ただ、右側には元の先頭画像になかったSTARBUCKSの文字も現れています。<br>
+仕上がりの方向は伝わっていても、細部まで固定する指示としては働いていないようです。</p><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/seedance-reference-ab.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-reference-ab.mp4" aria-label="左：3DGS動画のみ。右：Seedreamの補助画像を追加。 左 US$3.74／右 US$3.83相当（右は画像込み）"></video><figcaption>左：3DGS動画のみ。右：Seedreamの補助画像を追加。<br><b>左 US$3.74／右 US$3.83相当（右は画像込み）</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/seedance-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-seedance-source.mp4" aria-label="左：元の3DGS動画。右：Seedance＋補助画像。最初の3秒を並べています。"></video><figcaption>左：元の3DGS動画。右：Seedance＋補助画像。最初の3秒を並べています。</figcaption></figure><h3>WanとSeedanceを見比べる</h3><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/wan-seedance.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-wan-seedance.mp4" aria-label="左：Wanに動画を入力。右：Seedanceに動画と補助画像を入力。 左 US$0.60／右 US$3.83相当"></video><figcaption>左：Wanに動画を入力。右：Seedanceに動画と補助画像を入力。<br><b>左 US$0.60／右 US$3.83相当</b></figcaption></figure><p>並べると、Seedance＋補助画像の晴天らしい光と材質が目を引きます。<br>
+ここではモデルだけでなく、補助画像や文章、指定した長さも違います。<br>
+「どのモデルが一番か」というより、素材の渡し方も含めて、どの組み合わせで狙った見た目に近づけるかを見る比較です。</p><h2>元動画を渡せば、カメラも同じになる？</h2><p>動画を参照させると、静止画一枚より元の動きに近づきました。<br>
+それでも、同じ時刻で止めると建物の位置や形がずれます。<br>
+今回渡しているのはレンダーした画像列で、Blenderのカメラデータそのものではありません。<br>
+3DGSで決めたカメラを、そのまま生成結果へ持ち込めるわけではない点は、合成を考えると大きな課題です。</p><p>ここまでと次のAlephを合わせた生成費は、US$10.62相当でした。<br>
+FHD比較から外したEditの試行も含めるとUS$12.27相当です。<br>
+同じ動画の再掲は重ねて数えず、以前のGPT画像と記事外の試行は含めていません。</p><details><summary>Seedanceの生成条件</summary><p>Seedanceは各条件を1回ずつ生成しました。<br>
+原動画はどちらもFHD・約4秒で、色補正やAIアップスケールはしていません。<br>
+Wanとの比較動画は、再生速度を変えずに最初の3秒を揃えています。<br>
+先に試したEditは720pだったため、ここには並べていません。</p></details><details><summary>料金と比較動画について</summary><p>生成にはRunwayを使い、料金は実際の残高差から換算しています。<br>
+横並びの動画は、生成結果を比較用に編集したものです。<br>
+元動画と生成結果でフレームレートが違うため、比較版ではフレームを選択・重複して再生時間を揃えました。<br>
+現在の料金は<a href="https://runwayml.com/pricing">Runwayの料金表</a>をご覧ください。</p></details><section aria-labelledby="production-workflow"><h2 id="production-workflow"><span class="n">04</span> 仕上がりを画像で決めて、動画へつなぐ</h2>
+<p>今回、手応えがあったのは、Seedreamで仕上がりの画像を作り、元の3DGS動画と一緒に渡す方法です。<br>
+動画だけで見た目まで指示するより、目指す光や材質を一枚で示せます。<br>
+この組み合わせを、最後にAlephでも試しました。</p>
+<h3>SeedanceとAleph、仕上がりと費用を見る</h3><p>Seedanceでは、補助画像を添えたことで晴天の質感とポスターの残り方が良くなりました。<br>
+費用は画像込みで約4秒がUS$3.83相当。<br>
+次のAlephは3秒でUS$0.93相当です。<br>
+長さや生成条件が違うので、価格だけで決めず、看板や窓の変わり方も見比べたいところです。</p><h3>CGと合わせるときに気になること</h3><p>写真らしく見えても、CGを重ねるときにはカメラや建物のずれが問題になります。<br>
+また、FHDという出力サイズだけでは細部の鮮明さは分かりません。<br>
+小さな文字や窓枠を見ると、まだ解像感が欲しくなります。</p><p>光の扱いにも注意が必要です。<br>
+3DGSには撮影時の影が色として残っているので、後からライトを足すだけでは、影の向きまで変えられません。<br>
+今回の動画にCGを加えるなら、まず背景の太陽や露出に合わせ、接地と影を詰めていくことになります。<br>
+そこは、今回の生成から先の作業です。</p><h3>Seedreamの画像をAlephで動画へ</h3><p>Seedreamで仕上げた画像を先頭フレームとして登録し、Aleph 2.0 Edit Studioに元の3DGS動画を渡しました。<br>
+下は、生成されたFHD・3秒の動画です。<br>
+追加の色補正やAIアップスケールはしていません。</p><figure><video class="single" controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/aleph-final.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-aleph-final.mp4" aria-label="Seedream＋Aleph 2.0。FHD・3秒。 画像＋動画：US$0.93相当（動画のみUS$0.84）"></video><figcaption>Seedream＋Aleph 2.0。FHD・3秒。<br><b>画像＋動画：US$0.93相当（動画のみUS$0.84）</b></figcaption></figure><figure><video controls playsinline preload="metadata" poster="/works/images/3dgs-ai-video-camera-comparison/aleph-source.jpg" src="/works/videos/3dgs-ai-video-camera-comparison-aleph-source.mp4" aria-label="左：元の3DGS。右：Aleph。同じ再生時刻で並べています。"></video><figcaption>左：元の3DGS。右：Aleph。同じ再生時刻で並べています。</figcaption></figure><p>晴れた路面やガラスの見え方が加わり、元の3DGSから写真に近づいた感触があります。<br>
+DMMの大きなポスターも残りました。<br>
+ただ、寄って見ると顔や小さな文字は別の描き方になっていて、回り込みにも元動画とのずれがあります。<br>
+一枚の仕上がりを動画へ広げる手段としては手応えがありますが、ロケ地をそのまま使うには、この細部をどう残すかが次の課題です。</p><details><summary>Alephの生成メモ</summary><p>今回は既存クレジットを使い、動画にUS$0.84相当かかりました。<br>
+Seedreamの画像は前の比較で作ったものを再利用しています。<br>
+画像代のUS$0.09相当を含め、1本の工程としてはUS$0.93相当です。</p></details></section></article>
 <section class="related" aria-labelledby="related-h"><h2 id="related-h">関連する記事</h2><ul>
   <li><a href="/works/3dgs-blender-workflow.html">Blenderで3DGSを使うなら？ 描画品質・処理時間・動画で比較</a></li>
   <li><a href="/works/3dgs-file-formats.html">3DGSのファイル形式を整理する</a></li>
