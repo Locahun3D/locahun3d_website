@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blender 5.3で3DGSがネイティブ対応。1,720万粒の渋谷で性能とVFX出力を検証｜ロケハン3D</title>
+<meta name="description" content="Blender 5.3アルファ版の3D Gaussian Splatting対応を、渋谷の全景データで検証。読み込み・描画速度・メモリと、透過・パス・CG合成・書き出しまで、VFXで使える範囲と止まる点をまとめます。">
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://web.locahun3d.com/works/blender-53-native-3dgs.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/blender-53-native-3dgs.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/blender-53-native-3dgs.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/blender-53-native-3dgs.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="Blender 5.3で3DGSがネイティブ対応。1,720万粒の渋谷で性能とVFX出力を検証">
+<meta property="og:description" content="Blender 5.3アルファ版の3D Gaussian Splatting対応を、渋谷の全景データで検証。読み込み・描画速度・メモリと、透過・パス・CG合成・書き出しまで、VFXで使える範囲と止まる点をまとめます。">
+<meta property="og:url" content="https://web.locahun3d.com/works/blender-53-native-3dgs.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/blender-53-native-3dgs/poster.jpg">
+<meta property="og:image:alt" content="Blender 5.3のEEVEEで描画した渋谷スクランブル交差点の3DGS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Blender 5.3で3DGSがネイティブ対応。1,720万粒の渋谷で性能とVFX出力を検証">
+<meta name="twitter:description" content="Blender 5.3アルファ版の3D Gaussian Splatting対応を、渋谷の全景データで検証。読み込み・描画速度・メモリと、透過・パス・CG合成・書き出しまで、VFXで使える範囲と止まる点をまとめます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/blender-53-native-3dgs/poster.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/works-header.css?v=a6ac8c58">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#1ea0c4; --brand-ink:#1ea0c4; --brand-bg:rgba(30,160,196,.08);
+    --accent2:#5ec8e8; --accent2-bg:rgba(94,200,232,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(30,160,196,.06); --note-line:rgba(30,160,196,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(30,160,196,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#5ec8e8);transition:width .1s linear}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+  .duo{display:grid;gap:14px;margin:38px 0}
+  @media(min-width:640px){.duo{grid-template-columns:1fr 1fr}}
+  .duo figure{margin:0}
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:560px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}
+  @media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}}
+  body{padding-top:56px}
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+  @media(max-width:719px){.backlink{min-height:44px}
+    .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+/* workflow-mobile-table */
+@media(max-width:600px){.tblwrap table{min-width:0;width:100%}.tblwrap thead{display:none}.tblwrap tbody,.tblwrap tr,.tblwrap td{display:block;width:auto}.tblwrap tr{border-bottom:1px solid var(--line)}.tblwrap td{border:0}.tblwrap td:first-child{padding-bottom:8px}.tblwrap td:last-child{padding-top:0}}
+
+/* Article-only readability and media layout; shared navigation is unchanged. */
+body{line-height:1.8;letter-spacing:.04em}
+.wrap,.backbar{max-width:1000px}
+header.post{padding-top:42px}
+.post-meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--brand);margin-bottom:16px}
+article>p,article>h2,article>h3,article>.toc,article>.callout,article>.measurements{max-width:760px;margin-left:auto;margin-right:auto}
+figure{width:100%;margin:36px 0}
+figure video,figure img{width:100%;height:auto;display:block}
+figure a{display:block}
+figure img{cursor:zoom-in}
+video{aspect-ratio:16/9;background:#050505}
+a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+.measurements{border:1px solid var(--line);background:var(--surface);padding:18px 20px}
+.measurements summary{cursor:pointer;color:var(--ink);min-height:44px;display:flex;align-items:center}
+.measurements summary::before{content:"+";color:var(--brand);margin-right:12px}
+.measurements[open] summary::before{content:"−"}
+.measurements dl{margin:16px 0 0}
+.measurements dt{font-weight:600;color:var(--ink);margin-top:16px;font-size:14px}
+.measurements dd{margin:4px 0 0;color:var(--sub);font-size:14px;overflow-wrap:anywhere}
+.related{padding:0;max-width:760px}
+.related li{margin:14px 0}
+@media(max-width:640px){.wrap{padding:0 18px}header.post h1{font-size:clamp(25px,7vw,34px)}figure{margin:28px 0}.measurements{padding:14px}.credit-card{padding:20px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header sh-works">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+        <a href="https://locahun3d.com/properties"><span class="code">0.1</span>物件を探す</a>
+        <a href="https://locahun3d.com/pricing"><span class="code">0.2</span>料金・デモ</a>
+        <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+        <a href="https://locahun3d.com/contact"><span class="code">0.4</span>お問い合わせ</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/" class="sh-brand" aria-label="ロケハン3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/en/works/blender-53-native-3dgs.html" aria-label="Language">EN</a>
+  </div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
+<div class="wrap">
+
+<header class="post">
+  <div class="post-meta">BLENDER 5.3 / 3DGS / VFX · 2026-09-19</div>
+  <h1>Blender 5.3で3DGSがネイティブ対応。<br />1,720万粒の渋谷で性能とVFX出力を検証</h1>
+  <p class="lead">アドオンなしでPLYを読み込み、EEVEEとCyclesで描画できるようになりました。<br />実データで速度を測り、合成の素材としてどこまで出せるかを確かめます。<br /></p>
+</header>
+<article>
+<style>.tblwrap td .ml{display:none}@media(max-width:600px){.tblwrap td .ml{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--sub);margin-bottom:2px}}</style>
+<p>ロケハン3Dの中村です。<br />
+Blender 5.3で、3D Gaussian Splatting（3DGS）がアドオンなしで扱えるようになります。<br />
+PLYとSPZを読み込み、Workbench・EEVEE・Cyclesのすべてで描画できます。<br />
+5.3は現在アルファ版で、正式リリースは11月10日の予定です。<br />
+渋谷スクランブル交差点の1,720万粒の全景データで、性能とVFXでの使いどころを検証しました。<br />
+</p>
+<aside class="callout note"><b>アルファ版での検証です</b>公式デイリービルド（5.3.0 Alpha、2026年9月18日版）を使っています。<br />
+正式リリースまでに挙動や数値が変わる可能性があります。<br />
+</aside>
+<h2 id="import"><span class="n">01</span> PLYを読み込むだけで3DGSになる</h2>
+<p>File &gt; Import からPLYかSPZを選ぶと、Point Cloudオブジェクトとして読み込まれます。<br />
+種類は「3D Gaussian Splats」になり、1粒ごとに次の属性を持ちます。<br />
+</p>
+<div class="tblwrap"><table><thead><tr><th>属性</th><th>内容</th></tr></thead><tbody><tr><td>position</td><td><span class="ml">内容</span>位置</td></tr><tr><td>scale</td><td><span class="ml">内容</span>大きさ</td></tr><tr><td>rotation</td><td><span class="ml">内容</span>向き（Quaternion）</td></tr><tr><td>radiance:base</td><td><span class="ml">内容</span>基本色と不透明度</td></tr><tr><td>radiance:sh_0〜</td><td><span class="ml">内容</span>球面調和の係数（視点で変わる色）</td></tr></tbody></table></div>
+<p>球面調和は3次（45係数）まで読み込まれ、描画にも反映されます。<br />
+座標はBlenderの向きへ自動で変換され、Zが上の状態で配置されます。<br />
+ジオメトリーノードのDelete Geometryで範囲外を消すと、3DGSのまま切り抜けます。<br />
+Set Point Cloud Typeノードを使うと、普通のポイントとの切り替えもできます。<br />
+</p>
+<h2 id="env"><span class="n">02</span> 検証環境</h2>
+<div class="tblwrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>Blender</td><td><span class="ml">内容</span>5.3.0 Alpha（main.1a542e41319f / 2026-09-18）</td></tr><tr><td>GPU</td><td><span class="ml">内容</span>RTX 5090 32GB / driver 610.47</td></tr><tr><td>データ</td><td><span class="ml">内容</span>渋谷スクランブル交差点 PLY / 17,201,445粒 / 1.17GB</td></tr><tr><td>比較用</td><td><span class="ml">内容</span>等間隔に間引いた10万・100万・400万粒</td></tr><tr><td>出力</td><td><span class="ml">内容</span>1920×1080 / 64サンプル / Cyclesはノイズ除去なし</td></tr></tbody></table></div>
+<p>数値は3回測った中央値です。<br />
+初回はシェーダーの準備を含むため、別に記載します。<br />
+</p>
+<h2 id="performance"><span class="n">03</span> 1,720万粒でも1枚2秒前後で描画できる</h2>
+<figure><a href="/works/images/blender-53-native-3dgs/eevee-17m.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/eevee-17m.jpg" alt="EEVEEで描画した渋谷の全景"></a><figcaption>EEVEE / 1,720万粒 / 1920×1080。<br />
+看板の文字や横断歩道まで再現されます。<br />
+</figcaption></figure>
+<div class="tblwrap"><table><thead><tr><th>粒数</th><th>読み込み</th><th>EEVEE（初回／2回目以降）</th><th>Cycles GPU（初回／2回目以降）</th></tr></thead><tbody><tr><td>10万</td><td><span class="ml">読み込み</span>0.01秒</td><td><span class="ml">EEVEE（初回／2回目以降）</span>0.69／0.19秒</td><td><span class="ml">Cycles GPU（初回／2回目以降）</span>1.26／0.48秒</td></tr><tr><td>100万</td><td><span class="ml">読み込み</span>0.08秒</td><td><span class="ml">EEVEE（初回／2回目以降）</span>0.75／0.32秒</td><td><span class="ml">Cycles GPU（初回／2回目以降）</span>0.80／0.65秒</td></tr><tr><td>400万</td><td><span class="ml">読み込み</span>0.31秒</td><td><span class="ml">EEVEE（初回／2回目以降）</span>1.08／0.59秒</td><td><span class="ml">Cycles GPU（初回／2回目以降）</span>1.23／1.04秒</td></tr><tr><td>1,720万</td><td><span class="ml">読み込み</span>1.6秒</td><td><span class="ml">EEVEE（初回／2回目以降）</span>2.41／1.73秒</td><td><span class="ml">Cycles GPU（初回／2回目以降）</span>2.78／2.57秒</td></tr></tbody></table></div>
+<div class="tblwrap"><table><thead><tr><th>粒数</th><th>RAMピーク（EEVEE／Cycles）</th><th>VRAM増加（EEVEE／Cycles）</th></tr></thead><tbody><tr><td>100万</td><td><span class="ml">RAMピーク（EEVEE／Cycles）</span>1.0／0.8GB</td><td><span class="ml">VRAM増加（EEVEE／Cycles）</span>+1.6／+3.5GB</td></tr><tr><td>1,720万</td><td><span class="ml">RAMピーク（EEVEE／Cycles）</span>3.2／3.0GB</td><td><span class="ml">VRAM増加（EEVEE／Cycles）</span>+4.5／+4.9GB</td></tr></tbody></table></div>
+<p>カメラを回す24フレームの連番は、EEVEEで1枚1.52秒、Cyclesで2.47秒です。<br />
+1,720万粒の.blendは919MBで、保存0.34秒、開き直し0.6秒で扱えます。<br />
+リリースノートには「性能は理想的ではない」とありますが、この環境では実用的な速さです。<br />
+GPUが弱い環境や、球面調和を多く持つデータでは結果が変わります。<br />
+</p>
+<figure><a href="/works/images/blender-53-native-3dgs/cycles-17m.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/cycles-17m.jpg" alt="Cyclesで描画した渋谷の全景"></a><figcaption>Cycles GPU / 64サンプル。<br />
+EEVEEとほぼ同じ見た目で、ネオンなど明るい部分がやや鮮やかに出ます。<br />
+</figcaption></figure>
+<p>間引いたデータは粒のすき間が目立つため、実案件では全量で使います。<br />
+</p>
+<h2 id="vfx"><span class="n">04</span> 合成の基本はそのまま使える</h2>
+<div class="tblwrap"><table><thead><tr><th>項目</th><th>EEVEE</th><th>Cycles</th><th>使い方</th></tr></thead><tbody><tr><td>透過背景</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>アルファ付きで合成へ渡せます</td></tr><tr><td>CGとの前後関係</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>手前のCGが正しく重なります</td></tr><tr><td>ホールドアウト</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>CGでスプラットをくり抜けます</td></tr><tr><td>シャドウキャッチャー</td><td><span class="ml">EEVEE</span>—</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>CGの影だけを取り出せます</td></tr><tr><td>被写界深度</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>レンダー時にかけます</td></tr><tr><td>モーションブラー</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>△</td><td><span class="ml">使い方</span>Cyclesは今回の設定で多重像になりました</td></tr><tr><td>Depth・Normalパス</td><td><span class="ml">EEVEE</span>△</td><td><span class="ml">Cycles</span>△</td><td><span class="ml">使い方</span>値は出ますが穴とノイズがあります</td></tr><tr><td>Mist・Position・Vector・Cryptomatte</td><td><span class="ml">EEVEE</span>○</td><td><span class="ml">Cycles</span>○</td><td><span class="ml">使い方</span>値が出ます</td></tr></tbody></table></div>
+<figure><a href="/works/images/blender-53-native-3dgs/cg-occlusion.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/cg-occlusion.jpg" alt="渋谷の交差点に置いた赤い箱のCG"></a><figcaption>手前に置いたCGの箱は、スプラットより前に正しく描画されます。<br />
+</figcaption></figure>
+<figure><a href="/works/images/blender-53-native-3dgs/holdout.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/holdout.jpg" alt="CGの箱でスプラットをくり抜いたホールドアウト"></a><figcaption>ホールドアウトを設定したCGで、背景のスプラットをくり抜きます。<br />
+</figcaption></figure>
+<figure><a href="/works/images/blender-53-native-3dgs/shadow-catcher.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/shadow-catcher.jpg" alt="Cyclesのシャドウキャッチャーで取り出したCGの影"></a><figcaption>Cyclesのシャドウキャッチャーを地面に置くと、CGの影だけを合成用に取り出せます。<br />
+</figcaption></figure>
+<figure><a href="/works/images/blender-53-native-3dgs/dof.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/dof.jpg" alt="被写界深度で背景をぼかした渋谷"></a><figcaption>被写界深度はスプラットにも自然にかかります。<br />
+</figcaption></figure>
+<figure><a href="/works/images/blender-53-native-3dgs/mblur-eevee.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/mblur-eevee.jpg" alt="EEVEEでカメラを振ったモーションブラー"></a><figcaption>EEVEEのモーションブラーは滑らかに流れます。<br />
+</figcaption></figure>
+<h2 id="limits"><span class="n">05</span> 本番で止まる4つの点</h2>
+<h3>ライトが効かない</h3>
+<p>スプラットは光を出す素材として描画され、撮影時の光が色に焼き込まれています。<br />
+強いライトを当てても、スプラットの色は変わりません。<br />
+スプラットはCGの影も受けません。<br />
+CGを置くときは、撮影時の光の向きにCG側のライトを合わせます。<br />
+夜景に変えるような背景のライティング変更には使えません。<br />
+</p>
+<h3>深度パスに穴がある</h3>
+<figure><a href="/works/images/blender-53-native-3dgs/depth-holes.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/depth-holes.jpg" alt="黒い点が散らばった深度パス"></a><figcaption>深度パスの可視化。<br />
+黒い点は深度が記録されていない画素です。<br />
+</figcaption></figure>
+<p>スプラットのある画素のうち、7.5〜8.4%で深度が記録されません。<br />
+粒が半透明の部分で、深度が無限遠になるためです。<br />
+深度を使ったフォグやポストの被写界深度ではノイズが出るため、被写界深度はレンダー時にかけます。<br />
+法線パスも面の向きがそろわないため、リライティングには使えません。<br />
+</p>
+<h3>書き出すと色が消える</h3>
+<p>PLYに書き出すと、中身が0粒のファイルになります。<br />
+USDでは位置・大きさ・向きは出ますが、色と不透明度が入りません。<br />
+HoudiniやNukeへ3DGSのまま渡すことはできないため、Blenderで描画してEXRで渡します。<br />
+</p>
+<h3>Apply Transformで崩れる</h3>
+<figure><a href="/works/images/blender-53-native-3dgs/transform-object.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/transform-object.jpg" alt="オブジェクトの変形のまま拡大した3DGS"></a><figcaption>オブジェクトの変形のままなら、拡大しても見た目は崩れません。<br />
+</figcaption></figure>
+<figure><a href="/works/images/blender-53-native-3dgs/transform-applied.jpg"><img loading="lazy" src="/works/images/blender-53-native-3dgs/transform-applied.jpg" alt="Apply Transformで粒の大きさが残ったまま広がった3DGS"></a><figcaption>Apply Transformをすると、粒の大きさが元のまま位置だけ広がり、すき間だらけになります。<br />
+</figcaption></figure>
+<p>マッチムーブで位置を合わせたあとも、Apply Transformは使わず、オブジェクトの変形のまま残します。<br />
+</p>
+<aside class="callout note"><b>マルチレイヤーEXRは1パス1ファイルで出す</b>今回のアルファ版では、複数のパスを1つのEXRにまとめるとCombinedしか入りません。<br />
+メッシュだけのシーンでも同じなので、3DGSの問題ではありません。<br />
+コンポジターのFile Outputノードでパスごとに別のEXRにすると、深度や法線も書き出せます。<br />
+</aside>
+<h2 id="summary"><span class="n">06</span> 背景プレートとプリビズから使い始める</h2>
+<div class="tblwrap"><table><thead><tr><th>用途</th><th>向いているか</th></tr></thead><tbody><tr><td>実写の背景を3DGSで差し替える</td><td><span class="ml">向いているか</span>◎ 画質・速度ともに十分</td></tr><tr><td>3DGSの背景の前にCGを置く</td><td><span class="ml">向いているか</span>○ ライトはCG側で合わせる</td></tr><tr><td>プリビズ・ロケハン・カメラワークの検討</td><td><span class="ml">向いているか</span>◎ 読み込みが速く軽い</td></tr><tr><td>背景のライティング変更</td><td><span class="ml">向いているか</span>× できない</td></tr><tr><td>深度を使ったポスト処理</td><td><span class="ml">向いているか</span>△ ノイズが出る</td></tr><tr><td>他のソフトへ3DGSのまま渡す</td><td><span class="ml">向いているか</span>× 色が消える</td></tr></tbody></table></div>
+<p>Blender 5.3の3DGS対応は、読み込んでカメラを動かし、画像にするまでならすでに実用的です。<br />
+一方で、ライトが効かない、深度に穴がある、書き出すと色が消えるという3つの壁があります。<br />
+まずは背景プレートやプリビズで使い、CGとの合成はシャドウキャッチャーと1パス1ファイルのEXRで組みます。<br />
+SPZの読み込みと、本物の球面調和を持つデータでの見た目は、正式リリース後に改めて確かめます。<br />
+</p>
+</article>
+<section class="related" aria-labelledby="related-h"><h2 id="related-h">関連する記事</h2><ul>
+  <li><a href="/works/3dgs-blender-workflow.html">Blenderで3DGSを使うなら？ 描画品質・処理時間・動画で比較</a></li>
+  <li><a href="/works/blender-lcc2-vfx.html">LCC2をそのままBlenderへ。3DGSをVFXの素材として使う</a></li>
+  <li><a href="/works/3dgs-file-formats.html">3DGSのファイル形式を整理する</a></li>
+</ul></section>
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br />3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証しています。<br /></p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br />3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。<br /></p>
+    <a class="cta" href="https://locahun3d.com/contact">お問い合わせ →</a>
+
+  </div>
+</footer>
+<div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 ロケハン3D — KWI株式会社</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/terms/service">利用規約</a>
+        <a href="https://locahun3d.com/privacy">プライバシーポリシー</a>
+        <a href="https://locahun3d.com/terms/tokushoho">特定商取引法</a>
+        <a href="https://locahun3d.com/terms/data-download">データ購入規約</a>
+        <a href="https://locahun3d.com/contact/listing">掲載依頼</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>
