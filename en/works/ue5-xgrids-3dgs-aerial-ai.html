@@ -240,7 +240,7 @@
   <p class="lead">I'm Kou Nakamura, founder of Locahun 3D. If you want to use 3DGS scans as real production assets, nothing beats bringing them into a game engine. In this article I walk through the UE5 workflow I actually use with my scan of the Shibuya scramble crossing: <strong>installing the XGRIDs SDK (LCC Plugin for UE), exporting assets with a virtual camera, and changing the lighting with AI</strong>. I've also included comparisons of the major 3DGS tools and the other UE5 plugins that can handle splats.</p>
 
   <figure>
-    <img src="/works/images/ue5_shibuya_ground_day.jpg" alt="The Shibuya scramble crossing 3DGS scan loaded into a UE5 viewport, ground-level angle, daytime">
+    <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_ground_day.jpg" alt="The Shibuya scramble crossing 3DGS scan loaded into a UE5 viewport, ground-level angle, daytime">
     <figcaption><b>The Shibuya scramble crossing 3DGS loaded into UE5.</b> Importing the LCC2-format scan with LCC Plugin for UE lets you walk around the viewport freely while hunting for angles.</figcaption>
   </figure>
 </header>
@@ -277,7 +277,7 @@
     <li><strong>Prep for VFX work</strong> — compositing with mesh assets, lighting adjustments, and producing base plates for AI relighting all happen inside one scene.</li>
   </ul>
   <figure>
-    <img src="/works/images/ue5_shibuya_car_composite.jpg" alt="A CG sports car composited onto the street of the Shibuya 3DGS scan">
+    <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_car_composite.jpg" alt="A CG sports car composited onto the street of the Shibuya 3DGS scan">
     <figcaption><b>Compositing a CG asset into the scan.</b> A CG car model placed on the street of the Shibuya 3DGS scan. Because the base is a real-world scan, perspective, scale, and lighting stay consistent, which makes VFX blocking fast.<br>Image by senior VFX artist <a href="https://x.com/hectorVFX" target="_blank" rel="noopener">hectorVFX</a>, using Locahun 3D's Shibuya data.</figcaption>
   </figure>
   <p>The downstream step — finishing the exported frames into aerial plates — will get its own article, so this one stays focused on <strong>the UE5 integration and asset export</strong>. The plugin I use is XGRIDs' LCC Plugin for UE (free).</p>
@@ -312,7 +312,7 @@
   <h2 id="export"><span class="n">04</span> Load the 3DGS and export assets with a virtual camera</h2>
   <p>Once the scan is loaded, everything else is standard UE5. Move the camera in the perspective view and build the framing you want. For the Shibuya scramble crossing, a straight-down view from above the station can't be shot in reality — it's a drone no-fly zone — but inside the scan there are no restrictions. <strong>The core of this workflow is using a real ground-level scan as the foundation, then freeing only the camera from physics.</strong></p>
   <figure>
-    <img src="/works/images/ue5_shibuya_topdown_day.jpg" alt="A straight-down aerial angle of the Shibuya scramble crossing created with a UE5 virtual camera, daytime">
+    <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_topdown_day.webp" alt="A straight-down aerial angle of the Shibuya scramble crossing created with a UE5 virtual camera, daytime">
     <figcaption><b>A straight-down angle built with the virtual camera.</b> Moving the camera directly above the station produces a framing no drone is allowed to shoot. The crossing paint and crosswalk detail all come from the real scan.</figcaption>
   </figure>
   <p>With the framing locked, export it as an asset. For stills, running a <strong>High Resolution Screenshot (HighResShot)</strong> at a specified resolution gives you a frame ready for compositing and retouching. For video, <strong>building a camera animation in Sequencer</strong> lets you render the shot with full camera movement.</p>
@@ -325,17 +325,17 @@
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">Source</span>
-        <img src="/works/images/ue5_shibuya_ground_day.jpg" alt="Source still. The Shibuya scramble crossing exported from the 3DGS scene in UE5 (ground angle, daytime)">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_ground_day.jpg" alt="Source still. The Shibuya scramble crossing exported from the 3DGS scene in UE5 (ground angle, daytime)">
         <figcaption><b>Still exported from UE5 (daytime).</b> The framing of the raw scan.</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI &ldquo;make it night&rdquo;</span>
-        <img src="/works/images/ue5_shibuya_ground_night.jpg" alt="A night view of the Shibuya scramble crossing generated with the prompt 'make it night'">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_ground_night.webp" alt="A night view of the Shibuya scramble crossing generated with the prompt 'make it night'">
         <figcaption><b>Night.</b> The AI fills in window lights, glowing signage, and road reflections. The composition matches the source.</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI &ldquo;make it a snowy night&rdquo;</span>
-        <img src="/works/images/ue5_shibuya_ground_night_snow.jpg" alt="A snowy night view of the Shibuya scramble crossing generated with the prompt 'make it a snowy night'">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_ground_night_snow.webp" alt="A snowy night view of the Shibuya scramble crossing generated with the prompt 'make it a snowy night'">
         <figcaption><b>Snowy night.</b> Only the road surface, street trees, and sky change.</figcaption>
       </figure>
     </div>
@@ -346,17 +346,17 @@
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">Source</span>
-        <img src="/works/images/ue5_shibuya_topdown_day.jpg" alt="Source still. The straight-down angle of the Shibuya scramble crossing built with a virtual camera in UE5 (daytime)">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_topdown_day.webp" alt="Source still. The straight-down angle of the Shibuya scramble crossing built with a virtual camera in UE5 (daytime)">
         <figcaption><b>Straight-down, built with a virtual camera (daytime).</b> An angle you cannot fly a drone for.</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI &ldquo;make it dusk&rdquo;</span>
-        <img src="/works/images/ue5_shibuya_topdown_dusk.jpg" alt="The straight-down Shibuya angle changed to dusk lighting with AI">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_topdown_dusk.webp" alt="The straight-down Shibuya angle changed to dusk lighting with AI">
         <figcaption><b>Magic hour.</b> It reads as an aerial-style shot.</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI &ldquo;make it night&rdquo;</span>
-        <img src="/works/images/ue5_shibuya_topdown_night.jpg" alt="The straight-down Shibuya angle changed to night with AI">
+        <img loading="lazy" decoding="async" src="/works/images/ue5_shibuya_topdown_night.webp" alt="The straight-down Shibuya angle changed to night with AI">
         <figcaption><b>Night.</b> Locking one angle lets you line up time-of-day variations side by side in minutes.</figcaption>
       </figure>
     </div>
@@ -365,7 +365,7 @@
   <h2 id="limits"><span class="n">06</span> Current limits: signage, text, and man-made detail break down</h2>
   <p>To be honest about the constraints: <strong>signage text and fine man-made structures — trains, road signs — break down under current AI completion.</strong> It produces "ghosts" (structures that shouldn't exist) and artifacts like train-shaped geometry generated where no train belongs.</p>
   <figure>
-    <img src="/works/images/ue5_ai_completion_limitations.jpg" alt="Annotated image marking AI completion artifacts: ghost structures, an implausible generated train, and broken signage text, circled in red, yellow, and blue">
+    <img loading="lazy" decoding="async" src="/works/images/ue5_ai_completion_limitations.jpg" alt="Annotated image marking AI completion artifacts: ghost structures, an implausible generated train, and broken signage text, circled in red, yellow, and blue">
     <figcaption><b>Examples of breakdown.</b> Yellow circle = a structure that shouldn't exist (GHOST). Blue line = train-like geometry generated where no train belongs (TRAIN). Red circles = signage and road-sign text falling apart.</figcaption>
   </figure>
   <p>I consider this exactly where professional work lives. By planning reshoots and cleanup passes for the fragile areas in advance, you can bring the result up to deliverable quality. As for the AI completion itself, I expect the accuracy to keep improving.</p>
@@ -412,7 +412,7 @@
   <div class="ey">Credits</div>
   <h2>Credits</h2>
   <div class="credit-card">
-    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
       <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
       <div class="crole">Founder, Locahun 3D ／ Research &amp; Writing</div>
@@ -424,7 +424,7 @@
     </div>
   </div>
   <div class="credit-card" style="margin-top:14px">
-    <img class="av" src="/works/images/creator_hector.jpg" alt="hectorVFX">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_hector.jpg" alt="hectorVFX">
     <div>
       <div class="cname">hectorVFX</div>
       <div class="crole">Senior VFX Artist ／ Composite figure</div>
@@ -465,7 +465,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

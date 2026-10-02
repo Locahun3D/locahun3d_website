@@ -289,7 +289,7 @@
   <p class="lead">ロケハン3Dの中村です。<br>3DGSスキャンを映像制作の「素材」として使うなら、ゲームエンジンに持ち込むのがいちばん自由が利きます。<br>この記事では、私が渋谷スクランブル交差点のスキャンで実際に使っている<strong>XGRIDs SDK（LCC Plugin for UE）の導入から、仮想カメラでの素材出力、AIによるライティング変更</strong>まで、UE5連携のワークフロー全体をまとめます。<br>あわせて、3DGSを扱う主要ソフトとUE5向け他プラグインの比較も載せておきます。</p>
 
   <figure>
-    <img src="images/ue5_shibuya_ground_day.jpg" alt="UE5のビューポートに読み込んだ渋谷スクランブル交差点の3DGSスキャン（地上アングル・昼）">
+    <img loading="lazy" decoding="async" src="images/ue5_shibuya_ground_day.jpg" alt="UE5のビューポートに読み込んだ渋谷スクランブル交差点の3DGSスキャン（地上アングル・昼）">
     <figcaption><b>UE5に読み込んだ渋谷スクランブル交差点の3DGS。</b>LCC Plugin for UEでLCC2形式のスキャンをインポートすることで、ビューポート内をそのまま歩き回りながら画角を探せます。</figcaption>
   </figure>
 </header>
@@ -326,7 +326,7 @@
     <li><strong>VFX加工の下準備</strong> ── メッシュアセットとの合成、ライティング調整、AIリライトの元画像づくりまで、1つのシーンの中で完結します。</li>
   </ul>
   <figure>
-    <img src="images/ue5_shibuya_car_composite.jpg" alt="渋谷の3DGSスキャンの路上にCGのスポーツカーを合成した例">
+    <img loading="lazy" decoding="async" src="images/ue5_shibuya_car_composite.jpg" alt="渋谷の3DGSスキャンの路上にCGのスポーツカーを合成した例">
     <figcaption><b>スキャンにCGアセットを合成した例。</b>渋谷の3DGSスキャンの路上に、CGのカーモデルを配置しています。実写ベースのスキャンを土台にすることで、遠近・スケール・ライティングの整合が取りやすく、VFX合成の当たりを素早く作れます。<br>画像制作：シニアVFXアーティスト <a href="https://x.com/hectorVFX" target="_blank" rel="noopener">hectorVFX</a> 氏（ロケハン3Dの渋谷データを使用）</figcaption>
   </figure>
   <p>なお、出力した素材を空撮プレートとして仕上げる工程は別の解説記事で扱う予定なので、この記事は<strong>「UE5との連携」と「素材出力」の部分に絞って</strong>書きます。<br>使うプラグインはXGRIDsのLCC Plugin for UE（無料）です。</p>
@@ -361,7 +361,7 @@
   <h2 id="export"><span class="n">04</span> 3DGSを読み込み、仮想カメラで素材を出力する</h2>
   <p>読み込みが終われば、あとはUE5の標準操作です。<br>パースペクティブビューでカメラを動かし、狙った画角を作ります。<br>渋谷スクランブル交差点の場合、駅直上からの真俯瞰はドローン飛行禁止区域のため現実には撮影できませんが、スキャンデータの中では制約がありません。<br><strong>地上を歩いて集めた実スキャンを土台に、カメラだけを物理法則から解放する</strong>のがこのワークフローの核です。</p>
   <figure>
-    <img src="images/ue5_shibuya_topdown_day.jpg" alt="UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
+    <img loading="lazy" decoding="async" src="images/ue5_shibuya_topdown_day.jpg" alt="UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
     <figcaption><b>仮想カメラで作った真俯瞰アングル。</b>カメラを駅直上に移動することで、実際にはドローンを飛ばせない場所からの画角を作れます。交差点のペイントや横断歩道のディテールまで実スキャン由来です。</figcaption>
   </figure>
   <p>画角が決まったら、素材として書き出します。<br>スチルなら<strong>高解像度スクリーンショット（HighResShot）</strong>で解像度を指定して出力することで、そのまま合成・レタッチに回せる静止画になります。<br>動画素材が必要な場合は、<strong>シーケンサーでカメラアニメーションを組む</strong>ことで、カメラワーク付きのショットとしてレンダリングできます。</p>
@@ -374,17 +374,17 @@
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">変換元</span>
-        <img src="images/ue5_shibuya_ground_day.jpg" alt="変換元。UE5の3DGSシーンから出力した渋谷スクランブル交差点の地上アングル（昼）">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_ground_day.jpg" alt="変換元。UE5の3DGSシーンから出力した渋谷スクランブル交差点の地上アングル（昼）">
         <figcaption><b>UE5から出力した素材（昼）。</b>実スキャンそのままの構図。</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI「夜にして」</span>
-        <img src="images/ue5_shibuya_ground_night.jpg" alt="AIで「夜にして」と指示して生成した渋谷スクランブル交差点の夜景">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_ground_night.jpg" alt="AIで「夜にして」と指示して生成した渋谷スクランブル交差点の夜景">
         <figcaption><b>夜景。</b>窓明かり・看板の発光・路面の反射をAIが補完します。構図は変換元と一致。</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI「雪の夜にして」</span>
-        <img src="images/ue5_shibuya_ground_night_snow.jpg" alt="AIで「雪の夜にして」と指示して生成した渋谷スクランブル交差点の雪景色">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_ground_night_snow.jpg" alt="AIで「雪の夜にして」と指示して生成した渋谷スクランブル交差点の雪景色">
         <figcaption><b>雪の夜。</b>路面・街路樹・空だけが差し替わります。</figcaption>
       </figure>
     </div>
@@ -395,17 +395,17 @@
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">変換元</span>
-        <img src="images/ue5_shibuya_topdown_day.jpg" alt="変換元。UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_topdown_day.jpg" alt="変換元。UE5の仮想カメラで作った渋谷スクランブル交差点の真俯瞰アングル（昼）">
         <figcaption><b>仮想カメラで作った真俯瞰（昼）。</b>ドローンを飛ばせない場所の画角。</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI「夕方にして」</span>
-        <img src="images/ue5_shibuya_topdown_dusk.jpg" alt="AIで夕方の光に変更した渋谷スクランブル交差点の真俯瞰アングル">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_topdown_dusk.jpg" alt="AIで夕方の光に変更した渋谷スクランブル交差点の真俯瞰アングル">
         <figcaption><b>マジックアワー。</b>空撮風のカットになります。</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag ai">AI「夜にして」</span>
-        <img src="images/ue5_shibuya_topdown_night.jpg" alt="AIで夜に変更した渋谷スクランブル交差点の真俯瞰アングル">
+        <img loading="lazy" decoding="async" src="images/ue5_shibuya_topdown_night.jpg" alt="AIで夜に変更した渋谷スクランブル交差点の真俯瞰アングル">
         <figcaption><b>夜。</b>1つの画角を確定させておくことで、時間帯違いを短時間で並べて比較できます。</figcaption>
       </figure>
     </div>
@@ -414,7 +414,7 @@
   <h2 id="limits"><span class="n">06</span> 現状の限界：看板・文字・人工物は崩れる</h2>
   <p>条件付きの手法であることも正直に書いておきます。<br><strong>看板の文字や、電車・標識のような細かい人工物は、現状のAI補完では崩れます。</strong><br>存在しないはずの構造物が現れる「ゴースト」や、本来ない場所に電車状の構造が生成される破綻が起きます。</p>
   <figure>
-    <img src="images/ue5_ai_completion_limitations.jpg" alt="AIによるデータ補完で発生した破綻箇所（存在しない構造物のゴースト、不自然な電車の生成、看板の文字崩れなど）に赤・黄・青の丸と注釈を付けた画像">
+    <img loading="lazy" decoding="async" src="images/ue5_ai_completion_limitations.jpg" alt="AIによるデータ補完で発生した破綻箇所（存在しない構造物のゴースト、不自然な電車の生成、看板の文字崩れなど）に赤・黄・青の丸と注釈を付けた画像">
     <figcaption><b>破綻箇所の例。</b>黄色の丸＝存在しないはずの構造物（GHOST）。青の線＝本来ないはずの場所に生成された電車状の構造（TRAIN）。赤の丸＝看板・標識の文字が崩れている箇所。</figcaption>
   </figure>
   <p>私はここを「プロの仕事の領域」だと考えています。<br>崩れやすい箇所はあらかじめ再撮影・手直し前提で設計することで、世に出せるクオリティまで持っていけます。<br>AI補完の精度そのものは、今後の向上に期待です。</p>
@@ -491,7 +491,7 @@
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -503,7 +503,7 @@
     </div>
   </div>
   <div class="credit-card" style="margin-top:14px">
-    <img class="av" src="images/creator_hector.jpg" alt="hectorVFX">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_hector.jpg" alt="hectorVFX">
     <div>
       <div class="cname">hectorVFX</div>
       <div class="crole">Senior VFX Artist ／ 合成例の図版提供</div>
@@ -544,7 +544,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

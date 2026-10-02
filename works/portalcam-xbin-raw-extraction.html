@@ -251,7 +251,7 @@
   <p class="lead">ロケハン3Dの中村です。<br>PortalCamでスキャンすると、LCC StudioやLixel Studioが3DGSや点群を書き出してくれますが、その裏には<strong>撮影した元の4K画像</strong>がそのまま生データの中に眠っています。<br>この記事では、CLIツールだけを使って生データ(.xbin)から4K元画像を取り出す方法と、実際にその画像でフォトグラメトリ再構成を試して分かった限界をまとめます。</p>
 
   <figure>
-    <img src="images/xbin_cam_pinholeA.jpg" alt="PortalCamの生データから抽出し、魚眼から透視投影に変換した4K元画像の例（車道と高層ビル群）">
+    <img loading="lazy" decoding="async" src="images/xbin_cam_pinholeA.jpg" alt="PortalCamの生データから抽出し、魚眼から透視投影に変換した4K元画像の例（車道と高層ビル群）">
     <figcaption><b>抽出した4K元画像を透視投影に変換したもの。</b>生データの中では魚眼のH.264動画として記録されているため、そのままでは一般的な画像処理ソフトでは扱いにくく、変換をかけています。</figcaption>
   </figure>
 </header>
@@ -326,11 +326,11 @@
   <p>幸い、出てくる2本は<strong>同時刻に記録された同期ステレオペア</strong>になっているので、視差情報そのものは確保できています。</p>
   <div class="duo">
     <figure>
-      <img src="images/xbin_cam_pinholeA.jpg" alt="camera_0側から抽出した4K元画像（透視投影変換後）">
+      <img loading="lazy" decoding="async" src="images/xbin_cam_pinholeA.jpg" alt="camera_0側から抽出した4K元画像（透視投影変換後）">
       <figcaption><b>左メインカメラの1フレーム。</b></figcaption>
     </figure>
     <figure>
-      <img src="images/xbin_cam_pinholeB.jpg" alt="camera_1側から抽出した4K元画像（透視投影変換後）">
+      <img loading="lazy" decoding="async" src="images/xbin_cam_pinholeB.jpg" alt="camera_1側から抽出した4K元画像（透視投影変換後）">
       <figcaption><b>右メインカメラの1フレーム。</b>同時刻に記録された、もう一方の目線です。</figcaption>
     </figure>
   </div>
@@ -389,7 +389,7 @@
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -424,7 +424,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

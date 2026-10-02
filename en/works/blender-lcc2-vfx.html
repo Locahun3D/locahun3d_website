@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Direct from LCC2 to Blender: using 3DGS for VFX｜Locahun3D</title>
-<meta name="description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta name="description" content="An experimental Blender add-on that reads LCC2 directly. Full-scene import, lighting, depth, masks and EXR compositing, including unresolved real-city image quality.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/en/works/blender-lcc2-vfx.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
@@ -14,14 +14,16 @@
 <meta property="og:site_name" content="Locahun 3D">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
-<meta property="og:title" content="Direct from LCC2 to Blender: using 3DGS for VFX">
-<meta property="og:description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta property="og:title" content="Direct from LCC2 to Blender: using 3DGS for VFX ｜ Locahun3D">
+<meta property="og:description" content="An experimental Blender add-on that reads LCC2 directly. Full-scene import, lighting, depth, masks and EXR compositing, including unresolved real-city image quality.">
 <meta property="og:url" content="https://web.locahun3d.com/en/works/blender-lcc2-vfx.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
-<meta property="og:image:alt" content="Direct from LCC2 to Blender: using 3DGS for VFX">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta property="og:image:alt" content="The full city scan and a blue box in the Blender viewport">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Direct from LCC2 to Blender: using 3DGS for VFX">
-<meta name="twitter:description" content="A local prototype that reads LCC2 directly and renders the full scene in Blender. Feature video, depth, masks, lighting and motion passes, measured outputs and limitations.">
+<meta name="twitter:title" content="Direct from LCC2 to Blender: using 3DGS for VFX ｜ Locahun3D">
+<meta name="twitter:description" content="An experimental Blender add-on that reads LCC2 directly. Full-scene import, lighting, depth, masks and EXR compositing, including unresolved real-city image quality.">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -236,57 +238,32 @@ a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(
   <p class="lead">A local prototype that loads the full scene without an intermediate PLY and exports footage and compositing passes.</p>
 </header>
 <article>
-  <p>I am Kou from Locahun3D. I built a local Blender prototype that reads LCC2 directly, renders the full Shibuya scene as stills and footage, and sends depth, masks, lighting and motion information to the compositor. Here is how I use those passes to finish a scanned background together with CG added in Blender.</p>
-  <aside class="callout note"><b>What this article covers</b>This is a local prototype tested in my own environment. It is not a publicly distributed addon or an official XGRIDS plugin. This article does not claim it is faster or more memory-efficient than other formats or products.</aside>
-  <h2 id="video"><span class="n">01</span> Start with the feature video</h2>
-  <figure>
-    <video controls playsinline preload="metadata" poster="/works/images/blender-lcc2-vfx/poster.jpg" width="1920" height="1080" aria-label="Feature video of the direct-LCC2 Blender prototype" aria-describedby="video-caption" src="/works/videos/blender-lcc2-vfx-intro.mp4">If playback is unavailable, <a href="/works/videos/blender-lcc2-vfx-intro.mp4">open the MP4</a>.</video>
-    <figcaption id="video-caption">An edited overview combining full-scene rendering with actual exported VFX passes. The camera-motion material used in the video is a five-second sequence of 120 individually rendered frames.</figcaption>
+  <p>I'm Kou from Locahun 3D. I'm prototyping a Blender add-on that reads LCC2 directly. Here is the workflow: load the full city, place a camera and CG, then export lighting, depth and masks for compositing.</p>
+  <aside class="callout note"><b>Local experimental build</b>This is not a publicly distributed add-on or an official XGRIDS product. Added lighting remains experimental; relighting has not been achieved. Use of the Normal pass, normal recovery and normal-quality improvements are outside the scope of this work.</aside>
+  <!-- Previous review video is not embedded: Normal is outside the current scope. Source MP4 is retained. -->
+  <h2 id="blender"><span class="n">01</span> Load LCC2 and frame the shot</h2>
+  <p>Set the LCC2 source path and load the full scene with the dedicated renderer. No intermediate PLY is created. The source used for the full-data render tests is neither cropped nor decimated. Frame the shot with a Blender camera, then add CG objects and lights.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/blender-ui.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/blender-ui.jpg" alt="The full city scan and a blue box in the Blender viewport"></a><figcaption>The blue box is added CG. Loading the scan does not convert it into a conventional editable mesh.</figcaption></figure>
+  <p>Use F12 for stills, or animate the camera and render an image sequence. Enable the additional compositing passes you need for F12 output. Compressed LCC2 storage and rendering memory are different: direct import alone does not guarantee lower memory use.</p>
+  <h2 id="lighting"><span class="n">02</span> Added-light experiments — relighting not achieved</h2>
+  <p>Sun, Point, Spot and Area lights are experimental tools for examining approximate brightness and shadow changes. CapturedColor holds captured color, AddedLighting holds the added-light contribution, and ShadowLoss holds the loss caused by shadows on that added lighting.</p>
+  <figure id="video">
+    <video controls playsinline preload="metadata" poster="/works/images/blender-lcc2-vfx/scan-light-baseline.webp" width="1920" height="1080" aria-label="Fixed-camera comparison of added lighting on the scan alone" aria-describedby="video-caption" src="/works/videos/blender-lcc2-scan-light-comparison.mp4">If playback is unavailable, <a href="/works/videos/blender-lcc2-scan-light-comparison.mp4">open the MP4</a>.</video>
+    <figcaption id="video-caption">Compare captured color with Sun, Point, Spot and Area lights: white from the left, white from the right, and warm from the right. This 39-second comparison shows 13 stills for three seconds each. It is not animated light movement or a flicker test.</figcaption>
   </figure>
-  <p>The original 120 frames contain no interpolation or duplicated-frame padding. The 24fps figure describes playback, not interactive Blender performance.</p>
-  <nav class="toc" aria-label="Contents"><div class="toc-title">In this article</div><ol>
-    <li><a href="#blender">Working in Blender</a></li><li><a href="#memory">File size is not memory usage</a></li><li><a href="#passes">Passes for compositing</a></li><li><a href="#lighting">What lighting can and cannot do</a></li><li><a href="#measurements">Test conditions</a></li><li><a href="#summary">From a background to compositing material</a></li>
-  </ol></nav>
-  <h2 id="blender"><span class="n">02</span> Working in Blender</h2>
-  <p>First, point the prototype at the LCC2 source and load the full scene through its dedicated renderer. There is no intermediate PLY file. For this test, I retain the entire scan without cropping or decimation.</p>
-  <p>Next, frame the shot with a Blender camera and add the CG objects and lights the shot needs. Use F12 for a still, or animate the camera and render a sequence. Enable only the VFX passes needed by the compositor. These extra passes are F12 outputs, not additional passes continuously rendered in the viewport.</p>
-  <figure><a href="/works/images/blender-lcc2-vfx/blender-ui.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/blender-ui.jpg" alt="The full scanned scene and added blue box in the Blender viewport"></a><figcaption>The full scan and added mesh share the same Blender scene. The blue test box is added CG, not part of the scan.</figcaption></figure>
-  <p>The imported 3DGS does not become a conventional editable mesh. Editing buildings as faces and vertices, or reconstructing unobserved backsides, is outside this workflow.</p>
-  <h2 id="memory"><span class="n">03</span> File size is not memory usage</h2>
-  <p>Reading LCC2 directly removes the intermediate PLY export step. However, the size of the compressed source does not equal RAM or VRAM usage during rendering.</p>
-  <p>The renderer decodes the source and prepares CPU arrays and GPU-resident data. Depth sorting, output images, additional passes and shadow calculations also require memory. Storage size and working memory must be evaluated separately.</p>
-  <p>I did not measure peak RAM and VRAM across the full VFX workflow in this test. I therefore do not infer memory savings from the compressed file size.</p>
-  <h2 id="passes"><span class="n">04</span> Passes for compositing</h2>
-  <p>Alongside the finished Combined image, the renderer exports separate information for specific compositing tasks. Treat color and brightness images separately from numeric data such as distance and object identity.</p>
-  <h3>Depth and Mist: adjust by distance</h3>
-  <p>Depth is the opacity-weighted expected camera distance of overlapping splats. ZFront gives the distance to the nearest splat center that meets the opacity condition, or to an added opaque mesh fragment. Mist supplies a distance-dependent compositing weight for effects such as haze or distant color adjustments.</p>
-  <figure><a href="/works/images/blender-lcc2-vfx/depth-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/depth-comparison.jpg" alt="Display previews of Depth, Mist and approximate Normal from the same view"></a><figcaption>Display previews of Depth, Mist and Normal. Depth is normalized to a visible range, and Normal shows approximate orientation as color. ZFront is not a reconstruction of the scan's exact surface geometry.</figcaption></figure>
-  <h3>Masks and Cryptomatte: separate the scan from added CG</h3>
-  <p>GaussianMask isolates the scan as a whole; MeshMask isolates added opaque meshes. IndexOB gives an integer identity for the frontmost accepted target. Cryptomatte selects the entire scan dataset and added objects or instances.</p>
-  <figure><a href="/works/images/blender-lcc2-vfx/masks-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/masks-comparison.jpg" alt="Masks separating the scanned scene from the added blue box"></a><figcaption>Adjust the blue box separately from the scanned city. This does not automatically segment individual buildings within the scan.</figcaption></figure>
-  <p>I tested Cryptomatte by reopening the saved EXR in Blender and extracting the selected target. I have not tested it in the Nuke application.</p>
-  <h3>Vector and MotionValid: finish moving shots</h3>
-  <p>Feed Vector into Blender's Vector Blur to add blur from camera motion and mesh motion with stable correspondence. MotionValid marks where that correspondence is usable. It helps distinguish unsupported cases, including topology-changing deformation, from genuinely stationary geometry.</p>
-  <figure><a href="/works/images/blender-lcc2-vfx/vector-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/vector-comparison.jpg" alt="A same-frame crop of the added blue box, comparing Combined and Vector Blur"></a><figcaption>A same-frame crop around the added mesh compares Combined with the Vector Blur result. The pass does not correctly reconstruct newly revealed areas behind moving objects.</figcaption></figure>
-  <aside class="callout note"><b>Keep compositing data in EXR</b>Use lossless 32-bit float EXR for distances, masks and identity information, without applying display color transforms to the numeric data. The JPEGs in this article are explanatory previews, not numeric compositing assets.</aside>
-  <h2 id="lighting"><span class="n">05</span> What lighting can and cannot do</h2>
-  <p>Add Sun, Point, Spot and Area lights to apply approximate lighting and shadows to the scan and added meshes. CapturedColor provides the captured color, Ambient the ambient-side contribution, and AddedLighting the added-light contribution. UnshadowedLighting and ShadowLoss separate the added lighting from its shadow loss.</p>
-  <figure><a href="/works/images/blender-lcc2-vfx/lighting-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/lighting-comparison.jpg" alt="Display previews of CapturedColor, AddedLighting and ShadowLoss"></a><figcaption>Lighting passes are adjusted for display. This is a compositing decomposition, not a physical material decomposition.</figcaption></figure>
-  <p>CapturedColor retains illumination and shadows from the capture. It is not unlit albedo: adding a new light does not remove shadows already present in the scan. The prototype does not recover materials or roughness, recompute global illumination, or provide Cycles-equivalent physical rendering.</p>
-  <p>Treat these as signed scene-linear compositing contributions. Ambient plus AddedLighting plus Background reconstructs Combined; UnshadowedLighting minus ShadowLoss gives AddedLighting. I also verified these relationships through compositing from a saved EXR.</p>
-  <h2 id="measurements"><span class="n">06</span> Test conditions</h2>
-  <p>I reopened the saved scene, rendered the full scene with F12 and composited from saved EXRs. These measurements apply to this environment and scene, not automatically to other PCs or datasets.</p>
-  <details class="measurements"><summary>Open the measured environment and outputs</summary><dl>
-    <dt>Environment</dt><dd>Blender 5.1.2 / NVIDIA RTX 5090</dd>
-    <dt>Full scene</dt><dd>34,803,455 splats, without cropping or decimation</dd>
-    <dt>Stills</dt><dd>1920 × 1080 / 32-bit float / lossless ZIP EXR / 52 channels including Composite</dd>
-    <dt>First F12 after reopening</dt><dd>13.812 seconds for this single still render</dd>
-    <dt>Original motion material</dt><dd>1280 × 720 / 120 individually rendered frames / 24fps / five seconds</dd>
-    <dt>Compositing</dt><dd>Saved-EXR lighting reconstruction, masks, Cryptomatte and Vector Blur tested in Blender</dd>
-  </dl></details>
-  <p>13.812 seconds is not a real-time FPS measurement. The PLY in my earlier article differs in point count, retained data and rendering conditions, so I do not directly rank render time or memory usage against it.</p>
-  <h2 id="summary"><span class="n">07</span> From a background to compositing material</h2>
-  <p>The prototype connects direct full-scene LCC2 loading, Blender camera rendering and pass export for compositing. I use it to preserve the captured scene while adjusting added CG and visual effects separately. It does not make the original illumination or missing geometry freely reconstructable.</p>
+  <p>I rendered the scan alone, without added CG, using the same camera and exposure. This uses a separate viewer export from the earlier benchmark, retaining the full dataset without decimation. No Normal pass is exported.</p>
+  <p>Light position and color change the final image; warm light adds color to the road. Irregular road patterns remain, and this does not fully separate input-scan patterns from the lighting calculation. The scan responds to added lighting, but natural, production-usable relighting has not passed acceptance.</p>
+  <aside class="callout note"><b>Captured shadows remain</b>CapturedColor is not de-lit albedo. Adding a new light does not remove shadows already present in the scan. This does not recover materials or roughness, recompute indirect illumination, or reproduce Cycles' physical rendering.</aside>
+  <h2 id="passes"><span class="n">03</span> Use depth and masks for separate adjustments</h2>
+  <p>Depth is an opacity-weighted expected distance from the camera through overlapping splats. Treat it as an approximation for compositing, not exact surface geometry. Use Mist to drive distance-based fog or color adjustments.</p>
+  <p>GaussianMask separates the full scan; MeshMask separates added opaque meshes. Use Cryptomatte to select the full scan and added objects or instances. It does not automatically segment individual buildings within the scan.</p>
+  <figure><a href="/works/images/blender-lcc2-vfx/masks-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/masks-comparison.jpg" alt="Masks separating the scanned city from the added blue box"></a><figcaption>Adjust the added CG separately from the full scanned city.</figcaption></figure>
+  <h2 id="exr"><span class="n">04</span> Reload the EXR for compositing</h2>
+  <p>Save color images and numerical data such as distances and identifiers in losslessly compressed 32-bit float EXR files. Do not apply display color transforms to numerical passes. The JPEGs in this article are explanatory previews, not compositing data.</p>
+  <p>I have tested lighting reconstruction and mask and Cryptomatte extraction from saved EXRs in Blender. Vector and MotionValid feed supported camera and mesh motion with stable correspondence into Vector Blur. I have not tested this in Nuke.</p>
+  <p>The ordinary F12 end-to-end checks that include the added Area accumulation use a small synthetic scene. They do not establish full-city image quality or performance.</p>
+  <h2 id="summary"><span class="n">05</span> Keep the scan, adjust the added elements</h2>
+  <p>Load the full LCC2 scene in Blender and export added CG and compositing passes in one workflow. This prototype keeps the captured background while separating adjustments to added elements. It does not freely rebuild original lighting or missing geometry; real-city lighting quality remains under evaluation.</p>
 </article>
 <section class="related" aria-labelledby="related-h"><h2 id="related-h">Related articles</h2><ul>
   <li><a href="/en/works/3dgs-blender-workflow.html">Which Blender 3DGS workflow? Image quality, render time and motion tests</a></li>
@@ -297,7 +274,7 @@ a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(
   <div class="ey">Credits</div>
   <h2>Credits</h2>
   <div class="credit-card">
-    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
       <div class="cname">Kou&nbsp;Nakamura<span>中村 航</span></div>
       <div class="crole">Founder, Locahun3D ／ Testing &amp; Writing</div>

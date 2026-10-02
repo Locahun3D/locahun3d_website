@@ -285,7 +285,7 @@
   <p class="lead">ロケハン3Dの中村です。<br>現地スキャンをVectorworksの作業へどうつなぐかを確かめるため、街区では<strong>3DGS・色付き点群・テクスチャ付きメッシュ</strong>の違いを検証し、別のホールでは3DGSを基準に作った編集モデルを<strong>Vectorworks Spotlight 2026へ実際に読み込みました</strong>。<br>見た目、計測、編集、作図を1つのデータで済ませず、用途ごとに分けるための検証です。</p>
 
   <figure>
-    <img src="images/vw_hero_block.jpg" alt="3Dスキャンした街区のデータ">
+    <img loading="lazy" decoding="async" src="images/vw_hero_block.jpg" alt="3Dスキャンした街区のデータ">
     <figcaption><b>検証に使った街区のスキャンデータです。</b>ハンディスキャナ（XGRIDS Lixel K2）で現地を歩いて撮影しました。この見た目を保ったまま、Vectorworksで軽快に編集できる形式はありませんでした。</figcaption>
   </figure>
 </header>
@@ -323,7 +323,7 @@
     <li><strong>③ メッシュ</strong> ── 三角形の面に写真を貼った一般的な3D形状です。面はありますが、スキャン由来のままでは重くなります。</li>
   </ul>
   <figure>
-    <img src="images/vw_three_formats.jpg" alt="点群・メッシュ・3DGSの3形式を同じ建物で比較した図">
+    <img loading="lazy" decoding="async" src="images/vw_three_formats.jpg" alt="点群・メッシュ・3DGSの3形式を同じ建物で比較した図">
     <figcaption><b>同じ建物を3つの形式で表したものです。</b>左から、点だけの「点群」、三角形の面に写真を貼った「メッシュ」、色の粒で写真そっくりに再現する「3DGS」。形は同じでも、表現方法とできることが違います。</figcaption>
   </figure>
 
@@ -333,7 +333,7 @@
   <p><strong>Vectorworksは3DGSに対応していません。</strong><br>3DGSのデータには、点の位置だけでなく「どんな色か」「どのくらい透けるか」「どんな形の粒か」といった情報が一緒に入っていますが、Vectorworksにはこれらを読む機能がありません。<br>読み込むと<strong>位置の情報だけを取り出して、色を含む残りをすべて捨ててしまいます</strong>。<br>画面に出るのは黒くまばらな点の集まりです。</p>
   <p>色を一般的な点群へ焼き込んでから読ませることはできますが、見る角度による質感変化は失われます。変換後は3DGSではなく、次の点群として扱います。</p>
   <figure>
-    <img src="images/vw_locahun_viewer.jpg" alt="街区スキャンの3DGSを専用ビューアーで表示した画面">
+    <img loading="lazy" decoding="async" src="images/vw_locahun_viewer.jpg" alt="街区スキャンの3DGSを専用ビューアーで表示した画面">
     <figcaption><b>検証に使った街区を3DGSで表示した状態です。</b>道路、電線、看板、空まで撮影時の見た目を確認できます。この表示をVectorworksへ直接持ち込むことはできません。</figcaption>
   </figure>
 
@@ -342,7 +342,7 @@
 
   <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を通常より細かい精度（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。データが壊れているのではなく、Vectorworks側がこの細かい色を読めていないだけです。<strong>色を一般的な精度（8ビット）に変換してから読み込ませることで、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
   <figure>
-    <img src="images/vw_pointcloud_e57.jpg" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
+    <img loading="lazy" decoding="async" src="images/vw_pointcloud_e57.jpg" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
     <figcaption><b>色を8ビットに変換してから読み込んだ点群です。</b>建物のレンガ・赤い舗装・街路樹・横断歩道まで実物どおりの色になりました。ただし近くで見れば分かる通り、面ではなく<strong>点が集まってできた見た目</strong>です。</figcaption>
   </figure>
 
@@ -363,12 +363,12 @@
 
   <p>視点を変えるたびに1.5秒待つのは、作図しながら何度も視点を変える作業ではかなり煩わしい速度です。<br>ただし<strong>「開けないほど重い」わけではありません</strong>。<br>そしてこれは、街区全体を3分割したうちの<strong>1つ分だけ</strong>を開いた状態での話です。<br>全体を読み込めば、さらに重くなります。</p>
   <figure>
-    <img src="images/vw_in_vectorworks.jpg" alt="Vectorworksでスキャンデータを開いた画面">
+    <img loading="lazy" decoding="async" src="images/vw_in_vectorworks.jpg" alt="Vectorworksでスキャンデータを開いた画面">
     <figcaption><b>Vectorworksで実際に開いたところです。</b>質感はきちんと表示されます。ただしこの1つ分を表示するだけで、視点を変えるたびに待たされます。</figcaption>
   </figure>
 
   <figure>
-    <img src="images/vw_street_eye.jpg" alt="同じデータをBlenderで開いた画面">
+    <img loading="lazy" decoding="async" src="images/vw_street_eye.jpg" alt="同じデータをBlenderで開いた画面">
     <figcaption><b>同じデータをBlenderで開いたところです。</b>建物・道路・横断歩道・街路樹まで実際の写真の質感が残っており、視点を変えても待たされません。<strong>データが悪いのではなく、CADがこの種のデータを扱うようにできていない</strong>ということです。</figcaption>
   </figure>
 
@@ -377,17 +377,17 @@
   <p>ここまでの①〜③は、街区スキャンをVectorworksへ直接取り込んだ検証です。<br>次に別のホールを使い、3DGSと撮影画像を基準にして、Blenderで編集できるモデルを作る工程を試しました。<br><strong>街区とホールは別の撮影データ</strong>ですが、「スキャンをそのままCADへ入れるのではなく、見た目を参照しながら必要な形だけ作り直す」という解決方法を確認するための検証です。</p>
   <div class="duo">
     <figure>
-      <img src="images/musicholl_early_stage_model.webp" alt="ホール編集モデルの制作初期">
+      <img loading="lazy" decoding="async" src="images/musicholl_early_stage_model.webp" alt="ホール編集モデルの制作初期">
       <figcaption><b>制作初期。</b>床と大きな壁から始め、天井、2階、舞台、壁際の部材を順番に追加しました。</figcaption>
     </figure>
     <figure>
-      <img src="images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作したホールの編集モデル">
+      <img loading="lazy" decoding="async" src="images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作したホールの編集モデル">
       <figcaption><b>現在の編集モデル。</b>舞台・壁・天井・2階・手すりを、個別に選択して直せる部材として作っています。</figcaption>
     </figure>
   </div>
   <p>生のスキャンメッシュを軽くするだけではありません。3DGSを比較の基準として残し、同じカメラから何度も見比べながら、必要な形を少ない面数で再構成しました。<br>実物と完全には一致していないため、現状は設計モデルではなく、手動修正を前提としたラフモデルです。</p>
   <figure>
-    <img src="images/musicholl_stage_3dgs.webp" alt="編集モデルの比較基準にしたホールの3DGS">
+    <img loading="lazy" decoding="async" src="images/musicholl_stage_3dgs.webp" alt="編集モデルの比較基準にしたホールの3DGS">
     <figcaption><b>比較基準にした3DGSです。</b>モデルと同じカメラで、舞台の幅、天井の高さ、2階や壁の位置を確認しました。</figcaption>
   </figure>
   <p><a href="3dgs-codex-hall-modeling.html">3DGSからホールの編集モデルを作った工程と、場所ごとの比較はこちらの記事</a>にまとめています。</p>
@@ -411,11 +411,11 @@
   </table></div>
   <div class="duo">
     <figure>
-      <img src="images/musicholl_vectorworks_obj_wireframe.jpg" alt="ホールのOBJをVectorworksでワイヤーフレーム表示した画面">
+      <img loading="lazy" decoding="async" src="images/musicholl_vectorworks_obj_wireframe.jpg" alt="ホールのOBJをVectorworksでワイヤーフレーム表示した画面">
       <figcaption><b>Vectorworksへ読み込んだOBJのワイヤーフレーム表示。</b>天井、壁、舞台、2階、手すりなどの形状を確認できます。</figcaption>
     </figure>
     <figure>
-      <img src="images/musicholl_vectorworks_obj_shaded.jpg" alt="ホールのOBJをVectorworksでシェイド表示した画面">
+      <img loading="lazy" decoding="async" src="images/musicholl_vectorworks_obj_shaded.jpg" alt="ホールのOBJをVectorworksでシェイド表示した画面">
       <figcaption><b>同じデータのシェイド表示。</b>全体の形は追えますが、Blenderで分けた部材構成はそのまま移りません。</figcaption>
     </figure>
   </div>
@@ -467,7 +467,7 @@
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -502,7 +502,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

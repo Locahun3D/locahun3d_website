@@ -246,7 +246,7 @@
   <div class="meta"><span class="badge">3DGS</span><span class="badge">Blender</span><span class="badge">Codex</span><span class="badge">Modeling</span><span>2026-09-06</span><span>·</span><span>~8 min</span></div>
   <h1>Building an editable hall model<br class="pc">from 3DGS and captured images</h1>
   <p class="lead">I'm Kou Nakamura from LOCAHUN 3D.<br>For this project, I am using a hall captured with PortalCam to build an <strong>editable architectural model in Blender</strong>.<br>The goal is not to turn the visible 3DGS surface directly into a mesh. Walls, ceilings, railings and the stage are rebuilt as elements that can be selected and revised later.<br>Codex carries out the Blender work and comparison renders while I review the images and direct the geometry, materials and priorities.<br>This article covers the source data, the comparison workflow, the revisions and the differences that remain.</p>
-  <figure><img src="/works/images/musicholl_stage_model.webp" alt="Editable Blender model of the hall based on 3DGS and captured images"><figcaption><b>The current model.</b> The stage, ceiling, upper gallery, railings and equipment along the walls are being built as editable meshes.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_model.webp" alt="Editable Blender model of the hall based on 3DGS and captured images"><figcaption><b>The current model.</b> The stage, ceiling, upper gallery, railings and equipment along the walls are being built as editable meshes.</figcaption></figure>
 </header>
 
 <nav class="toc"><h2>Contents</h2><ol>
@@ -270,13 +270,13 @@
 
   <h2 id="sources"><span class="n">02</span> Use 3DGS and captured images for different purposes</h2>
   <p>The source material includes the complete hall 3DGS and the PortalCam capture data.<br>I extract the left and right camera images so that details obscured in the 3DGS can be checked from other angles.</p>
-  <figure><img src="/works/images/musicholl_raw_contact_sheet.webp" alt="Source images extracted from the PortalCam capture of the hall"><figcaption><b>Images extracted from the capture data.</b> They help define thin elements and areas along the walls that appear blurred in 3DGS.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_raw_contact_sheet.webp" alt="Source images extracted from the PortalCam capture of the hall"><figcaption><b>Images extracted from the capture data.</b> They help define thin elements and areas along the walls that appear blurred in 3DGS.</figcaption></figure>
   <p>Use 3DGS to understand the complete spatial relationship and appearance. Use the captured images to inspect component shape and material.<br>Separating these roles helps prevent scan gaps and floating noise from becoming part of the building.</p>
   <p>The extraction process is covered in <a href="portalcam-xbin-raw-extraction.html">Extracting 4K Source Images from PortalCam's Raw Data (.xbin)</a>.</p>
 
   <h2 id="align"><span class="n">03</span> Overlay 3DGS in Blender and compare matched cameras</h2>
   <p>First, import the 3DGS into Blender and place the model in the same coordinate system.<br>Then lock cameras for the stage, rear, sides, ceiling and upper gallery.<br>Rendering the model and 3DGS from the <strong>same position and field of view</strong> makes width and height differences easier to identify.</p>
-  <figure><img src="/works/images/musicholl_early_stage_model.webp" alt="Early version of the hall model viewed toward the stage"><figcaption><b>An early model.</b> The main walls and floor exist, but the ceiling, upper gallery, stage surround and many wall-side elements are missing or incomplete.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_early_stage_model.webp" alt="Early version of the hall model viewed toward the stage"><figcaption><b>An early model.</b> The main walls and floor exist, but the ceiling, upper gallery, stage surround and many wall-side elements are missing or incomplete.</figcaption></figure>
   <p>Matching the camera does not make 3DGS and CG lighting identical.<br>I separate brightness and colour differences from geometry, focusing on beam outlines, floor contact and the way parts overlap.</p>
 
   <h2 id="codex"><span class="n">04</span> Build with Codex and redirect the work with images</h2>
@@ -287,8 +287,8 @@
   <h2 id="geometry"><span class="n">05</span> Correct the construction of the geometry</h2>
   <p>An earlier version formed curved elements from chains of short cylinders.<br>The joints remained visible and did not read as architectural elements.<br>I redirected these parts into continuous geometry and checked their transitions at close range.</p>
   <p>The stage-front panels also began with borders that were too wide and centres that were too deeply recessed.<br>Matched 3DGS views guided a slimmer border and shallower recess.</p>
-  <figure><img src="/works/images/musicholl_stage_profile_before.webp" alt="Stage-front panels before correcting the wide, deep borders"><figcaption><b>Before.</b> The wide border reads like a heavy picture frame and produces a deep shadow.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_stage_profile_after.webp" alt="Stage-front panels after making the border slimmer and recess shallower"><figcaption><b>After.</b> A slimmer border and shallower recess move the profile toward the captured appearance. The exact joinery dimensions are inferred from images, not drawings.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_profile_before.webp" alt="Stage-front panels before correcting the wide, deep borders"><figcaption><b>Before.</b> The wide border reads like a heavy picture frame and produces a deep shadow.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_profile_after.webp" alt="Stage-front panels after making the border slimmer and recess shallower"><figcaption><b>After.</b> A slimmer border and shallower recess move the profile toward the captured appearance. The exact joinery dimensions are inferred from images, not drawings.</figcaption></figure>
 
   <h2 id="materials"><span class="n">06</span> Build the wood and other materials</h2>
   <p>Repeating one wood image on every panel creates an obvious CG pattern.<br>I used image generation to create different grain regions for the stage front and assigned a different region to each panel.</p>
@@ -299,23 +299,23 @@
   <p>The following images show the current model and original 3DGS from matched cameras.<br>No overlay or image warp has been applied.<br>For each location, the model appears first and 3DGS second.</p>
 
   <h3>Stage</h3>
-  <figure><img src="/works/images/musicholl_stage_model.webp" alt="Modeled stage view"><figcaption><b>Model.</b> The stage, galleries, ceiling and side walls are separate editable elements.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_stage_3dgs.webp" alt="Original 3DGS stage view"><figcaption><b>Original 3DGS.</b> This view exposes differences in the stage timber, column widths and the density of objects along the walls.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_model.webp" alt="Modeled stage view"><figcaption><b>Model.</b> The stage, galleries, ceiling and side walls are separate editable elements.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_3dgs.webp" alt="Original 3DGS stage view"><figcaption><b>Original 3DGS.</b> This view exposes differences in the stage timber, column widths and the density of objects along the walls.</figcaption></figure>
   <h3>Rear</h3>
-  <figure><img src="/works/images/musicholl_rear_model.webp" alt="Modeled rear view"><figcaption><b>Model.</b> The rear openings, walls, upper floor and railings are reconstructed.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_rear_3dgs.webp" alt="Original 3DGS rear view"><figcaption><b>Original 3DGS.</b> The real rear area contains more irregular detail; parts of the model remain too uniform.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_rear_model.webp" alt="Modeled rear view"><figcaption><b>Model.</b> The rear openings, walls, upper floor and railings are reconstructed.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_rear_3dgs.webp" alt="Original 3DGS rear view"><figcaption><b>Original 3DGS.</b> The real rear area contains more irregular detail; parts of the model remain too uniform.</figcaption></figure>
   <h3>Left side</h3>
-  <figure><img src="/works/images/musicholl_left_model.webp" alt="Modeled left wall"><figcaption><b>Model.</b> Mirrors, tables, railings and air-conditioning elements are separated.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_left_3dgs.webp" alt="Original 3DGS left wall"><figcaption><b>Original 3DGS.</b> Differences remain around the equipment, columns and upper ceiling.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_left_model.webp" alt="Modeled left wall"><figcaption><b>Model.</b> Mirrors, tables, railings and air-conditioning elements are separated.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_left_3dgs.webp" alt="Original 3DGS left wall"><figcaption><b>Original 3DGS.</b> Differences remain around the equipment, columns and upper ceiling.</figcaption></figure>
   <h3>Right side</h3>
-  <figure><img src="/works/images/musicholl_right_model.webp" alt="Modeled right wall"><figcaption><b>Model.</b> Doors, wall surfaces, air-conditioning units and movable ballet barres are represented.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_right_3dgs.webp" alt="Original 3DGS right wall"><figcaption><b>Original 3DGS.</b> Some equipment is still missing or displaced around the doors and wall edges.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_right_model.webp" alt="Modeled right wall"><figcaption><b>Model.</b> Doors, wall surfaces, air-conditioning units and movable ballet barres are represented.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_right_3dgs.webp" alt="Original 3DGS right wall"><figcaption><b>Original 3DGS.</b> Some equipment is still missing or displaced around the doors and wall edges.</figcaption></figure>
   <h3>Ceiling</h3>
-  <figure><img src="/works/images/musicholl_ceiling_model.webp" alt="Modeled ceiling"><figcaption><b>Model.</b> Beams, ceiling surfaces and lights are editable elements.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_ceiling_3dgs.webp" alt="Original 3DGS ceiling"><figcaption><b>Original 3DGS.</b> The main heights are closer, but the light intensity and ceiling surface variation do not match.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_ceiling_model.webp" alt="Modeled ceiling"><figcaption><b>Model.</b> Beams, ceiling surfaces and lights are editable elements.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_ceiling_3dgs.webp" alt="Original 3DGS ceiling"><figcaption><b>Original 3DGS.</b> The main heights are closer, but the light intensity and ceiling surface variation do not match.</figcaption></figure>
   <h3>Upper gallery</h3>
-  <figure><img src="/works/images/musicholl_balcony_model.webp" alt="Modeled upper gallery"><figcaption><b>Model.</b> The aisle, raised seating, chairs and railings can be edited independently.</figcaption></figure>
-  <figure><img src="/works/images/musicholl_balcony_3dgs.webp" alt="Original 3DGS upper gallery"><figcaption><b>Original 3DGS.</b> Transparency, floor wear and seating detail still differ.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_balcony_model.webp" alt="Modeled upper gallery"><figcaption><b>Model.</b> The aisle, raised seating, chairs and railings can be edited independently.</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_balcony_3dgs.webp" alt="Original 3DGS upper gallery"><figcaption><b>Original 3DGS.</b> Transparency, floor wear and seating detail still differ.</figcaption></figure>
 
   <h2 id="limits"><span class="n">08</span> Current limits and conclusion</h2>
   <p>Combining 3DGS with captured images makes it possible to build editable geometry while retaining a visual record of the whole space.<br>Repeated Codex modeling and comparison passes helped refine the ceiling, continuous curved elements and local details such as the stage-front panels.</p>
@@ -360,7 +360,7 @@
   <div class="ey">Credits / Production</div>
   <h2>Production credit</h2>
   <div class="credit-card">
-    <img class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_kou.jpg" alt="Kou Nakamura">
     <div>
       <div class="cname">Kou&nbsp;Nakamura</div>
       <div class="crole">Founder, Locahun 3D ／ Testing &amp; writing</div>
@@ -395,7 +395,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">Click / Esc to close</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

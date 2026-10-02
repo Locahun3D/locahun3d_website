@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>LCC2をそのままBlenderへ。3DGSをVFXの素材として使う｜ロケハン3D</title>
-<meta name="description" content="LCC2をPLYに変換せず、Blenderで全景を描画するローカル試作。紹介動画と深度・マスク・照明・モーションのパス、実測値と制約をまとめます。">
+<meta name="description" content="LCC2を直接読むBlenderアドオンのローカル試作。全景の読み込みから光と影、深度・マスク、EXR合成まで、実街で残る画質の課題と合わせて紹介します。">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
 <link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
@@ -15,13 +15,15 @@
 <meta property="og:locale" content="ja_JP">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="LCC2をそのままBlenderへ。3DGSをVFXの素材として使う">
-<meta property="og:description" content="LCC2をPLYに変換せず、Blenderで全景を描画するローカル試作。紹介動画と深度・マスク・照明・モーションのパス、実測値と制約をまとめます。">
+<meta property="og:description" content="LCC2を直接読むBlenderアドオンのローカル試作。全景の読み込みから光と影、深度・マスク、EXR合成まで、実街で残る画質の課題と合わせて紹介します。">
 <meta property="og:url" content="https://web.locahun3d.com/works/blender-lcc2-vfx.html">
 <meta property="og:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
-<meta property="og:image:alt" content="LCC2をそのままBlenderへ。3DGSをVFXの素材として使う">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta property="og:image:alt" content="Blenderのビューポートに読み込んだ街の全景と青い箱">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="LCC2をそのままBlenderへ。3DGSをVFXの素材として使う">
-<meta name="twitter:description" content="LCC2をPLYに変換せず、Blenderで全景を描画するローカル試作。紹介動画と深度・マスク・照明・モーションのパス、実測値と制約をまとめます。">
+<meta name="twitter:description" content="LCC2を直接読むBlenderアドオンのローカル試作。全景の読み込みから光と影、深度・マスク、EXR合成まで、実街で残る画質の課題と合わせて紹介します。">
 <meta name="twitter:image" content="https://web.locahun3d.com/works/images/blender-lcc2-vfx/poster.jpg">
 <!-- OGP:END -->
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
@@ -243,57 +245,61 @@ a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(
   <p class="lead">PLYへの変換を挟まず、街の全景を読み込み、映像と合成用のパスを出力するローカル試作です。<br /></p>
 </header>
 <article>
-  <p>ロケハン3Dの中村です。<br />LCC2を直接読み込むBlender用の試作で、渋谷の全景を静止画・動画に出力し、深度やマスク、照明、動きの情報を合成に渡せるようにしました。<br />スキャンを背景として置くだけでなく、Blenderに追加したCGと一緒に仕上げるための機能を紹介します。<br /></p>
-  <aside class="callout note"><b>この記事で扱うもの</b>私の環境で動作を検証したローカル試作です。<br />一般公開・配布中のアドオンではありません。<br />XGRIDS公式製品ではありません。<br />他の形式や製品より速い、軽いという比較ではありません。<br /></aside>
-  <h2 id="video"><span class="n">01</span> まずは完成した紹介動画から</h2>
-  <figure>
-    <video controls playsinline preload="metadata" poster="/works/images/blender-lcc2-vfx/poster.jpg" width="1920" height="1080" aria-label="LCC2を直接読み込むBlender試作の機能紹介" aria-describedby="video-caption" src="/works/videos/blender-lcc2-vfx-intro.mp4">動画を再生できない場合は、<a href="/works/videos/blender-lcc2-vfx-intro.mp4">MP4を開いてください</a>。<br /></video>
-    <figcaption id="video-caption">全景の描画と、実際に出力したVFXパスを組み合わせた紹介動画です。<br />動画内のカメラ移動は、120枚を個別に描画した5秒の素材を使用しています。<br /></figcaption>
+  <p>ロケハン3Dの中村です。<br />
+LCC2を直接読み込むBlender用アドオンを試作しています。<br />
+街の全景を背景に、カメラとCGを配置し、光や深度、マスクを合成へ渡す流れを紹介します。<br /></p>
+  <aside class="callout note"><b>ローカル検証中の試作です</b>一般公開・配布中のアドオンではなく、XGRIDS公式製品でもありません。<br />
+追加照明は実験段階で、リライティングには至っていません。<br />
+Normalパスの利用・法線の復元と品質改善は、今回の対象から外しています。<br /></aside>
+  <!-- Previous review video is not embedded: Normal is outside the current scope. Source MP4 is retained. -->
+  <h2 id="blender"><span class="n">01</span> LCC2を読み込み、カメラを決める</h2>
+  <p>まずLCC2の保存先を指定し、専用の描画処理で全景を読み込みます。<br />
+中間のPLYは作りません。<br />
+全量レンダーの検証元は、切り出しや間引きなしで扱います。<br />
+次にBlenderのカメラで画角を決め、CGオブジェクトやライトを追加します。<br /></p>
+  <figure><a href="/works/images/blender-lcc2-vfx/blender-ui.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/blender-ui.jpg" alt="Blenderのビューポートに読み込んだ街の全景と青い箱"></a><figcaption>青い箱は後から追加したCGです。<br />スキャンを通常の編集用メッシュへ変換する機能ではありません。<br /></figcaption></figure>
+  <p>F12で静止画を出し、カメラにアニメーションを付けて連番を書き出します。<br />
+合成用の追加パスは、必要なものを有効にしてF12から出力します。<br />
+LCC2の圧縮容量と描画中のメモリ使用量は別で、直接読み込みだけで省メモリを保証するものではありません。<br /></p>
+  <h2 id="lighting"><span class="n">02</span> 追加照明の実験（リライティング未達）</h2>
+  <p>Sun・Point・Spot・Areaによる追加照明は、近似的な明るさや影の変化を調べるための実験です。<br />
+CapturedColorで撮影時の色、AddedLightingで追加照明、ShadowLossで追加照明に対する影の損失を分けます。<br /></p>
+  <figure id="video">
+    <video controls playsinline preload="metadata" poster="/works/images/blender-lcc2-vfx/scan-light-baseline.webp" width="1920" height="1080" aria-label="スキャン単体への追加照明を固定カメラで比較" aria-describedby="video-caption" src="/works/videos/blender-lcc2-scan-light-comparison.mp4">動画を再生できない場合は、<a href="/works/videos/blender-lcc2-scan-light-comparison.mp4">MP4を開いてください</a>。</video>
+    <figcaption id="video-caption">撮影色の基準と、Sun・Point・Spot・Areaの左白色光・右白色光・右暖色光を比較します。<br />
+13枚の静止画を3秒ずつ切り替える39秒の比較です。<br />
+ライト移動のアニメーションや、ちらつきの検証ではありません。<br /></figcaption>
   </figure>
-  <p>元の120枚にフレーム補間や重複による水増しはしていません。<br />24fpsは動画の再生速度で、Blender操作中の描画速度ではありません。<br /></p>
-  <nav class="toc" aria-label="目次"><div class="toc-title">この記事の内容</div><ol>
-    <li><a href="#blender">Blenderでの扱い方</a></li><li><a href="#memory">ファイルサイズとメモリは別の話</a></li><li><a href="#passes">合成に渡すパス</a></li><li><a href="#lighting">照明でできること・できないこと</a></li><li><a href="#measurements">今回の検証条件</a></li><li><a href="#summary">映像の背景から、合成できる素材へ</a></li>
-  </ol></nav>
-  <h2 id="blender"><span class="n">02</span> Blenderでの扱い方</h2>
-  <p>まずLCC2の保存先を指定し、専用の描画処理で全景を読み込みます。<br />中間のPLYファイルは作りません。<br />今回はスキャンを切り出したり間引いたりせず、全景を保持して使います。<br /></p>
-  <p>次にBlenderのカメラで画角を決め、必要なCGオブジェクトとライトを追加します。<br />F12で静止画を出し、カメラにアニメーションを付けて連番を書き出します。<br />必要なVFXパスだけを有効にすると、コンポジターで使う情報を追加できます。<br />これらの追加パスはF12の出力用で、ビューポートへ常時追加描画するものではありません。<br /></p>
-  <figure><a href="/works/images/blender-lcc2-vfx/blender-ui.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/blender-ui.jpg" alt="Blenderのビューポートで表示した全景スキャンと追加した青い箱"></a><figcaption>全景スキャンと追加メッシュを同じシーンで扱います。<br />検証用の青い箱は後から追加したCGで、スキャンの一部ではありません。<br /></figcaption></figure>
-  <p>読み込んだ3DGSは、通常の編集用メッシュに変わるわけではありません。<br />建物を面や頂点として編集したり、スキャンに写っていない裏側を復元したりする機能とは分けて考えます。<br /></p>
-  <h2 id="memory"><span class="n">03</span> ファイルサイズとメモリは別の話</h2>
-  <p>LCC2を直接読めば、中間PLYを保存する工程は省けます。<br />ただし、圧縮されたファイルの大きさが、そのまま描画中のRAMやVRAM使用量になるわけではありません。<br /></p>
-  <p>描画時にはデータを展開し、CPUで扱う配列とGPUへ渡すデータを用意します。<br />さらに、奥行き順の並べ替え、出力画像、追加のパス、影の計算にもメモリを使います。<br />「保存する容量」と「動かすためのメモリ」は別々に確認する必要があります。<br /></p>
-  <p>今回のVFX検証では、全処理を通したRAM・VRAMの最大使用量は測定していません。<br />圧縮ファイルの容量から省メモリ効果を推定した数値は載せません。<br /></p>
-  <h2 id="passes"><span class="n">04</span> 合成に渡すパス</h2>
-  <p>完成画像のCombinedに加えて、用途ごとの情報を別のパスとして出します。<br />色や明るさを調整する画像と、距離・識別番号などの数値データを分けて扱います。<br /></p>
-  <h3>深度とMist：距離に応じて調整する</h3>
-  <p>Depthは、重なったスプラットを不透明度で重み付けしたカメラからの距離です。<br />ZFrontは、設定した不透明度の条件を満たす最前面のスプラット中心、または追加メッシュまでの距離を出します。<br />Mistは距離に応じた合成の重みとして使い、遠景へ霧や色を足す処理につなげます。<br /></p>
-  <figure><a href="/works/images/blender-lcc2-vfx/depth-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/depth-comparison.jpg" alt="同じ画角のDepth、Mist、近似Normalの表示用プレビュー"></a><figcaption>Depth・Mist・Normalの表示用プレビューです。<br />深度は見やすい範囲へ正規化し、Normalは向きの近似値を色で示しています。<br />ZFrontもスキャンから正確な表面形状を復元するものではありません。<br /></figcaption></figure>
-  <h3>マスクとCryptomatte：スキャンと追加CGを分ける</h3>
-  <p>GaussianMaskでスキャン全体を、MeshMaskで追加した不透明メッシュを取り出します。<br />IndexOBは手前の対象を整数で識別し、Cryptomatteはスキャン全体と追加オブジェクト・インスタンスを選択するために使います。<br /></p>
-  <figure><a href="/works/images/blender-lcc2-vfx/masks-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/masks-comparison.jpg" alt="スキャンと追加した青い箱を分けるマスクの比較"></a><figcaption>青い箱の調整と街全体の調整を分けられます。<br />スキャン内の建物を1棟ずつ自動分割する機能ではありません。<br /></figcaption></figure>
-  <p>Cryptomatteは、保存したEXRをBlenderで読み直し、実際に対象を抽出するところまで検証しています。<br />Nukeでの実機検証は行っていません。<br /></p>
-  <h3>VectorとMotionValid：動きのあるカットを仕上げる</h3>
-  <p>VectorをBlenderのVector Blurへ渡して、カメラ移動や対応関係を保ったメッシュの動きにぼかしを加えます。<br />MotionValidは、動きの対応を有効に扱える場所を示します。<br />トポロジーが変わる変形など、対応できない場合を「静止している」として扱わないための補助です。<br /></p>
-  <figure><a href="/works/images/blender-lcc2-vfx/vector-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/vector-comparison.jpg" alt="追加した青い箱の同一フレームを、CombinedとVector Blur適用後で比較"></a><figcaption>同一フレームの追加メッシュ周辺を拡大し、CombinedとVector Blurの結果を並べています。<br />物体の陰から新しく現れる領域まで正しく補完する機能ではありません。<br /></figcaption></figure>
-  <aside class="callout note"><b>合成用のデータはEXRで保持</b>距離・マスク・識別情報は32-bit floatの可逆圧縮EXRで扱い、数値へ表示用の色変換をかけません。<br />この記事のJPEG画像は説明用で、合成へ渡す数値データではありません。<br /></aside>
-  <h2 id="lighting"><span class="n">05</span> 照明でできること・できないこと</h2>
-  <p>Sun・Point・Spot・Areaのライトを追加し、スキャンと追加メッシュに近似的な光と影を加えます。<br />CapturedColorで撮影時の色、Ambientで環境側の寄与、AddedLightingで追加照明の寄与を分けます。<br />さらにUnshadowedLightingとShadowLossを使い、追加照明に対する影の損失を分けて扱います。<br /></p>
-  <figure><a href="/works/images/blender-lcc2-vfx/lighting-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/lighting-comparison.jpg" alt="CapturedColor、AddedLighting、ShadowLossの表示用プレビュー"></a><figcaption>照明パスは表示用に調整したプレビューです。<br />パスの分解は合成用で、物理的な材質の分解ではありません。<br /></figcaption></figure>
-  <p>CapturedColorには、撮影時の光や影が残っています。<br />光を取り除いたアルベドではないため、新しいライトを足しても、元から写っていた影は消えません。<br />材質や粗さの復元、間接光の再計算、Cyclesと同じ物理描画を行うものではありません。<br /></p>
-  <p>これらは符号付きのシーンリニアな合成用成分として扱います。<br />Ambient・AddedLighting・BackgroundからCombinedを再構成し、UnshadowedLightingからShadowLossを引いてAddedLightingへ戻せます。<br />保存したEXRを読み直す合成でも、この対応を検証しています。<br /></p>
-  <h2 id="measurements"><span class="n">06</span> 今回の検証条件</h2>
-  <p>保存したシーンを開き直し、全景のF12出力と、保存済みEXRからの合成を通しています。<br />数値はこの環境・シーンでの記録で、別のPCやデータにそのまま当てはめるものではありません。<br /></p>
-  <details class="measurements"><summary>環境と出力の実測値を開く</summary><dl>
-    <dt>環境</dt><dd>Blender 5.1.2 / NVIDIA RTX 5090</dd>
-    <dt>全景データ</dt><dd>34,803,455 splats（切り出し・間引きなし）</dd>
-    <dt>静止画</dt><dd>1920 × 1080 / 32-bit float / 可逆ZIP圧縮EXR / Compositeを含む52チャンネル</dd>
-    <dt>開き直し後の初回F12</dt><dd>13.812秒（この1回の静止画レンダー時間）</dd>
-    <dt>元のモーション素材</dt><dd>1280 × 720 / 個別に描画した120枚 / 24fps / 5秒</dd>
-    <dt>合成</dt><dd>保存EXRからの照明再構成・マスク・Cryptomatte・Vector BlurをBlenderで検証</dd>
-  </dl></details>
-  <p>13.812秒はリアルタイムのFPSではありません。<br />また、以前の記事のPLYと今回は入力の点数・保持データ・描画条件が違うため、レンダー時間やメモリの優劣を直接比較しません。<br /></p>
-  <h2 id="summary"><span class="n">07</span> 映像の背景から、合成できる素材へ</h2>
-  <p>LCC2から直接全景を読み込み、Blenderのカメラで撮り、必要なパスを合成へ渡すところまでつなげました。<br />今回の試作は、スキャンに写った情報をそのまま生かしながら、後から足すCGや演出を調整するためのものです。<br />元の光や欠けた形状まで自由に作り直せるわけではない、という範囲を分けて使います。<br /></p>
+  <p>追加CGを置かず、スキャン単体を同じカメラ・同じ露出で描画しました。<br />
+今回は以前のベンチマークとは別のViewer用出力を使い、全量を間引かずに扱っています。<br />
+Normalパスは出力していません。<br /></p>
+  <p>光源の位置や色に応じて最終画像が変わり、暖色光では路面に色が加わります。<br />
+ただし、路面の不規則な模様は残り、元のスキャンと照明計算の影響を完全に切り分けた結果ではありません。<br />
+追加照明への反応はありますが、自然で制作に使えるリライティングとしては未合格です。<br /></p>
+  <aside class="callout note"><b>撮影時の影は残ります</b>CapturedColorは光を除去したアルベドではありません。<br />
+新しいライトを足しても、元から写っている影は消えません。<br />
+材質や粗さの復元、間接光の再計算、Cyclesと同じ物理描画を行うものではありません。<br /></aside>
+  <h2 id="passes"><span class="n">03</span> 深度とマスクで調整を分ける</h2>
+  <p>Depthは、重なったスプラットを不透明度で重み付けしたカメラからの距離です。<br />
+正確な表面形状ではなく、合成用の近似値として扱います。<br />
+Mistを使うと、距離に応じて遠景へ霧や色を足す処理につなげられます。<br /></p>
+  <p>GaussianMaskでスキャン全体、MeshMaskで追加した不透明メッシュを分けます。<br />
+Cryptomatteはスキャン全体と追加オブジェクト・インスタンスの選択に使います。<br />
+スキャン内の建物を1棟ずつ自動分割する機能ではありません。<br /></p>
+  <figure><a href="/works/images/blender-lcc2-vfx/masks-comparison.jpg"><img loading="lazy" src="/works/images/blender-lcc2-vfx/masks-comparison.jpg" alt="街のスキャンと追加した青い箱を分けるマスク"></a><figcaption>追加CGと街全体の調整を分けます。<br /></figcaption></figure>
+  <h2 id="exr"><span class="n">04</span> EXRを読み直して合成する</h2>
+  <p>色の画像と、距離や識別情報の数値データを、32-bit floatの可逆圧縮EXRで保存します。<br />
+数値パスには表示用の色変換をかけません。<br />
+記事のJPEGは説明用のプレビューで、合成へ渡すデータではありません。<br /></p>
+  <p>保存したEXRをBlenderへ読み戻し、照明の再構成とマスク・Cryptomatteの抽出を検証しています。<br />
+VectorとMotionValidは、対応関係を保つカメラやメッシュの動きをVector Blurへ渡すために使います。<br />
+Nukeでの実機検証は行っていません。<br /></p>
+  <p>追加したArea積算を含む通常F12の通し検証は、小規模な合成シーンで行っています。<br />
+この結果を、街全体の画質や処理性能の保証には使いません。<br /></p>
+  <h2 id="summary"><span class="n">05</span> スキャンを残し、追加した演出を調整する</h2>
+  <p>LCC2の全景をBlenderで扱い、追加CGと合成用パスを同じ流れで出力します。<br />
+撮影済みの背景を生かし、後から足す演出を調整するための試作です。<br />
+元の照明や欠けた形状を自由に作り直せるものではなく、実街の照明品質は引き続き検証します。<br /></p>
 </article>
 <section class="related" aria-labelledby="related-h"><h2 id="related-h">関連する記事</h2><ul>
   <li><a href="/works/3dgs-blender-workflow.html">Blenderで3DGSを使うなら？ 描画品質・処理時間・動画で比較</a></li>
@@ -304,7 +310,7 @@ a:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>

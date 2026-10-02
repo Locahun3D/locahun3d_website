@@ -251,7 +251,7 @@
   <p class="lead">ロケハン3Dの中村です。<br>今回は、PortalCamで撮影したホールの3DGSと撮影画像を使い、<strong>Blenderで編集できる建築モデル</strong>を制作しています。<br>3DGSの見た目をそのままメッシュへ変換するのではなく、壁・天井・手すり・舞台などを、あとから個別に修正できる形へ起こします。<br>CodexにBlenderでの制作と比較レンダリングを進めてもらい、私は出てきた画像を見ながら、形・材質・優先順位を指示しました。<br>この記事では、元データの準備から、3DGSとの比較、修正を繰り返した流れ、現在残っている差までまとめます。</p>
 
   <figure>
-    <img src="/works/images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作中のホールのBlenderモデル">
+    <img loading="lazy" decoding="async" src="/works/images/musicholl_stage_model.webp" alt="3DGSと撮影画像を参照して制作中のホールのBlenderモデル">
     <figcaption><b>現在の制作モデル。</b>3DGSと撮影画像を見ながら、舞台、天井、2階、手すり、壁際の設備まで編集できるメッシュとして作っています。</figcaption>
   </figure>
 </header>
@@ -288,7 +288,7 @@
   <h2 id="sources"><span class="n">02</span> 3DGSと撮影画像を分けて使う</h2>
   <p>元データには、ホール全体の3DGSと、PortalCamの撮影データが入っています。<br>撮影データから左右のカメラ画像を取り出し、形が分かりにくい場所を別の角度から確認できるようにします。</p>
   <figure>
-    <img src="/works/images/musicholl_raw_contact_sheet.webp" alt="PortalCamの撮影データから取り出したホールの元画像一覧">
+    <img loading="lazy" decoding="async" src="/works/images/musicholl_raw_contact_sheet.webp" alt="PortalCamの撮影データから取り出したホールの元画像一覧">
     <figcaption><b>撮影データから取り出した元画像。</b>3DGSではにじんでいる壁際や、薄い部材の形を確認する資料として使います。</figcaption>
   </figure>
   <p>3DGSは空間全体のつながりと見た目をつかむために使い、撮影画像は部材の形や材質を確認するために使います。<br>どちらか一方だけに決めず、役割を分けることで、スキャンの欠けやにじみを建物の形として作ってしまうことを避けます。</p>
@@ -297,7 +297,7 @@
   <h2 id="align"><span class="n">03</span> Blenderに3DGSを重ね、同じカメラで比べる</h2>
   <p>まず3DGSをBlenderに読み込み、制作モデルと同じ座標へ置きます。<br>次に、舞台、後方、左右、天井、2階を見るカメラを固定します。<br>モデルと3DGSを<strong>同じ位置・同じ画角</strong>から出すことで、目で見ただけでは気づきにくい幅や高さの差を追いやすくなります。</p>
   <figure>
-    <img src="/works/images/musicholl_early_stage_model.webp" alt="制作初期のホールモデルを舞台側から見たレンダリング">
+    <img loading="lazy" decoding="async" src="/works/images/musicholl_early_stage_model.webp" alt="制作初期のホールモデルを舞台側から見たレンダリング">
     <figcaption><b>制作初期のモデル。</b>大きな壁と床はありますが、天井、2階、舞台まわり、壁際の部材には不足が多い状態です。</figcaption>
   </figure>
   <p>カメラだけを合わせても、3DGSとCGでは光の出方が違います。<br>明るさや色の差をそのまま寸法差とは考えず、柱や梁の輪郭、床との接点、部材どうしの重なりを中心に見ます。</p>
@@ -311,11 +311,11 @@
   <p>途中のモデルでは、曲がった部材を短い円柱でつないだ箇所がありました。<br>これでは継ぎ目が見え、建築部材として不自然です。<br>曲面は連続した1つの形へ作り直し、角のつながりも拡大して確認します。</p>
   <p>舞台の前板も、最初は縁が太く、中央の板が深く沈んでいました。<br>3DGSと同じカメラで比べながら、縁を細くし、凹みを浅くします。</p>
   <figure>
-    <img src="/works/images/musicholl_stage_profile_before.webp" alt="修正前の太く深い舞台前板の縁">
+    <img loading="lazy" decoding="async" src="/works/images/musicholl_stage_profile_before.webp" alt="修正前の太く深い舞台前板の縁">
     <figcaption><b>修正前。</b>中央板のまわりが太い額縁のように見え、凹みの影も強く出ています。</figcaption>
   </figure>
   <figure>
-    <img src="/works/images/musicholl_stage_profile_after.webp" alt="縁を細くし凹みを浅くした舞台前板">
+    <img loading="lazy" decoding="async" src="/works/images/musicholl_stage_profile_after.webp" alt="縁を細くし凹みを浅くした舞台前板">
     <figcaption><b>修正後。</b>縁の幅と奥行きを抑え、実景の薄い見え方へ近づけています。正確な断面寸法は図面ではなく、画像からの推定です。</figcaption>
   </figure>
 
@@ -328,28 +328,28 @@
   <p>ここからは、現在の制作モデルと元の3DGSを、同じカメラから1枚ずつ並べます。<br>画像の重ね合わせや位置の変形はしていません。<br>各場所で、1枚目が制作モデル、2枚目が3DGSです。</p>
 
   <h3>舞台</h3>
-  <figure><img src="/works/images/musicholl_stage_model.webp" alt="制作モデルの舞台側"><figcaption><b>制作モデル。</b>舞台、2階、天井、左右の壁まで、編集できる部材として構成しています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_stage_3dgs.webp" alt="元の3DGSの舞台側"><figcaption><b>元の3DGS。</b>舞台前板の色、柱や2階の幅、壁際の物量を比べます。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_model.webp" alt="制作モデルの舞台側"><figcaption><b>制作モデル。</b>舞台、2階、天井、左右の壁まで、編集できる部材として構成しています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_stage_3dgs.webp" alt="元の3DGSの舞台側"><figcaption><b>元の3DGS。</b>舞台前板の色、柱や2階の幅、壁際の物量を比べます。</figcaption></figure>
 
   <h3>後方</h3>
-  <figure><img src="/works/images/musicholl_rear_model.webp" alt="制作モデルの後方"><figcaption><b>制作モデル。</b>後方の開口と壁、2階の床、手すりを作っています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_rear_3dgs.webp" alt="元の3DGSの後方"><figcaption><b>元の3DGS。</b>後方には細かな物と形の揺らぎが多く、モデル側はまだ均一に見える部分があります。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_rear_model.webp" alt="制作モデルの後方"><figcaption><b>制作モデル。</b>後方の開口と壁、2階の床、手すりを作っています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_rear_3dgs.webp" alt="元の3DGSの後方"><figcaption><b>元の3DGS。</b>後方には細かな物と形の揺らぎが多く、モデル側はまだ均一に見える部分があります。</figcaption></figure>
 
   <h3>左側</h3>
-  <figure><img src="/works/images/musicholl_left_model.webp" alt="制作モデルの左側"><figcaption><b>制作モデル。</b>鏡、壁際の机、手すり、空調を分けて作っています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_left_3dgs.webp" alt="元の3DGSの左側"><figcaption><b>元の3DGS。</b>壁際の設備と、2階の柱・天井との関係に差が残っています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_left_model.webp" alt="制作モデルの左側"><figcaption><b>制作モデル。</b>鏡、壁際の机、手すり、空調を分けて作っています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_left_3dgs.webp" alt="元の3DGSの左側"><figcaption><b>元の3DGS。</b>壁際の設備と、2階の柱・天井との関係に差が残っています。</figcaption></figure>
 
   <h3>右側</h3>
-  <figure><img src="/works/images/musicholl_right_model.webp" alt="制作モデルの右側"><figcaption><b>制作モデル。</b>扉、空調、壁面、移動式のバレエバーを配置しています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_right_3dgs.webp" alt="元の3DGSの右側"><figcaption><b>元の3DGS。</b>扉まわりや壁際の備品には、まだ不足と位置差があります。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_right_model.webp" alt="制作モデルの右側"><figcaption><b>制作モデル。</b>扉、空調、壁面、移動式のバレエバーを配置しています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_right_3dgs.webp" alt="元の3DGSの右側"><figcaption><b>元の3DGS。</b>扉まわりや壁際の備品には、まだ不足と位置差があります。</figcaption></figure>
 
   <h3>天井</h3>
-  <figure><img src="/works/images/musicholl_ceiling_model.webp" alt="制作モデルの天井"><figcaption><b>制作モデル。</b>梁の流れ、天井面、照明を個別の形として作っています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_ceiling_3dgs.webp" alt="元の3DGSの天井"><figcaption><b>元の3DGS。</b>大きな高さ関係は近づいてきましたが、照明の光量と天井表面の情報量は一致していません。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_ceiling_model.webp" alt="制作モデルの天井"><figcaption><b>制作モデル。</b>梁の流れ、天井面、照明を個別の形として作っています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_ceiling_3dgs.webp" alt="元の3DGSの天井"><figcaption><b>元の3DGS。</b>大きな高さ関係は近づいてきましたが、照明の光量と天井表面の情報量は一致していません。</figcaption></figure>
 
   <h3>2階</h3>
-  <figure><img src="/works/images/musicholl_balcony_model.webp" alt="制作モデルの2階"><figcaption><b>制作モデル。</b>通路、座席の段差、椅子、手すりを編集できる状態にしています。</figcaption></figure>
-  <figure><img src="/works/images/musicholl_balcony_3dgs.webp" alt="元の3DGSの2階"><figcaption><b>元の3DGS。</b>手すりの透明感や床の古さ、座席まわりの細部には差が残っています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_balcony_model.webp" alt="制作モデルの2階"><figcaption><b>制作モデル。</b>通路、座席の段差、椅子、手すりを編集できる状態にしています。</figcaption></figure>
+  <figure><img loading="lazy" decoding="async" src="/works/images/musicholl_balcony_3dgs.webp" alt="元の3DGSの2階"><figcaption><b>元の3DGS。</b>手すりの透明感や床の古さ、座席まわりの細部には差が残っています。</figcaption></figure>
 
   <h2 id="limits"><span class="n">08</span> 現在の限界とまとめ</h2>
   <p>3DGSと撮影画像を組み合わせることで、空間全体の見た目を確認しながら、編集できるモデルを作れます。<br>Codexに制作と比較を繰り返してもらうことで、天井や曲面のつながり、舞台前板のような局所的な形も段階的に詰められました。</p>
@@ -401,7 +401,7 @@
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="/works/images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -436,7 +436,7 @@
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');

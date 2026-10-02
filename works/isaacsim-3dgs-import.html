@@ -284,7 +284,7 @@
   <p class="lead">ロケハン3Dの中村です。3DGSスキャンをロボットや自律移動のシミュレーションに使うなら、行き先はゲームエンジンではなく<strong>NVIDIA Isaac Sim</strong>になります。この記事では、読み込んで実写品質でレンダリングするまでの手順を、どのデータでも通用する形でまとめます。あわせて後半では、<strong>3DGSを産業用シミュレーションで使う際の本質的な弱点と、その回避策</strong>を扱います。</p>
 
   <figure>
-    <img src="images/isaacsim_shibuya_walk.jpg" alt="NVIDIA Isaac Simでレンダリングした3DGSスキャン（歩行者目線）">
+    <img loading="lazy" decoding="async" src="images/isaacsim_shibuya_walk.jpg" alt="NVIDIA Isaac Simでレンダリングした3DGSスキャン（歩行者目線）">
     <figcaption><b>Isaac Simでレンダリングした3DGSスキャン。</b>看板の文字が読める品質で、実在の街並みがそのまま再現されます。</figcaption>
   </figure>
 </header>
@@ -386,18 +386,18 @@ x.AddRotateXOp().Set(-90.0)</code></pre></div>
     <div class="aiflow-row">
       <figure class="aiflow-step">
         <span class="aiflow-tag">スキャン範囲の外</span>
-        <img src="images/isaacsim_shibuya_lowangle.jpg" alt="スキャン範囲の外から見た3DGS。撮影されていない面が破綻して見える">
+        <img loading="lazy" decoding="async" src="images/isaacsim_shibuya_lowangle.jpg" alt="スキャン範囲の外から見た3DGS。撮影されていない面が破綻して見える">
         <figcaption><b>撮影されていない面。</b>建物の裏側にあたるため、ノイズが目立ちます。</figcaption>
       </figure>
       <figure class="aiflow-step">
         <span class="aiflow-tag">軌跡上・目線の高さ</span>
-        <img src="images/isaacsim_shibuya_walk.jpg" alt="スキャン軌跡上に置いたカメラから見た風景。看板の文字まで再現されている">
+        <img loading="lazy" decoding="async" src="images/isaacsim_shibuya_walk.jpg" alt="スキャン軌跡上に置いたカメラから見た風景。看板の文字まで再現されている">
         <figcaption><b>実際に通った位置。</b>看板の文字まで読める品質になります。</figcaption>
       </figure>
     </div>
   </div>
   <figure>
-    <img src="images/isaacsim_shibuya_overview.jpg" alt="Isaac Simでレンダリングした交差点の俯瞰">
+    <img loading="lazy" decoding="async" src="images/isaacsim_shibuya_overview.jpg" alt="Isaac Simでレンダリングした交差点の俯瞰">
     <figcaption><b>俯瞰も同じ要領で。</b>いきなり数百メートル上空に飛ばすのではなく、軌跡上から少しずつ引いていくのが確実です。</figcaption>
   </figure>
   <div class="callout note"><b>描画の待ち時間</b>点数の多いシーンほど、RTXの絵が落ち着くまでに時間がかかります。スクリプトから画像を保存する場合は、描画が安定するまで十分に待ってからキャプチャしてください。待ちが足りないと真っ黒な画像が保存されます。</div>
@@ -501,7 +501,7 @@ UsdGeom.Imageable(mesh).MakeInvisible()      # 見た目は消す</code></pre></
   <div class="ey">Credits / 制作</div>
   <h2>制作クレジット</h2>
   <div class="credit-card">
-    <img class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_kou.jpg" alt="中村 航">
     <div>
       <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
       <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
@@ -536,7 +536,7 @@ UsdGeom.Imageable(mesh).MakeInvisible()      # 見た目は消す</code></pre></
   </div>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img alt=""></div>
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
