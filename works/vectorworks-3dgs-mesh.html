@@ -323,7 +323,7 @@
     <li><strong>③ メッシュ</strong> ── 三角形の面に写真を貼った一般的な3D形状です。面はありますが、スキャン由来のままでは重くなります。</li>
   </ul>
   <figure>
-    <img loading="lazy" decoding="async" src="images/vw_three_formats.jpg" alt="点群・メッシュ・3DGSの3形式を同じ建物で比較した図">
+    <img loading="lazy" decoding="async" src="images/vw_three_formats.webp" alt="点群・メッシュ・3DGSの3形式を同じ建物で比較した図">
     <figcaption><b>同じ建物を3つの形式で表したものです。</b>左から、点だけの「点群」、三角形の面に写真を貼った「メッシュ」、色の粒で写真そっくりに再現する「3DGS」。形は同じでも、表現方法とできることが違います。</figcaption>
   </figure>
 
@@ -342,7 +342,7 @@
 
   <div class="callout warn"><b>ただし「16ビットの色」は化けます</b>今回のスキャナが書き出したファイルは、色を通常より細かい精度（16ビット）で持っていました。これをそのままVectorworksで開くと、<strong>建物の壁が蛍光グリーンや真っ赤に塗り分けられた、実物とかけ離れた表示</strong>になります。データが壊れているのではなく、Vectorworks側がこの細かい色を読めていないだけです。<strong>色を一般的な精度（8ビット）に変換してから読み込ませることで、正しい色で表示されます。</strong>下の画像は変換後のものです。</div>
   <figure>
-    <img loading="lazy" decoding="async" src="images/vw_pointcloud_e57.jpg" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
+    <img loading="lazy" decoding="async" src="images/vw_pointcloud_e57.webp" alt="8ビットに変換した色付き点群をVectorworksで表示した画面">
     <figcaption><b>色を8ビットに変換してから読み込んだ点群です。</b>建物のレンガ・赤い舗装・街路樹・横断歩道まで実物どおりの色になりました。ただし近くで見れば分かる通り、面ではなく<strong>点が集まってできた見た目</strong>です。</figcaption>
   </figure>
 
@@ -363,12 +363,12 @@
 
   <p>視点を変えるたびに1.5秒待つのは、作図しながら何度も視点を変える作業ではかなり煩わしい速度です。<br>ただし<strong>「開けないほど重い」わけではありません</strong>。<br>そしてこれは、街区全体を3分割したうちの<strong>1つ分だけ</strong>を開いた状態での話です。<br>全体を読み込めば、さらに重くなります。</p>
   <figure>
-    <img loading="lazy" decoding="async" src="images/vw_in_vectorworks.jpg" alt="Vectorworksでスキャンデータを開いた画面">
+    <img loading="lazy" decoding="async" src="images/vw_in_vectorworks.webp" alt="Vectorworksでスキャンデータを開いた画面">
     <figcaption><b>Vectorworksで実際に開いたところです。</b>質感はきちんと表示されます。ただしこの1つ分を表示するだけで、視点を変えるたびに待たされます。</figcaption>
   </figure>
 
   <figure>
-    <img loading="lazy" decoding="async" src="images/vw_street_eye.jpg" alt="同じデータをBlenderで開いた画面">
+    <img loading="lazy" decoding="async" src="images/vw_street_eye.webp" alt="同じデータをBlenderで開いた画面">
     <figcaption><b>同じデータをBlenderで開いたところです。</b>建物・道路・横断歩道・街路樹まで実際の写真の質感が残っており、視点を変えても待たされません。<strong>データが悪いのではなく、CADがこの種のデータを扱うようにできていない</strong>ということです。</figcaption>
   </figure>
 
@@ -411,7 +411,7 @@
   </table></div>
   <div class="duo">
     <figure>
-      <img loading="lazy" decoding="async" src="images/musicholl_vectorworks_obj_wireframe.jpg" alt="ホールのOBJをVectorworksでワイヤーフレーム表示した画面">
+      <img loading="lazy" decoding="async" src="images/musicholl_vectorworks_obj_wireframe.webp" alt="ホールのOBJをVectorworksでワイヤーフレーム表示した画面">
       <figcaption><b>Vectorworksへ読み込んだOBJのワイヤーフレーム表示。</b>天井、壁、舞台、2階、手すりなどの形状を確認できます。</figcaption>
     </figure>
     <figure>
