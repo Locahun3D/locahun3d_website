@@ -43,7 +43,8 @@
 /* ブランド中心をオンライン版と一致させるための予約。オンライン版は
    assets/site-header.css 経由で html に同じ指定が入っている。
    片側だけスクロールバー分(15px)が寄ると中心が 7.5px ずれる（過去の実測）。 */
-html{scrollbar-gutter:stable both-edges}
+/* 2026-10-20: 右側だけ（stable）に変更。左の15pxの帯をなくすため。オンライン版 globals.css と同値 */
+html{scrollbar-gutter:stable}
 
 /* ══════════════════════════════════════════
    HEADER
