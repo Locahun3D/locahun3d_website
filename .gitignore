@@ -14,3 +14,11 @@ node_modules/
 .dev.vars
 .env
 .env.local
+
+# secrets (2026-10-23 security audit)
+.env.*
+!.env.example
+token.json
+credentials*.json
+*.pem
+*.key
