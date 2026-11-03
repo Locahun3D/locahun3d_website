@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3DGSスキャンからAIで背景制作を行う｜ロケハン3D</title>
+<meta name="description" content="払沢の滝の森をXGRIDS K2でスキャンし、3DGSから地形・岩・木道・木・植物・水をAIで起こしてUE5の背景にした工程を、2分の動画と画像でまとめます。K2の写真との比較と、残っている差も載せます。">
+<link rel="canonical" href="https://web.locahun3d.com/works/3dgs-scan-ai-background-forest.html">
+<link rel="alternate" hreflang="ja" href="https://web.locahun3d.com/works/3dgs-scan-ai-background-forest.html">
+<link rel="alternate" hreflang="en" href="https://web.locahun3d.com/en/works/3dgs-scan-ai-background-forest.html">
+<link rel="alternate" hreflang="x-default" href="https://web.locahun3d.com/works/3dgs-scan-ai-background-forest.html">
+<!-- OGP:START (scripts/sync_ogp.py が生成。直接編集しない) -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ロケハン3D">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="3DGSスキャンからAIで背景制作を行う">
+<meta property="og:description" content="払沢の滝の森をXGRIDS K2でスキャンし、3DGSから地形・岩・木道・木・植物・水をAIで起こしてUE5の背景にした工程を、2分の動画と画像でまとめます。K2の写真との比較と、残っている差も載せます。">
+<meta property="og:url" content="https://web.locahun3d.com/works/3dgs-scan-ai-background-forest.html">
+<meta property="og:image" content="https://web.locahun3d.com/works/images/3dgs-scan-ai-background-forest/poster.jpg">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="900">
+<meta property="og:image:alt" content="UE5で描画した払沢の滝の森。木道の橋と滝が見える">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="3DGSスキャンからAIで背景制作を行う">
+<meta name="twitter:description" content="払沢の滝の森をXGRIDS K2でスキャンし、3DGSから地形・岩・木道・木・植物・水をAIで起こしてUE5の背景にした工程を、2分の動画と画像でまとめます。K2の写真との比較と、残っている差も載せます。">
+<meta name="twitter:image" content="https://web.locahun3d.com/works/images/3dgs-scan-ai-background-forest/poster.jpg">
+<!-- OGP:END -->
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/works-header.css?v=a6ac8c58">
+<style>
+  :root{
+    --bg:#000; --surface:#0c0c0e; --ink:#fafaf6; --body:rgba(255,255,255,.78); --sub:rgba(255,255,255,.56); --faint:rgba(255,255,255,.55);
+    --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.09);
+    --brand:#1ea0c4; --brand-ink:#1ea0c4; --brand-bg:rgba(30,160,196,.08);
+    --accent2:#5ec8e8; --accent2-bg:rgba(94,200,232,.08);
+    --code:#06090d; --code-ink:#dfe6ee;
+    --note-bg:rgba(30,160,196,.06); --note-line:rgba(30,160,196,.4); --warn-bg:rgba(255,120,80,.07); --warn-line:rgba(255,120,80,.45);
+    --max:760px; --radius:3px;
+    --sans:'Noto Sans JP',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+  body{background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-weight:300;line-height:1.95;font-size:17px;letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+    word-break:normal;overflow-wrap:anywhere;line-break:strict}
+  ::selection{background:rgba(30,160,196,.3)}
+  a{color:var(--brand-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--brand)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  br.sp{display:none}@media(max-width:640px){ br.pc{display:none} br.sp{display:inline}}
+  h1,h2,h3{font-feature-settings:"palt"}
+  [data-budoux]{word-break:keep-all;overflow-wrap:anywhere}
+
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;background:linear-gradient(90deg,var(--brand),#5ec8e8);transition:width .1s linear}
+
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line-2)}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:11px;height:60px}
+  .topbar .mark{width:24px;height:24px;flex:none}
+  .topbar b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.22em;color:#fff}
+  .topbar .tag{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.18em}
+  .topbar .nav{margin-left:auto;display:flex;gap:4px}
+  .topbar .nav a{font-family:var(--mono);color:var(--sub);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;transition:color .2s}
+  .topbar .nav a:hover{color:#fff}
+  .topbar .nav a.ext{border:1px solid var(--line);color:#fff}
+  .topbar .nav a.ext:hover{background:#fff;color:#000}
+
+  header.post{padding:50px 0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .badge{background:none;border:1px solid var(--note-line);color:var(--brand-ink);border-radius:999px;padding:4px 12px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em}
+  header.post h1{font-family:var(--sans);font-size:clamp(28px,5.4vw,46px);line-height:1.34;font-weight:900;letter-spacing:.01em;color:#fff}
+  header.post h1 em{font-style:normal;color:var(--brand)}
+  header.post .lead{margin-top:24px;color:var(--sub);font-size:17px;line-height:1.95;font-weight:300}
+
+  figure{margin:38px 0}
+  figure img,figure video{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius);display:block;background:#000}
+  figcaption{color:var(--sub);font-size:13px;margin-top:12px;line-height:1.75;padding-left:14px;border-left:2px solid var(--line)}
+  figcaption b{color:var(--brand-ink);font-weight:500}
+
+  /* 変換フロー: 変換元 → AI変換後 を左から順に追える3連図版 */
+  .aiflow{margin:38px 0}
+  .aiflow-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+  .aiflow-h .k{font-family:var(--mono,'JetBrains Mono',monospace);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--brand-ink);border:1px solid var(--note-line);
+    border-radius:var(--radius);padding:3px 9px;white-space:nowrap}
+  .aiflow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .aiflow-step{margin:0;position:relative}
+  .aiflow-step figcaption{font-size:12px;margin-top:9px;padding-left:11px}
+  .aiflow-tag{display:inline-block;margin-bottom:8px;
+    font-family:var(--mono,'JetBrains Mono',monospace);font-size:10px;letter-spacing:.12em;
+    padding:3px 8px;border-radius:var(--radius);
+    border:1px solid var(--line);color:var(--sub);background:var(--surface)}
+  .aiflow-tag.ai{border-color:var(--note-line);color:var(--brand-ink);background:var(--brand-bg)}
+  /* 列と列の隙間に矢印を置く（2枚目以降）。モバイルは1列になるので下向きに倒す */
+  .aiflow-step + .aiflow-step::before{content:"→";position:absolute;left:-14px;top:38%;
+    width:14px;text-align:center;color:var(--sub);font-size:15px;line-height:1;pointer-events:none}
+  @media(max-width:720px){
+    .aiflow-row{grid-template-columns:1fr;gap:26px}
+    .aiflow-step + .aiflow-step::before{content:"↓";left:0;right:0;top:-19px;width:auto}
+  }
+
+  .toc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:40px 0}
+  .toc h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--brand-ink);margin-bottom:16px;text-transform:uppercase;font-weight:500;border:none;padding:0}
+  .toc ol{margin-left:20px}
+  .toc li{margin:9px 0}
+  .toc a{color:var(--body)}
+  .toc a:hover{color:var(--brand-ink)}
+  .toc li::marker{color:var(--faint);font-family:var(--mono);font-size:.85em}
+
+  article h2{font-family:var(--sans);font-size:clamp(20px,3.2vw,26px);font-weight:800;letter-spacing:.01em;color:#fff;
+    margin:64px 0 18px;padding-top:44px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:.5em}
+  article h2 .n{font-family:var(--mono);color:var(--brand-ink);font-weight:500;font-size:.62em;flex:none;
+    border:1px solid var(--note-line);border-radius:4px;padding:3px 9px;letter-spacing:.04em}
+  article h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#fff;margin:34px 0 12px;letter-spacing:.01em}
+  article p{margin:18px 0;color:var(--body)}
+  article strong{color:#fff;font-weight:600}
+  article ul,article ol{margin:18px 0 18px 24px}
+  article li{margin:9px 0}
+  article li::marker{color:var(--brand-ink)}
+  /* ⚠ overflow-wrap:anywhere は必須。長いパスやAPI名のインラインcodeは既定では
+     折り返せず、ページごと横に溢れる（実Chrome実測: iPhone SE縦で270px、
+     iPhone15縦で255px、Pro Max縦で215pxの横スクロールが発生していた）。 */
+  article code{font-family:var(--mono);font-size:.88em;background:var(--code);color:var(--code-ink);padding:2px 7px;border-radius:3px;overflow-wrap:anywhere}
+/* ⚠ コードブロックは横スクロールさせる。<pre> は white-space:pre なので
+     overflow-wrap では折り返せず、指定が無いとページごと横に溢れる
+     （実Chrome実測: iPhone SE縦270px / iPhone15縦255px / ProMax縦215px）。
+     包み箱の .code 側で overflow-x:auto にするのが正解。 */
+  article .code{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  article .code pre{margin:0}
+
+  .callout{border-radius:var(--radius);padding:18px 20px 18px 22px;margin:26px 0;font-size:15px;line-height:1.85;border:1px solid transparent}
+  .callout b{display:block;margin-bottom:5px;color:#fff;font-weight:700}
+  .callout.note{background:var(--note-bg);border-color:var(--note-line)}
+  .callout.note b::before{content:"\1F4A1  "}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.warn b::before{content:"\26A0\FE0F  "}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:24px 0;font-size:14.5px}
+  .spec dt{font-weight:700;color:#fff;margin-top:14px}
+  .spec dt:first-child{margin-top:0}
+  .spec dd{color:var(--sub);margin:3px 0 0}
+
+  .stepflow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;color:var(--sub);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:28px 0}
+  .stepflow b{font-family:var(--mono);color:var(--ink);background:#000;border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-weight:400;font-size:12px;letter-spacing:.02em}
+  .stepflow .a{color:var(--brand-ink);font-weight:700}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .tblwrap table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;min-width:680px}
+  .tblwrap th{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-ink);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.02)}
+  .tblwrap td{padding:14px 16px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top}
+  .tblwrap tr:last-child td{border-bottom:none}
+  .tblwrap td b{color:#fff;font-weight:700}
+  .tblwrap td:first-child{white-space:nowrap;color:#fff;font-weight:500}
+  .tblwrap td:nth-child(2){white-space:nowrap}
+
+  .data-cta{background:var(--surface);border:1px solid var(--note-line);border-radius:var(--radius);padding:26px 28px;margin:28px 0}
+  .data-cta .dc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand-ink)}
+  .data-cta h3{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;margin:12px 0 10px;letter-spacing:.01em;line-height:1.5}
+  .data-cta p{margin:0 0 20px;font-size:14px;line-height:1.85;color:var(--body)}
+  .data-cta .dc-url{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--sub);word-break:break-all;margin:0 0 20px;
+    background:#000;border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px}
+  .data-cta .dc-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 24px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .data-cta .dc-btn:hover{background:var(--brand);border-color:var(--brand);color:#000;text-decoration:none}
+
+  .credit{margin:64px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .credit .ey{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-ink)}
+  .credit h2{font-family:var(--sans);font-weight:800;font-size:clamp(19px,3vw,23px);color:#fff;margin:10px 0 24px}
+  .credit-card{display:flex;gap:22px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
+  .credit-card .av{width:66px;height:66px;flex:none;border-radius:50%;border:1px solid var(--note-line);object-fit:cover;background:#000}
+  .credit-card .cname{font-family:var(--sans);font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em}
+  .credit-card .cname span{font-weight:400;font-size:13px;color:var(--sub);margin-left:8px}
+  .credit-card .crole{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brand-ink);margin:5px 0 12px;text-transform:uppercase}
+  .credit-card p{margin:0 0 16px;font-size:14px;line-height:1.85;color:var(--body)}
+  .credit-card .xbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+    border:1px solid rgba(255,255,255,.5);color:#fff;padding:11px 20px;border-radius:var(--radius);transition:background .2s,color .2s}
+  .credit-card .xbtn:hover{background:#fff;color:#000;text-decoration:none}
+  .xbtn svg{width:14px;height:14px;flex:none}
+  .credit-card .btnrow{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:560px){.credit-card{flex-direction:column;gap:16px;padding:22px}}
+
+  footer{border-top:1px solid var(--line);margin-top:72px;padding:48px 0 80px;color:var(--sub);font-size:14px;background:var(--surface)}
+  footer b{color:#fff;font-weight:600}
+  footer .cta{display:inline-block;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:14px 28px;transition:background .2s,color .2s,letter-spacing .2s}
+  footer .cta:hover{text-decoration:none;background:var(--brand);border-color:var(--brand);color:#000;letter-spacing:.28em}
+
+  article img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:99999;padding:32px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:94vh;border-radius:var(--radius);box-shadow:0 16px 80px rgba(0,0,0,.8)}
+  .lightbox .hint{position:fixed;top:18px;right:22px;color:var(--sub);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+  .filmstrip{height:28px;background-image:linear-gradient(90deg,#000 50%,transparent 50%);background-size:18px 28px;background-repeat:repeat-x;background-color:rgba(255,255,255,.04)}@media(max-width:640px){
+    body{font-size:16px}
+    header.post{padding:34px 0 4px}
+    header.post h1{font-size:clamp(23px,6.8vw,32px)}
+    article h2{margin-top:46px;padding-top:34px;flex-wrap:wrap;gap:.4em}
+    .topbar b{display:none}
+    .topbar .tag{display:none}
+    .topbar .nav a{padding:7px 8px;font-size:10px;letter-spacing:.1em}}
+  .site-header .sh-right a:focus-visible,.end .cta:focus-visible{outline-offset:2px}
+  body{padding-top:56px}/* ⚠ ヘッダーは 2026-07-28 に全幅56pxへ統一（2段廃止）。幅ごとの出し分けは不要。
+     以前はスマホで2段=96px を予約したままで、ヘッダー下に40pxの空白が残っていた。
+     ヘッダー高を変えるときは locahun3d_online/docs/header-rules.md とここを同時に。 */
+  /* ── 一覧へ戻る / 関連記事 ─────────────────────────────
+     記事から実績・ブログ一覧へ戻る導線が無く、ブラウザの戻るしか
+     手段が無かったため追加。関連記事も記事末尾に置く。 */
+  .backbar{max-width:var(--max);margin:0 auto;padding:0 20px}
+  .backlink{display:inline-flex;align-items:center;gap:8px;margin:28px 0 0;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sub);transition:color .2s;text-decoration:none}
+  .backlink:hover{color:#fff}
+  .backlink svg{width:15px;height:15px;flex:none}
+  /* スマホ(<720px)のタップ領域を44pxに（2026-08-27）。文字サイズ・余白の
+     見た目は変えず、当たり判定の高さだけ確保する。 */
+  @media(max-width:719px){.backlink{min-height:44px}
+    .back{min-height:44px;display:inline-flex;align-items:center}
+    .xbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+
+
+  .related{max-width:var(--max);margin:72px auto 0;padding:0 20px}
+  .related h2{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brand-ink);font-weight:500;border:none;padding:0;margin:0 0 20px}
+  .related .rgrid{display:grid;gap:14px}
+  @media(min-width:720px){.related .rgrid{grid-template-columns:repeat(3,1fr)}}
+  .rcard{display:block;border:1px solid var(--line-2);background:var(--surface);
+    border-radius:var(--radius);overflow:hidden;text-decoration:none;transition:border-color .2s,transform .2s}
+  .rcard:hover{border-color:var(--note-line);transform:translateY(-2px)}
+  .rthumb{aspect-ratio:16/9;background:#111 center/cover no-repeat;border-bottom:1px solid var(--line-2)}
+  .rbody{padding:14px 16px 18px}
+  .rmeta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .rcard h3{font-size:13px;line-height:1.7;color:var(--ink);font-weight:500;margin:0;border:none;padding:0}
+  .related .backwrap{margin-top:32px;text-align:center}
+  .related .backwrap .backlink{margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="site-header sh-works">
+  <button class="sh-hb" type="button" aria-label="メニュー" aria-expanded="false" aria-controls="sh-nav" onclick="var h=this.closest('.site-header');var o=h.classList.toggle('sh-open');this.setAttribute('aria-expanded',o)"><i></i><i></i><i></i></button>
+  <div class="sh-left" id="sh-nav">
+    <nav>
+        <a href="https://locahun3d.com/properties"><span class="code">0.1</span>物件を探す</a>
+        <a href="https://locahun3d.com/pricing"><span class="code">0.2</span>料金・デモ</a>
+        <a href="/works/index.html"><span class="code">0.3</span>実績＆ブログ</a>
+        <a href="https://locahun3d.com/contact"><span class="code">0.4</span>お問い合わせ</a>
+    </nav>
+  </div>
+  <div class="sh-center">
+    <a href="https://locahun3d.com/" class="sh-brand" aria-label="ロケハン3D">
+      <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 23V14H23"/><path d="M41 14H50V23"/><path d="M14 41V50H23"/><path d="M50 41V50H41"/></g><circle cx="32" cy="32" r="7" fill="none" stroke="#1ea0c4" stroke-width="3"/><circle cx="32" cy="32" r="2.4" fill="#1ea0c4"/></svg>
+      <span class="sh-brand-text">ロケハン3D</span>
+    </a>
+  </div>
+  <div class="sh-right">
+    <a class="sh-lang" href="/en/works/3dgs-scan-ai-background-forest.html" aria-label="Language">EN</a>
+  </div>
+</header>
+<div class="backbar">
+  <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+</div>
+
+
+<div class="wrap">
+<header class="post">
+  <div class="meta">
+    <span class="badge">3DGS</span><span class="badge">UE5</span><span class="badge">Blender</span><span class="badge">AI</span><span class="badge">背景制作</span>
+    <span>2026-11-03</span><span>・</span><span>読了 約7分</span>
+  </div>
+  <h1>3DGSスキャンからAIで<br class="pc">背景制作を行う</h1>
+  <p class="lead">ロケハン3Dの中村です。<br>東京都檜原村の払沢の滝の森をXGRIDS K2でスキャンし、その3DGSを基準に、<strong>UE5で動かせる背景</strong>を制作しました。<br>地形、岩、木道、木、植物、水を、<strong>AIが書いたスクリプトでスキャンから順に起こしています</strong>。<br>この記事では、2分の動画に沿って工程をまとめます。<br>K2の写真と比べた結果と、残っている差も載せます。</p>
+
+  <figure>
+    <video controls playsinline preload="metadata" poster="/works/images/3dgs-scan-ai-background-forest/poster.jpg" src="/works/videos/3dgs-scan-ai-background-forest-film.mp4" aria-label="3DGSスキャンからUE5の背景を作る工程の動画（2分・音声なし）"></video>
+    <figcaption><b>工程をまとめた動画です。</b>2分、音声なしです。</figcaption>
+  </figure>
+</header>
+
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#flow">作ったものと進め方</a></li>
+    <li><a href="#read">スキャンから形と位置を読み取る</a></li>
+    <li><a href="#layers">地形から順に積む</a></li>
+    <li><a href="#parts">岩・木・木道・草を整える</a></li>
+    <li><a href="#water">川と滝を作る</a></li>
+    <li><a href="#passes">色・凹凸・光を分けて確認する</a></li>
+    <li><a href="#k2">K2の写真と同じ位置で比べる</a></li>
+    <li><a href="#check">3DGSと重ねて、隙間を数える</a></li>
+    <li><a href="#diff">残っている差</a></li>
+    <li><a href="#summary">まとめ</a></li>
+  </ol>
+</nav>
+
+<article>
+  <div class="stepflow">
+    <b>K2でスキャン</b><span class="a">→</span>
+    <b>3DGSをUE5へ</b><span class="a">→</span>
+    <b>形と位置を読み取る</b><span class="a">→</span>
+    <b>AIが層ごとに生成</b><span class="a">→</span>
+    <b>写真・3DGSと比較</b><span class="a">→</span>
+    <b>修正</b>
+  </div>
+
+  <style>.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}.pair figure{margin:0}.pair figcaption{font-size:12px;margin-top:8px}.pair-note{font-size:14px;color:var(--sub);margin:-12px 0 26px}@media(max-width:640px){.pair{grid-template-columns:1fr}}</style>
+
+  <div class="callout note"><b>この記事で分かること</b>3DGSスキャンを基準に、<strong>照明を当て直せてカメラも動かせる背景</strong>を作る工程が分かります。AIと人の分担、写真との比較の方法、まだ合っていない部分も載せています。</div>
+
+  <h2 id="flow"><span class="n">01</span> 作ったものと進め方</h2>
+
+  <p>3DGSは見た目をそのまま残せますが、照明を変えたり、岩や木を1つずつ動かしたりはできません。<br>そこで、3DGSを見本にして、同じ森を<strong>物ごとに分かれた3Dシーン</strong>として作り直しました。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/final.webp" alt="UE5で描画した完成シーン">
+    <figcaption><b>UE5で描画した完成シーンです。</b>Blenderでシーンを組み、UE5.8へ移してLumenで描画しています。</figcaption>
+  </figure>
+
+  <p>制作はClaudeとCodexに任せ、BlenderとUE5を動かすスクリプトを書いてもらいました。<br>岩、木、地面などの担当を分け、作った担当とは別の担当が、比較画像を見て点数を付けます。<br>私は出てきた画像を見て、次に直す場所と優先順位を指示します。<br>この進め方と、これまでの失敗は、<strong>自社の手順書にまとめて</strong>次のシーンでも使っています。</p>
+
+  <div class="callout note"><b>3DGSを自動変換したものではありません</b>3DGSをそのままメッシュに変換したのではなく、スキャンから読み取った形と位置をもとに、部品を別に作っています。植物のモデルや葉の素材には手持ちの素材集も使い、光の環境にはPoly HavenのHDRIを使っています。</div>
+
+  <h2 id="read"><span class="n">02</span> スキャンから形と位置を読み取る</h2>
+
+  <p>まずK2で現地を歩いてスキャンし、3DGSにします。<br>LCC4UnrealでUE5へ読み込み、完成形を比べる基準としてシーンの中に置きます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/gs_walk.webp" alt="UE5に読み込んだ払沢の滝の3DGS">
+    <figcaption><b>UE5に読み込んだ3DGSです。</b>ここから先は、すべてこのスキャンと比べながら進めます。</figcaption>
+  </figure>
+
+  <p>次に、スキャンから形と位置のデータを取り出します。<br>取り出したのは、<strong>地形の高さ、岩161個の位置と大きさ、木22本の位置、植物約10万5千株の配置</strong>です。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/map.webp" alt="スキャンから読み取った岩・木・植物の配置を上から見た図">
+    <figcaption><b>読み取った配置を上から見た図です。</b>丸が岩と木、緑の点が植物です。</figcaption>
+  </figure>
+
+  <h2 id="layers"><span class="n">03</span> 地形から順に積む</h2>
+
+  <p>読み取ったデータから、層ごとにシーンを生成します。<br>同じカメラで3DGSから切り替えると、どの層が何を担当しているかを確認できます。</p>
+
+  <figure>
+    <video controls playsinline preload="metadata" poster="/works/images/3dgs-scan-ai-background-forest/layer_terrain.webp" src="/works/videos/3dgs-scan-ai-background-forest-layers.mp4" aria-label="地形から水まで層を積んでいく動画"></video>
+    <figcaption><b>地形から水まで、順に積んだ映像です。</b>字幕は日本語です。</figcaption>
+  </figure>
+
+  <div class="callout note"><b>まだ作っていない部分について</b>映像と画像の途中段階では、まだ作っていない空の近くを3DGSのまま残し、明るさも編集で下げています。層だけだと、白い空に背景の破片が浮いて見えるためです。</div>
+
+  <h3>地形</h3>
+
+  <p>スキャンの地面の高さから、穴のない1枚の地形を作ります。<br>データがない岩の下や隙間は、周囲の高さから補います。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_terrain.webp" alt="生成した地形">
+    <figcaption><b>地形だけの状態です。</b>滝の周りの上部は3DGSのままです。</figcaption>
+  </figure>
+
+  <h3>地面と遠景</h3>
+
+  <p>地面の肌を作り、落ち葉や小枝を配置します。<br>奥の斜面には、スキャンの表面を使っています。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_ground.webp" alt="地面と遠景を加えた状態">
+    <figcaption><b>地面と遠景を加えた状態です。</b></figcaption>
+  </figure>
+
+  <h3>岩と根</h3>
+
+  <p>岩は、スキャンの位置と形から起こします。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_rocks.webp" alt="岩と根を加えた状態">
+    <figcaption><b>岩と根を加えた状態です。</b></figcaption>
+  </figure>
+
+  <h3>木道</h3>
+
+  <p>木道は、写真から測った板の位置に合わせて、1枚ずつ別の板として作ります。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_boardwalk.webp" alt="木道を加えた状態">
+    <figcaption><b>木道を加えた状態です。</b></figcaption>
+  </figure>
+
+  <h3>木</h3>
+
+  <p>幹の位置と太さをスキャンに当てはめて、木を立てます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_trees.webp" alt="木の幹を加えた状態">
+    <figcaption><b>木の幹を加えた状態です。</b></figcaption>
+  </figure>
+
+  <h3>植物と水</h3>
+
+  <p>最後に、読み取った配置へ植物を置き、川と滝の水を入れます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_plants.webp" alt="植物を加えた状態">
+    <figcaption><b>植物を加えた状態です。</b></figcaption>
+  </figure>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/layer_water.webp" alt="水まで加えた状態">
+    <figcaption><b>水まで加えた状態です。</b></figcaption>
+  </figure>
+
+  <h2 id="parts"><span class="n">04</span> 岩・木・木道・草を整える</h2>
+
+  <p>全体が揃ったら、部品ごとに作り込みます。</p>
+
+  <h3>岩</h3>
+
+  <p>スキャンから起こした岩は、161個のうち138個で底が開いていました。<br>このままだと隙間から空が見えるので、底を閉じて地面の下まで延ばします。<br>表面の苔と岩肌は、写真素材をもとにBlenderで層を重ねて焼き込みます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_rock.webp" alt="苔の付いた岩と川">
+    <figcaption><b>岩と苔です。</b></figcaption>
+  </figure>
+
+  <h3>幹と枝葉</h3>
+
+  <p>樹皮の色は22種類を用意し、7つの撮影位置の写真に合わせます。<br>葉には光が透ける材質を設定します。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_bark.webp" alt="手前の幹と奥の滝">
+    <figcaption><b>樹皮です。</b>苔の付き方も写真に合わせています。</figcaption>
+  </figure>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_leaves.webp" alt="下から見上げた枝葉">
+    <figcaption><b>枝葉です。</b></figcaption>
+  </figure>
+
+  <h3>木道の板</h3>
+
+  <p>板には1枚ずつ、わずかな反りとねじれを付けます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_boards.webp" alt="木道の板と奥の滝">
+    <figcaption><b>木道です。</b></figcaption>
+  </figure>
+
+  <h3>草の接地</h3>
+
+  <p>配置した約13万5千株をシーンと照合し、浮いている3,544株を下ろすか移動します。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_grass.webp" alt="木道の周りの草">
+    <figcaption><b>接地を直した草です。</b></figcaption>
+  </figure>
+
+  <h2 id="water"><span class="n">05</span> 川と滝を作る</h2>
+
+  <p>川は、Blenderで計算した流速に沿って水面を流します。<br>流れの速い場所には白い泡を出します。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_foam.webp" alt="白い泡の出ている川">
+    <figcaption><b>川と泡です。</b></figcaption>
+  </figure>
+
+  <p>滝は、岩壁のスキャンに水を落とすシミュレーションを行います。<br>計算結果をそのまま使うと見た目が崩れたので、結果をもとに<strong>水の帯へ置き換えています</strong>。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/sim.webp" alt="岩壁に水を落とすシミュレーション">
+    <figcaption><b>滝のシミュレーションです。</b></figcaption>
+  </figure>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_fall.webp" alt="UE5で描画した滝">
+    <figcaption><b>置き換えた滝です。</b></figcaption>
+  </figure>
+
+  <h2 id="passes"><span class="n">06</span> 色・凹凸・光を分けて確認する</h2>
+
+  <p>完成画だけを見ていると、原因が色なのか、形なのか、光なのかが分かりません。<br>そこで同じカメラのまま、色・凹凸・光に分けて確認し、原因のある所を直します。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/pass_unlit.webp" alt="色だけを表示した画">
+    <figcaption><b>色だけです。</b></figcaption>
+  </figure>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/pass_detail.webp" alt="凹凸だけを表示した画">
+    <figcaption><b>凹凸（法線）だけです。</b></figcaption>
+  </figure>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/pass_light.webp" alt="光だけを表示した画">
+    <figcaption><b>光だけです。</b></figcaption>
+  </figure>
+
+  <p>光はPoly Havenの曇天HDRIと太陽で作り、Lumenで描いてAgXで仕上げます。</p>
+
+  <h2 id="k2"><span class="n">07</span> K2の写真と同じ位置で比べる</h2>
+
+  <p>K2の生データには、3DGSより鮮明な写真が入っています。<br><strong>1,032枚の写真の位置を3DGSに合わせ</strong>、同じ位置からUE5で描いて比べます。</p>
+
+  <figure>
+    <video controls playsinline preload="metadata" poster="/works/images/3dgs-scan-ai-background-forest/k2_1_photo.webp" src="/works/videos/3dgs-scan-ai-background-forest-k2.mp4" aria-label="K2の写真とUE5の描画をワイプで切り替える動画"></video>
+    <figcaption><b>写真とUE5をワイプで切り替えた映像です。</b>字幕は日本語です。</figcaption>
+  </figure>
+
+  <p>K2の写真とUE5の画を並べています。<br>UE5側には全体の色味を整える補正をかけています。<br>この比較では、物の位置と大きさの差を探します。</p>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_1_photo.webp" alt="K2の写真 1"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_1_ue.webp" alt="同じ位置から描いたUE5の画 1"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_2_photo.webp" alt="K2の写真 2"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_2_ue.webp" alt="同じ位置から描いたUE5の画 2"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_3_photo.webp" alt="K2の写真 3"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_3_ue.webp" alt="同じ位置から描いたUE5の画 3"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_4_photo.webp" alt="K2の写真 4"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_4_ue.webp" alt="同じ位置から描いたUE5の画 4"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_5_photo.webp" alt="K2の写真 5"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_5_ue.webp" alt="同じ位置から描いたUE5の画 5"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_6_photo.webp" alt="K2の写真 6"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_6_ue.webp" alt="同じ位置から描いたUE5の画 6"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <h2 id="check"><span class="n">08</span> 3DGSと重ねて、隙間を数える</h2>
+
+  <p>3DGSとも、同じカメラで重ねて比べます。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/wipe.webp" alt="左が3DGS、右がUE5の画を重ねて切り替えた比較">
+    <figcaption><b>左が3DGS、右がUE5です。</b></figcaption>
+  </figure>
+
+  <p>見た目で見つけにくい問題は、数えて直します。<br>たとえば、岩や地面の隙間から見える空の色のピクセルを、視点ごとに数えます。<br>確認用の20視点で、<strong>24,540ピクセルあった隙間が0</strong>になるまで修正しました。</p>
+
+  <figure>
+    <img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/d_ground_check.webp" alt="修正後の地面と滝">
+    <figcaption><b>修正後の地面です。</b></figcaption>
+  </figure>
+
+  <h2 id="diff"><span class="n">09</span> 残っている差</h2>
+
+  <p>位置と大きさは写真に近づきましたが、すべてが一致しているわけではありません。<br>上の6か所は、試した12か所のうち比較的合っているものを選んでいます。<br>合っていない場所の例が、次の画です。</p>
+
+  <div class="pair">
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_diff_photo.webp" alt="草に覆われた大きな岩と水の流れが写るK2の写真"><figcaption>K2の写真</figcaption></figure>
+    <figure><img loading="lazy" decoding="async" src="/works/images/3dgs-scan-ai-background-forest/k2_diff_ue.webp" alt="同じ位置から描いたUE5の画。岩の形と水の流れが写真と異なる"><figcaption>UE5</figcaption></figure>
+  </div>
+
+  <ul>
+    <li><strong>岩と水の流れの形：</strong>草に覆われた大きな岩と、その脇の水の流れは、写真と形が違います。橋の上の苔も再現できていません。</li>
+    <li><strong>植物の種類と量：</strong>配置はスキャンから取っていますが、1株ずつの種類や形までは合わせきれていません。</li>
+    <li><strong>色と明るさ：</strong>光の入り方は写真と揃っておらず、地面は写真より明るく見える場所があります。</li>
+  </ul>
+
+  <h2 id="summary"><span class="n">10</span> まとめ</h2>
+
+  <p>今回の工程は、次の流れです。</p>
+
+  <ul>
+    <li><strong>読み取る：</strong>3DGSから地形、岩、木、植物の形と位置を取り出します。</li>
+    <li><strong>生成する：</strong>AIが書いたスクリプトで、層ごとにシーンを組み立てます。</li>
+    <li><strong>比べる：</strong>K2の写真と3DGSを同じカメラで並べ、差を見つけて直します。</li>
+  </ul>
+
+  <div class="data-cta">
+    <span class="dc-tag">SCAN / 3DGS</span>
+    <h3>実在の場所をスキャンして、<br class="pc">映像の背景に使える形にします</h3>
+    <p>ロケ地を3DGSで記録し、BlenderやUnreal Engineで扱える形でお渡しします。<br>背景の制作まで含めて、用途に合わせてご相談ください。</p>
+    <a class="dc-btn" href="https://locahun3d.com/contact">スキャンの相談をする →</a>
+  </div>
+</article>
+
+<section class="related" aria-labelledby="related-h">
+  <h2 id="related-h">関連する記事</h2>
+  <div class="rgrid">
+      <a class="rcard" href="3dgs-codex-hall-modeling.html">
+        <div class="rthumb" style="background-image:url('/works/images/musicholl_stage_model.webp')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>CG技術</span><span>2026-09-06</span><span>約8分</span></div>
+          <h3>3DGSと撮影画像から、編集できるホールの3Dモデルを作る</h3>
+        </div>
+      </a>
+      <a class="rcard" href="ue5-xgrids-3dgs-aerial-ai.html">
+        <div class="rthumb" style="background-image:url('/works/images/ue5_shibuya_topdown_day.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>アート</span><span>2026-07-24</span><span>約12分</span></div>
+          <h3>UE5 × XGRIDs SDKで3DGSから素材を出力する</h3>
+        </div>
+      </a>
+      <a class="rcard" href="3dgs-software-comparison.html">
+        <div class="rthumb" style="background-image:url('/works/images/dcc-og-cover.jpg')"></div>
+        <div class="rbody">
+          <div class="rmeta"><span>CG技術</span><span>2026-08-04</span><span>約7分</span></div>
+          <h3>3DGSを扱えるソフト・ツール比較</h3>
+        </div>
+      </a>
+  </div>
+  <div class="backwrap">
+    <a class="backlink" href="index.html#blog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> 実績とブログの一覧へ戻る</a>
+  </div>
+</section>
+
+
+<section class="credit">
+  <div class="ey">Credits / 制作</div>
+  <h2>制作クレジット</h2>
+  <div class="credit-card">
+    <img loading="lazy" decoding="async" class="av" src="images/creator_kou.jpg" alt="中村 航">
+    <div>
+      <div class="cname">中村&nbsp;航<span>Kou Nakamura</span></div>
+      <div class="crole">ロケハン3D 代表 ／ 検証・執筆</div>
+      <p>ロケハン3D（LOCAHUN 3D）代表。<br>3DGSスキャンとゲームエンジン・AIを組み合わせた撮影ワークフローを研究・検証している。</p>
+      <a class="xbtn" href="https://x.com/Kou45388803" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @Kou45388803 をフォロー →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>この記事は <b>ロケハン3D / LOCAHUN 3D</b> の制作メモです。<br>3DGSスキャン・ロケハン・VFX背景・AI制作のご相談はお気軽に。</p>
+    <a class="cta" href="https://locahun3d.com/contact">お問い合わせ →</a>
+    <p style="margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)">WORKFLOW: XGRIDS K2 SCAN → 3DGS → LCC4UNREAL → SCAN ANALYSIS → AI-GENERATED LAYERS → COMPARE WITH K2 PHOTOS AND 3DGS → FIX</p>
+  </div>
+</footer>
+<div class="filmstrip"></div>
+<footer class="site-foot">
+  <div class="sf-inner">
+    <div class="sf-copy">© 2026 ロケハン3D — KWI株式会社</div>
+    <nav class="sf-links">
+        <a href="https://locahun3d.com/terms/service">利用規約</a>
+        <a href="https://locahun3d.com/privacy">プライバシーポリシー</a>
+        <a href="https://locahun3d.com/terms/tokushoho">特定商取引法</a>
+        <a href="https://locahun3d.com/terms/data-download">データ購入規約</a>
+        <a href="https://locahun3d.com/contact/listing">掲載依頼</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true"><span class="hint">クリック / Esc で閉じる</span><img loading="lazy" decoding="async" alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lightbox'), lbimg=lb.querySelector('img');
+  function open(src,alt){lbimg.src=src;lbimg.alt=alt||'';lb.classList.add('open');lb.setAttribute('aria-hidden','false');}
+  function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbimg.src='';}
+  document.querySelectorAll('article img, header.post figure img').forEach(function(im){ im.addEventListener('click',function(){open(im.currentSrc||im.src, im.alt);}); });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  var pb=document.getElementById('progress');
+  function upd(){var h=document.documentElement,sc=h.scrollTop||document.body.scrollTop,mx=h.scrollHeight-h.clientHeight;pb.style.width=(mx>0?sc/mx*100:0)+'%';}
+  document.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+})();
+</script>
+
+<!-- BudouX：日本語を文節単位で改行 -->
+<script type="module">
+  import { loadDefaultJapaneseParser } from 'https://cdn.jsdelivr.net/npm/budoux@0.8.4/+esm';
+  const bp = loadDefaultJapaneseParser();
+  const SEL = 'header.post h1,header.post .lead,article h2,article h3,article p,article li,.callout,figcaption,.spec dd,.tblwrap td,.data-cta h3,.data-cta p:not(.dc-url)';
+  document.querySelectorAll(SEL).forEach(function(el){ try{ el.setAttribute('data-budoux',''); bp.applyToElement(el); }catch(e){} });
+</script>
+</body>
+</html>
