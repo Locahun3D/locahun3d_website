@@ -20,6 +20,7 @@ BRAND_OG = ("/assets/Digiloke_OG_Cover.jpg", 1200, 630)
 
 # slug -> (画像パス, 幅, 高さ)。記事本文の代表画像を使う（自前ホストのみ／外部ホットリンク禁止）
 EYECATCH = {
+    "unreal-fest-tokyo-2026-xgrids-booth": ("/works/images/unreal-fest-tokyo-2026-xgrids-booth/booth.jpg", 1560, 877),
     "3dgs-scan-ai-background-forest": ("/works/images/3dgs-scan-ai-background-forest/poster.jpg", 1600, 900),
     "3dgs-codex-hall-modeling":      ("/works/images/musicholl_og_20260906.jpg", 1200, 630),
     "chevron-rokunowa-mv":            ("/works/images/work04_bgfix.jpg", 1500, 844),
